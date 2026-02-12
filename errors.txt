@@ -1,0 +1,11 @@
+﻿I'm sorry, but errors were detected in your script. Please correct the
+errors listed below, and try again.
+
+
+File "game/4/04D_BATTLE_TURN_ENEMY_OFENSIVEV4.rpy", line 123: invalid syntax
+            $ battle_log_add(fmt_gold(u"¡Victoria!"))
+             ^
+    
+
+Ren'Py Version: Ren'Py 7.4.9.2142
+Tue Feb  3 02:09:25 2026
