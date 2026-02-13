@@ -5,3 +5,4 @@ Prueba viernes oficina - entendiendo git.Nueva linea agregada desde consola.
 Linea ahora si separada.
 Linea nueva con CRLF/r/n
 Linea ahora si separada
+Micro prueba credential store
