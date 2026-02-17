@@ -51,8 +51,44 @@ label battle_offensive_turn:
     python:
         import renpy.store as S
 
+        S._reflect_consumed_this_turn = False
         if getattr(S, "player_skip_attack", False):
             S.player_skip_attack = False
+
+            # Si el jugador no ataca este turno, reflect pendiente se desvanece.
+            try:
+                enemy_name_now = getattr(getattr(S, "enemy_ai", None), "name", None)
+                if enemy_name_now:
+                    enemy_target_id = getattr(S, "BATTLE_IDENTITIES", {}).get(
+                        enemy_name_now,
+                        getattr(S, "current_enemy_id", "ID_ENEMY_UNKNOWN")
+                    )
+                else:
+                    enemy_target_id = getattr(S, "current_enemy_id", "ID_ENEMY_UNKNOWN")
+
+                dropped_reflect = 0
+                ref_source = None
+
+                fn_consume = getattr(S, "reflect_consume_for", None)
+                if callable(fn_consume):
+                    dropped_reflect, ref_source = fn_consume(enemy_target_id)
+                else:
+                    rman = getattr(S, "reflect", None)
+                    if rman and hasattr(rman, "consume_info"):
+                        dropped_reflect, ref_source = rman.consume_info(enemy_target_id)
+                    elif rman and hasattr(rman, "consume"):
+                        dropped_reflect = rman.consume(enemy_target_id)
+
+                dropped_reflect = int(dropped_reflect or 0)
+                if dropped_reflect > 0:
+                    S.battle_log_add(
+                        "{color=#00FFFF}Reflect se desvanece (sin ataque): %s{/color}" %
+                        S.battle_fmt_num(dropped_reflect)
+                    )
+            except:
+                pass
+
+            S._reflect_consumed_this_turn = True
 
             # Log (store-safe)
             try:
@@ -365,6 +401,66 @@ label battle_offensive_turn:
     # ============================================================
     # Fórmula final (reflect + total defendible)
     # ============================================================
+    python:
+        import renpy.store as S
+
+        reflected_bonus = 0
+        ref_source = None
+
+        if not bool(getattr(S, "_reflect_consumed_this_turn", False)):
+            try:
+                enemy_name_now = getattr(getattr(S, "enemy_ai", None), "name", None)
+                if enemy_name_now:
+                    enemy_target_id = getattr(S, "BATTLE_IDENTITIES", {}).get(
+                        enemy_name_now,
+                        getattr(S, "current_enemy_id", "ID_ENEMY_UNKNOWN")
+                    )
+                else:
+                    enemy_target_id = getattr(S, "current_enemy_id", "ID_ENEMY_UNKNOWN")
+
+                fn_consume = getattr(S, "reflect_consume_for", None)
+                if callable(fn_consume):
+                    reflected_bonus, ref_source = fn_consume(enemy_target_id)
+                else:
+                    rman = getattr(S, "reflect", None)
+                    if rman and hasattr(rman, "consume_info"):
+                        reflected_bonus, ref_source = rman.consume_info(enemy_target_id)
+                    elif rman and hasattr(rman, "consume"):
+                        reflected_bonus = rman.consume(enemy_target_id)
+            except:
+                reflected_bonus = 0
+                ref_source = None
+            finally:
+                S._reflect_consumed_this_turn = True
+
+        try:
+            reflected_bonus = int(reflected_bonus or 0)
+        except:
+            reflected_bonus = 0
+
+        if reflected_bonus < 0:
+            reflected_bonus = 0
+
+        if reflected_bonus > 0:
+            if bool(getattr(S, "turn_offensive_attack_used", False)):
+                total_damage = int(total_damage or 0) + reflected_bonus
+                try:
+                    src_txt = (" (fuente: %s)" % ref_source) if ref_source else ""
+                    S.battle_log_add(
+                        "{color=#00FFFF}Reflect +%s%s{/color}" %
+                        (S.battle_fmt_num(reflected_bonus), src_txt)
+                    )
+                except:
+                    pass
+            else:
+                try:
+                    S.battle_log_add(
+                        "{color=#00FFFF}Reflect se desvanece (sin ataque): %s{/color}" %
+                        S.battle_fmt_num(reflected_bonus)
+                    )
+                except:
+                    pass
+
     call offensive_formula(total_damage, attack_records)
 
     # ------------------------------------------------------------

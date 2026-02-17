@@ -17,14 +17,52 @@ label battle_enemy_turn:
 
     python:
         import renpy.store as S
+        S._enemy_reflect_consumed_this_turn = False
 
     # ============================================================
     # ⭐ ATAQUE NEGADOR — cancelar turno ofensivo IA
     # ============================================================
     python:
+        player_name_turn = (
+            getattr(S, "player_name", None)
+            or getattr(getattr(S, "player_ai", None), "name", None)
+            or (
+                getattr(S, "battle_player", {}).get("name", None)
+                if isinstance(getattr(S, "battle_player", None), dict)
+                else None
+            )
+            or "Jugador"
+        )
+        player_target_id_turn = (
+            getattr(S, "current_player_id", None)
+            or getattr(S, "player_id", None)
+            or getattr(S, "BATTLE_PLAYER_ID", None)
+            or getattr(S, "BATTLE_IDENTITIES", {}).get(player_name_turn, "ID_PLAYER_UNKNOWN")
+        )
+
         if getattr(S, "enemy_skip_attack", False):
 
             S.enemy_skip_attack = False
+
+            # Si IA no ataca, reflect pendiente contra jugador se consume y se pierde.
+            try:
+                dropped_reflect = 0
+                ref_source = None
+                fn_consume = getattr(S, "reflect_consume_for", None)
+                if callable(fn_consume):
+                    dropped_reflect, ref_source = fn_consume(player_target_id_turn)
+                else:
+                    rman = getattr(S, "reflect", None)
+                    if rman and hasattr(rman, "consume_info"):
+                        dropped_reflect, ref_source = rman.consume_info(player_target_id_turn)
+                    elif rman and hasattr(rman, "consume"):
+                        dropped_reflect = rman.consume(player_target_id_turn)
+                dropped_reflect = int(dropped_reflect or 0)
+                if dropped_reflect > 0:
+                    S.battle_log_add("{color=#00FFFF}Reflect se desvanece (IA sin ataque): %s{/color}" % S.battle_fmt_num(dropped_reflect))
+            except:
+                pass
+            S._enemy_reflect_consumed_this_turn = True
 
             try:
                 S.battle_log_add(
@@ -73,76 +111,20 @@ label battle_enemy_turn:
         S.current_enemy_id = getattr(S, "BATTLE_IDENTITIES", {}).get(enemy_name, "ID_ENEMY_UNKNOWN")
 
         # --------------------------------------------------------
-        # ⭐ REFLECT PENDIENTE CONTRA IA (target = IA)
         # --------------------------------------------------------
-        reflected_self = 0
-        ref_source = None
-
-        try:
-            rman = getattr(S, "reflect", None)
-            if rman:
-                reflected_self, ref_source = rman.consume_info(S.current_enemy_id)
-            else:
-                reflected_self = int(reflect.consume(S.current_enemy_id) or 0)
-        except:
-            reflected_self = 0
-            ref_source = None
-
-        try:
-            reflected_self = int(reflected_self or 0)
-        except:
-            reflected_self = 0
-
-        if reflected_self < 0:
-            reflected_self = 0
-
-        if reflected_self > 0:
-            # aplicar daño REAL a la IA
-            try:
-                S.enemy_hp = max(0, int(getattr(S, "enemy_hp", 0) or 0) - reflected_self)
-            except:
-                pass
-
-            # sync HP bars
-            try:
-                battle_update_hp_bars(getattr(S, "player_hp", 0), getattr(S, "enemy_hp", 0))
-            except:
-                pass
-
-            # log
-            try:
-                src_txt = (" (fuente: %s)" % ref_source) if ref_source else ""
-                S.battle_log_add(
-                    "{color=#00FFFF}%s recibe %s de reflect%s{/color}" %
-                    (enemy_name, S.battle_fmt_num(reflected_self), src_txt)
-                )
-            except:
-                pass
-
-            # visual
-            try:
-                battle_visual_float("enemy", reflected_self, "#00FFFF", is_final=True)
-                renpy.pause(0.25, hard=True)
-            except:
-                pass
-
-            # si murió por reflect → terminar combate (SIN "$" aquí)
-            if int(getattr(S, "enemy_hp", 0) or 0) <= 0:
-                try:
-                    fmt_gold = getattr(S, "fmt_gold", globals().get("fmt_gold", None))
-                    if callable(fmt_gold):
-                        S.battle_log_add(fmt_gold(u"¡Victoria!"))
-                    else:
-                        S.battle_log_add(u"¡Victoria!", "#FFD700")
-                except:
-                    pass
-                renpy.jump("battle_end")
+        # Reflect contra IA se resuelve en turno ofensivo del jugador
+        # (target_id = current_enemy_id), no aquí.
+        # --------------------------------------------------------
 
         # ============================================================
         # ⭐ LOOP REAL DE EJECUCIÓN IA
         # ============================================================
+        NON_ATTACK_KEYS = set(["none", "focus", "nopay", None])
+        enemy_attack_executed = False
         while enemy_ai.current_plan:
-            ai_execute_offensive_action(enemy_ai)
+            executed_key = ai_execute_offensive_action(enemy_ai)
+            if executed_key not in NON_ATTACK_KEYS:
+                enemy_attack_executed = True
             renpy.pause(0.35, hard=True)
 
         # ============================================================
@@ -160,13 +142,53 @@ label battle_enemy_turn:
 
         formula_text = " + ".join(parts) if parts else "0"
 
+        enemy_reflect_bonus = 0
+        ref_source = None
+        if not bool(getattr(S, "_enemy_reflect_consumed_this_turn", False)):
+            try:
+                fn_consume = getattr(S, "reflect_consume_for", None)
+                if callable(fn_consume):
+                    enemy_reflect_bonus, ref_source = fn_consume(player_target_id_turn)
+                else:
+                    rman = getattr(S, "reflect", None)
+                    if rman and hasattr(rman, "consume_info"):
+                        enemy_reflect_bonus, ref_source = rman.consume_info(player_target_id_turn)
+                    elif rman and hasattr(rman, "consume"):
+                        enemy_reflect_bonus = rman.consume(player_target_id_turn)
+            except:
+                enemy_reflect_bonus = 0
+                ref_source = None
+            finally:
+                S._enemy_reflect_consumed_this_turn = True
+
+        try:
+            enemy_reflect_bonus = int(enemy_reflect_bonus or 0)
+        except:
+            enemy_reflect_bonus = 0
+        if enemy_reflect_bonus < 0:
+            enemy_reflect_bonus = 0
+
+        if enemy_reflect_bonus > 0:
+            if enemy_attack_executed:
+                S.incoming_damage = int(S.incoming_damage or 0) + enemy_reflect_bonus
+                try:
+                    src_txt = (" (fuente: %s)" % ref_source) if ref_source else ""
+                    S.battle_log_add("{color=#00FFFF}Reflect +%s%s{/color}" % (S.battle_fmt_num(enemy_reflect_bonus), src_txt))
+                except:
+                    pass
+            else:
+                try:
+                    S.battle_log_add("{color=#00FFFF}Reflect se desvanece (IA sin ataque): %s{/color}" % S.battle_fmt_num(enemy_reflect_bonus))
+                except:
+                    pass
+
         total_damage = int(S.incoming_damage or 0)
 
         try:
             S.battle_log_add(
                 S.log_operation(
                     formula_text,
-                    0,          # reflect ya aplicado al HP
+                    enemy_reflect_bonus if enemy_attack_executed else 0,
                     total_damage
                 )
             )
