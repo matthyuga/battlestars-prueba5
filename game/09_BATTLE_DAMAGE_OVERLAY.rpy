@@ -10,13 +10,23 @@ init -967 python:
 
     _overlay_current = None
 
-    def battle_update_damage_overlay(player_hp, player_hp_max=10000):
+    def battle_update_damage_overlay(player_hp, player_hp_max=None):
         """
         Lógica automática de overlays según porcentaje de HP.
+        - Si player_hp_max no se pasa, intenta tomar battle_hp_player_max (runtime).
+        - Fallback seguro para evitar división por cero.
         """
         global _overlay_current
+
+        if player_hp_max is None:
+            try:
+                player_hp_max = battle_hp_player_max
+            except:
+                player_hp_max = 1
+
         try:
-            ratio = float(player_hp) / float(player_hp_max)
+            hp_max = max(float(player_hp_max), 1.0)
+            ratio = float(player_hp) / hp_max
         except:
             ratio = 1.0
 
@@ -67,4 +77,3 @@ transform overlay_fade:
         linear 1.2 alpha 1.0
         linear 1.2 alpha 0.8
         repeat
-

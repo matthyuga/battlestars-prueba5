@@ -1,4 +1,4 @@
-﻿# ===========================================================
+# ===========================================================
 # 00_GLOBALS_SYSTEM.RPY – Núcleo Global del Sistema de Combate
 # ===========================================================
 # v3.5 IdentityStoreFix + FocusFix + Reiatsu/Energy + Reflect Compatibility
@@ -44,18 +44,50 @@ init -990 python:
     # ⚠ Validaciones básicas
     # =======================================================
     def battle_is_ko(entity):
+        """
+        Devuelve True si el HP es <= 0.
+        Soporta:
+        - dict con clave "HP"
+        - objetos con atributo HP
+        - valores numéricos directos (hp)
+        """
         try:
+            # Caso dict (tu flujo actual principal)
             if isinstance(entity, dict):
                 return int(entity.get("HP", 0)) <= 0
+
+            # Caso objeto con atributo HP (future-proof)
+            hp_attr = getattr(entity, "HP", None)
+            if hp_attr is not None:
+                return int(hp_attr) <= 0
+
+            # Caso número / string numérica
             return int(entity) <= 0
         except:
             return False
 
-    def battle_clamp_hp(hp, min_value=0, max_value=99999):
+    def battle_clamp_hp(hp, min_value=0, max_value=None):
+        """
+        Limita el HP entre min_value y el máximo runtime actual.
+        - Si max_value viene informado, lo respeta.
+        - Si max_value es None, usa el mayor entre battle_hp_player_max y battle_hp_enemy_max.
+        - Fallback seguro a 1 para evitar valores inválidos.
+        """
         try:
-            return max(min(int(hp), max_value), min_value)
+            hp = int(hp)
+
+            if max_value is None:
+                try:
+                    max_value = max(
+                        int(getattr(store, "battle_hp_player_max", 1)),
+                        int(getattr(store, "battle_hp_enemy_max", 1))
+                    )
+                except:
+                    max_value = 1
+
+            return max(min(hp, int(max_value)), int(min_value))
         except:
-            return min_value
+            return int(min_value)
 
     store.battle_is_ko = battle_is_ko
     store.battle_clamp_hp = battle_clamp_hp
@@ -243,8 +275,9 @@ init -982 python:
 default incoming_damage = 0
 default battle_reflected_pending = 0
 
-default battle_hp_enemy_max = 10000
-default battle_hp_player_max = 10000
+# Bootstrap seguro sin hardcode de HP; se sincroniza en runtime al iniciar combate.
+default battle_hp_enemy_max = 1
+default battle_hp_player_max = 1
 
 default battle_turn_owner = "player"
 default turn_count = 1

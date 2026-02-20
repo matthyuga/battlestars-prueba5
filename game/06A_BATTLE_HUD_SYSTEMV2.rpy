@@ -11,10 +11,11 @@
 init -970 python:
 
     # === Estado HUD ===
-    battle_hp_player = 10000
-    battle_hp_enemy = 10000
-    battle_hp_player_max = 10000
-    battle_hp_enemy_max = 10000
+    # Bootstrap seguro sin hardcodes: se sincroniza en runtime desde battle_start.
+    battle_hp_player_max = 1
+    battle_hp_enemy_max = 1
+    battle_hp_player = battle_hp_player_max
+    battle_hp_enemy = battle_hp_enemy_max
 
     hp_flash_timer = 0
     hp_flash_color = None
