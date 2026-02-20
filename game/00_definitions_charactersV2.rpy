@@ -122,6 +122,20 @@ init -995 python:
         """Nombre visible para el jugador (display)."""
         return get_character(char_id).get("name", DEFAULT_CHARACTER["name"])
 
+
+    def get_character_stat(char_id, stat_key, fallback=None):
+        """
+        Helper seguro para leer cualquier stat numérico desde CHARACTER_DATA.
+        """
+        char = get_character(char_id)
+        if fallback is None:
+            fallback = DEFAULT_CHARACTER.get(stat_key, 0)
+        return char.get(stat_key, fallback)
+
+    def get_character_hp(char_id):
+        """HP base del personaje definido en CHARACTER_DATA."""
+        return int(get_character_stat(char_id, "HP", DEFAULT_CHARACTER["HP"]))
+
     def get_character_bg(char_id):
         """
         Devuelve el tag de background (string).

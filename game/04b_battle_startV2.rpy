@@ -75,12 +75,6 @@ label battle_start:
         $ enemy_id = "Nel"
         $ S.battle_enemy_id = "Nel"
 
-    # =======================================================
-    # ⚙️ Variables base (HP inicial)
-    # =======================================================
-    $ player_hp = 10000
-    $ enemy_hp  = 10000
-
     # Mantener coherencia con tu core (si existe como default)
     $ battle_reflected_pending = 0
 
@@ -139,11 +133,23 @@ label battle_start:
     $ enemy_name = battle_enemy.get("name", enemy_id)
 
     # =======================================================
+    # ⚙️ Variables base (HP inicial) desde CHARACTER_DATA
+    # =======================================================
+    $ player_hp = get_character_hp("Harribel")
+    $ enemy_hp  = get_character_hp(enemy_id)
+
+    # Sincronizar máximos globales para HUD, FX y overlays
+    $ battle_hp_player_max = player_hp
+    $ battle_hp_enemy_max  = enemy_hp
+    $ battle_hp_player = player_hp
+    $ battle_hp_enemy  = enemy_hp
+
+    # =======================================================
     # 🏜️ Configuración inicial de ambiente y HUD
     # =======================================================
     $ battle_set_background("harribel")
     $ battle_set_atmosphere("desert")
-    $ battle_update_damage_overlay(player_hp, 10000)
+    $ battle_update_damage_overlay(player_hp, battle_hp_player_max)
     $ battle_update_hp_bars(player_hp, enemy_hp)
     $ battle_show_hud(True)
 
