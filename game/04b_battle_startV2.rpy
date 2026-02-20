@@ -69,6 +69,7 @@ label battle_start:
     # 🎯 Selección del enemigo (ID del sistema)
     # =======================================================
     $ enemy_id = getattr(S, "battle_enemy_id", "Hollow")
+    $ player_id = getattr(S, "battle_player_id", "Harribel")
 
     # Normalización: el sistema usa "Nel" (Neliel solo display)
     if enemy_id == "Neliel":
@@ -126,16 +127,17 @@ label battle_start:
     # 👤 Cargar fichas desde CHARACTER_DATA
     # =======================================================
     # IMPORTANTE: get_character debe devolver COPIA (dict) para no contaminar plantillas.
-    $ battle_player = get_character("Harribel")
+    $ battle_player = get_character(player_id)
     $ battle_enemy  = get_character(enemy_id)
 
     # Nombre visible (solo UI/logs)
     $ enemy_name = battle_enemy.get("name", enemy_id)
+    $ player_name = battle_player.get("name", player_id)
 
     # =======================================================
     # ⚙️ Variables base (HP inicial) desde CHARACTER_DATA
     # =======================================================
-    $ player_hp = get_character_hp("Harribel")
+    $ player_hp = get_character_hp(player_id)
     $ enemy_hp  = get_character_hp(enemy_id)
 
     # Sincronizar máximos globales para HUD, FX y overlays
@@ -171,8 +173,6 @@ label battle_start:
     $ simulated_enemy_reiatsu = enemy_reiatsu
     $ simulated_enemy_energy  = enemy_energy
 
-
-
     # ⭐ Sincronizar simulación del jugador
     $ simulated_reiatsu = player_reiatsu
     $ simulated_energy  = player_energy
@@ -184,7 +184,7 @@ label battle_start:
     # 🧩 Asignar identidades dinámicas (usar ID, no display)
     # =======================================================
     if hasattr(S, "set_battle_identity"):
-        $ S.set_battle_identity("Harribel", enemy_id)
+        $ S.set_battle_identity(player_id, enemy_id)
 
     # =======================================================
     # 🧠 Inicializar IA según enemigo elegido (usar ID)
@@ -217,7 +217,7 @@ label battle_start:
     $ battle_turn_owner = random.choice(["player", "enemy"])
 
     if battle_turn_owner == "player":
-        $ battle_popup_turn("¡Harribel ataca primero!", "#00BFFF", delay=0.8)
+        $ battle_popup_turn("¡{} ataca primero!".format(player_name), "#00BFFF", delay=0.8)
         jump battle_offensive_turn
 
     else:
