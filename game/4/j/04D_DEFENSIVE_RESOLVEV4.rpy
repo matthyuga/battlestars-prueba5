@@ -11,6 +11,7 @@
 # ✔ ✅ FIX: Usa S.current_actor_id / S.current_enemy_id (store real, no frozen)
 # ✔ ✅ FIX: clear() correcto (usa clear_all o clear(id) válido)
 # ✔ NEW: aplica daño DIRECTO de IA (no defendible) desde enemy_direct_pending_damage
+# ✔ B1-A.2: HP facade en defensive_resolve (bs_set_hp / bs_get_hp con fallback)
 # ============================================================
 
 label defensive_resolve(received_damage, hp_after, reflected):
@@ -85,12 +86,23 @@ label defensive_resolve(received_damage, hp_after, reflected):
                 pass
 
     # --------------------------------------------------------
-    # (2) Aplicar daño REAL al jugador
+    # (2) Aplicar daño REAL al jugador  (B1-A.2: facade)
     # --------------------------------------------------------
     python:
         import renpy.store as S
         # hp_after ya incluye el directo si existió
-        S.player_hp = int(hp_after or 0)
+        try:
+            # preferido: fachada (puede clamp-ear o estandarizar)
+            S.bs_set_hp("player", int(hp_after or 0))
+        except Exception:
+            # fallback ultra-safe (si el helper no existe o no cargó todavía)
+            S.player_hp = int(hp_after or 0)
+
+        # sincronizamos hp_after con el valor real persistido (por si clamp-ea)
+        try:
+            hp_after = int(S.bs_get_hp("player"))
+        except Exception:
+            hp_after = int(getattr(S, "player_hp", hp_after) or 0)
 
     $ player_hp = hp_after
     $ battle_update_hp_bars(player_hp, enemy_hp)
