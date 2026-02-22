@@ -337,6 +337,27 @@ init -988 python:
         except:
             pass
 
+
+        # Si hubo daño directo del jugador este turno, mostrar HP total esperado.
+        direct_pending = int(getattr(S, "_last_player_direct_damage", 0) or 0)
+        if direct_pending > 0:
+            hp_after_total = max(0, int(hp_after) - int(direct_pending))
+            try:
+                S.operation_add(
+                    "Daño directo pendiente: {}".format(S.battle_fmt_num(direct_pending)),
+                    border
+                )
+                S.operation_add(
+                    "HP total: {} - {} = {}".format(
+                        S.battle_fmt_num(hp_after),
+                        S.battle_fmt_num(direct_pending),
+                        S.battle_fmt_num(hp_after_total)
+                    ),
+                    border
+                )
+            except:
+                pass
+
         # -------------------------------
         # (5) REFLECT (commit a ReflectManager)
         # -------------------------------
@@ -390,6 +411,12 @@ init -988 python:
                 S.next_defense_reduction = 0.0
             except:
                 pass
+
+        # limpiar marcador temporal de daño directo ofensivo
+        try:
+            S._last_player_direct_damage = 0
+        except:
+            pass
 
         return {"final_damage": final_damage, "reflected": reflected_total}
 

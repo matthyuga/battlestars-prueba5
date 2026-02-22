@@ -155,6 +155,24 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
             border
         )
 
+
+        # Si existe daño directo pendiente de IA, reflejar HP total esperado en el registro.
+        direct_pending = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+        if direct_pending > 0:
+            hp_after_total = max(0, int(hp_after) - int(direct_pending))
+            operation_add(
+                "Daño directo pendiente: {}".format(S.battle_fmt_num(direct_pending)),
+                border
+            )
+            operation_add(
+                "HP total: {} - {} = {}".format(
+                    S.battle_fmt_num(hp_after),
+                    S.battle_fmt_num(direct_pending),
+                    S.battle_fmt_num(hp_after_total)
+                ),
+                border
+            )
+
         # --------------------------------------------------------
         # (6) REFLECT
         # --------------------------------------------------------
