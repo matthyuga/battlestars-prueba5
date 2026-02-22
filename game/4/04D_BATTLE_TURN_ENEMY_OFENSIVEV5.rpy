@@ -273,8 +273,18 @@ label battle_enemy_turn:
     # ============================================================
     if maneuver_selected == "atk_from_def":
 
-        $ player_hp = max(0, player_hp - incoming_damage)
-        $ battle_update_hp_bars(player_hp, enemy_hp)
+        python:
+            import renpy.store as S
+            fn_apply = getattr(S, "bs_apply_damage", None)
+            if callable(fn_apply):
+                fn_apply("player", incoming_damage, source="enemy", reason="combat")
+                fn_sync = getattr(S, "bs_sync_hp_ui", None)
+                if callable(fn_sync):
+                    fn_sync()
+                player_hp = int(getattr(S, "player_hp", 0) or 0)
+            else:
+                player_hp = max(0, player_hp - incoming_damage)
+                battle_update_hp_bars(player_hp, enemy_hp)
 
         $ extra_offensive_actions += 1
         $ enemy_ai.reset_turn()

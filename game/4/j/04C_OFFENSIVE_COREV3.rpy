@@ -580,10 +580,18 @@ label battle_offensive_resolve_enemy:
         # ⭐ APLICAR DAÑOS (STORE HP = fuente real)
         # ====================================================
         try:
-            cur_hp = int(getattr(S, "enemy_hp", 0) or 0)
-            cur_hp = max(0, cur_hp - int(final_damage or 0))
-            cur_hp = max(0, cur_hp - int(direct_damage or 0))
-            S.enemy_hp = cur_hp
+            dmg_total = max(0, int(final_damage or 0)) + max(0, int(direct_damage or 0))
+            fn_apply = getattr(S, "bs_apply_damage", None)
+            if callable(fn_apply):
+                fn_apply("enemy", dmg_total, source="player", reason="combat")
+            else:
+                cur_hp = int(getattr(S, "enemy_hp", 0) or 0)
+                cur_hp = max(0, cur_hp - dmg_total)
+                S.enemy_hp = cur_hp
+
+            fn_sync = getattr(S, "bs_sync_hp_ui", None)
+            if callable(fn_sync):
+                fn_sync()
         except:
             pass
 
@@ -594,7 +602,6 @@ label battle_offensive_resolve_enemy:
         $ battle_visual_float("enemy", direct_damage, "#FFDD55", is_final=True)
         $ renpy.pause(0.3, hard=True)
 
-    $ battle_update_hp_bars(getattr(renpy.store, "player_hp", 0), getattr(renpy.store, "enemy_hp", 0))
     $ battle_visual_float("enemy", final_damage, "#FF4444", is_final=True)
     $ renpy.pause(0.5, hard=True)
 
