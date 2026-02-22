@@ -1,5 +1,5 @@
 ﻿# ============================================================
-# 04C_OFFENSIVE_RESOLVEV1.rpy – Resolutor ofensivo del jugador
+# RESOLUTOR – Separa daño defendible & directo
 # ============================================================
 
 label battle_offensive_resolve_enemy:
@@ -10,7 +10,11 @@ label battle_offensive_resolve_enemy:
         enemy_name = getattr(getattr(S, "enemy_ai", None), "name", "Enemigo")
         global direct_damage, final_damage
         direct_damage = 0
-        S._last_player_direct_damage = 0
+        fn_set_direct = getattr(S, "bs_set_direct_pending", None)
+        if callable(fn_set_direct):
+            fn_set_direct("enemy", 0, mirror_legacy=True)
+        else:
+            S._last_player_direct_damage = 0
 
         def _blog(t, c=None, border=None):
             try:
@@ -58,7 +62,11 @@ label battle_offensive_resolve_enemy:
             S.direct_success = False
 
             direct_damage = int(getattr(S, "direct_pending_damage", 0) or 0)
-            S._last_player_direct_damage = int(direct_damage or 0)
+            fn_set_direct = getattr(S, "bs_set_direct_pending", None)
+            if callable(fn_set_direct):
+                fn_set_direct("enemy", int(direct_damage or 0), mirror_legacy=True)
+            else:
+                S._last_player_direct_damage = int(direct_damage or 0)
             S.direct_pending_damage = 0
             S.direct_base_damage    = 0
 

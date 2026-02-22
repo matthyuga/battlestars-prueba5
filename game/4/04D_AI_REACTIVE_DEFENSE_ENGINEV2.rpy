@@ -339,7 +339,11 @@ init -988 python:
 
 
         # Si hubo daño directo del jugador este turno, mostrar HP total esperado.
-        direct_pending = int(getattr(S, "_last_player_direct_damage", 0) or 0)
+        fn_get_direct = getattr(S, "bs_get_direct_pending", None)
+        if callable(fn_get_direct):
+            direct_pending = int(fn_get_direct("enemy") or 0)
+        else:
+            direct_pending = int(getattr(S, "_last_player_direct_damage", 0) or 0)
         if direct_pending > 0:
             hp_after_total = max(0, int(hp_after) - int(direct_pending))
             try:
@@ -414,7 +418,11 @@ init -988 python:
 
         # limpiar marcador temporal de daño directo ofensivo
         try:
-            S._last_player_direct_damage = 0
+            fn_consume_direct = getattr(S, "bs_consume_direct_pending", None)
+            if callable(fn_consume_direct):
+                fn_consume_direct("enemy")
+            else:
+                S._last_player_direct_damage = 0
         except:
             pass
 

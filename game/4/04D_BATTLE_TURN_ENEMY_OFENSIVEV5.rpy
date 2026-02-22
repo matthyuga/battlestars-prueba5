@@ -200,7 +200,27 @@ label battle_enemy_turn:
         # ============================================================
         debuff_pct     = getattr(S, "next_defense_reduction", 0.0) or 0.0
         dmg_defendible = total_damage
-        dmg_directo    = int(S.incoming_direct_damage or 0)
+
+        # Commit C: priorizar SSOT (battle_state.direct_pending[player])
+        dmg_directo = 0
+        try:
+            fn_get_direct = getattr(S, "bs_get_direct_pending", None)
+            if callable(fn_get_direct):
+                dmg_directo = int(fn_get_direct("player") or 0)
+            else:
+                dmg_directo = int(getattr(S, "incoming_direct_damage", 0) or 0)
+                if dmg_directo <= 0:
+                    dmg_directo = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+        except:
+            dmg_directo = int(getattr(S, "incoming_direct_damage", 0) or 0)
+            if dmg_directo <= 0:
+                dmg_directo = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+
+        # espejo legacy para formateadores/consumidores históricos
+        try:
+            S.incoming_direct_damage = int(dmg_directo or 0)
+        except:
+            pass
 
         if dmg_directo < 0:
             dmg_directo = 0

@@ -11,7 +11,6 @@
 # ✔ ✅ FIX: Usa S.current_actor_id / S.current_enemy_id (store real, no frozen)
 # ✔ ✅ FIX: clear() correcto (usa clear_all o clear(id) válido)
 # ✔ NEW: aplica daño DIRECTO de IA (no defendible) desde enemy_direct_pending_damage
-# ✔ B1-A.2: HP facade en defensive_resolve (bs_set_hp / bs_get_hp con fallback)
 # ============================================================
 
 label defensive_resolve(received_damage, hp_after, reflected):
@@ -27,10 +26,16 @@ label defensive_resolve(received_damage, hp_after, reflected):
         # - viene de AI_EXECUTION: S.enemy_direct_pending_damage
         # - se aplica acá porque este label "asienta" el daño real
         # =========================================================
-        direct_enemy = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+        fn_consume_direct = getattr(S, "bs_consume_direct_pending", None)
+        if callable(fn_consume_direct):
+            direct_enemy = int(fn_consume_direct("player") or 0)
+        else:
+            direct_enemy = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+            if direct_enemy > 0:
+                # consumir el pendiente (SIEMPRE, para evitar dobles)
+                S.enemy_direct_pending_damage = 0
+
         if direct_enemy > 0:
-            # consumir el pendiente (SIEMPRE, para evitar dobles)
-            S.enemy_direct_pending_damage = 0
             try:
                 S.enemy_direct_base_damage = 0
             except:
@@ -86,23 +91,12 @@ label defensive_resolve(received_damage, hp_after, reflected):
                 pass
 
     # --------------------------------------------------------
-    # (2) Aplicar daño REAL al jugador  (B1-A.2: facade)
+    # (2) Aplicar daño REAL al jugador
     # --------------------------------------------------------
     python:
         import renpy.store as S
         # hp_after ya incluye el directo si existió
-        try:
-            # preferido: fachada (puede clamp-ear o estandarizar)
-            S.bs_set_hp("player", int(hp_after or 0))
-        except Exception:
-            # fallback ultra-safe (si el helper no existe o no cargó todavía)
-            S.player_hp = int(hp_after or 0)
-
-        # sincronizamos hp_after con el valor real persistido (por si clamp-ea)
-        try:
-            hp_after = int(S.bs_get_hp("player"))
-        except Exception:
-            hp_after = int(getattr(S, "player_hp", hp_after) or 0)
+        S.player_hp = int(hp_after or 0)
 
     $ player_hp = hp_after
     $ battle_update_hp_bars(player_hp, enemy_hp)

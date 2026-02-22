@@ -223,7 +223,13 @@ init -988 python:
                     if not hasattr(S, "enemy_direct_base_damage"):
                         S.enemy_direct_base_damage = 0
 
-                    S.enemy_direct_pending_damage += int(dmg)
+                    fn_add_direct = getattr(S, "bs_add_direct_pending", None)
+                    if callable(fn_add_direct):
+                        fn_add_direct("player", int(dmg), mirror_legacy=True)
+                        S.enemy_direct_pending_damage = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+                    else:
+                        S.enemy_direct_pending_damage += int(dmg)
+
                     S.enemy_direct_base_damage = int(base)
 
                     log_text = "%s usa %s → %s daño {color=#FF66CC}%d/3 éxitos = DIRECTO{/color}" % (
