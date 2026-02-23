@@ -77,15 +77,17 @@ label defensive_resolve(received_damage, hp_after, reflected):
                 source_id = getattr(S, "current_actor_id", "ID_ACTOR_UNKNOWN")  # quien reflejó (defensor)
                 target_id = getattr(S, "current_enemy_id", "ID_ENEMY_UNKNOWN")  # quien recibirá (atacante)
 
-                reflect_obj = getattr(S, "reflect", None) or globals().get("reflect", None)
-                if reflect_obj:
-                    # Compatibilidad:
-                    # - Si ReflectManager nuevo acepta source_id, lo usamos.
-                    # - Si es legacy (solo add(actor, value)), cae sin source.
+                # ✅ hardening: solo helper público
+                fnq = getattr(S, "reflect_queue", None) or globals().get("reflect_queue", None)
+                if callable(fnq):
+                    fnq(target_id, source_id, int(reflected or 0))
+                else:
                     try:
-                        reflect_obj.add(target_id, reflected, source_id=source_id)
-                    except TypeError:
-                        reflect_obj.add(target_id, reflected)
+                        S.battle_log_add(
+                            "{color=#FFA500}[WARN] reflect_queue no disponible en defensive_resolve; reflect omitido{/color}"
+                        )
+                    except:
+                        pass
 
             except:
                 pass
@@ -96,9 +98,17 @@ label defensive_resolve(received_damage, hp_after, reflected):
     python:
         import renpy.store as S
         # hp_after ya incluye el directo si existió
-        S.player_hp = int(hp_after or 0)
+        fn_set_hp = getattr(S, "bs_set_hp", None)
+        if callable(fn_set_hp):
+            fn_set_hp("player", int(hp_after or 0))
+        else:
+            S.player_hp = int(hp_after or 0)
 
-    $ player_hp = hp_after
+        fn_sync_hp = getattr(S, "bs_sync_hp_ui", None)
+        if callable(fn_sync_hp):
+            fn_sync_hp()
+
+    $ player_hp = getattr(S, "player_hp", int(hp_after or 0))
     $ battle_update_hp_bars(player_hp, enemy_hp)
 
     if received_damage > 0:
@@ -213,7 +223,13 @@ label defensive_resolve(received_damage, hp_after, reflected):
             enemy_name = S.enemy_ai.name
         else:
             next_turn = "player"
-            player_name = "Harribel"
+            _bp = getattr(S, "battle_player", None)
+            if isinstance(_bp, dict):
+                player_name = str(_bp.get("name", "") or "")
+            else:
+                player_name = ""
+            if not player_name:
+                player_name = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
 
     # --------------------------------------------------------
     # (6) Saltar al turno que corresponda

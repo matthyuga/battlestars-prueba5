@@ -82,7 +82,14 @@ label battle_enemy_turn:
             # Diseño elegido: NO limpiamos reflect aquí.
             S.battle_turn_change("player")
             try:
-                S.battle_popup_turn("Turno ofensivo — Harribel", "#FFD700", 0.7)
+                _bp = getattr(S, "battle_player", None)
+                if isinstance(_bp, dict):
+                    _pname = str(_bp.get("name", "") or "")
+                else:
+                    _pname = ""
+                if not _pname:
+                    _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+                S.battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", 0.7)
             except:
                 pass
             renpy.jump("battle_offensive_turn")
@@ -310,7 +317,16 @@ label battle_enemy_turn:
         $ enemy_ai.reset_turn()
 
         $ battle_turn_change("player")
-        $ battle_popup_turn("Turno ofensivo — Harribel", "#FFD700", delay=0.7)
+        python:
+            import renpy.store as S
+            _bp = getattr(S, "battle_player", None)
+            if isinstance(_bp, dict):
+                _pname = str(_bp.get("name", "") or "")
+            else:
+                _pname = ""
+            if not _pname:
+                _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+        $ battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", delay=0.7)
         jump battle_offensive_turn
 
     # ============================================================
@@ -327,7 +343,16 @@ label battle_enemy_turn:
         $ enemy_ai.reset_turn()
 
         $ battle_turn_change("player")
-        $ battle_popup_turn("Turno defensivo — Harribel", "#00BFFF", delay=0.6)
+        python:
+            import renpy.store as S
+            _bp = getattr(S, "battle_player", None)
+            if isinstance(_bp, dict):
+                _pname = str(_bp.get("name", "") or "")
+            else:
+                _pname = ""
+            if not _pname:
+                _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+        $ battle_popup_turn("Turno defensivo — {}".format(_pname), "#00BFFF", delay=0.6)
         jump battle_defensive_turn
 
     # ============================================================
@@ -335,7 +360,16 @@ label battle_enemy_turn:
     # ============================================================
     $ enemy_ai.reset_turn()
     $ battle_turn_change("player")
-    $ battle_popup_turn("Turno defensivo — Harribel", "#00BFFF", delay=0.8)
+    python:
+        import renpy.store as S
+        _bp = getattr(S, "battle_player", None)
+        if isinstance(_bp, dict):
+            _pname = str(_bp.get("name", "") or "")
+        else:
+            _pname = ""
+        if not _pname:
+            _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+    $ battle_popup_turn("Turno defensivo — {}".format(_pname), "#00BFFF", delay=0.8)
     call battle_defensive_turn
 
     return

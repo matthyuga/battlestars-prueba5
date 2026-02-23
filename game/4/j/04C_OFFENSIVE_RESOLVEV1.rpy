@@ -100,9 +100,13 @@ label battle_offensive_resolve_enemy:
             if callable(fn_apply):
                 fn_apply("enemy", dmg_total, source="player", reason="combat")
             else:
+                fn_set = getattr(S, "bs_set_hp", None)
                 cur_hp = int(getattr(S, "enemy_hp", 0) or 0)
                 cur_hp = max(0, cur_hp - dmg_total)
-                S.enemy_hp = cur_hp
+                if callable(fn_set):
+                    fn_set("enemy", cur_hp)
+                else:
+                    S.enemy_hp = cur_hp
 
             fn_sync = getattr(S, "bs_sync_hp_ui", None)
             if callable(fn_sync):

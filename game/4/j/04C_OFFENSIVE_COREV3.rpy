@@ -162,7 +162,15 @@ label battle_offensive_turn:
             pass
 
     $ awaiting_turn_end = False
-    $ player_name = "Harribel"
+    python:
+        import renpy.store as S
+        _bp = getattr(S, "battle_player", None)
+        if isinstance(_bp, dict):
+            player_name = str(_bp.get("name", "") or "")
+        else:
+            player_name = ""
+        if not player_name:
+            player_name = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
     $ attack_records = []
 
     # Fuente de verdad del hook: la marca Offensive_Actions SOLO si ejecuta y paga

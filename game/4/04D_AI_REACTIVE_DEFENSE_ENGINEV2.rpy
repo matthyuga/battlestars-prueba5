@@ -30,11 +30,6 @@ init -988 python:
             except:
                 return fallback
 
-        # -------------------------------
-        # 🪞 Reflect store-safe
-        # -------------------------------
-        REF = getattr(S, "reflect", None)
-
         # Helpers: chequeo/consumo (store-safe)
         can_pay_fn = getattr(S, "ai_can_pay", None)
         if not callable(can_pay_fn):
@@ -378,27 +373,18 @@ init -988 python:
             attacker_id = getattr(S, "current_actor_id", "ID_ACTOR_UNKNOWN")
             defender_id = getattr(S, "current_enemy_id", "ID_ENEMY_UNKNOWN")
 
-            # ✅ centralizado (si existe helper)
+            # ✅ hardening: sólo helper público (sin acceso directo al manager)
             try:
                 fnq = getattr(S, "reflect_queue", None) or globals().get("reflect_queue", None)
                 if callable(fnq):
                     fnq(attacker_id, defender_id, int(reflected_total))
                 else:
-                    # fallback directo al manager si no existe helper aún
-                    if REF is not None:
-                        try:
-                            # Limpio sólo el target (para que no acumule basura de turnos raros)
-                            REF.clear(attacker_id)
-                            REF.add(attacker_id, int(reflected_total), source_id=defender_id)
-                        except TypeError:
-                            REF.clear(attacker_id)
-                            REF.add(attacker_id, int(reflected_total))
-                    else:
-                        try:
-                            reflect.clear(attacker_id)
-                            reflect.add(attacker_id, int(reflected_total))
-                        except:
-                            pass
+                    try:
+                        S.battle_log_add(
+                            "{color=#FFA500}[WARN] reflect_queue no disponible; reflect omitido por hardening{/color}"
+                        )
+                    except:
+                        pass
             except:
                 pass
 
