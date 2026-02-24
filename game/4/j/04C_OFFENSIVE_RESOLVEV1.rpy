@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # RESOLUTOR – Separa daño defendible & directo
 # ============================================================
 
@@ -96,13 +96,34 @@ label battle_offensive_resolve_enemy:
         # ====================================================
         try:
             dmg_total = max(0, int(final_damage or 0)) + max(0, int(direct_damage or 0))
+            target_key = str(getattr(S, "offensive_target_key", "") or "")
+            plan = getattr(S, "offensive_damage_plan", None)
+
+            fn_apply_plan = getattr(S, "bs_apply_damage_plan", None)
+            fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
             fn_apply = getattr(S, "bs_apply_damage", None)
-            if callable(fn_apply):
+
+            if isinstance(plan, dict) and callable(fn_apply_plan):
+                fn_apply_plan(plan, reason="combat")
+            elif target_key and callable(fn_apply_key):
+                fn_apply_key(target_key, dmg_total, source_key=getattr(S, "current_actor_unit_key", None), reason="combat")
+            elif callable(fn_apply):
                 fn_apply("enemy", dmg_total, source="player", reason="combat")
             else:
+                fn_set = getattr(S, "bs_set_hp", None)
                 cur_hp = int(getattr(S, "enemy_hp", 0) or 0)
                 cur_hp = max(0, cur_hp - dmg_total)
-                S.enemy_hp = cur_hp
+                if callable(fn_set):
+                    fn_set("enemy", cur_hp)
+                else:
+                    S.enemy_hp = cur_hp
+
+            # limpiar selección/plan del turno
+            try:
+                S.offensive_damage_plan = None
+                S.offensive_target_key = ""
+            except:
+                pass
 
             fn_sync = getattr(S, "bs_sync_hp_ui", None)
             if callable(fn_sync):
@@ -137,7 +158,16 @@ label battle_offensive_resolve_enemy:
     # ============================================================
     # FIN DEL TURNO
     # ============================================================
-    if getattr(renpy.store, "enemy_hp", 0) <= 0:
+    python:
+        import renpy.store as S
+        _enemy_defeated = False
+        fn_team_def = getattr(S, "bs_is_team_defeated", None)
+        if callable(fn_team_def):
+            _enemy_defeated = bool(fn_team_def("enemy"))
+        else:
+            _enemy_defeated = (int(getattr(S, "enemy_hp", 0) or 0) <= 0)
+
+    if _enemy_defeated:
         $ battle_log_add(fmt_gold("¡Victoria!"))
         jump battle_end
 

@@ -11,14 +11,35 @@
 # 🔹 LABEL PRINCIPAL – Fin del combate
 # ===========================================================
 label battle_end:
-    if player_hp <= 0:
+    python:
+        import renpy.store as S
+        _player_defeated = False
+        _enemy_defeated = False
+
+        fn_team_def = getattr(S, "bs_is_team_defeated", None)
+        if callable(fn_team_def):
+            try:
+                _player_defeated = bool(fn_team_def("player"))
+                _enemy_defeated = bool(fn_team_def("enemy"))
+            except:
+                _player_defeated = (int(getattr(S, "player_hp", 0) or 0) <= 0)
+                _enemy_defeated = (int(getattr(S, "enemy_hp", 0) or 0) <= 0)
+        else:
+            _player_defeated = (int(getattr(S, "player_hp", 0) or 0) <= 0)
+            _enemy_defeated = (int(getattr(S, "enemy_hp", 0) or 0) <= 0)
+
+    if _player_defeated and not _enemy_defeated:
         $ battle_set_atmosphere("void")
         $ battle_popup_turn("Has perdido…", "#FF5555", delay=0.9)
         "Has sido derrotada."
-    elif enemy_hp <= 0:
+    elif _enemy_defeated and not _player_defeated:
         $ battle_set_atmosphere("desert")
         $ battle_popup_turn("¡Victoria!", "#00FFAA", delay=0.9)
         "¡El enemigo ha sido eliminado!"
+    elif _player_defeated and _enemy_defeated:
+        $ battle_set_atmosphere("void")
+        $ battle_popup_turn("Empate", "#CCCCCC", delay=0.9)
+        "Ambos equipos han caído."
     else:
         "El combate ha terminado."
 

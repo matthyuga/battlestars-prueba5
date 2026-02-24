@@ -82,7 +82,14 @@ label battle_enemy_turn:
             # Diseño elegido: NO limpiamos reflect aquí.
             S.battle_turn_change("player")
             try:
-                S.battle_popup_turn("Turno ofensivo — Harribel", "#FFD700", 0.7)
+                _bp = getattr(S, "battle_player", None)
+                if isinstance(_bp, dict):
+                    _pname = str(_bp.get("name", "") or "")
+                else:
+                    _pname = ""
+                if not _pname:
+                    _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+                S.battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", 0.7)
             except:
                 pass
             renpy.jump("battle_offensive_turn")
@@ -109,6 +116,12 @@ label battle_enemy_turn:
 
         # ID store-safe
         S.current_enemy_id = getattr(S, "BATTLE_IDENTITIES", {}).get(enemy_name, "ID_ENEMY_UNKNOWN")
+        try:
+            fn_active_key = getattr(S, "bs_get_active_unit_key", None)
+            if callable(fn_active_key):
+                S.current_enemy_unit_key = str(fn_active_key("enemy") or "")
+        except:
+            S.current_enemy_unit_key = ""
 
         # --------------------------------------------------------
         # --------------------------------------------------------
@@ -183,6 +196,118 @@ label battle_enemy_turn:
                     pass
 
         total_damage = int(S.incoming_damage or 0)
+
+        # ============================================================
+        # C.1/C.2/C.3 – Priorización AI + contexto reflect + split policy
+        # ============================================================
+        S.enemy_target_key = ""
+        S.enemy_damage_plan = None
+        S.enemy_split_policy_used = "single_target"
+
+        fn_valid = getattr(S, "bs_get_valid_target_keys", None)
+        fn_get_unit = getattr(S, "bs_get_unit_by_key", None)
+        fn_make_plan = getattr(S, "bs_make_damage_plan", None)
+        fn_active_key = getattr(S, "bs_get_active_unit_key", None)
+        fn_reflect_peek = getattr(S, "bs_reflect_peek_for", None)
+
+        if callable(fn_valid):
+            target_keys = list(fn_valid("player") or [])
+            plan_entries = []
+
+            # C.2: medir reflect acumulado en unidad activa de IA para decisión táctica
+            ai_active_key = ""
+            ai_reflect_ready = 0
+            if callable(fn_active_key):
+                try:
+                    ai_active_key = str(fn_active_key("enemy") or "")
+                except:
+                    ai_active_key = ""
+            if ai_active_key and callable(fn_reflect_peek):
+                try:
+                    ai_reflect_ready = max(0, int(fn_reflect_peek(ai_active_key) or 0))
+                except:
+                    ai_reflect_ready = 0
+
+            # C.1: heurísticas simples por target
+            scored = []
+            for k in target_keys:
+                unit = fn_get_unit(k) if callable(fn_get_unit) else None
+                hp = 0
+                mx = 1
+                threat = 0
+                if isinstance(unit, dict):
+                    hp = max(0, int(unit.get("hp", 0) or 0))
+                    mx = max(1, int(unit.get("max_hp", 1) or 1))
+                    # amenaza inicial: explícita si existe, sino proxy por max_hp
+                    threat = max(0, int(unit.get("threat", unit.get("danger", mx)) or 0))
+                hp_ratio = float(hp) / float(mx or 1)
+                score_focus_low_hp = (1.0 - hp_ratio) * 100.0
+                score_punish_threat = float(threat)
+                score = score_focus_low_hp + (0.35 * score_punish_threat)
+                scored.append({"key": k, "hp": hp, "mx": mx, "threat": threat, "score": score})
+
+            scored.sort(key=lambda x: x.get("score", 0.0), reverse=True)
+            primary = scored[0]["key"] if scored else ""
+
+            # C.3: policy burst vs presión distribuida
+            policy = "single_target"
+            alive_n = len(scored)
+            lowest_hp = min([x.get("hp", 0) for x in scored], default=0)
+            can_secure_ko = bool(total_damage > 0 and lowest_hp > 0 and total_damage >= lowest_hp)
+
+            if alive_n <= 1:
+                policy = "single_target"
+            elif can_secure_ko:
+                policy = "single_target"   # burst para confirmar KO
+            elif ai_reflect_ready >= max(1, int(total_damage * 0.35)):
+                policy = "split_equal"      # presión distribuida cuando reflect habilita daño extra
+            elif alive_n >= 3:
+                policy = "split_equal"
+            else:
+                policy = "single_target"
+
+            # C.1 adicional: proteger unidad crítica propia => priorizar KO rápido para bajar presión
+            if ai_active_key and callable(fn_get_unit):
+                ai_u = fn_get_unit(ai_active_key)
+                if isinstance(ai_u, dict):
+                    ai_hp = max(0, int(ai_u.get("hp", 0) or 0))
+                    ai_mx = max(1, int(ai_u.get("max_hp", 1) or 1))
+                    if ai_hp <= int(ai_mx * 0.30) and primary:
+                        policy = "single_target"
+
+            if policy == "split_equal" and alive_n > 1 and total_damage > 0:
+                base = total_damage // alive_n
+                rem = total_damage % alive_n
+                for idx, row in enumerate(scored):
+                    amt = base + (1 if idx < rem else 0)
+                    if amt > 0:
+                        plan_entries.append({"target_key": row["key"], "amount": amt, "tags": ["ai", "split_equal"]})
+            elif primary:
+                if total_damage > 0:
+                    plan_entries.append({"target_key": primary, "amount": total_damage, "tags": ["ai", "burst"]})
+
+            if primary:
+                S.enemy_target_key = str(primary)
+            S.enemy_split_policy_used = str(policy)
+
+            if plan_entries and callable(fn_make_plan):
+                S.enemy_damage_plan = fn_make_plan(
+                    source_key=ai_active_key,
+                    entries=plan_entries,
+                    mode=policy,
+                    skill_id="enemy_offensive_ai",
+                    meta={
+                        "reflect_ready": int(ai_reflect_ready or 0),
+                        "targets_alive": int(alive_n),
+                        "can_secure_ko": bool(can_secure_ko),
+                    },
+                )
+
+            try:
+                if callable(getattr(S, "battle_log_add", None)) and primary:
+                    S.battle_log_add("{color=#B0E0E6}AI target policy: %s → %s{/color}" % (policy, primary))
+            except:
+                pass
 
         try:
             S.battle_log_add(
@@ -295,22 +420,48 @@ label battle_enemy_turn:
 
         python:
             import renpy.store as S
+            plan = getattr(S, "enemy_damage_plan", None)
+            target_key = str(getattr(S, "enemy_target_key", "") or "")
+
+            fn_apply_plan = getattr(S, "bs_apply_damage_plan", None)
+            fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
             fn_apply = getattr(S, "bs_apply_damage", None)
-            if callable(fn_apply):
+
+            if isinstance(plan, dict) and callable(fn_apply_plan):
+                fn_apply_plan(plan, reason="combat")
+            elif target_key and callable(fn_apply_key):
+                fn_apply_key(target_key, incoming_damage, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat")
+            elif callable(fn_apply):
                 fn_apply("player", incoming_damage, source="enemy", reason="combat")
-                fn_sync = getattr(S, "bs_sync_hp_ui", None)
-                if callable(fn_sync):
-                    fn_sync()
-                player_hp = int(getattr(S, "player_hp", 0) or 0)
             else:
                 player_hp = max(0, player_hp - incoming_damage)
                 battle_update_hp_bars(player_hp, enemy_hp)
+
+            fn_sync = getattr(S, "bs_sync_hp_ui", None)
+            if callable(fn_sync):
+                fn_sync()
+            player_hp = int(getattr(S, "player_hp", 0) or 0)
+
+            try:
+                S.enemy_damage_plan = None
+                S.enemy_target_key = ""
+            except:
+                pass
 
         $ extra_offensive_actions += 1
         $ enemy_ai.reset_turn()
 
         $ battle_turn_change("player")
-        $ battle_popup_turn("Turno ofensivo — Harribel", "#FFD700", delay=0.7)
+        python:
+            import renpy.store as S
+            _bp = getattr(S, "battle_player", None)
+            if isinstance(_bp, dict):
+                _pname = str(_bp.get("name", "") or "")
+            else:
+                _pname = ""
+            if not _pname:
+                _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+        $ battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", delay=0.7)
         jump battle_offensive_turn
 
     # ============================================================
@@ -327,7 +478,16 @@ label battle_enemy_turn:
         $ enemy_ai.reset_turn()
 
         $ battle_turn_change("player")
-        $ battle_popup_turn("Turno defensivo — Harribel", "#00BFFF", delay=0.6)
+        python:
+            import renpy.store as S
+            _bp = getattr(S, "battle_player", None)
+            if isinstance(_bp, dict):
+                _pname = str(_bp.get("name", "") or "")
+            else:
+                _pname = ""
+            if not _pname:
+                _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+        $ battle_popup_turn("Turno defensivo — {}".format(_pname), "#00BFFF", delay=0.6)
         jump battle_defensive_turn
 
     # ============================================================
@@ -335,7 +495,16 @@ label battle_enemy_turn:
     # ============================================================
     $ enemy_ai.reset_turn()
     $ battle_turn_change("player")
-    $ battle_popup_turn("Turno defensivo — Harribel", "#00BFFF", delay=0.8)
+    python:
+        import renpy.store as S
+        _bp = getattr(S, "battle_player", None)
+        if isinstance(_bp, dict):
+            _pname = str(_bp.get("name", "") or "")
+        else:
+            _pname = ""
+        if not _pname:
+            _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+    $ battle_popup_turn("Turno defensivo — {}".format(_pname), "#00BFFF", delay=0.8)
     call battle_defensive_turn
 
     return

@@ -232,10 +232,4 @@ label offensive_formula(dmg, attack_records):
         # ----------------------------------------------------
         total_damage = total_with_reflect
 
-        # Limpieza del debuff
-        try:
-            S.next_defense_reduction = 0
-        except:
-            pass
-
     return

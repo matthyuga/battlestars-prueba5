@@ -13,8 +13,19 @@ init -966 python:
         """
         Muestra el efecto visual al cambiar de turno.
         owner puede ser 'player' o 'enemy'.
+        También sincroniza Turn SSOT/legacy durante transición.
         """
         try:
+            import renpy.store as S
+
+            fn_set = getattr(S, "bs_set_turn_owner", None)
+            owner = "enemy" if str(owner or "").strip().lower() == "enemy" else "player"
+            if callable(fn_set):
+                owner = fn_set(owner, mirror_legacy=True)
+            else:
+                # fallback mínimo legacy si facade aún no está cargado
+                S.battle_turn_owner = owner
+
             if owner == "player":
                 renpy.show_screen("battle_turn_change", text="🔹 TU TURNO", color="#00BFFF", side="left")
             else:

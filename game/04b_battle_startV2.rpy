@@ -55,7 +55,7 @@ label start:
     show screen battle_log_screen
 
     "Sistema cargado correctamente."
-    call battle_select_opponent
+    call battle_select_player
 
 
 # ===========================================================
@@ -146,6 +146,20 @@ label battle_start:
     $ battle_hp_player = player_hp
     $ battle_hp_enemy  = enemy_hp
 
+    # Pre-modelo equipos/unidades (compat 1v1): team[0] como activo
+    python:
+        import renpy.store as S
+        fn_init_teams = getattr(S, "bs_init_single_teams", None)
+        if callable(fn_init_teams):
+            fn_init_teams(
+                player_char_id=player_id,
+                enemy_char_id=enemy_id,
+                player_hp=player_hp,
+                player_max_hp=battle_hp_player_max,
+                enemy_hp=enemy_hp,
+                enemy_max_hp=battle_hp_enemy_max,
+            )
+
     # =======================================================
     # 🏜️ Configuración inicial de ambiente y HUD
     # =======================================================
@@ -214,9 +228,15 @@ label battle_start:
     # =======================================================
     # 🎲 Determinar quién ataca primero (SYNC con battle_turn_owner)
     # =======================================================
-    $ battle_turn_owner = random.choice(["player", "enemy"])
+    $ _first_owner = random.choice(["player", "enemy"])
+    if hasattr(S, "bs_set_turn_owner"):
+        $ S.bs_set_turn_owner(_first_owner, mirror_legacy=True)
+    else:
+        $ battle_turn_owner = _first_owner
 
-    if battle_turn_owner == "player":
+    $ _owner_now = S.bs_get_turn_owner() if hasattr(S, "bs_get_turn_owner") else getattr(S, "battle_turn_owner", _first_owner)
+
+    if _owner_now == "player":
         $ battle_popup_turn("¡{} ataca primero!".format(player_name), "#00BFFF", delay=0.8)
         jump battle_offensive_turn
 

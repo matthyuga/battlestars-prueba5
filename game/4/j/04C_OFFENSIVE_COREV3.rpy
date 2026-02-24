@@ -162,7 +162,15 @@ label battle_offensive_turn:
             pass
 
     $ awaiting_turn_end = False
-    $ player_name = "Harribel"
+    python:
+        import renpy.store as S
+        _bp = getattr(S, "battle_player", None)
+        if isinstance(_bp, dict):
+            player_name = str(_bp.get("name", "") or "")
+        else:
+            player_name = ""
+        if not player_name:
+            player_name = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
     $ attack_records = []
 
     # Fuente de verdad del hook: la marca Offensive_Actions SOLO si ejecuta y paga
@@ -462,6 +470,152 @@ label battle_offensive_turn:
                     pass
 
     call offensive_formula(total_damage, attack_records)
+
+    # ============================================================
+    # B.1/B.2/B.3 – Targeting táctico + split manual + fallbacks
+    # ============================================================
+    python:
+        import renpy.store as S
+
+        S.offensive_target_key = ""
+        S.offensive_damage_plan = None
+
+        fn_valid = getattr(S, "bs_get_valid_target_keys", None)
+        fn_resolve = getattr(S, "bs_resolve_target_keys", None)
+        fn_parse = getattr(S, "bs_parse_unit_key", None)
+        fn_get_unit = getattr(S, "bs_get_unit_by_key", None)
+        fn_make_plan = getattr(S, "bs_make_damage_plan", None)
+
+        if callable(fn_valid) and callable(fn_resolve):
+            valid_keys = list(fn_valid("enemy") or [])
+            total_available = max(0, int(total_damage or 0))
+            used_attack = bool(getattr(S, "turn_offensive_attack_used", False))
+
+            policy = str(getattr(S, "offensive_targeting_policy", "single_target") or "single_target").strip().lower()
+            if policy not in ("single_target", "split_equal", "split_manual"):
+                policy = "single_target"
+
+            # B.2: paquetes manuales basados en ataques seleccionados (o único paquete total)
+            raw_packages = []
+            for pair in (attack_records or []):
+                try:
+                    _, dmg_i = pair
+                    di = max(0, int(dmg_i or 0))
+                    if di > 0:
+                        raw_packages.append(di)
+                except:
+                    pass
+            if (not raw_packages) and total_available > 0:
+                raw_packages = [total_available]
+
+            packages = []
+            if total_available > 0:
+                rem = total_available
+                for amt in raw_packages:
+                    if rem <= 0:
+                        break
+                    a = min(rem, max(0, int(amt or 0)))
+                    if a > 0:
+                        packages.append(a)
+                        rem -= a
+                if rem > 0:
+                    packages.append(rem)
+
+            assignment = {}
+            manual_completed = False
+
+            def _label_for_key(k):
+                label = str(k)
+                if callable(fn_parse):
+                    info = fn_parse(k)
+                    slot = int(info.get("slot", 0) or 0)
+                    unit = fn_get_unit(k) if callable(fn_get_unit) else None
+                    if isinstance(unit, dict):
+                        hp = int(unit.get("hp", 0) or 0)
+                        mx = int(unit.get("max_hp", 0) or 0)
+                        name = str(unit.get("char_id", "") or "")
+                        if name:
+                            return "{} [HP {}/{}]".format(name, hp, mx)
+                        return "Objetivo {} [HP {}/{}]".format(slot + 1, hp, mx)
+                    return "Objetivo {}".format(slot + 1)
+                return label
+
+            # B.2: split manual (si hay múltiples objetivos y hubo ataque)
+            if policy == "split_manual" and len(valid_keys) > 1 and used_attack and packages:
+                manual_cancelled = False
+                for i, amount in enumerate(packages):
+                    menu_items = []
+                    for k in valid_keys:
+                        menu_items.append(("{}  ← paquete {} ({} daño)".format(_label_for_key(k), i + 1, amount), k))
+                    menu_items.append(("[AUTO] usar fallback", "__AUTO__"))
+
+                    chosen = None
+                    try:
+                        chosen = renpy.display_menu(menu_items)
+                    except:
+                        chosen = "__AUTO__"
+
+                    if (not chosen) or (chosen == "__AUTO__"):
+                        manual_cancelled = True
+                        break
+
+                    assignment[chosen] = int(assignment.get(chosen, 0) or 0) + int(amount or 0)
+
+                assigned_total = 0
+                for v in assignment.values():
+                    assigned_total += max(0, int(v or 0))
+                manual_completed = (not manual_cancelled) and (assigned_total == total_available) and bool(assignment)
+
+            # B.3: fallback automático por política
+            if not manual_completed:
+                if policy == "split_equal" and len(valid_keys) > 1 and total_available > 0:
+                    resolved = fn_resolve(mode="split_equal", target_team="enemy")
+                    count = max(1, len(resolved))
+                    base = total_available // count
+                    rem = total_available % count
+                    assignment = {}
+                    for idx, k in enumerate(resolved):
+                        assignment[k] = base + (1 if idx < rem else 0)
+                else:
+                    selected_key = None
+                    if len(valid_keys) > 1 and used_attack:
+                        menu_items = [(_label_for_key(k), k) for k in valid_keys]
+                        try:
+                            selected_key = renpy.display_menu(menu_items)
+                        except:
+                            selected_key = None
+
+                    resolved = fn_resolve(
+                        mode="single_target",
+                        target_team="enemy",
+                        selected_target_key=selected_key,
+                    )
+                    if resolved and total_available > 0:
+                        assignment = {resolved[0]: total_available}
+                    elif resolved:
+                        assignment = {resolved[0]: 0}
+
+            # Persistir target principal + damage plan
+            if assignment:
+                first_key = ""
+                entries = []
+                for k, amount in assignment.items():
+                    if not first_key:
+                        first_key = str(k or "")
+                    amt_i = max(0, int(amount or 0))
+                    if amt_i > 0:
+                        entries.append({"target_key": str(k or ""), "amount": amt_i, "tags": ["offensive"]})
+
+                S.offensive_target_key = first_key
+
+                if entries and callable(fn_make_plan):
+                    S.offensive_damage_plan = fn_make_plan(
+                        source_key=getattr(S, "current_actor_unit_key", None),
+                        entries=entries,
+                        mode=("split_manual" if manual_completed else policy),
+                        skill_id="offensive_turn",
+                        meta={"total_expected": total_available, "manual_completed": bool(manual_completed)},
+                    )
 
     # ------------------------------------------------------------
     # ✅ FIN DEL TURNO: Hook unificado (Concentrar por cargas)

@@ -71,7 +71,15 @@ label battle_defensive_turn:
         #     import renpy.store as S
         #     S.def_boost_pending = False
 
-        $ player_name = "Harribel"
+        python:
+            import renpy.store as S
+            _bp = getattr(S, "battle_player", None)
+            if isinstance(_bp, dict):
+                player_name = str(_bp.get("name", "") or "")
+            else:
+                player_name = ""
+            if not player_name:
+                player_name = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
         $ battle_turn_change("player")
         $ battle_popup_turn("Turno ofensivo — {}".format(player_name), "#FFD700", delay=0.7)
         jump battle_offensive_turn
@@ -125,7 +133,15 @@ label battle_defensive_turn:
         S.player_is_dead       = (S.player_hp <= 0)
 
     # --- Encabezado visual ---
-    $ player_name = "Harribel"
+    python:
+        import renpy.store as S
+        _bp = getattr(S, "battle_player", None)
+        if isinstance(_bp, dict):
+            player_name = str(_bp.get("name", "") or "")
+        else:
+            player_name = ""
+        if not player_name:
+            player_name = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
     $ operation_clear()
     $ battle_log_phase("TURNO DEFENSIVO – {}".format(player_name))
     $ battle_popup_turn("Turno defensivo — {}".format(player_name), "#00BFFF", delay=0.6)
