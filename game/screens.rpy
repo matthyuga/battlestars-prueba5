@@ -253,14 +253,14 @@ screen quick_menu():
             xalign 0.5
             yalign 1.0
 
-            textbutton _("Back") action Rollback()
-            textbutton _("History") action ShowMenu('history')
-            textbutton _("Skip") action Skip() alternate Skip(fast=True, confirm=True)
-            textbutton _("Auto") action Preference("auto-forward", "toggle")
-            textbutton _("Save") action ShowMenu('save')
-            textbutton _("Q.Save") action QuickSave()
-            textbutton _("Q.Load") action QuickLoad()
-            textbutton _("Prefs") action ShowMenu('preferences')
+            textbutton renpy.translation.translate_string("Back") action Rollback()
+            textbutton renpy.translation.translate_string("History") action ShowMenu('history')
+            textbutton renpy.translation.translate_string("Skip") action Skip() alternate Skip(fast=True, confirm=True)
+            textbutton renpy.translation.translate_string("Auto") action Preference("auto-forward", "toggle")
+            textbutton renpy.translation.translate_string("Save") action ShowMenu('save')
+            textbutton renpy.translation.translate_string("Q.Save") action QuickSave()
+            textbutton renpy.translation.translate_string("Q.Load") action QuickLoad()
+            textbutton renpy.translation.translate_string("Prefs") action ShowMenu('preferences')
 
 
 ## This code ensures that the quick_menu screen is displayed in-game, whenever
@@ -301,38 +301,38 @@ screen navigation():
 
         if main_menu:
 
-            textbutton _("Start") action Start()
+            textbutton renpy.translation.translate_string("Start") action Start()
 
         else:
 
-            textbutton _("History") action ShowMenu("history")
+            textbutton renpy.translation.translate_string("History") action ShowMenu("history")
 
-            textbutton _("Save") action ShowMenu("save")
+            textbutton renpy.translation.translate_string("Save") action ShowMenu("save")
 
-        textbutton _("Load") action ShowMenu("load")
+        textbutton renpy.translation.translate_string("Load") action ShowMenu("load")
 
-        textbutton _("Preferences") action ShowMenu("preferences")
+        textbutton renpy.translation.translate_string("Preferences") action ShowMenu("preferences")
 
         if _in_replay:
 
-            textbutton _("End Replay") action EndReplay(confirm=True)
+            textbutton renpy.translation.translate_string("End Replay") action EndReplay(confirm=True)
 
         elif not main_menu:
 
-            textbutton _("Main Menu") action MainMenu()
+            textbutton renpy.translation.translate_string("Main Menu") action MainMenu()
 
-        textbutton _("About") action ShowMenu("about")
+        textbutton renpy.translation.translate_string("About") action ShowMenu("about")
 
         if renpy.variant("pc") or (renpy.variant("web") and not renpy.variant("mobile")):
 
             ## Help isn't necessary or relevant to mobile devices.
-            textbutton _("Help") action ShowMenu("help")
+            textbutton renpy.translation.translate_string("Help") action ShowMenu("help")
 
         if renpy.variant("pc"):
 
             ## The quit button is banned on iOS and unnecessary on Android and
             ## Web.
-            textbutton _("Quit") action Quit(confirm=not main_menu)
+            textbutton renpy.translation.translate_string("Quit") action Quit(confirm=not main_menu)
 
 
 style navigation_button is gui_button
@@ -421,6 +421,10 @@ screen game_menu(title, scroll=None, yinitial=0.0):
 
     style_prefix "game_menu"
 
+    $ _store = renpy.store
+    if hasattr(_store, "_"):
+        $ delattr(_store, "_")
+
     if main_menu:
         add gui.main_menu_background
     else:
@@ -473,7 +477,7 @@ screen game_menu(title, scroll=None, yinitial=0.0):
 
     use navigation
 
-    textbutton _("Return"):
+    textbutton renpy.translation.translate_string("Return"):
         style "return_button"
 
         action Return()
@@ -550,20 +554,20 @@ screen about():
     ## This use statement includes the game_menu screen inside this one. The
     ## vbox child is then included inside the viewport inside the game_menu
     ## screen.
-    use game_menu(_("About"), scroll="viewport"):
+    use game_menu(renpy.translation.translate_string("About"), scroll="viewport"):
 
         style_prefix "about"
 
         vbox:
 
             label "[config.name!t]"
-            text _("Version [config.version!t]\n")
+            text renpy.translation.translate_string("Version [config.version!t]\n")
 
             ## gui.about is usually set in options.rpy.
             if gui.about:
                 text "[gui.about!t]\n"
 
-            text _("Made with {a=https://www.renpy.org/}Ren'Py{/a} [renpy.version_only].\n\n[renpy.license!t]")
+            text renpy.translation.translate_string("Made with {a=https://www.renpy.org/}Ren'Py{/a} [renpy.version_only].\n\n[renpy.license!t]")
 
 
 style about_label is gui_label
@@ -587,19 +591,23 @@ screen save():
 
     tag menu
 
-    use file_slots(_("Save"))
+    use file_slots(renpy.translation.translate_string("Save"))
 
 
 screen load():
 
     tag menu
 
-    use file_slots(_("Load"))
+    use file_slots(renpy.translation.translate_string("Load"))
 
 
 screen file_slots(title):
 
-    default page_name_value = FilePageNameInputValue(pattern=_("Page {}"), auto=_("Automatic saves"), quick=_("Quick saves"))
+    default page_name_value = FilePageNameInputValue(
+        pattern=renpy.translation.translate_string("Page {}"),
+        auto=renpy.translation.translate_string("Automatic saves"),
+        quick=renpy.translation.translate_string("Quick saves"),
+    )
 
     use game_menu(title):
 
@@ -641,7 +649,7 @@ screen file_slots(title):
 
                         add FileScreenshot(slot) xalign 0.5
 
-                        text FileTime(slot, format=_("{#file_time}%A, %B %d %Y, %H:%M"), empty=_("empty slot")):
+                        text FileTime(slot, format=renpy.translation.translate_string("{#file_time}%A, %B %d %Y, %H:%M"), empty=renpy.translation.translate_string("empty slot")):
                             style "slot_time_text"
 
                         text FileSaveName(slot):
@@ -658,19 +666,19 @@ screen file_slots(title):
 
                 spacing gui.page_spacing
 
-                textbutton _("<") action FilePagePrevious()
+                textbutton renpy.translation.translate_string("<") action FilePagePrevious()
 
                 if config.has_autosave:
-                    textbutton _("{#auto_page}A") action FilePage("auto")
+                    textbutton renpy.translation.translate_string("{#auto_page}A") action FilePage("auto")
 
                 if config.has_quicksave:
-                    textbutton _("{#quick_page}Q") action FilePage("quick")
+                    textbutton renpy.translation.translate_string("{#quick_page}Q") action FilePage("quick")
 
                 ## range(1, 10) gives the numbers from 1 to 9.
                 for page in range(1, 10):
                     textbutton "[page]" action FilePage(page)
 
-                textbutton _(">") action FilePageNext()
+                textbutton renpy.translation.translate_string(">") action FilePageNext()
 
 
 style page_label is gui_label
@@ -716,7 +724,7 @@ screen preferences():
 
     tag menu
 
-    use game_menu(_("Preferences"), scroll="viewport"):
+    use game_menu(renpy.translation.translate_string("Preferences"), scroll="viewport"):
 
         vbox:
 
@@ -727,23 +735,23 @@ screen preferences():
 
                     vbox:
                         style_prefix "radio"
-                        label _("Display")
-                        textbutton _("Window") action Preference("display", "window")
-                        textbutton _("Fullscreen") action Preference("display", "fullscreen")
+                        label renpy.translation.translate_string("Display")
+                        textbutton renpy.translation.translate_string("Window") action Preference("display", "window")
+                        textbutton renpy.translation.translate_string("Fullscreen") action Preference("display", "fullscreen")
 
                 vbox:
                     style_prefix "radio"
-                    label _("Rollback Side")
-                    textbutton _("Disable") action Preference("rollback side", "disable")
-                    textbutton _("Left") action Preference("rollback side", "left")
-                    textbutton _("Right") action Preference("rollback side", "right")
+                    label renpy.translation.translate_string("Rollback Side")
+                    textbutton renpy.translation.translate_string("Disable") action Preference("rollback side", "disable")
+                    textbutton renpy.translation.translate_string("Left") action Preference("rollback side", "left")
+                    textbutton renpy.translation.translate_string("Right") action Preference("rollback side", "right")
 
                 vbox:
                     style_prefix "check"
-                    label _("Skip")
-                    textbutton _("Unseen Text") action Preference("skip", "toggle")
-                    textbutton _("After Choices") action Preference("after choices", "toggle")
-                    textbutton _("Transitions") action InvertSelected(Preference("transitions", "toggle"))
+                    label renpy.translation.translate_string("Skip")
+                    textbutton renpy.translation.translate_string("Unseen Text") action Preference("skip", "toggle")
+                    textbutton renpy.translation.translate_string("After Choices") action Preference("after choices", "toggle")
+                    textbutton renpy.translation.translate_string("Transitions") action InvertSelected(Preference("transitions", "toggle"))
 
                 ## Additional vboxes of type "radio_pref" or "check_pref" can be
                 ## added here, to add additional creator-defined preferences.
@@ -756,46 +764,46 @@ screen preferences():
 
                 vbox:
 
-                    label _("Text Speed")
+                    label renpy.translation.translate_string("Text Speed")
 
                     bar value Preference("text speed")
 
-                    label _("Auto-Forward Time")
+                    label renpy.translation.translate_string("Auto-Forward Time")
 
                     bar value Preference("auto-forward time")
 
                 vbox:
 
                     if config.has_music:
-                        label _("Music Volume")
+                        label renpy.translation.translate_string("Music Volume")
 
                         hbox:
                             bar value Preference("music volume")
 
                     if config.has_sound:
 
-                        label _("Sound Volume")
+                        label renpy.translation.translate_string("Sound Volume")
 
                         hbox:
                             bar value Preference("sound volume")
 
                             if config.sample_sound:
-                                textbutton _("Test") action Play("sound", config.sample_sound)
+                                textbutton renpy.translation.translate_string("Test") action Play("sound", config.sample_sound)
 
 
                     if config.has_voice:
-                        label _("Voice Volume")
+                        label renpy.translation.translate_string("Voice Volume")
 
                         hbox:
                             bar value Preference("voice volume")
 
                             if config.sample_voice:
-                                textbutton _("Test") action Play("voice", config.sample_voice)
+                                textbutton renpy.translation.translate_string("Test") action Play("voice", config.sample_voice)
 
                     if config.has_music or config.has_sound or config.has_voice:
                         null height gui.pref_spacing
 
-                        textbutton _("Mute All"):
+                        textbutton renpy.translation.translate_string("Mute All"):
                             action Preference("all mute", "toggle")
                             style "mute_all_button"
 
@@ -886,7 +894,7 @@ screen history():
     ## Avoid predicting this screen, as it can be very large.
     predict False
 
-    use game_menu(_("History"), scroll=("vpgrid" if gui.history_height else "viewport"), yinitial=1.0):
+    use game_menu(renpy.translation.translate_string("History"), scroll=("vpgrid" if gui.history_height else "viewport"), yinitial=1.0):
 
         style_prefix "history"
 
@@ -914,7 +922,7 @@ screen history():
                     substitute False
 
         if not _history_list:
-            label _("The dialogue history is empty.")
+            label renpy.translation.translate_string("The dialogue history is empty.")
 
 
 ## This determines what tags are allowed to be displayed on the history screen.
@@ -975,7 +983,7 @@ screen help():
 
     default device = "keyboard"
 
-    use game_menu(_("Help"), scroll="viewport"):
+    use game_menu(renpy.translation.translate_string("Help"), scroll="viewport"):
 
         style_prefix "help"
 
@@ -984,11 +992,11 @@ screen help():
 
             hbox:
 
-                textbutton _("Keyboard") action SetScreenVariable("device", "keyboard")
-                textbutton _("Mouse") action SetScreenVariable("device", "mouse")
+                textbutton renpy.translation.translate_string("Keyboard") action SetScreenVariable("device", "keyboard")
+                textbutton renpy.translation.translate_string("Mouse") action SetScreenVariable("device", "mouse")
 
                 if GamepadExists():
-                    textbutton _("Gamepad") action SetScreenVariable("device", "gamepad")
+                    textbutton renpy.translation.translate_string("Gamepad") action SetScreenVariable("device", "gamepad")
 
             if device == "keyboard":
                 use keyboard_help
@@ -1001,105 +1009,105 @@ screen help():
 screen keyboard_help():
 
     hbox:
-        label _("Enter")
-        text _("Advances dialogue and activates the interface.")
+        label renpy.translation.translate_string("Enter")
+        text renpy.translation.translate_string("Advances dialogue and activates the interface.")
 
     hbox:
-        label _("Space")
-        text _("Advances dialogue without selecting choices.")
+        label renpy.translation.translate_string("Space")
+        text renpy.translation.translate_string("Advances dialogue without selecting choices.")
 
     hbox:
-        label _("Arrow Keys")
-        text _("Navigate the interface.")
+        label renpy.translation.translate_string("Arrow Keys")
+        text renpy.translation.translate_string("Navigate the interface.")
 
     hbox:
-        label _("Escape")
-        text _("Accesses the game menu.")
+        label renpy.translation.translate_string("Escape")
+        text renpy.translation.translate_string("Accesses the game menu.")
 
     hbox:
-        label _("Ctrl")
-        text _("Skips dialogue while held down.")
+        label renpy.translation.translate_string("Ctrl")
+        text renpy.translation.translate_string("Skips dialogue while held down.")
 
     hbox:
-        label _("Tab")
-        text _("Toggles dialogue skipping.")
+        label renpy.translation.translate_string("Tab")
+        text renpy.translation.translate_string("Toggles dialogue skipping.")
 
     hbox:
-        label _("Page Up")
-        text _("Rolls back to earlier dialogue.")
+        label renpy.translation.translate_string("Page Up")
+        text renpy.translation.translate_string("Rolls back to earlier dialogue.")
 
     hbox:
-        label _("Page Down")
-        text _("Rolls forward to later dialogue.")
+        label renpy.translation.translate_string("Page Down")
+        text renpy.translation.translate_string("Rolls forward to later dialogue.")
 
     hbox:
         label "H"
-        text _("Hides the user interface.")
+        text renpy.translation.translate_string("Hides the user interface.")
 
     hbox:
         label "S"
-        text _("Takes a screenshot.")
+        text renpy.translation.translate_string("Takes a screenshot.")
 
     hbox:
         label "V"
-        text _("Toggles assistive {a=https://www.renpy.org/l/voicing}self-voicing{/a}.")
+        text renpy.translation.translate_string("Toggles assistive {a=https://www.renpy.org/l/voicing}self-voicing{/a}.")
 
     hbox:
         label "Shift+A"
-        text _("Opens the accessibility menu.")
+        text renpy.translation.translate_string("Opens the accessibility menu.")
 
 
 screen mouse_help():
 
     hbox:
-        label _("Left Click")
-        text _("Advances dialogue and activates the interface.")
+        label renpy.translation.translate_string("Left Click")
+        text renpy.translation.translate_string("Advances dialogue and activates the interface.")
 
     hbox:
-        label _("Middle Click")
-        text _("Hides the user interface.")
+        label renpy.translation.translate_string("Middle Click")
+        text renpy.translation.translate_string("Hides the user interface.")
 
     hbox:
-        label _("Right Click")
-        text _("Accesses the game menu.")
+        label renpy.translation.translate_string("Right Click")
+        text renpy.translation.translate_string("Accesses the game menu.")
 
     hbox:
-        label _("Mouse Wheel Up\nClick Rollback Side")
-        text _("Rolls back to earlier dialogue.")
+        label renpy.translation.translate_string("Mouse Wheel Up\nClick Rollback Side")
+        text renpy.translation.translate_string("Rolls back to earlier dialogue.")
 
     hbox:
-        label _("Mouse Wheel Down")
-        text _("Rolls forward to later dialogue.")
+        label renpy.translation.translate_string("Mouse Wheel Down")
+        text renpy.translation.translate_string("Rolls forward to later dialogue.")
 
 
 screen gamepad_help():
 
     hbox:
-        label _("Right Trigger\nA/Bottom Button")
-        text _("Advances dialogue and activates the interface.")
+        label renpy.translation.translate_string("Right Trigger\nA/Bottom Button")
+        text renpy.translation.translate_string("Advances dialogue and activates the interface.")
 
     hbox:
-        label _("Left Trigger\nLeft Shoulder")
-        text _("Rolls back to earlier dialogue.")
+        label renpy.translation.translate_string("Left Trigger\nLeft Shoulder")
+        text renpy.translation.translate_string("Rolls back to earlier dialogue.")
 
     hbox:
-        label _("Right Shoulder")
-        text _("Rolls forward to later dialogue.")
+        label renpy.translation.translate_string("Right Shoulder")
+        text renpy.translation.translate_string("Rolls forward to later dialogue.")
 
 
     hbox:
-        label _("D-Pad, Sticks")
-        text _("Navigate the interface.")
+        label renpy.translation.translate_string("D-Pad, Sticks")
+        text renpy.translation.translate_string("Navigate the interface.")
 
     hbox:
-        label _("Start, Guide")
-        text _("Accesses the game menu.")
+        label renpy.translation.translate_string("Start, Guide")
+        text renpy.translation.translate_string("Accesses the game menu.")
 
     hbox:
-        label _("Y/Top Button")
-        text _("Hides the user interface.")
+        label renpy.translation.translate_string("Y/Top Button")
+        text renpy.translation.translate_string("Hides the user interface.")
 
-    textbutton _("Calibrate") action GamepadCalibrate()
+    textbutton renpy.translation.translate_string("Calibrate") action GamepadCalibrate()
 
 
 style help_button is gui_button
@@ -1156,7 +1164,7 @@ screen confirm(message, yes_action, no_action):
             yalign .5
             spacing 30
 
-            label _(message):
+            label renpy.translation.translate_string(message):
                 style "confirm_prompt"
                 xalign 0.5
 
@@ -1164,8 +1172,8 @@ screen confirm(message, yes_action, no_action):
                 xalign 0.5
                 spacing 100
 
-                textbutton _("Yes") action yes_action
-                textbutton _("No") action no_action
+                textbutton renpy.translation.translate_string("Yes") action yes_action
+                textbutton renpy.translation.translate_string("No") action no_action
 
     ## Right-click and escape answer "no".
     key "game_menu" action no_action
@@ -1211,7 +1219,7 @@ screen skip_indicator():
         hbox:
             spacing 6
 
-            text _("Skipping")
+            text renpy.translation.translate_string("Skipping")
 
             text "▸" at delayed_blink(0.0, 1.0) style "skip_triangle"
             text "▸" at delayed_blink(0.2, 1.0) style "skip_triangle"
@@ -1431,10 +1439,10 @@ screen quick_menu():
             xalign 0.5
             yalign 1.0
 
-            textbutton _("Back") action Rollback()
-            textbutton _("Skip") action Skip() alternate Skip(fast=True, confirm=True)
-            textbutton _("Auto") action Preference("auto-forward", "toggle")
-            textbutton _("Menu") action ShowMenu()
+            textbutton renpy.translation.translate_string("Back") action Rollback()
+            textbutton renpy.translation.translate_string("Skip") action Skip() alternate Skip(fast=True, confirm=True)
+            textbutton renpy.translation.translate_string("Auto") action Preference("auto-forward", "toggle")
+            textbutton renpy.translation.translate_string("Menu") action ShowMenu()
 
 
 style window:

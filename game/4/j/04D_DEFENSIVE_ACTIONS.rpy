@@ -165,9 +165,6 @@ label defensive_process_actions(selected, base_damage):
         # ----------------------------------------------------
         for action in actions:
 
-            if S.awaiting_turn_end:
-                break
-
             # ----------------------------
             # POTENCIAR (ONE-SHOT, SIN COSTO DIRECTO)
             # ----------------------------
@@ -242,8 +239,6 @@ label defensive_process_actions(selected, base_damage):
 
                 ref_pct = float(action.data.get("attack_reflect", 0.10))
                 S.reflected = int(base_damage * ref_pct)
-                S.awaiting_turn_end = True
-
                 if callable(log_defense_reflect):
                     summary_lines.append(
                         log_defense_reflect(
@@ -259,8 +254,6 @@ label defensive_process_actions(selected, base_damage):
 
                 atk_red = float(action.data.get("attack_reduction", 0.10))
                 S.reduc_val = int(base_damage * atk_red)
-                S.awaiting_turn_end = True
-
                 if callable(log_defense_reducer):
                     summary_lines.append(
                         log_defense_reducer(
@@ -274,7 +267,6 @@ label defensive_process_actions(selected, base_damage):
 
             elif action.tech_id == "defense_strong_block":
 
-                S.awaiting_turn_end = True
                 summary_lines.append(
                     log_defense_strong(
                         blk_text(action.base_block, action.final_block)
@@ -286,6 +278,7 @@ label defensive_process_actions(selected, base_damage):
             # ----------------------------
             S.consume_resources(action.rei_cost, action.ene_cost, actor="player")
             action.used = True
+
 
         # Export para el Operation (y logs)
         S.summary_lines = summary_lines
