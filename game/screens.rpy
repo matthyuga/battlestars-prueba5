@@ -583,23 +583,38 @@ style about_label_text:
 ## https://www.renpy.org/doc/html/screen_special.html#save https://
 ## www.renpy.org/doc/html/screen_special.html#load
 
+init -100 python:
+    def _safe_t(text):
+        """
+        Traductor defensivo para pantallas de menú.
+        Evita crashear si `_` fue sobreescrito accidentalmente en store.
+        """
+        try:
+            return _(text)
+        except Exception:
+            return text
+
 screen save():
 
     tag menu
 
-    use file_slots(_("Save"))
+    use file_slots(_safe_t("Save"))
 
 
 screen load():
 
     tag menu
 
-    use file_slots(_("Load"))
+    use file_slots(_safe_t("Load"))
 
 
 screen file_slots(title):
 
-    default page_name_value = FilePageNameInputValue(pattern=_("Page {}"), auto=_("Automatic saves"), quick=_("Quick saves"))
+    default page_name_value = FilePageNameInputValue(
+        pattern=_safe_t("Page {}"),
+        auto=_safe_t("Automatic saves"),
+        quick=_safe_t("Quick saves"),
+    )
 
     use game_menu(title):
 
