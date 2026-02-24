@@ -3,3 +3,7 @@ traceback.txt
 game/saves/
 game/cache/
 *.rpyc
+*.bundle
+*.patch
+
+

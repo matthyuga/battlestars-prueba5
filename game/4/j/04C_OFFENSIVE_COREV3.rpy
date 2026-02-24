@@ -499,7 +499,7 @@ label battle_offensive_turn:
             raw_packages = []
             for pair in (attack_records or []):
                 try:
-                    _, dmg_i = pair
+                    base_i, dmg_i = pair
                     di = max(0, int(dmg_i or 0))
                     if di > 0:
                         raw_packages.append(di)

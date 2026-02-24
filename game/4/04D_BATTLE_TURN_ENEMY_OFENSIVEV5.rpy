@@ -252,7 +252,7 @@ label battle_enemy_turn:
             # C.3: policy burst vs presión distribuida
             policy = "single_target"
             alive_n = len(scored)
-            lowest_hp = min([x.get("hp", 0) for x in scored], default=0)
+            lowest_hp = min([x.get("hp", 0) for x in scored]) if scored else 0
             can_secure_ko = bool(total_damage > 0 and lowest_hp > 0 and total_damage >= lowest_hp)
 
             if alive_n <= 1:
