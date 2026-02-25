@@ -13,11 +13,33 @@
 label battle_enemy_turn:
 
     $ battle_turn_change("enemy")
-    $ enemy_name = enemy_ai.name
 
     python:
         import renpy.store as S
         S._enemy_reflect_consumed_this_turn = False
+
+        enemy_name = str(getattr(getattr(S, "enemy_ai", None), "name", "Enemigo") or "Enemigo")
+        slot_idx = 0
+
+        fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+        fn_key = getattr(S, "bs_unit_key", None)
+        fn_get = getattr(S, "bs_get_unit_by_key", None)
+
+        if callable(fn_ctx):
+            ctx = fn_ctx()
+            if str(ctx.get("owner_team", "enemy") or "enemy") == "enemy":
+                slot_idx = int(ctx.get("owner_slot", 0) or 0)
+
+        if callable(fn_key):
+            S.current_enemy_unit_key = str(fn_key("enemy", slot_idx) or "")
+
+        if callable(fn_get):
+            uu = fn_get(getattr(S, "current_enemy_unit_key", ""))
+            if isinstance(uu, dict):
+                enemy_name = str(uu.get("char_id", enemy_name) or enemy_name)
+
+        S.turn_owner_slot = int(slot_idx or 0)
+        S.turn_owner_team = "enemy"
 
     # ============================================================
     # ⭐ ATAQUE NEGADOR — cancelar turno ofensivo IA
@@ -97,8 +119,9 @@ label battle_enemy_turn:
     # ============================================================
     # ⭐ ENCABEZADO IA
     # ============================================================
-    $ battle_popup_turn("Turno ofensivo — {}".format(enemy_name), "#FFD700", delay=0.6)
-    $ battle_log_phase("TURNO OFENSIVO – {}".format(enemy_name))
+    $ _slot_txt = " [S{}]".format(int(getattr(store, "turn_owner_slot", 0) or 0) + 1) if str(getattr(store, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
+    $ battle_popup_turn("Turno ofensivo{} — {}".format(_slot_txt, enemy_name), "#FFD700", delay=0.6)
+    $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, enemy_name))
     $ renpy.pause(0.8, hard=True)
 
     python:
@@ -117,9 +140,12 @@ label battle_enemy_turn:
         # ID store-safe
         S.current_enemy_id = getattr(S, "BATTLE_IDENTITIES", {}).get(enemy_name, "ID_ENEMY_UNKNOWN")
         try:
-            fn_active_key = getattr(S, "bs_get_active_unit_key", None)
-            if callable(fn_active_key):
-                S.current_enemy_unit_key = str(fn_active_key("enemy") or "")
+            fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+            fn_key = getattr(S, "bs_unit_key", None)
+            if callable(fn_ctx) and callable(fn_key):
+                c = fn_ctx()
+                eslot = int(c.get("owner_slot", 0) or 0) if str(c.get("owner_team", "enemy") or "enemy") == "enemy" else int(getattr(S, "turn_owner_slot", 0) or 0)
+                S.current_enemy_unit_key = str(fn_key("enemy", eslot) or "")
         except:
             S.current_enemy_unit_key = ""
 
