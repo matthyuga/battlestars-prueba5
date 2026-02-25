@@ -581,6 +581,24 @@ init -989 python:
         out["unit_key"] = parsed.get("key", bs_unit_key(side, slot))
         return out
 
+    def bs_describe_unit_key(key, default_side="player", default_slot=0):
+        info = bs_parse_unit_key(key, default_side=default_side, default_slot=default_slot)
+        side = str(info.get("team", "player") or "player")
+        slot = max(0, _bs_to_int(info.get("slot", 0), 0))
+        unit = bs_get_unit_by_key(info.get("key", ""))
+
+        role = "player" if side == "player" else "enemy"
+        slot_txt = str(slot + 1)
+
+        name = ""
+        if isinstance(unit, dict):
+            name = str(unit.get("char_id", "") or "")
+        if not name:
+            name = ("P{}".format(slot + 1) if side == "player" else "E{}".format(slot + 1))
+
+        return "{} {} {}".format(role, slot_txt, name)
+
+
     def bs_set_active_by_key(key, mirror_units=True):
         parsed = bs_parse_unit_key(key)
         return bs_set_active_slot(parsed.get("team", "player"), parsed.get("slot", 0), mirror_units=mirror_units)
@@ -1287,6 +1305,7 @@ init -989 python:
     S.bs_parse_unit_key = bs_parse_unit_key
     S.bs_get_active_unit_key = bs_get_active_unit_key
     S.bs_get_unit_by_key = bs_get_unit_by_key
+    S.bs_describe_unit_key = bs_describe_unit_key
     S.bs_set_active_by_key = bs_set_active_by_key
     S.bs_set_active_slot = bs_set_active_slot
     S.bs_get_team_alive = bs_get_team_alive

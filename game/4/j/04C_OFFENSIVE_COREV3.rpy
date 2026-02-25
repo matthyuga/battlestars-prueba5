@@ -634,6 +634,23 @@ label battle_offensive_turn:
                         meta={"total_expected": total_available, "manual_completed": bool(manual_completed)},
                     )
 
+                try:
+                    fn_desc = getattr(S, "bs_describe_unit_key", None)
+                    if callable(getattr(S, "battle_log_add", None)):
+                        lbls = []
+                        for e in entries:
+                            tk = str(e.get("target_key", "") or "")
+                            if not tk:
+                                continue
+                            if callable(fn_desc):
+                                lbls.append(str(fn_desc(tk, default_side="enemy", default_slot=0) or tk))
+                            else:
+                                lbls.append(tk)
+                        if lbls:
+                            S.battle_log_add("{color=#88DDFF}Target asignado: %s{/color}" % (" + ".join(lbls)))
+                except:
+                    pass
+
     # ------------------------------------------------------------
     # ✅ FIN DEL TURNO: Hook unificado (Concentrar por cargas)
     # ------------------------------------------------------------

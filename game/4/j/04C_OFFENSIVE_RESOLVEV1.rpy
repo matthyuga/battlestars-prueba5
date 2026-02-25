@@ -95,16 +95,60 @@ label battle_offensive_resolve_enemy:
         # ⭐ APLICAR DAÑOS (STORE HP = fuente real)
         # ====================================================
         try:
-            dmg_total = max(0, int(final_damage or 0)) + max(0, int(direct_damage or 0))
+            defendible_total = max(0, int(final_damage or 0))
+            direct_total = max(0, int(direct_damage or 0))
+            dmg_total = defendible_total + direct_total
             target_key = str(getattr(S, "offensive_target_key", "") or "")
             plan = getattr(S, "offensive_damage_plan", None)
 
-            fn_apply_plan = getattr(S, "bs_apply_damage_plan", None)
             fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
             fn_apply = getattr(S, "bs_apply_damage", None)
 
-            if isinstance(plan, dict) and callable(fn_apply_plan):
-                fn_apply_plan(plan, reason="combat")
+            if isinstance(plan, dict) and callable(fn_apply_key):
+                # IMPORTANTE: reescalar plan al daño defendible real para evitar desync
+                # (ej: log muestra 300 tras defensa, pero plan original tenía 400).
+                entries = list(plan.get("entries", []) or [])
+                base_entries = []
+                original_total = 0
+                for e in entries:
+                    if not isinstance(e, dict):
+                        continue
+                    tk = str(e.get("target_key", "") or "")
+                    amt = max(0, int(e.get("amount", 0) or 0))
+                    if not tk or amt <= 0:
+                        continue
+                    base_entries.append((tk, amt))
+                    original_total += amt
+
+                alloc = {}
+                if base_entries and original_total > 0 and defendible_total > 0:
+                    rem = int(defendible_total)
+                    for idx, pair in enumerate(base_entries):
+                        tk, amt = pair
+                        if idx == len(base_entries) - 1:
+                            take = rem
+                        else:
+                            take = int((int(amt) * int(defendible_total)) // int(original_total))
+                            if take > rem:
+                                take = rem
+                        rem -= max(0, int(take or 0))
+                        if take > 0:
+                            alloc[tk] = int(alloc.get(tk, 0) or 0) + int(take)
+
+                if direct_total > 0:
+                    primary = target_key
+                    if (not primary) and base_entries:
+                        primary = str(base_entries[0][0] or "")
+                    if primary:
+                        alloc[primary] = int(alloc.get(primary, 0) or 0) + int(direct_total)
+
+                if alloc:
+                    src = getattr(S, "current_actor_unit_key", None)
+                    for tk, amt in alloc.items():
+                        if int(amt or 0) > 0:
+                            fn_apply_key(tk, int(amt), source_key=src, reason="combat")
+                elif target_key:
+                    fn_apply_key(target_key, dmg_total, source_key=getattr(S, "current_actor_unit_key", None), reason="combat")
             elif target_key and callable(fn_apply_key):
                 fn_apply_key(target_key, dmg_total, source_key=getattr(S, "current_actor_unit_key", None), reason="combat")
             elif callable(fn_apply):

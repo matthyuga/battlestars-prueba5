@@ -331,7 +331,20 @@ label battle_enemy_turn:
 
             try:
                 if callable(getattr(S, "battle_log_add", None)) and primary:
-                    S.battle_log_add("{color=#B0E0E6}AI target policy: %s → %s{/color}" % (policy, primary))
+                    fn_desc = getattr(S, "bs_describe_unit_key", None)
+                    if callable(fn_desc):
+                        if policy == "split_equal" and plan_entries:
+                            lbls = []
+                            for pe in plan_entries:
+                                tk = str(pe.get("target_key", "") or "")
+                                if tk:
+                                    lbls.append(str(fn_desc(tk, default_side="player", default_slot=0) or tk))
+                            target_txt = " + ".join(lbls) if lbls else str(fn_desc(primary, default_side="player", default_slot=0) or primary)
+                        else:
+                            target_txt = str(fn_desc(primary, default_side="player", default_slot=0) or primary)
+                    else:
+                        target_txt = primary
+                    S.battle_log_add("{color=#B0E0E6}AI target policy: %s → target asignado: %s{/color}" % (policy, target_txt))
             except:
                 pass
 

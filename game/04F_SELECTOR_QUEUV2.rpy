@@ -157,6 +157,30 @@ init python:
         S.offensive_targeting_policy = mode
         return mode
 
+    def selector_target_preview_text(target_team="enemy"):
+        mode = str(getattr(S, "offensive_targeting_policy", "single_target") or "single_target").strip().lower()
+        sel = str(getattr(S, "offensive_selected_target_key", "") or "")
+        fn_desc = getattr(S, "bs_describe_unit_key", None)
+        fn_valid = getattr(S, "bs_get_valid_target_keys", None)
+
+        if mode == "split_equal":
+            valid = list(fn_valid(target_team) or []) if callable(fn_valid) else []
+            if not valid:
+                return "AUTO"
+            labels = []
+            for k in valid:
+                if callable(fn_desc):
+                    labels.append(str(fn_desc(k, default_side=target_team, default_slot=0) or k))
+                else:
+                    labels.append(str(k))
+            return " + ".join(labels)
+
+        if sel:
+            if callable(fn_desc):
+                return str(fn_desc(sel, default_side=target_team, default_slot=0) or sel)
+            return sel
+        return "AUTO"
+
 
 # ============================================================
 # TOOLTIP MODERNO
@@ -364,7 +388,7 @@ screen technique_selector():
                         if battle_mode == "offensive":
                             $ _policy = str(getattr(store, "offensive_targeting_policy", "single_target") or "single_target")
                             $ _sel = str(getattr(store, "offensive_selected_target_key", "") or "")
-                            $ _sel_txt = _sel if _sel else "AUTO"
+                            $ _sel_txt = selector_target_preview_text("enemy")
                             $ _dmg_mode_txt = "Dividir x2" if _policy == "split_equal" else "Foco único"
                             text "Objetivo: [_sel_txt]" size 18 color "#88DDFF"
                             text "Daño: [_dmg_mode_txt]" size 17 color "#FFDDAA"
