@@ -121,6 +121,7 @@ label battle_start:
     # Contador de turnos ofensivos (global por combate)
     $ S.battle_turn_index = 0
     $ S._last_turn_actor_key = ""
+    $ S.enemy_pending_damage_by_key = {}
 
     # =======================================================
     # 🌆 Fondo de batalla aleatorio

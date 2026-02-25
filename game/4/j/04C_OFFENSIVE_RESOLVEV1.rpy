@@ -78,22 +78,26 @@ label battle_offensive_resolve_enemy:
             except:
                 _blog("Daño directo aplicado: {}".format(direct_damage), "#FFD700")
 
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+
         # ====================================================
-        # ⭐ DEFENSAS ENEMIGAS (STORE-safe)
+        # ⭐ DEFENSAS/ENTRADA DE DAÑO ENEMIGO
+        # - 1v1: defensa reactiva inmediata (legacy)
+        # - 2v2: encolar por target para que cada slot defienda en su turno
         # ====================================================
-        fn_def = getattr(S, "enemy_compute_reactive_defense", None)
-        if callable(fn_def):
-            info = fn_def(total_damage)
-            try:
-                final_damage = int(info.get("final_damage", total_damage) or 0)
-            except:
+        if mode != "2v2":
+            fn_def = getattr(S, "enemy_compute_reactive_defense", None)
+            if callable(fn_def):
+                info = fn_def(total_damage)
+                try:
+                    final_damage = int(info.get("final_damage", total_damage) or 0)
+                except:
+                    final_damage = int(total_damage or 0)
+            else:
                 final_damage = int(total_damage or 0)
         else:
             final_damage = int(total_damage or 0)
 
-        # ====================================================
-        # ⭐ APLICAR DAÑOS (STORE HP = fuente real)
-        # ====================================================
         try:
             defendible_total = max(0, int(final_damage or 0))
             direct_total = max(0, int(direct_damage or 0))
@@ -104,9 +108,8 @@ label battle_offensive_resolve_enemy:
             fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
             fn_apply = getattr(S, "bs_apply_damage", None)
 
-            if isinstance(plan, dict) and callable(fn_apply_key):
-                # IMPORTANTE: reescalar plan al daño defendible real para evitar desync
-                # (ej: log muestra 300 tras defensa, pero plan original tenía 400).
+            alloc = {}
+            if isinstance(plan, dict):
                 entries = list(plan.get("entries", []) or [])
                 base_entries = []
                 original_total = 0
@@ -120,7 +123,6 @@ label battle_offensive_resolve_enemy:
                     base_entries.append((tk, amt))
                     original_total += amt
 
-                alloc = {}
                 if base_entries and original_total > 0 and defendible_total > 0:
                     rem = int(defendible_total)
                     for idx, pair in enumerate(base_entries):
@@ -141,26 +143,49 @@ label battle_offensive_resolve_enemy:
                         primary = str(base_entries[0][0] or "")
                     if primary:
                         alloc[primary] = int(alloc.get(primary, 0) or 0) + int(direct_total)
+            elif target_key:
+                alloc[target_key] = int(dmg_total)
 
-                if alloc:
+            if mode == "2v2":
+                pend = getattr(S, "enemy_pending_damage_by_key", None)
+                if not isinstance(pend, dict):
+                    pend = {}
+                for tk, amt in alloc.items():
+                    ai = max(0, int(amt or 0))
+                    if not tk or ai <= 0:
+                        continue
+                    pend[tk] = int(pend.get(tk, 0) or 0) + ai
+                S.enemy_pending_damage_by_key = pend
+                try:
+                    if callable(getattr(S, "battle_log_add", None)) and alloc:
+                        fn_desc = getattr(S, "bs_describe_unit_key", None)
+                        parts = []
+                        for tk, amt in alloc.items():
+                            if callable(fn_desc):
+                                parts.append("{}:+{}".format(fn_desc(tk, default_side="enemy", default_slot=0), int(amt or 0)))
+                            else:
+                                parts.append("{}:+{}".format(tk, int(amt or 0)))
+                        S.battle_log_add("{color=#B39DDB}Daño en cola 2v2 → %s{/color}" % (" | ".join(parts)))
+                except:
+                    pass
+            else:
+                if alloc and callable(fn_apply_key):
                     src = getattr(S, "current_actor_unit_key", None)
                     for tk, amt in alloc.items():
                         if int(amt or 0) > 0:
                             fn_apply_key(tk, int(amt), source_key=src, reason="combat")
-                elif target_key:
+                elif target_key and callable(fn_apply_key):
                     fn_apply_key(target_key, dmg_total, source_key=getattr(S, "current_actor_unit_key", None), reason="combat")
-            elif target_key and callable(fn_apply_key):
-                fn_apply_key(target_key, dmg_total, source_key=getattr(S, "current_actor_unit_key", None), reason="combat")
-            elif callable(fn_apply):
-                fn_apply("enemy", dmg_total, source="player", reason="combat")
-            else:
-                fn_set = getattr(S, "bs_set_hp", None)
-                cur_hp = int(getattr(S, "enemy_hp", 0) or 0)
-                cur_hp = max(0, cur_hp - dmg_total)
-                if callable(fn_set):
-                    fn_set("enemy", cur_hp)
+                elif callable(fn_apply):
+                    fn_apply("enemy", dmg_total, source="player", reason="combat")
                 else:
-                    S.enemy_hp = cur_hp
+                    fn_set = getattr(S, "bs_set_hp", None)
+                    cur_hp = int(getattr(S, "enemy_hp", 0) or 0)
+                    cur_hp = max(0, cur_hp - dmg_total)
+                    if callable(fn_set):
+                        fn_set("enemy", cur_hp)
+                    else:
+                        S.enemy_hp = cur_hp
 
             # limpiar selección/plan del turno
             try:
@@ -169,29 +194,31 @@ label battle_offensive_resolve_enemy:
             except:
                 pass
 
-            fn_sync = getattr(S, "bs_sync_hp_ui", None)
-            if callable(fn_sync):
-                fn_sync()
+            if mode != "2v2":
+                fn_sync = getattr(S, "bs_sync_hp_ui", None)
+                if callable(fn_sync):
+                    fn_sync()
 
-            # Refuerzo visual inmediato (evita redraw diferido)
-            try:
-                fn_bars = getattr(S, "battle_update_hp_bars", None)
-                if callable(fn_bars):
-                    fn_bars(getattr(S, "player_hp", 0), getattr(S, "enemy_hp", 0))
-            except:
-                pass
+                try:
+                    fn_bars = getattr(S, "battle_update_hp_bars", None)
+                    if callable(fn_bars):
+                        fn_bars(getattr(S, "player_hp", 0), getattr(S, "enemy_hp", 0))
+                except:
+                    pass
         except:
             pass
 
     # ============================================================
     # VISUALES
     # ============================================================
-    if direct_damage > 0:
-        $ battle_visual_float("enemy", direct_damage, "#FFDD55", is_final=True)
-        $ renpy.pause(0.3, hard=True)
+    $ _is_2v2 = str(getattr(store, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2"
+    if not _is_2v2:
+        if direct_damage > 0:
+            $ battle_visual_float("enemy", direct_damage, "#FFDD55", is_final=True)
+            $ renpy.pause(0.3, hard=True)
 
-    $ battle_visual_float("enemy", final_damage, "#FF4444", is_final=True)
-    $ renpy.pause(0.5, hard=True)
+        $ battle_visual_float("enemy", final_damage, "#FF4444", is_final=True)
+        $ renpy.pause(0.5, hard=True)
 
     python:
         import renpy.store as S

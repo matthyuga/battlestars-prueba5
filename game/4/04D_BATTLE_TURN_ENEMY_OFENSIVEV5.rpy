@@ -42,6 +42,106 @@ label battle_enemy_turn:
         S.turn_owner_team = "enemy"
 
     # ============================================================
+    # ⭐ DEFENSA DIFERIDA 2v2 (solo si este actor recibió daño en cola)
+    # ============================================================
+    python:
+        import renpy.store as S
+        _enemy_pending_damage = 0
+        _enemy_pending_ko = False
+        _enemy_actor_alive = True
+
+        _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if _mode == "2v2":
+            pend = getattr(S, "enemy_pending_damage_by_key", None)
+            if not isinstance(pend, dict):
+                pend = {}
+
+            akey = str(getattr(S, "current_enemy_unit_key", "") or "")
+            _enemy_pending_damage = max(0, int(pend.get(akey, 0) or 0))
+
+            if _enemy_pending_damage > 0:
+                # preparar identidad visual/legacy del defensor actual
+                try:
+                    S.battle_enemy_id = str(enemy_name or getattr(S, "battle_enemy_id", "Enemigo"))
+                    if callable(getattr(S, "get_character", None)):
+                        ch = S.get_character(S.battle_enemy_id)
+                        if isinstance(ch, dict):
+                            S.battle_enemy = ch
+                except:
+                    pass
+
+                fn_def = getattr(S, "enemy_compute_reactive_defense", None)
+                final_in = int(_enemy_pending_damage)
+                if callable(fn_def):
+                    try:
+                        info = fn_def(_enemy_pending_damage)
+                        final_in = max(0, int(info.get("final_damage", _enemy_pending_damage) or _enemy_pending_damage))
+                    except:
+                        final_in = int(_enemy_pending_damage)
+
+                try:
+                    fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
+                    if callable(fn_apply_key) and akey:
+                        fn_apply_key(akey, int(final_in), source_key=getattr(S, "current_actor_unit_key", None), reason="combat_deferred_enemy", tags=["deferred", "enemy_defense"])
+                    else:
+                        fn_set = getattr(S, "bs_set_hp", None)
+                        cur = int(getattr(S, "enemy_hp", 0) or 0)
+                        nxt = max(0, cur - int(final_in or 0))
+                        if callable(fn_set):
+                            fn_set("enemy", nxt)
+                        else:
+                            S.enemy_hp = nxt
+                except:
+                    pass
+
+                # consumir cola del actor actual
+                pend[akey] = 0
+                S.enemy_pending_damage_by_key = pend
+
+                try:
+                    fn_sync = getattr(S, "bs_sync_hp_ui", None)
+                    if callable(fn_sync):
+                        fn_sync()
+                except:
+                    pass
+
+                try:
+                    if callable(getattr(S, "battle_log_add", None)):
+                        S.battle_log_add("{color=#90CAF9}Defensa diferida {}: {}{/color}".format(enemy_name, int(final_in)))
+                except:
+                    pass
+
+                try:
+                    fn_alive = getattr(S, "bs_is_unit_alive", None)
+                    _enemy_actor_alive = bool(fn_alive(akey)) if callable(fn_alive) else True
+                except:
+                    _enemy_actor_alive = True
+
+                try:
+                    fn_defeated = getattr(S, "bs_is_team_defeated", None)
+                    _enemy_pending_ko = bool(fn_defeated("enemy")) if callable(fn_defeated) else False
+                except:
+                    _enemy_pending_ko = False
+
+    if _enemy_pending_ko:
+        $ battle_log_add("{color=#FFD700}¡Victoria!{/color}")
+        jump battle_end
+
+    if _enemy_pending_damage > 0 and not _enemy_actor_alive:
+        python:
+            import renpy.store as S
+            _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            _next = "player"
+            if _mode == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                _next = str(S.bs_parse_unit_key(nk, default_side="player", default_slot=0).get("team", "player") or "player")
+
+        if _next == "enemy":
+            jump battle_enemy_turn
+        else:
+            jump battle_offensive_turn
+
+    # ============================================================
     # ⭐ ATAQUE NEGADOR — cancelar turno ofensivo IA
     # ============================================================
     python:
