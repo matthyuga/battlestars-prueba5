@@ -37,10 +37,10 @@ init -900 python:
     config.hard_rollback_limit = 0
 
 # ===========================================================
-# 🔹 Defaults (para que battle_enemy_id exista siempre)
+# 🔹 Defaults
 # ===========================================================
-default battle_enemy_id = "Hollow"
-
+# battle_enemy_id / battle_player_id y modo 2v2 se definen en
+# 04A_BATTLE_CHARACTER_SELECTV3.rpy para evitar defaults duplicados.
 # (Opcional, recomendado si no los tenés como default en otro lado)
 # default battle_player = None
 # default battle_enemy  = None
