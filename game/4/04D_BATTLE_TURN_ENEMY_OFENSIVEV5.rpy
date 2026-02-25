@@ -119,7 +119,7 @@ label battle_enemy_turn:
     # ============================================================
     # ⭐ ENCABEZADO IA
     # ============================================================
-    $ _slot_txt = " [S{}]".format(int(getattr(store, "turn_owner_slot", 0) or 0) + 1) if str(getattr(store, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
+    $ _slot_txt = " (S{})".format(int(getattr(store, "turn_owner_slot", 0) or 0) + 1) if str(getattr(store, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_popup_turn("Turno ofensivo{} — {}".format(_slot_txt, enemy_name), "#FFD700", delay=0.6)
     $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, enemy_name))
     $ renpy.pause(0.8, hard=True)

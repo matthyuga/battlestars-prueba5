@@ -18,6 +18,7 @@ default battle_player_slot_0 = ""
 default battle_player_slot_1 = ""
 default battle_enemy_slot_0 = ""
 default battle_enemy_slot_1 = ""
+default battle_enemy_pick_mode = "random"   # "random" | "manual"
 
 
 label battle_select_player:
@@ -110,32 +111,89 @@ label battle_select_player_slot_1:
     menu:
         "Harribel" if battle_player_slot_0 != "Harribel":
             $ battle_player_slot_1 = "Harribel"
-            jump battle_select_enemy_slots_2v2
+            jump battle_select_enemy_mode_2v2
         "Grimmjow" if battle_player_slot_0 != "Grimmjow":
             $ battle_player_slot_1 = "Grimmjow"
-            jump battle_select_enemy_slots_2v2
+            jump battle_select_enemy_mode_2v2
         "Nel" if battle_player_slot_0 != "Nel":
             $ battle_player_slot_1 = "Nel"
-            jump battle_select_enemy_slots_2v2
+            jump battle_select_enemy_mode_2v2
         "Hollow" if battle_player_slot_0 != "Hollow":
             $ battle_player_slot_1 = "Hollow"
-            jump battle_select_enemy_slots_2v2
+            jump battle_select_enemy_mode_2v2
 
 
-label battle_select_enemy_slots_2v2:
+label battle_select_enemy_mode_2v2:
+    scene bg_battle_base
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
+    "2v2 — Selección de equipo IA"
+
     python:
         import renpy.store as S
-        pool = ["Hollow", "Grimmjow", "Nel", "Harribel"]
-
         p0 = str(getattr(S, "battle_player_slot_0", "Harribel") or "Harribel")
         p1 = str(getattr(S, "battle_player_slot_1", "Grimmjow") or "Grimmjow")
         if p0 == p1:
             p1 = "Grimmjow" if p0 != "Grimmjow" else "Nel"
-
         S.battle_player_ids = [p0, p1]
 
-        # IA por pool sin duplicados (y evitando picks del jugador si se puede)
-        candidates = [c for c in pool if c not in S.battle_player_ids]
+    menu:
+        "Aleatorio":
+            $ battle_enemy_pick_mode = "random"
+            jump battle_select_enemy_slots_2v2_random
+        "Elegir manualmente":
+            $ battle_enemy_pick_mode = "manual"
+            jump battle_select_enemy_slot_0_2v2
+
+
+label battle_select_enemy_slot_0_2v2:
+    scene bg_battle_base
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
+    "2v2 — Elige enemigo (slot 1)."
+
+    menu:
+        "Hollow":
+            $ battle_enemy_slot_0 = "Hollow"
+            jump battle_select_enemy_slot_1_2v2
+        "Grimmjow":
+            $ battle_enemy_slot_0 = "Grimmjow"
+            jump battle_select_enemy_slot_1_2v2
+        "Nel":
+            $ battle_enemy_slot_0 = "Nel"
+            jump battle_select_enemy_slot_1_2v2
+        "Harribel":
+            $ battle_enemy_slot_0 = "Harribel"
+            jump battle_select_enemy_slot_1_2v2
+
+
+label battle_select_enemy_slot_1_2v2:
+    scene bg_battle_base
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
+    "2v2 — Elige enemigo (slot 2, sin duplicados)."
+
+    menu:
+        "Hollow" if battle_enemy_slot_0 != "Hollow":
+            $ battle_enemy_slot_1 = "Hollow"
+            jump battle_finalize_teams_2v2
+        "Grimmjow" if battle_enemy_slot_0 != "Grimmjow":
+            $ battle_enemy_slot_1 = "Grimmjow"
+            jump battle_finalize_teams_2v2
+        "Nel" if battle_enemy_slot_0 != "Nel":
+            $ battle_enemy_slot_1 = "Nel"
+            jump battle_finalize_teams_2v2
+        "Harribel" if battle_enemy_slot_0 != "Harribel":
+            $ battle_enemy_slot_1 = "Harribel"
+            jump battle_finalize_teams_2v2
+
+
+label battle_select_enemy_slots_2v2_random:
+    python:
+        import renpy.store as S
+        pool = ["Hollow", "Grimmjow", "Nel", "Harribel"]
+
+        candidates = [c for c in pool if c not in (S.battle_player_ids or [])]
         if len(candidates) < 2:
             candidates = list(pool)
 
@@ -148,9 +206,27 @@ label battle_select_enemy_slots_2v2:
                     e1 = c
                     break
 
-        S.battle_enemy_ids = [e0, e1]
         S.battle_enemy_slot_0 = e0
         S.battle_enemy_slot_1 = e1
+
+    jump battle_finalize_teams_2v2
+
+
+label battle_finalize_teams_2v2:
+    python:
+        import renpy.store as S
+        p0 = str(getattr(S, "battle_player_slot_0", "Harribel") or "Harribel")
+        p1 = str(getattr(S, "battle_player_slot_1", "Grimmjow") or "Grimmjow")
+        e0 = str(getattr(S, "battle_enemy_slot_0", "Hollow") or "Hollow")
+        e1 = str(getattr(S, "battle_enemy_slot_1", "Nel") or "Nel")
+
+        if p0 == p1:
+            p1 = "Grimmjow" if p0 != "Grimmjow" else "Nel"
+        if e0 == e1:
+            e1 = "Grimmjow" if e0 != "Grimmjow" else "Nel"
+
+        S.battle_player_ids = [p0, p1]
+        S.battle_enemy_ids = [e0, e1]
 
         # Compat 1v1 fields usan slot 0
         S.battle_player_id = p0

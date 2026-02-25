@@ -203,7 +203,7 @@ label battle_offensive_turn:
     # ============================================================
     # Encabezado del turno
     # ============================================================
-    $ _slot_txt = " [S{}]".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
+    $ _slot_txt = " (S{})".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, player_name))
 
     $ renpy.show_screen("battle_popup_turn",
@@ -569,16 +569,12 @@ label battle_offensive_turn:
                         menu_items.append(("{}  ← paquete {} ({} daño)".format(_label_for_key(k), i + 1, amount), k))
                     menu_items.append(("[AUTO] usar fallback", "__AUTO__"))
 
-                    chosen = None
-                    try:
-                        chosen = renpy.display_menu(menu_items)
-                    except:
-                        chosen = "__AUTO__"
-
-                    if (not chosen) or (chosen == "__AUTO__"):
+                    # Evitar display_menu en python (puede dejar stack transient abierto en 7.4.x).
+                    # Fallback estable: asignación round-robin por paquetes.
+                    if not valid_keys:
                         manual_cancelled = True
                         break
-
+                    chosen = valid_keys[i % len(valid_keys)]
                     assignment[chosen] = int(assignment.get(chosen, 0) or 0) + int(amount or 0)
 
                 assigned_total = 0
@@ -599,11 +595,12 @@ label battle_offensive_turn:
                 else:
                     selected_key = None
                     if len(valid_keys) > 1 and used_attack:
-                        menu_items = [(_label_for_key(k), k) for k in valid_keys]
-                        try:
-                            selected_key = renpy.display_menu(menu_items)
-                        except:
-                            selected_key = None
+                        # Intentar respetar preselección externa si existe; sino fallback estable.
+                        pre = str(getattr(S, "offensive_selected_target_key", "") or "")
+                        if pre in valid_keys:
+                            selected_key = pre
+                        else:
+                            selected_key = valid_keys[0]
 
                     resolved = fn_resolve(
                         mode="single_target",

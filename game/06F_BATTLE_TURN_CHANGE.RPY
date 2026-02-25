@@ -39,7 +39,7 @@ init -966 python:
                 S.current_enemy_unit_key = str(fn_key(rival, None) or "")
 
             team_mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
-            slot_txt = " [S{}]".format(owner_slot + 1) if team_mode == "2v2" else ""
+            slot_txt = " (S{})".format(owner_slot + 1) if team_mode == "2v2" else ""
 
             if owner_team == "player":
                 renpy.show_screen("battle_turn_change", text="🔹 TU TURNO{}".format(slot_txt), color="#00BFFF", side="left")
