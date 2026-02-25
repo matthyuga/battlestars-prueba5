@@ -215,12 +215,37 @@ label battle_offensive_resolve_enemy:
         $ battle_log_add(fmt_gold("¡Victoria!"))
         jump battle_end
 
-    $ _fn_turn = getattr(renpy.store, "battle_turn_change", None)
-    if _fn_turn:
-        $ _fn_turn("enemy")
+    python:
+        import renpy.store as S
+        _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        _next_team = "enemy"
+        if _mode == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+            nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
+            _next_team = str(S.bs_parse_unit_key(nk, default_side="enemy", default_slot=0).get("team", "enemy") or "enemy")
+        else:
+            _fn_turn = getattr(S, "battle_turn_change", None)
+            if callable(_fn_turn):
+                _fn_turn("enemy")
+            _next_team = "enemy"
 
-    $ renpy.show_screen("battle_popup_turn", text="Turno ofensivo — {}".format(enemy_name), color="#FFD700")
-    $ renpy.pause(0.7, hard=True)
-    $ renpy.hide_screen("battle_popup_turn")
-
-    jump battle_enemy_turn
+    if _next_team == "enemy":
+        $ battle_turn_change("enemy")
+        $ renpy.show_screen("battle_popup_turn", text="Turno ofensivo — {}".format(enemy_name), color="#FFD700")
+        $ renpy.pause(0.7, hard=True)
+        $ renpy.hide_screen("battle_popup_turn")
+        jump battle_enemy_turn
+    else:
+        $ battle_turn_change("player")
+        python:
+            import renpy.store as S
+            _bp = getattr(S, "battle_player", None)
+            if isinstance(_bp, dict):
+                _pname = str(_bp.get("name", "") or "")
+            else:
+                _pname = ""
+            if not _pname:
+                _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+        $ renpy.show_screen("battle_popup_turn", text="Turno ofensivo — {}".format(_pname), color="#FFD700")
+        $ renpy.pause(0.7, hard=True)
+        $ renpy.hide_screen("battle_popup_turn")
+        jump battle_offensive_turn

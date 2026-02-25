@@ -263,16 +263,21 @@ label battle_start:
     $ battle_popup_turn("¡{} aparece en el campo de batalla!".format(enemy_name), "#FF5555", delay=0.8)
 
     # =======================================================
-    # 🎲 Determinar quién ataca primero (SYNC con battle_turn_owner)
+    # 🎲 Determinar primer actor del combate
     # =======================================================
-    $ _first_owner = random.choice(["player", "enemy"])
-    if hasattr(S, "bs_set_turn_owner"):
-        $ S.bs_set_turn_owner(_first_owner, mirror_legacy=True)
+    if battle_team_mode == "2v2" and hasattr(S, "bs_set_turn_order_keys"):
+        $ _order = ["player:0", "enemy:0", "player:1", "enemy:1"]
+        $ _actor_key = S.bs_set_turn_order_keys(_order, start_index=0, mirror_legacy=True)
+        $ _ctx_now = S.bs_get_turn_ctx() if hasattr(S, "bs_get_turn_ctx") else {"owner_team": "player", "owner_slot": 0}
+        $ _owner_now = str(_ctx_now.get("owner_team", "player") or "player")
     else:
-        $ battle_turn_owner = _first_owner
-
-    $ _ctx_now = S.bs_get_turn_ctx() if hasattr(S, "bs_get_turn_ctx") else {"owner_team": getattr(S, "battle_turn_owner", _first_owner), "owner_slot": 0}
-    $ _owner_now = _ctx_now.get("owner_team", _first_owner)
+        $ _first_owner = random.choice(["player", "enemy"])
+        if hasattr(S, "bs_set_turn_owner"):
+            $ S.bs_set_turn_owner(_first_owner, mirror_legacy=True)
+        else:
+            $ battle_turn_owner = _first_owner
+        $ _ctx_now = S.bs_get_turn_ctx() if hasattr(S, "bs_get_turn_ctx") else {"owner_team": getattr(S, "battle_turn_owner", _first_owner), "owner_slot": 0}
+        $ _owner_now = _ctx_now.get("owner_team", _first_owner)
 
     if _owner_now == "player":
         $ battle_popup_turn("¡{} ataca primero!".format(player_name), "#00BFFF", delay=0.8)

@@ -244,19 +244,24 @@ label defensive_resolve(received_damage, hp_after, reflected):
     python:
         import renpy.store as S
 
+        _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
         if getattr(S, "defense_for_attack_active", False):
             S.defense_for_attack_active = False
             next_turn = "enemy"
-            enemy_name = S.enemy_ai.name
+        elif _mode == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+            nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
+            next_turn = str(S.bs_parse_unit_key(nk, default_side="player", default_slot=0).get("team", "player") or "player")
         else:
             next_turn = "player"
-            _bp = getattr(S, "battle_player", None)
-            if isinstance(_bp, dict):
-                player_name = str(_bp.get("name", "") or "")
-            else:
-                player_name = ""
-            if not player_name:
-                player_name = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+
+        enemy_name = str(getattr(getattr(S, "enemy_ai", None), "name", getattr(S, "battle_enemy_id", "Enemigo")) or "Enemigo")
+        _bp = getattr(S, "battle_player", None)
+        if isinstance(_bp, dict):
+            player_name = str(_bp.get("name", "") or "")
+        else:
+            player_name = ""
+        if not player_name:
+            player_name = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
 
     # --------------------------------------------------------
     # (6) Saltar al turno que corresponda

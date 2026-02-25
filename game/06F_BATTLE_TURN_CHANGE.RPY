@@ -23,21 +23,39 @@ init -966 python:
             fn_key = getattr(S, "bs_unit_key", None)
 
             owner = "enemy" if str(owner or "").strip().lower() == "enemy" else "player"
-            if callable(fn_set):
-                owner = fn_set(owner, mirror_legacy=True)
-            else:
-                # fallback mínimo legacy si facade aún no está cargado
-                S.battle_turn_owner = owner
+            team_mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
 
-            ctx = fn_ctx() if callable(fn_ctx) else {"owner_team": owner, "owner_slot": 0}
-            owner_team = str(ctx.get("owner_team", owner) or owner)
-            owner_slot = int(ctx.get("owner_slot", 0) or 0)
+            if team_mode == "2v2" and hasattr(S, "bs_current_actor_key") and callable(getattr(S, "bs_parse_unit_key", None)) and callable(getattr(S, "bs_set_turn_ctx", None)):
+                actor_key = str(S.bs_current_actor_key() or "")
+                info = S.bs_parse_unit_key(actor_key, default_side=owner, default_slot=0)
+                owner_team = str(info.get("team", owner) or owner)
+                owner_slot = int(info.get("slot", 0) or 0)
+                S.bs_set_turn_ctx(owner_team=owner_team, owner_slot=owner_slot, phase="offensive", mirror_legacy=True)
+                owner = owner_team
+            else:
+                if callable(fn_set):
+                    owner = fn_set(owner, mirror_legacy=True)
+                else:
+                    # fallback mínimo legacy si facade aún no está cargado
+                    S.battle_turn_owner = owner
+
+                ctx = fn_ctx() if callable(fn_ctx) else {"owner_team": owner, "owner_slot": 0}
+                owner_team = str(ctx.get("owner_team", owner) or owner)
+                owner_slot = int(ctx.get("owner_slot", 0) or 0)
 
             fn_get = getattr(S, "bs_get_unit_by_key", None)
             actor_name = ""
             order_pos = 1
-            turn_idx = int(getattr(S, "battle_turn_index", 0) or 0) + 1
-            S.battle_turn_index = int(turn_idx)
+            _last_actor_key = str(getattr(S, "_last_turn_actor_key", "") or "")
+            _cur_actor_key = ""
+            if callable(fn_key):
+                _cur_actor_key = str(fn_key(owner_team, owner_slot) or "")
+            if _cur_actor_key and _cur_actor_key != _last_actor_key:
+                turn_idx = int(getattr(S, "battle_turn_index", 0) or 0) + 1
+                S.battle_turn_index = int(turn_idx)
+                S._last_turn_actor_key = str(_cur_actor_key)
+            else:
+                turn_idx = int(getattr(S, "battle_turn_index", 0) or 0)
 
             if owner_team == "player":
                 order_pos = (owner_slot * 2) + 1
@@ -47,7 +65,13 @@ init -966 python:
             if callable(fn_key):
                 S.current_actor_unit_key = str(fn_key(owner_team, owner_slot) or "")
                 rival = "enemy" if owner_team == "player" else "player"
-                S.current_enemy_unit_key = str(fn_key(rival, None) or "")
+                rival_slot = owner_slot if team_mode == "2v2" else None
+                S.current_enemy_unit_key = str(fn_key(rival, rival_slot) or "")
+                if team_mode == "2v2" and callable(getattr(S, "bs_set_active_slot", None)):
+                    try:
+                        S.bs_set_active_slot(rival, int(owner_slot or 0), mirror_units=False)
+                    except:
+                        pass
 
                 if callable(fn_get):
                     au = fn_get(getattr(S, "current_actor_unit_key", ""))
@@ -87,7 +111,6 @@ init -966 python:
             except Exception as _e_sync:
                 renpy.log("battle_turn_change sync warn: {}".format(_e_sync))
 
-            team_mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
             slot_txt = " (S{})".format(owner_slot + 1) if team_mode == "2v2" else ""
 
             if not actor_name:

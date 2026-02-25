@@ -513,6 +513,9 @@ init -989 python:
 
         bs.setdefault("turn", {})["scheduler"] = "round_robin_slots"
         bs.setdefault("turn", {})["rr_last_slot"] = {"player": -1, "enemy": -1}
+        bs.setdefault("turn", {})["order_keys"] = ["player:0", "enemy:0", "player:1", "enemy:1"]
+        bs.setdefault("turn", {})["order_index"] = 0
+        bs.setdefault("turn", {})["current_actor_key"] = "player:0"
 
         S.battle_state = bs
         return bs
@@ -699,6 +702,118 @@ init -989 python:
             if alive:
                 out.append(bs_unit_key(side, i))
         return out
+
+    def bs_get_turn_order_keys():
+        bs = battle_state_ensure()
+        turn = bs.get("turn", {}) if isinstance(bs.get("turn", {}), dict) else {}
+        order = turn.get("order_keys", []) if isinstance(turn.get("order_keys", []), list) else []
+        out = []
+        for k in order:
+            kk = bs_parse_unit_key(k).get("key", "")
+            if kk:
+                out.append(kk)
+        if out:
+            return out
+        return ["player:0", "enemy:0", "player:1", "enemy:1"]
+
+    def bs_set_turn_order_keys(order_keys=None, start_index=0, mirror_legacy=True):
+        bs = battle_state_ensure()
+        turn = bs.setdefault("turn", {})
+
+        order = []
+        for k in (order_keys or []):
+            kk = bs_parse_unit_key(k).get("key", "")
+            if kk and kk not in order:
+                order.append(kk)
+        if not order:
+            order = ["player:0", "enemy:0", "player:1", "enemy:1"]
+
+        idx = _bs_to_int(start_index, 0)
+        if idx < 0:
+            idx = 0
+        if idx >= len(order):
+            idx = idx % max(1, len(order))
+
+        # saltar muertos al inicializar
+        for step in range(len(order)):
+            cand = order[(idx + step) % len(order)]
+            if bs_is_unit_alive(cand):
+                idx = (idx + step) % len(order)
+                break
+
+        actor_key = order[idx]
+        info = bs_parse_unit_key(actor_key)
+
+        turn["order_keys"] = list(order)
+        turn["order_index"] = int(idx)
+        turn["current_actor_key"] = str(actor_key)
+        bs["turn"] = turn
+        S.battle_state = bs
+
+        bs_set_turn_ctx(
+            owner_team=info.get("team", "player"),
+            owner_slot=int(info.get("slot", 0) or 0),
+            phase="offensive",
+            mirror_legacy=mirror_legacy,
+        )
+        return str(actor_key)
+
+    def bs_current_actor_key():
+        bs = battle_state_ensure()
+        turn = bs.get("turn", {}) if isinstance(bs.get("turn", {}), dict) else {}
+        actor_key = str(turn.get("current_actor_key", "") or "")
+        if actor_key:
+            return bs_parse_unit_key(actor_key).get("key", actor_key)
+
+        order = bs_get_turn_order_keys()
+        idx = _bs_to_int(turn.get("order_index", 0), 0)
+        if idx < 0:
+            idx = 0
+        if idx >= len(order):
+            idx = 0
+        return str(order[idx]) if order else "player:0"
+
+    def bs_current_team():
+        info = bs_parse_unit_key(bs_current_actor_key())
+        return str(info.get("team", "player") or "player")
+
+    def bs_is_player_turn():
+        return bool(bs_current_team() == "player")
+
+    def bs_turn_advance(mirror_legacy=True):
+        bs = battle_state_ensure()
+        turn = bs.get("turn", {}) if isinstance(bs.get("turn", {}), dict) else {}
+        order = bs_get_turn_order_keys()
+        if not order:
+            return bs_set_turn_order_keys(["player:0", "enemy:0", "player:1", "enemy:1"], 0, mirror_legacy=mirror_legacy)
+
+        idx = _bs_to_int(turn.get("order_index", 0), 0)
+        if idx < 0:
+            idx = 0
+        idx = idx % len(order)
+
+        next_idx = idx
+        for step in range(1, len(order) + 1):
+            cand_idx = (idx + step) % len(order)
+            cand = order[cand_idx]
+            if bs_is_unit_alive(cand):
+                next_idx = cand_idx
+                break
+
+        turn["order_index"] = int(next_idx)
+        actor_key = str(order[next_idx])
+        turn["current_actor_key"] = actor_key
+        bs["turn"] = turn
+        S.battle_state = bs
+
+        info = bs_parse_unit_key(actor_key)
+        bs_set_turn_ctx(
+            owner_team=info.get("team", "player"),
+            owner_slot=int(info.get("slot", 0) or 0),
+            phase="offensive",
+            mirror_legacy=mirror_legacy,
+        )
+        return actor_key
 
     def bs_get_valid_target_keys(target_team, exclude_unit_key=None):
         team = _bs_side_key(target_team)
@@ -1315,6 +1430,12 @@ init -989 python:
     S.bs_ensure_active_progress = bs_ensure_active_progress
     S.bs_is_unit_alive = bs_is_unit_alive
     S.bs_get_alive_unit_keys = bs_get_alive_unit_keys
+    S.bs_get_turn_order_keys = bs_get_turn_order_keys
+    S.bs_set_turn_order_keys = bs_set_turn_order_keys
+    S.bs_current_actor_key = bs_current_actor_key
+    S.bs_current_team = bs_current_team
+    S.bs_is_player_turn = bs_is_player_turn
+    S.bs_turn_advance = bs_turn_advance
     S.bs_get_valid_target_keys = bs_get_valid_target_keys
     S.bs_resolve_target_keys = bs_resolve_target_keys
     S.bs_apply_damage_to_unit_key = bs_apply_damage_to_unit_key
