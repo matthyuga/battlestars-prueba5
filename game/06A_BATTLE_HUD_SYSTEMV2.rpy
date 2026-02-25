@@ -344,6 +344,12 @@ screen battle_hp_overlay():
                     $ _e1n = str((_e1.get("char_id", "E1") if isinstance(_e1, dict) else "E1") or "E1")
                     $ _e2n = str((_e2.get("char_id", "E2") if isinstance(_e2, dict) else "E2") or "E2")
                     text "Orden: 1-{} (jugador), 2-{} (ia), 3-{} (jugador), 4-{} (ia)".format(_p1n, _e1n, _p2n, _e2n) color "#C5E1A5" size 12
+                    $ _ck = store.bs_current_actor_key() if hasattr(store, "bs_current_actor_key") else ""
+                    $ _cinfo = store.bs_parse_unit_key(_ck, default_side="player", default_slot=0) if hasattr(store, "bs_parse_unit_key") else {"team":"player", "slot":0}
+                    $ _cu = store.bs_get_unit_by_key(_ck) if hasattr(store, "bs_get_unit_by_key") else None
+                    $ _cname = str((_cu.get("char_id", "Actor") if isinstance(_cu, dict) else "Actor") or "Actor")
+                    $ _cteam = "PLAYER" if str(_cinfo.get("team", "player") or "player") == "player" else "ENEMY"
+                    text "Turno actual: {} S{} · {}".format(_cname, int(_cinfo.get("slot", 0) or 0)+1, _cteam) color "#FFE082" size 13 bold True
 
                     hbox:
                         spacing 14
@@ -359,7 +365,7 @@ screen battle_hp_overlay():
                                 $ _mx = int((uu.get("max_hp", 1) if isinstance(uu, dict) else 1) or 1)
                                 $ _alive = bool(_hp > 0)
                                 $ _is_active = bool((_ctx.get("owner_team", "") == "player") and int(_ctx.get("owner_slot", 0) or 0) == i)
-                                text "{} · S{} · {}/{}{}{}".format(_name, i+1, battle_fmt_num(_hp), battle_fmt_num(_mx), " KO" if not _alive else "", " ⟵" if _is_active else "") color ("#66E0FF" if _alive else "#888888") size 13
+                                text "{} {} · S{} · {}/{}{}".format("▣" if _is_active else "▫", _name, i+1, battle_fmt_num(_hp), battle_fmt_num(_mx), " KO" if not _alive else "") color ("#66E0FF" if _alive else "#888888") size 13
 
                         vbox:
                             spacing 2
@@ -372,7 +378,7 @@ screen battle_hp_overlay():
                                 $ _mx = int((uu.get("max_hp", 1) if isinstance(uu, dict) else 1) or 1)
                                 $ _alive = bool(_hp > 0)
                                 $ _is_active = bool((_ctx.get("owner_team", "") == "enemy") and int(_ctx.get("owner_slot", 0) or 0) == i)
-                                text "{} · S{} · {}/{}{}{}".format(_name, i+1, battle_fmt_num(_hp), battle_fmt_num(_mx), " KO" if not _alive else "", " ⟵" if _is_active else "") color ("#FF8888" if _alive else "#888888") size 13
+                                text "{} {} · S{} · {}/{}{}".format("▣" if _is_active else "▫", _name, i+1, battle_fmt_num(_hp), battle_fmt_num(_mx), " KO" if not _alive else "") color ("#FF8888" if _alive else "#888888") size 13
 
 
 # ===========================================================

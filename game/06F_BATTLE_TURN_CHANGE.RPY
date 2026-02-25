@@ -69,7 +69,7 @@ init -966 python:
                 S.current_enemy_unit_key = str(fn_key(rival, rival_slot) or "")
                 if team_mode == "2v2" and callable(getattr(S, "bs_set_active_slot", None)):
                     try:
-                        S.bs_set_active_slot(rival, int(owner_slot or 0), mirror_units=False)
+                        S.bs_set_active_slot(rival, int(owner_slot or 0), mirror_units=True)
                     except:
                         pass
 
@@ -119,12 +119,21 @@ init -966 python:
                 else:
                     actor_name = str(getattr(S, "battle_enemy_id", "Enemigo") or "Enemigo")
 
+            actor_team_txt = "PLAYER" if owner_team == "player" else "ENEMY"
+            actor_full = "{}{} · {}".format(actor_name, slot_txt, actor_team_txt)
+
             if team_mode == "2v2":
-                banner = u"T{} · #{} {}{}".format(turn_idx, order_pos, actor_name, slot_txt)
+                banner = u"T{} · #{} {}".format(turn_idx, order_pos, actor_full)
                 try:
                     fn_log = getattr(S, "battle_log_add", None)
+                    fn_get_u = getattr(S, "bs_get_unit_by_key", None)
+                    hp_txt = ""
+                    if callable(fn_get_u):
+                        au = fn_get_u(getattr(S, "current_actor_unit_key", ""))
+                        if isinstance(au, dict):
+                            hp_txt = " HP {}/{}".format(int(au.get("hp", 0) or 0), int(au.get("max_hp", 0) or 0))
                     if callable(fn_log):
-                        fn_log("{color=#FFE082}Turno {} | Orden {}: {} ({}){/color}".format(turn_idx, order_pos, actor_name, "jugador" if owner_team == "player" else "ia"))
+                        fn_log("{color=#FFE082}Turno {} | Orden {}: {} ({}){}{/color}".format(turn_idx, order_pos, actor_name, "jugador" if owner_team == "player" else "ia", hp_txt))
                 except:
                     pass
             else:
@@ -133,7 +142,7 @@ init -966 python:
             if owner_team == "player":
                 renpy.show_screen("battle_turn_change", text="🔹 TU TURNO · {}".format(banner), color="#00BFFF", side="left")
             else:
-                renpy.show_screen("battle_turn_change", text="🔻 TURNO ENEMIGO · {}".format(banner), color="#FF4444", side="right")
+                renpy.show_screen("battle_turn_change", text="🔻 TURNO IA · {}".format(banner), color="#FF4444", side="right")
             renpy.pause(1.0)
             renpy.hide_screen("battle_turn_change")
         except Exception as e:
