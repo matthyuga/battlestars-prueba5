@@ -317,6 +317,52 @@ screen battle_hp_overlay():
                     text "Energía: {}".format(battle_fmt_num(enemy_energy)) size 15 color "#FFA500"
 
 
+        # ======================================================
+        # 🧩 HUD 2v2 mínimo (slots + HP/KO + activo + turn owner)
+        # ======================================================
+        if str(getattr(store, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2":
+            $ _ctx = store.bs_get_turn_ctx() if hasattr(store, "bs_get_turn_ctx") else {"owner_team": "player", "owner_slot": 0}
+
+            frame:
+                background "#00131CCC"
+                xalign 0.5
+                yalign 0.0
+                xpadding 10
+                ypadding 8
+
+                vbox:
+                    spacing 4
+                    text "2v2 · Turno: {} S{}".format(str(_ctx.get("owner_team", "player") or "player").upper(), int(_ctx.get("owner_slot", 0) or 0) + 1) color "#FFE082" size 15 bold True
+
+                    hbox:
+                        spacing 14
+
+                        vbox:
+                            spacing 2
+                            text "PLAYER" color "#88CCFF" size 14 bold True
+                            for i in range(2):
+                                $ uk = store.bs_unit_key("player", i) if hasattr(store, "bs_unit_key") else "player:{}".format(i)
+                                $ uu = store.bs_get_unit_by_key(uk) if hasattr(store, "bs_get_unit_by_key") else None
+                                $ _name = str((uu.get("char_id", "P{}".format(i+1)) if isinstance(uu, dict) else "P{}".format(i+1)) or "P{}".format(i+1))
+                                $ _hp = int((uu.get("hp", 0) if isinstance(uu, dict) else 0) or 0)
+                                $ _mx = int((uu.get("max_hp", 1) if isinstance(uu, dict) else 1) or 1)
+                                $ _alive = bool(_hp > 0)
+                                $ _is_active = bool((_ctx.get("owner_team", "") == "player") and int(_ctx.get("owner_slot", 0) or 0) == i)
+                                text "{} · S{} · {}/{}{}{}".format(_name, i+1, battle_fmt_num(_hp), battle_fmt_num(_mx), " KO" if not _alive else "", " ⟵" if _is_active else "") color ("#66E0FF" if _alive else "#888888") size 13
+
+                        vbox:
+                            spacing 2
+                            text "ENEMY" color "#FF7777" size 14 bold True
+                            for i in range(2):
+                                $ uk = store.bs_unit_key("enemy", i) if hasattr(store, "bs_unit_key") else "enemy:{}".format(i)
+                                $ uu = store.bs_get_unit_by_key(uk) if hasattr(store, "bs_get_unit_by_key") else None
+                                $ _name = str((uu.get("char_id", "E{}".format(i+1)) if isinstance(uu, dict) else "E{}".format(i+1)) or "E{}".format(i+1))
+                                $ _hp = int((uu.get("hp", 0) if isinstance(uu, dict) else 0) or 0)
+                                $ _mx = int((uu.get("max_hp", 1) if isinstance(uu, dict) else 1) or 1)
+                                $ _alive = bool(_hp > 0)
+                                $ _is_active = bool((_ctx.get("owner_team", "") == "enemy") and int(_ctx.get("owner_slot", 0) or 0) == i)
+                                text "{} · S{} · {}/{}{}{}".format(_name, i+1, battle_fmt_num(_hp), battle_fmt_num(_mx), " KO" if not _alive else "", " ⟵" if _is_active else "") color ("#FF8888" if _alive else "#888888") size 13
+
 
 # ===========================================================
 # 🔹 TRANSFORMS

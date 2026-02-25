@@ -93,16 +93,24 @@ label defensive_resolve(received_damage, hp_after, reflected):
                 pass
 
     # --------------------------------------------------------
-    # (2) Aplicar daño REAL al jugador
+    # (2) Aplicar daño REAL al objetivo defendido
     # --------------------------------------------------------
     python:
         import renpy.store as S
-        # hp_after ya incluye el directo si existió
-        fn_set_hp = getattr(S, "bs_set_hp", None)
-        if callable(fn_set_hp):
-            fn_set_hp("player", int(hp_after or 0))
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        def_key = str(getattr(S, "defense_target_key", "") or "")
+
+        if mode == "2v2" and def_key and callable(getattr(S, "bs_apply_damage_to_unit_key", None)):
+            hp_before_u = int(getattr(S, "defense_hp_before", 0) or 0)
+            dmg_apply = max(0, int(hp_before_u) - int(hp_after or 0))
+            S.bs_apply_damage_to_unit_key(def_key, dmg_apply, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat_defended_target", tags=["defense"])
         else:
-            S.player_hp = int(hp_after or 0)
+            # hp_after ya incluye el directo si existió
+            fn_set_hp = getattr(S, "bs_set_hp", None)
+            if callable(fn_set_hp):
+                fn_set_hp("player", int(hp_after or 0))
+            else:
+                S.player_hp = int(hp_after or 0)
 
         fn_sync_hp = getattr(S, "bs_sync_hp_ui", None)
         if callable(fn_sync_hp):
@@ -154,10 +162,20 @@ label defensive_resolve(received_damage, hp_after, reflected):
         if hasattr(S, "last_reflect_pct_txt"):
             S.last_reflect_pct_txt = None
 
-        # Limpieza interna debug (si existe)
+        # Limpieza interna debug/temporales (si existe)
         if hasattr(S, "_def_resolve_hp_after"):
             try:
                 del S._def_resolve_hp_after
+            except:
+                pass
+        if hasattr(S, "defense_hp_before"):
+            try:
+                del S.defense_hp_before
+            except:
+                pass
+        if hasattr(S, "defense_target_key"):
+            try:
+                del S.defense_target_key
             except:
                 pass
 

@@ -95,6 +95,64 @@ label battle_defensive_turn:
         import renpy.store as S
         base_damage = int(getattr(S, "incoming_damage", 0) or 0)
 
+        # M6 MVP 2v2:
+        # - El defensor protege la unidad objetivo principal.
+        # - Si hay split, solo el entry del target defendido se procesa en este turno;
+        #   los demás entries se aplican por target (passthrough sin cover avanzado).
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        S.defense_target_key = str(getattr(S, "current_actor_unit_key", "") or "")
+
+        if mode == "2v2":
+            plan = getattr(S, "enemy_damage_plan", None)
+            fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+            fn_key = getattr(S, "bs_unit_key", None)
+            fn_parse = getattr(S, "bs_parse_unit_key", None)
+            fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
+
+            if callable(fn_ctx) and callable(fn_key):
+                ctx = fn_ctx()
+                S.defense_target_key = str(fn_key("player", int(ctx.get("owner_slot", 0) or 0)) or "")
+
+            if isinstance(plan, dict):
+                entries = list(plan.get("entries", []) or [])
+                defend_amount = 0
+                passthrough = []
+                first_key = ""
+
+                for e in entries:
+                    if not isinstance(e, dict):
+                        continue
+                    tkey = str(e.get("target_key", "") or "")
+                    amt = max(0, int(e.get("amount", 0) or 0))
+                    if not tkey or amt <= 0:
+                        continue
+                    if not first_key:
+                        first_key = tkey
+                    if tkey == S.defense_target_key:
+                        defend_amount += amt
+                    else:
+                        passthrough.append((tkey, amt))
+
+                if defend_amount <= 0 and first_key:
+                    # fallback: defender el principal del plan
+                    if callable(fn_parse):
+                        info = fn_parse(first_key, default_side="player", default_slot=0)
+                        if str(info.get("team", "player") or "player") == "player":
+                            S.defense_target_key = first_key
+                    defend_amount = sum([a for (k, a) in [(str(e.get("target_key", "") or ""), max(0, int(e.get("amount", 0) or 0))) for e in entries if isinstance(e, dict)] if k == S.defense_target_key])
+
+                # Aplicar split no defendido por target
+                if callable(fn_apply_key):
+                    for tkey, amt in passthrough:
+                        try:
+                            fn_apply_key(tkey, amt, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat_split_passthrough", tags=["split", "passthrough"])
+                        except:
+                            pass
+
+                if defend_amount > 0:
+                    base_damage = int(defend_amount)
+                    S.incoming_damage = int(defend_amount)
+
     # --- Variables del turno (store) ---
     python:
         import renpy.store as S
@@ -135,16 +193,37 @@ label battle_defensive_turn:
     # --- Encabezado visual ---
     python:
         import renpy.store as S
-        _bp = getattr(S, "battle_player", None)
-        if isinstance(_bp, dict):
-            player_name = str(_bp.get("name", "") or "")
-        else:
-            player_name = ""
+        player_name = ""
+        slot_idx = 0
+
+        fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+        fn_key = getattr(S, "bs_unit_key", None)
+        fn_get = getattr(S, "bs_get_unit_by_key", None)
+
+        if callable(fn_ctx):
+            ctx = fn_ctx()
+            slot_idx = int(ctx.get("owner_slot", 0) or 0)
+            if callable(fn_key):
+                S.current_actor_unit_key = str(fn_key("player", slot_idx) or "")
+            if callable(fn_get):
+                u = fn_get(getattr(S, "current_actor_unit_key", ""))
+                if isinstance(u, dict):
+                    player_name = str(u.get("char_id", "") or "")
+
+        if not player_name:
+            _bp = getattr(S, "battle_player", None)
+            if isinstance(_bp, dict):
+                player_name = str(_bp.get("name", "") or "")
         if not player_name:
             player_name = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+
+        S.turn_owner_slot = int(slot_idx or 0)
+        S.turn_owner_team = "player"
+
+    $ _slot_txt = " [S{}]".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ operation_clear()
-    $ battle_log_phase("TURNO DEFENSIVO – {}".format(player_name))
-    $ battle_popup_turn("Turno defensivo — {}".format(player_name), "#00BFFF", delay=0.6)
+    $ battle_log_phase("TURNO DEFENSIVO{} – {}".format(_slot_txt, player_name))
+    $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, player_name), "#00BFFF", delay=0.6)
 
     # ========================================================
     # ⭐ UI DEFENSIVA (Selector Moderno)

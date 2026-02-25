@@ -164,13 +164,32 @@ label battle_offensive_turn:
     $ awaiting_turn_end = False
     python:
         import renpy.store as S
-        _bp = getattr(S, "battle_player", None)
-        if isinstance(_bp, dict):
-            player_name = str(_bp.get("name", "") or "")
-        else:
-            player_name = ""
+        player_name = ""
+        slot_idx = 0
+
+        fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+        fn_key = getattr(S, "bs_unit_key", None)
+        fn_get = getattr(S, "bs_get_unit_by_key", None)
+
+        if callable(fn_ctx):
+            ctx = fn_ctx()
+            slot_idx = int(ctx.get("owner_slot", 0) or 0)
+            if callable(fn_key):
+                S.current_actor_unit_key = str(fn_key("player", slot_idx) or "")
+            if callable(fn_get):
+                u = fn_get(getattr(S, "current_actor_unit_key", ""))
+                if isinstance(u, dict):
+                    player_name = str(u.get("char_id", "") or "")
+
+        if not player_name:
+            _bp = getattr(S, "battle_player", None)
+            if isinstance(_bp, dict):
+                player_name = str(_bp.get("name", "") or "")
         if not player_name:
             player_name = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+
+        S.turn_owner_slot = int(slot_idx or 0)
+        S.turn_owner_team = "player"
     $ attack_records = []
 
     # Fuente de verdad del hook: la marca Offensive_Actions SOLO si ejecuta y paga
@@ -184,10 +203,11 @@ label battle_offensive_turn:
     # ============================================================
     # Encabezado del turno
     # ============================================================
-    $ battle_log_phase("TURNO OFENSIVO – {}".format(player_name))
+    $ _slot_txt = " [S{}]".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
+    $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, player_name))
 
     $ renpy.show_screen("battle_popup_turn",
-                        text="Turno ofensivo — {}".format(player_name),
+                        text="Turno ofensivo{} — {}".format(_slot_txt, player_name),
                         color="#FFD700")
     $ renpy.pause(0.6, hard=True)
     $ renpy.hide_screen("battle_popup_turn")

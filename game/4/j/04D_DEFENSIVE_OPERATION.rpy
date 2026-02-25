@@ -141,10 +141,21 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
         )
 
         # --------------------------------------------------------
-        # (5) HP JUGADOR
+        # (5) HP objetivo defendido
         # --------------------------------------------------------
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        def_key = str(getattr(S, "defense_target_key", "") or "")
+
         hp_before = int(getattr(S, "player_hp", 0) or 0)
+        if mode == "2v2" and def_key:
+            fn_get_key = getattr(S, "bs_get_unit_by_key", None)
+            if callable(fn_get_key):
+                uu = fn_get_key(def_key)
+                if isinstance(uu, dict):
+                    hp_before = int(uu.get("hp", hp_before) or hp_before)
+
         hp_after  = max(0, hp_before - received_damage)
+        S.defense_hp_before = int(hp_before)
 
         operation_add(
             S.op_def_hp(

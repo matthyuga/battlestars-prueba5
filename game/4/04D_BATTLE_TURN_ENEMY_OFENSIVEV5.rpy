@@ -473,6 +473,19 @@ label battle_enemy_turn:
             import renpy.store as S
             S.defense_for_attack_active = True
 
+            # M6 MVP: la defensa se hace sobre la unidad objetivo principal.
+            try:
+                mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+                tkey = str(getattr(S, "enemy_target_key", "") or "")
+                fn_parse = getattr(S, "bs_parse_unit_key", None)
+                fn_set_ctx = getattr(S, "bs_set_turn_ctx", None)
+                if mode == "2v2" and tkey and callable(fn_parse) and callable(fn_set_ctx):
+                    info = fn_parse(tkey, default_side="player", default_slot=0)
+                    if str(info.get("team", "player") or "player") == "player":
+                        fn_set_ctx(owner_team="player", owner_slot=int(info.get("slot", 0) or 0), phase="defensive", mirror_legacy=True)
+            except:
+                pass
+
         $ extra_offensive_actions = 0
         $ extra_defensive_actions += 1
         $ enemy_ai.reset_turn()
