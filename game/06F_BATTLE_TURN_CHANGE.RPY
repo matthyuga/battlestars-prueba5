@@ -19,6 +19,9 @@ init -966 python:
             import renpy.store as S
 
             fn_set = getattr(S, "bs_set_turn_owner", None)
+            fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+            fn_key = getattr(S, "bs_unit_key", None)
+
             owner = "enemy" if str(owner or "").strip().lower() == "enemy" else "player"
             if callable(fn_set):
                 owner = fn_set(owner, mirror_legacy=True)
@@ -26,10 +29,22 @@ init -966 python:
                 # fallback mínimo legacy si facade aún no está cargado
                 S.battle_turn_owner = owner
 
-            if owner == "player":
-                renpy.show_screen("battle_turn_change", text="🔹 TU TURNO", color="#00BFFF", side="left")
+            ctx = fn_ctx() if callable(fn_ctx) else {"owner_team": owner, "owner_slot": 0}
+            owner_team = str(ctx.get("owner_team", owner) or owner)
+            owner_slot = int(ctx.get("owner_slot", 0) or 0)
+
+            if callable(fn_key):
+                S.current_actor_unit_key = str(fn_key(owner_team, owner_slot) or "")
+                rival = "enemy" if owner_team == "player" else "player"
+                S.current_enemy_unit_key = str(fn_key(rival, None) or "")
+
+            team_mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            slot_txt = " [S{}]".format(owner_slot + 1) if team_mode == "2v2" else ""
+
+            if owner_team == "player":
+                renpy.show_screen("battle_turn_change", text="🔹 TU TURNO{}".format(slot_txt), color="#00BFFF", side="left")
             else:
-                renpy.show_screen("battle_turn_change", text="🔻 TURNO ENEMIGO", color="#FF4444", side="right")
+                renpy.show_screen("battle_turn_change", text="🔻 TURNO ENEMIGO{}".format(slot_txt), color="#FF4444", side="right")
             renpy.pause(1.0)
             renpy.hide_screen("battle_turn_change")
         except Exception as e:

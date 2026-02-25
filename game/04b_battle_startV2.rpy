@@ -70,6 +70,7 @@ label battle_start:
     # =======================================================
     $ enemy_id = getattr(S, "battle_enemy_id", "Hollow")
     $ player_id = getattr(S, "battle_player_id", "Harribel")
+    $ battle_team_mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
 
     # Normalización: el sistema usa "Nel" (Neliel solo display)
     if enemy_id == "Neliel":
@@ -146,19 +147,52 @@ label battle_start:
     $ battle_hp_player = player_hp
     $ battle_hp_enemy  = enemy_hp
 
-    # Pre-modelo equipos/unidades (compat 1v1): team[0] como activo
+    # Modelo de equipos/unidades (1v1 compat / 2v2 real)
     python:
         import renpy.store as S
-        fn_init_teams = getattr(S, "bs_init_single_teams", None)
-        if callable(fn_init_teams):
-            fn_init_teams(
-                player_char_id=player_id,
-                enemy_char_id=enemy_id,
-                player_hp=player_hp,
-                player_max_hp=battle_hp_player_max,
-                enemy_hp=enemy_hp,
-                enemy_max_hp=battle_hp_enemy_max,
-            )
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+
+        if mode == "2v2" and callable(getattr(S, "bs_init_teams", None)):
+            p_ids = list(getattr(S, "battle_player_ids", []) or [])
+            e_ids = list(getattr(S, "battle_enemy_ids", []) or [])
+            if len(p_ids) < 2:
+                p_ids = [str(getattr(S, "battle_player_slot_0", player_id) or player_id), str(getattr(S, "battle_player_slot_1", "Grimmjow") or "Grimmjow")]
+            if len(e_ids) < 2:
+                e_ids = [str(getattr(S, "battle_enemy_slot_0", enemy_id) or enemy_id), str(getattr(S, "battle_enemy_slot_1", "Nel") or "Nel")]
+
+            p_units = []
+            e_units = []
+            for cid in p_ids[:2]:
+                hp = get_character_hp(cid)
+                p_units.append({"char_id": cid, "hp": hp, "max_hp": hp})
+            for cid in e_ids[:2]:
+                hp = get_character_hp(cid)
+                e_units.append({"char_id": cid, "hp": hp, "max_hp": hp})
+
+            S.bs_init_teams(player_units=p_units, enemy_units=e_units)
+
+            # compat legacy/UI usa unidad activa por lado
+            fn_sync = getattr(S, "bs_sync_to_legacy", None)
+            if callable(fn_sync):
+                fn_sync()
+
+            p_active = getattr(S, "bs_get_active_unit", lambda x: None)("player")
+            e_active = getattr(S, "bs_get_active_unit", lambda x: None)("enemy")
+            if isinstance(p_active, dict):
+                S.battle_player_id = str(p_active.get("char_id", player_id) or player_id)
+            if isinstance(e_active, dict):
+                S.battle_enemy_id = str(e_active.get("char_id", enemy_id) or enemy_id)
+        else:
+            fn_init_teams = getattr(S, "bs_init_single_teams", None)
+            if callable(fn_init_teams):
+                fn_init_teams(
+                    player_char_id=player_id,
+                    enemy_char_id=enemy_id,
+                    player_hp=player_hp,
+                    player_max_hp=battle_hp_player_max,
+                    enemy_hp=enemy_hp,
+                    enemy_max_hp=battle_hp_enemy_max,
+                )
 
     # =======================================================
     # 🏜️ Configuración inicial de ambiente y HUD
@@ -234,7 +268,8 @@ label battle_start:
     else:
         $ battle_turn_owner = _first_owner
 
-    $ _owner_now = S.bs_get_turn_owner() if hasattr(S, "bs_get_turn_owner") else getattr(S, "battle_turn_owner", _first_owner)
+    $ _ctx_now = S.bs_get_turn_ctx() if hasattr(S, "bs_get_turn_ctx") else {"owner_team": getattr(S, "battle_turn_owner", _first_owner), "owner_slot": 0}
+    $ _owner_now = _ctx_now.get("owner_team", _first_owner)
 
     if _owner_now == "player":
         $ battle_popup_turn("¡{} ataca primero!".format(player_name), "#00BFFF", delay=0.8)

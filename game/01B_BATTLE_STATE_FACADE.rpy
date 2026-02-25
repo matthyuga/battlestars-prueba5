@@ -434,6 +434,89 @@ init -989 python:
         S.battle_state = bs
         return bs
 
+    def bs_init_teams(player_units=None, enemy_units=None):
+        bs = battle_state_ensure()
+
+        def _normalize(side, units, fallback_char):
+            out = []
+            raw = list(units or [])
+            if not raw:
+                raw = [{"char_id": fallback_char}]
+
+            for i, it in enumerate(raw[:2]):
+                if isinstance(it, dict):
+                    cid = str(it.get("char_id", fallback_char) or fallback_char)
+                    hp_i = _bs_to_int(it.get("hp", _bs_legacy_hp(side)), _bs_legacy_hp(side))
+                    mx_i = _bs_to_int(it.get("max_hp", _bs_legacy_max_hp(side)), _bs_legacy_max_hp(side))
+                else:
+                    cid = str(it or fallback_char)
+                    hp_i = _bs_legacy_hp(side)
+                    mx_i = _bs_legacy_max_hp(side)
+
+                mx_i = max(1, mx_i)
+                hp_i = max(0, min(hp_i, mx_i))
+
+                out.append({
+                    "uid": "{}_{}".format(side, i + 1),
+                    "char_id": cid,
+                    "hp": hp_i,
+                    "max_hp": mx_i,
+                    "alive": bool(hp_i > 0),
+                })
+
+            while len(out) < 2:
+                i = len(out)
+                out.append({
+                    "uid": "{}_{}".format(side, i + 1),
+                    "char_id": str(fallback_char),
+                    "hp": 0,
+                    "max_hp": max(1, _bs_legacy_max_hp(side)),
+                    "alive": False,
+                })
+            return out
+
+        p_fallback = _bs_default_char_id("player")
+        e_fallback = _bs_default_char_id("enemy")
+
+        p_team = _normalize("player", player_units, p_fallback)
+        e_team = _normalize("enemy", enemy_units, e_fallback)
+
+        bs.setdefault("teams", {})["player"] = p_team
+        bs.setdefault("teams", {})["enemy"] = e_team
+
+        def _first_alive_slot(team):
+            for i, u in enumerate(team):
+                if isinstance(u, dict) and max(0, _bs_to_int(u.get("hp", 0), 0)) > 0:
+                    return i
+            return 0
+
+        p_slot = _first_alive_slot(p_team)
+        e_slot = _first_alive_slot(e_team)
+
+        bs.setdefault("active", {})["player"] = str(p_team[p_slot].get("uid", "player_1"))
+        bs.setdefault("active", {})["enemy"] = str(e_team[e_slot].get("uid", "enemy_1"))
+
+        p_u = p_team[p_slot]
+        e_u = e_team[e_slot]
+        bs.setdefault("units", {})["player"] = {
+            "uid": str(p_u.get("uid", "player_1")),
+            "char_id": str(p_u.get("char_id", p_fallback) or p_fallback),
+            "hp": max(0, _bs_to_int(p_u.get("hp", 0), 0)),
+            "max_hp": max(1, _bs_to_int(p_u.get("max_hp", 1), 1)),
+        }
+        bs.setdefault("units", {})["enemy"] = {
+            "uid": str(e_u.get("uid", "enemy_1")),
+            "char_id": str(e_u.get("char_id", e_fallback) or e_fallback),
+            "hp": max(0, _bs_to_int(e_u.get("hp", 0), 0)),
+            "max_hp": max(1, _bs_to_int(e_u.get("max_hp", 1), 1)),
+        }
+
+        bs.setdefault("turn", {})["scheduler"] = "round_robin_slots"
+        bs.setdefault("turn", {})["rr_last_slot"] = {"player": -1, "enemy": -1}
+
+        S.battle_state = bs
+        return bs
+
     def bs_get_active_slot(side):
         side = _bs_side_key(side)
         bs = battle_state_ensure()
@@ -1083,11 +1166,43 @@ init -989 python:
     def bs_get_turn_owner():
         return bs_get_turn_ctx().get("owner_team", "player")
 
+    def bs_next_alive_slot(side, after_slot=None):
+        side = _bs_side_key(side)
+        team = bs_get_team(side)
+        if not team:
+            return 0
+        start = _bs_to_int(after_slot, -1)
+        n = len(team)
+        for step in range(1, n + 1):
+            idx = (start + step) % n
+            u = team[idx] if idx < n else None
+            if isinstance(u, dict) and max(0, _bs_to_int(u.get("hp", 0), 0)) > 0:
+                return idx
+        return max(0, bs_get_active_slot(side))
+
     def bs_set_turn_owner(owner, mirror_legacy=True):
         side = _bs_side_key(owner)
+        slot = bs_get_active_slot(side)
+
+        try:
+            mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        except:
+            mode = "1v1"
+
+        if mode == "2v2":
+            bs = battle_state_ensure()
+            turn = bs.setdefault("turn", {})
+            rr = turn.get("rr_last_slot", {}) if isinstance(turn.get("rr_last_slot", {}), dict) else {}
+            last_slot = _bs_to_int(rr.get(side, -1), -1)
+            slot = bs_next_alive_slot(side, after_slot=last_slot)
+            rr[side] = slot
+            turn["rr_last_slot"] = rr
+            bs["turn"] = turn
+            S.battle_state = bs
+
         ctx = bs_set_turn_ctx(
             owner_team=side,
-            owner_slot=bs_get_active_slot(side),
+            owner_slot=slot,
             phase="offensive",
             mirror_legacy=mirror_legacy,
         )
@@ -1151,6 +1266,7 @@ init -989 python:
     S.bs_get_team = bs_get_team
     S.bs_get_active_unit = bs_get_active_unit
     S.bs_init_single_teams = bs_init_single_teams
+    S.bs_init_teams = bs_init_teams
     S.bs_get_active_slot = bs_get_active_slot
     S.bs_unit_key = bs_unit_key
     S.bs_parse_unit_key = bs_parse_unit_key
@@ -1185,6 +1301,7 @@ init -989 python:
     S.bs_set_turn_ctx = bs_set_turn_ctx
     S.bs_get_turn_owner = bs_get_turn_owner
     S.bs_set_turn_owner = bs_set_turn_owner
+    S.bs_next_alive_slot = bs_next_alive_slot
     S.bs_advance_turn = bs_advance_turn
     S.bs_sync_turn_to_legacy = bs_sync_turn_to_legacy
     S.bs_sync_turn_from_legacy = bs_sync_turn_from_legacy
