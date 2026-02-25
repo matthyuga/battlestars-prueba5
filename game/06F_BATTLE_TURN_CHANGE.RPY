@@ -33,10 +33,26 @@ init -966 python:
             owner_team = str(ctx.get("owner_team", owner) or owner)
             owner_slot = int(ctx.get("owner_slot", 0) or 0)
 
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            actor_name = ""
+            order_pos = 1
+            turn_idx = int(getattr(S, "battle_turn_index", 0) or 0) + 1
+            S.battle_turn_index = int(turn_idx)
+
+            if owner_team == "player":
+                order_pos = (owner_slot * 2) + 1
+            else:
+                order_pos = (owner_slot * 2) + 2
+
             if callable(fn_key):
                 S.current_actor_unit_key = str(fn_key(owner_team, owner_slot) or "")
                 rival = "enemy" if owner_team == "player" else "player"
                 S.current_enemy_unit_key = str(fn_key(rival, None) or "")
+
+                if callable(fn_get):
+                    au = fn_get(getattr(S, "current_actor_unit_key", ""))
+                    if isinstance(au, dict):
+                        actor_name = str(au.get("char_id", "") or "")
 
             # Sincronizar HUD/legacy con unidades activas actuales
             try:
@@ -74,10 +90,27 @@ init -966 python:
             team_mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
             slot_txt = " (S{})".format(owner_slot + 1) if team_mode == "2v2" else ""
 
-            if owner_team == "player":
-                renpy.show_screen("battle_turn_change", text="🔹 TU TURNO{}".format(slot_txt), color="#00BFFF", side="left")
+            if not actor_name:
+                if owner_team == "player":
+                    actor_name = str(getattr(S, "battle_player_id", "Jugador") or "Jugador")
+                else:
+                    actor_name = str(getattr(S, "battle_enemy_id", "Enemigo") or "Enemigo")
+
+            if team_mode == "2v2":
+                banner = u"T{} · #{} {}{}".format(turn_idx, order_pos, actor_name, slot_txt)
+                try:
+                    fn_log = getattr(S, "battle_log_add", None)
+                    if callable(fn_log):
+                        fn_log("{color=#FFE082}Turno {} | Orden {}: {} ({}){/color}".format(turn_idx, order_pos, actor_name, "jugador" if owner_team == "player" else "ia"))
+                except:
+                    pass
             else:
-                renpy.show_screen("battle_turn_change", text="🔻 TURNO ENEMIGO{}".format(slot_txt), color="#FF4444", side="right")
+                banner = u"T{} · {}".format(turn_idx, actor_name)
+
+            if owner_team == "player":
+                renpy.show_screen("battle_turn_change", text="🔹 TU TURNO · {}".format(banner), color="#00BFFF", side="left")
+            else:
+                renpy.show_screen("battle_turn_change", text="🔻 TURNO ENEMIGO · {}".format(banner), color="#FF4444", side="right")
             renpy.pause(1.0)
             renpy.hide_screen("battle_turn_change")
         except Exception as e:

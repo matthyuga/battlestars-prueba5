@@ -118,6 +118,9 @@ label battle_start:
     $ battle_log_clear()
     $ battle_log_phase("COMIENZA EL COMBATE")
 
+    # Contador de turnos ofensivos (global por combate)
+    $ S.battle_turn_index = 0
+
     # =======================================================
     # 🌆 Fondo de batalla aleatorio
     # =======================================================

@@ -333,6 +333,17 @@ screen battle_hp_overlay():
                 vbox:
                     spacing 4
                     text "2v2 · Turno: {} S{}".format(str(_ctx.get("owner_team", "player") or "player").upper(), int(_ctx.get("owner_slot", 0) or 0) + 1) color "#FFE082" size 15 bold True
+                    text "Contador: T{}".format(int(getattr(store, "battle_turn_index", 0) or 0)) color "#B3E5FC" size 13
+
+                    $ _p1 = store.bs_get_unit_by_key(store.bs_unit_key("player", 0)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None
+                    $ _p2 = store.bs_get_unit_by_key(store.bs_unit_key("player", 1)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None
+                    $ _e1 = store.bs_get_unit_by_key(store.bs_unit_key("enemy", 0)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None
+                    $ _e2 = store.bs_get_unit_by_key(store.bs_unit_key("enemy", 1)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None
+                    $ _p1n = str((_p1.get("char_id", "P1") if isinstance(_p1, dict) else "P1") or "P1")
+                    $ _p2n = str((_p2.get("char_id", "P2") if isinstance(_p2, dict) else "P2") or "P2")
+                    $ _e1n = str((_e1.get("char_id", "E1") if isinstance(_e1, dict) else "E1") or "E1")
+                    $ _e2n = str((_e2.get("char_id", "E2") if isinstance(_e2, dict) else "E2") or "E2")
+                    text "Orden: 1-{} (jugador), 2-{} (ia), 3-{} (jugador), 4-{} (ia)".format(_p1n, _e1n, _p2n, _e2n) color "#C5E1A5" size 12
 
                     hbox:
                         spacing 14
