@@ -38,6 +38,39 @@ init -966 python:
                 rival = "enemy" if owner_team == "player" else "player"
                 S.current_enemy_unit_key = str(fn_key(rival, None) or "")
 
+            # Sincronizar HUD/legacy con unidades activas actuales
+            try:
+                fn_sync_hp = getattr(S, "bs_sync_to_legacy", None)
+                if callable(fn_sync_hp):
+                    fn_sync_hp()
+
+                fn_get = getattr(S, "bs_get_unit_by_key", None)
+                fn_char = getattr(S, "get_character", None)
+                if callable(fn_get):
+                    puk = str(fn_key("player", None) if callable(fn_key) else "")
+                    euk = str(fn_key("enemy", None) if callable(fn_key) else "")
+                    pu = fn_get(puk) if puk else None
+                    eu = fn_get(euk) if euk else None
+
+                    if isinstance(pu, dict):
+                        pid = str(pu.get("char_id", getattr(S, "battle_player_id", "Harribel")) or "Harribel")
+                        S.battle_player_id = pid
+                        if callable(fn_char):
+                            ch = fn_char(pid)
+                            if isinstance(ch, dict):
+                                S.battle_player = ch
+                                S.hud_player_name = str(ch.get("name", pid) or pid)
+                    if isinstance(eu, dict):
+                        eid = str(eu.get("char_id", getattr(S, "battle_enemy_id", "Hollow")) or "Hollow")
+                        S.battle_enemy_id = eid
+                        if callable(fn_char):
+                            ch = fn_char(eid)
+                            if isinstance(ch, dict):
+                                S.battle_enemy = ch
+                                S.hud_enemy_name = str(ch.get("name", eid) or eid)
+            except Exception as _e_sync:
+                renpy.log("battle_turn_change sync warn: {}".format(_e_sync))
+
             team_mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
             slot_txt = " (S{})".format(owner_slot + 1) if team_mode == "2v2" else ""
 

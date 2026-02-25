@@ -129,6 +129,35 @@ init python:
         return None
 
 
+    def selector_cycle_target_key(target_team="enemy"):
+        try:
+            valid = list(S.bs_get_valid_target_keys(target_team) or []) if hasattr(S, "bs_get_valid_target_keys") else []
+        except:
+            valid = []
+        if not valid:
+            S.offensive_selected_target_key = ""
+            return ""
+
+        cur = str(getattr(S, "offensive_selected_target_key", "") or "")
+        if cur in valid:
+            i = valid.index(cur)
+            nxt = valid[(i + 1) % len(valid)]
+        else:
+            nxt = valid[0]
+        S.offensive_selected_target_key = str(nxt)
+        return str(nxt)
+
+
+    def selector_toggle_split_mode():
+        mode = str(getattr(S, "offensive_targeting_policy", "single_target") or "single_target").strip().lower()
+        if mode == "split_equal":
+            mode = "single_target"
+        else:
+            mode = "split_equal"
+        S.offensive_targeting_policy = mode
+        return mode
+
+
 # ============================================================
 # TOOLTIP MODERNO
 # ============================================================
@@ -171,6 +200,8 @@ screen technique_selector():
     tag techselector
     modal False
     zorder 60
+
+    default _target_preview = ""
 
     # Toggle con tecla U (no bloquea otros paneles)
     key "K_u" action Function(toggle_technique_selector)
@@ -329,8 +360,22 @@ screen technique_selector():
                     padding (14, 12)
                     xmaximum 220
 
-                    vbox spacing 20:
-                        textbutton "✅ Finalizar Turno":
+                    vbox spacing 14:
+                        if battle_mode == "offensive":
+                            $ _policy = str(getattr(store, "offensive_targeting_policy", "single_target") or "single_target")
+                            $ _sel = str(getattr(store, "offensive_selected_target_key", "") or "")
+                            text "Objetivo: [(_sel if _sel else 'AUTO')]" size 18 color "#88DDFF"
+                            text "Daño: [('Dividir x2' if _policy == 'split_equal' else 'Foco único')]" size 17 color "#FFDDAA"
+
+                            textbutton "🎯 Seleccionar objetivo":
+                                text_size 20
+                                action Function(selector_cycle_target_key, "enemy")
+
+                            textbutton "⚖ Alternar dividir x2":
+                                text_size 20
+                                action Function(selector_toggle_split_mode)
+
+                        textbutton "✅ Finalizar turno (objetivo listo)":
                             text_size 22
                             action Function(confirm_turn_actions)
 

@@ -1194,7 +1194,22 @@ init -989 python:
             turn = bs.setdefault("turn", {})
             rr = turn.get("rr_last_slot", {}) if isinstance(turn.get("rr_last_slot", {}), dict) else {}
             last_slot = _bs_to_int(rr.get(side, -1), -1)
-            slot = bs_next_alive_slot(side, after_slot=last_slot)
+
+            if last_slot < 0:
+                alive_keys = bs_get_alive_unit_keys(side)
+                if alive_keys:
+                    try:
+                        import renpy
+                        pick_key = str(renpy.random.choice(alive_keys) or alive_keys[0])
+                    except:
+                        pick_key = str(alive_keys[0])
+                    info = bs_parse_unit_key(pick_key, default_side=side, default_slot=0)
+                    slot = max(0, _bs_to_int(info.get("slot", 0), 0))
+                else:
+                    slot = 0
+            else:
+                slot = bs_next_alive_slot(side, after_slot=last_slot)
+
             rr[side] = slot
             turn["rr_last_slot"] = rr
             bs["turn"] = turn
