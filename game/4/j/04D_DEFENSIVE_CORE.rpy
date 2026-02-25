@@ -133,13 +133,8 @@ label battle_defensive_turn:
                     else:
                         passthrough.append((tkey, amt))
 
-                if defend_amount <= 0 and first_key:
-                    # fallback: defender el principal del plan
-                    if callable(fn_parse):
-                        info = fn_parse(first_key, default_side="player", default_slot=0)
-                        if str(info.get("team", "player") or "player") == "player":
-                            S.defense_target_key = first_key
-                    defend_amount = sum([a for (k, a) in [(str(e.get("target_key", "") or ""), max(0, int(e.get("amount", 0) or 0))) for e in entries if isinstance(e, dict)] if k == S.defense_target_key])
+                # Si este slot no fue objetivo, no debe abrir defensa de otra unidad.
+                # Mantener defend_amount=0 fuerza el skip defensivo por no daño real.
 
                 # Aplicar split no defendido por target
                 if callable(fn_apply_key):

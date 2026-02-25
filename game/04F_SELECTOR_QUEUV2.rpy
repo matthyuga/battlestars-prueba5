@@ -364,8 +364,10 @@ screen technique_selector():
                         if battle_mode == "offensive":
                             $ _policy = str(getattr(store, "offensive_targeting_policy", "single_target") or "single_target")
                             $ _sel = str(getattr(store, "offensive_selected_target_key", "") or "")
-                            text "Objetivo: [(_sel if _sel else 'AUTO')]" size 18 color "#88DDFF"
-                            text "Daño: [('Dividir x2' if _policy == 'split_equal' else 'Foco único')]" size 17 color "#FFDDAA"
+                            $ _sel_txt = _sel if _sel else "AUTO"
+                            $ _dmg_mode_txt = "Dividir x2" if _policy == "split_equal" else "Foco único"
+                            text "Objetivo: [_sel_txt]" size 18 color "#88DDFF"
+                            text "Daño: [_dmg_mode_txt]" size 17 color "#FFDDAA"
 
                             textbutton "🎯 Seleccionar objetivo":
                                 text_size 20
@@ -375,9 +377,13 @@ screen technique_selector():
                                 text_size 20
                                 action Function(selector_toggle_split_mode)
 
-                        textbutton "✅ Finalizar turno (objetivo listo)":
-                            text_size 22
-                            action Function(confirm_turn_actions)
+                            textbutton "✅ Finalizar turno (objetivo listo)":
+                                text_size 22
+                                action Function(confirm_turn_actions)
+                        else:
+                            textbutton "✅ Finalizar turno":
+                                text_size 22
+                                action Function(confirm_turn_actions)
 
                         textbutton "🗑 Cancelar Todo":
                             text_size 22
