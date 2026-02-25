@@ -516,34 +516,96 @@ label battle_enemy_turn:
         $ extra_defensive_actions += 1
         $ enemy_ai.reset_turn()
 
-        $ battle_turn_change("player")
         python:
             import renpy.store as S
-            _bp = getattr(S, "battle_player", None)
-            if isinstance(_bp, dict):
-                _pname = str(_bp.get("name", "") or "")
-            else:
-                _pname = ""
+
+            _pname = ""
+            _slot_idx = 0
+            _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+
+            fn_parse = getattr(S, "bs_parse_unit_key", None)
+            fn_set_ctx = getattr(S, "bs_set_turn_ctx", None)
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            fn_key = getattr(S, "bs_unit_key", None)
+            fn_sync = getattr(S, "bs_sync_to_legacy", None)
+
+            if _mode == "2v2" and callable(fn_parse) and callable(fn_set_ctx):
+                tkey = str(getattr(S, "enemy_target_key", "") or "")
+                info = fn_parse(tkey, default_side="player", default_slot=0)
+                if str(info.get("team", "player") or "player") == "player":
+                    _slot_idx = int(info.get("slot", 0) or 0)
+                    fn_set_ctx(owner_team="player", owner_slot=_slot_idx, phase="defensive", mirror_legacy=True)
+
+            try:
+                if callable(fn_sync):
+                    fn_sync()
+            except:
+                pass
+
+            if callable(fn_key) and callable(fn_get):
+                uk = str(fn_key("player", _slot_idx) or "")
+                uu = fn_get(uk) if uk else None
+                if isinstance(uu, dict):
+                    _pname = str(uu.get("char_id", "") or "")
+
+            if not _pname:
+                _bp = getattr(S, "battle_player", None)
+                if isinstance(_bp, dict):
+                    _pname = str(_bp.get("name", "") or "")
             if not _pname:
                 _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
-        $ battle_popup_turn("Turno defensivo — {}".format(_pname), "#00BFFF", delay=0.6)
+
+            _slot_txt = " (S{})".format(int(_slot_idx or 0) + 1) if _mode == "2v2" else ""
+
+        $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.6)
         jump battle_defensive_turn
 
     # ============================================================
     # ⭐ DEFENSA NORMAL
     # ============================================================
     $ enemy_ai.reset_turn()
-    $ battle_turn_change("player")
     python:
         import renpy.store as S
-        _bp = getattr(S, "battle_player", None)
-        if isinstance(_bp, dict):
-            _pname = str(_bp.get("name", "") or "")
-        else:
-            _pname = ""
+
+        _pname = ""
+        _slot_idx = 0
+        _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+
+        fn_parse = getattr(S, "bs_parse_unit_key", None)
+        fn_set_ctx = getattr(S, "bs_set_turn_ctx", None)
+        fn_get = getattr(S, "bs_get_unit_by_key", None)
+        fn_key = getattr(S, "bs_unit_key", None)
+        fn_sync = getattr(S, "bs_sync_to_legacy", None)
+
+        if _mode == "2v2" and callable(fn_parse) and callable(fn_set_ctx):
+            tkey = str(getattr(S, "enemy_target_key", "") or "")
+            info = fn_parse(tkey, default_side="player", default_slot=0)
+            if str(info.get("team", "player") or "player") == "player":
+                _slot_idx = int(info.get("slot", 0) or 0)
+                fn_set_ctx(owner_team="player", owner_slot=_slot_idx, phase="defensive", mirror_legacy=True)
+
+        try:
+            if callable(fn_sync):
+                fn_sync()
+        except:
+            pass
+
+        if callable(fn_key) and callable(fn_get):
+            uk = str(fn_key("player", _slot_idx) or "")
+            uu = fn_get(uk) if uk else None
+            if isinstance(uu, dict):
+                _pname = str(uu.get("char_id", "") or "")
+
+        if not _pname:
+            _bp = getattr(S, "battle_player", None)
+            if isinstance(_bp, dict):
+                _pname = str(_bp.get("name", "") or "")
         if not _pname:
             _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
-    $ battle_popup_turn("Turno defensivo — {}".format(_pname), "#00BFFF", delay=0.8)
+
+        _slot_txt = " (S{})".format(int(_slot_idx or 0) + 1) if _mode == "2v2" else ""
+
+    $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.8)
     call battle_defensive_turn
 
     return
