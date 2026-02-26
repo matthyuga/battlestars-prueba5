@@ -273,6 +273,10 @@ init -982 python:
 # 🔹 VARIABLES GLOBALES (fuera de init)
 # ===========================================================
 default incoming_damage = 0
+default incoming_damage_target_key = ""
+default incoming_damage_source_key = ""
+default incoming_damage_sources = []
+default offense_cancelled = False
 default battle_reflected_pending = 0
 
 # Bootstrap seguro sin hardcode de HP; se sincroniza en runtime al iniciar combate.

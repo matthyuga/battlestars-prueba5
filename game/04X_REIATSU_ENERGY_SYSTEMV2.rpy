@@ -285,14 +285,43 @@ init -950 python:
         if r < 0: r = 0
         if e < 0: e = 0
 
-        if actor == "enemy":
-            S.enemy_reiatsu = max(0, int(getattr(S, "enemy_reiatsu", 0) or 0) - r)
-            S.enemy_energy  = max(0, int(getattr(S, "enemy_energy", 0)  or 0) - e)
-        else:
-            S.player_reiatsu = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - r)
-            S.player_energy  = max(0, int(getattr(S, "player_energy", 0)  or 0) - e)
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        consumed_r = r
+        consumed_e = e
 
-        return r, e
+        if mode == "2v2" and callable(getattr(S, "bs_consume_unit_resources", None)) and callable(getattr(S, "bs_get_turn_ctx", None)) and callable(getattr(S, "bs_unit_key", None)):
+            ctx = S.bs_get_turn_ctx()
+            side = str(ctx.get("owner_team", actor) or actor)
+            slot = int(ctx.get("owner_slot", 0) or 0)
+            if actor in ("player", "enemy"):
+                side = actor
+            ukey = str(S.bs_unit_key(side, slot) or "")
+            info = S.bs_consume_unit_resources(ukey, r, e)
+            consumed_r = int(info.get("reiatsu_spent", 0) or 0)
+            consumed_e = int(info.get("energy_spent", 0) or 0)
+
+            # sincronizar aliases legacy de unidad activa
+            if callable(getattr(S, "bs_get_active_unit_key", None)) and callable(getattr(S, "bs_get_unit_resources", None)):
+                try:
+                    akt = str(S.bs_get_active_unit_key(side) or ukey)
+                    rs = S.bs_get_unit_resources(akt)
+                    if side == "enemy":
+                        S.enemy_reiatsu = int(rs.get("reiatsu", 0) or 0)
+                        S.enemy_energy = int(rs.get("energy", 0) or 0)
+                    else:
+                        S.player_reiatsu = int(rs.get("reiatsu", 0) or 0)
+                        S.player_energy = int(rs.get("energy", 0) or 0)
+                except:
+                    pass
+        else:
+            if actor == "enemy":
+                S.enemy_reiatsu = max(0, int(getattr(S, "enemy_reiatsu", 0) or 0) - r)
+                S.enemy_energy  = max(0, int(getattr(S, "enemy_energy", 0)  or 0) - e)
+            else:
+                S.player_reiatsu = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - r)
+                S.player_energy  = max(0, int(getattr(S, "player_energy", 0)  or 0) - e)
+
+        return consumed_r, consumed_e
 
     # -----------------------------------------------------------
     # Export a store (API pública)

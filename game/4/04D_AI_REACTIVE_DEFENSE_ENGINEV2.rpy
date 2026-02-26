@@ -249,6 +249,10 @@ init -988 python:
         # (2) DEFENSAS con debuff
         # -------------------------------
         block_debuff_percent = float(getattr(S, "next_defense_reduction", 0.0) or 0.0)
+        defender_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+        allowed_targets = list(getattr(S, "pending_split_effect_targets_enemy", []) or [])
+        if allowed_targets and defender_key and defender_key not in allowed_targets:
+            block_debuff_percent = 0.0
 
         block_parts = []
         for base, blk in blocks_list:
@@ -399,6 +403,12 @@ init -988 python:
         if block_debuff_percent > 0:
             try:
                 S.next_defense_reduction = 0.0
+            except:
+                pass
+
+        if defender_key and allowed_targets:
+            try:
+                S.pending_split_effect_targets_enemy = [k for k in allowed_targets if str(k or "") != defender_key]
             except:
                 pass
 

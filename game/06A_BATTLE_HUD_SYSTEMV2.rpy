@@ -231,90 +231,70 @@ screen battle_hp_overlay():
             $ hp_flash_timer -= 1
 
         # ======================================================
-        # ⚔️ HUD DEL JUGADOR
+        # ⚔️ HUD DE UNIDADES
         # ======================================================
         if ui_show_unit_hud:
-            frame at hud_fade_in:
-                background "#0008"
-                xalign 0.0 yalign 0.0
-                xpadding 12 ypadding 8
-
-                vbox at hp_pulse_player:
-                    spacing 2
-
-                    # ✅ Nombre dinámico
-                    text hud_player_name color "#88CCFF" size 22 bold True
-
-                    bar:
-                        value (float(battle_hp_player) / battle_hp_player_max)
-                        range 1.0 xmaximum 280 ymaximum 16
-                        left_bar "#00BFFF" right_bar "#222222"
-
-                    text "{} / {}".format(
-                        battle_fmt_num(battle_hp_player),
-                        battle_fmt_num(battle_hp_player_max)
-                    ) color "#FFFFFF" size 16
-
-                    # -----------------------------
-                    # REIATSU (con resta dinámica)
-                    # -----------------------------
-                    hbox:
-                        spacing 6
+            if str(getattr(store, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2" and hasattr(store, "bs_unit_key") and hasattr(store, "bs_get_unit_by_key"):
+                $ _ctx_u = store.bs_get_turn_ctx() if hasattr(store, "bs_get_turn_ctx") else {"owner_team": "player", "owner_slot": 0}
+                hbox:
+                    xalign 0.5
+                    yalign 0.0
+                    spacing 14
+                    for _team in ["player", "enemy"]:
+                        vbox:
+                            spacing 8
+                            for i in range(2):
+                                $ _uk = store.bs_unit_key(_team, i)
+                                $ _uu = store.bs_get_unit_by_key(_uk)
+                                $ _res = store.bs_get_unit_resources(_uk) if hasattr(store, "bs_get_unit_resources") else {"reiatsu":0,"energy":0}
+                                $ _name = str((_uu.get("char_id", "{}{}".format("P" if _team=="player" else "E", i+1)) if isinstance(_uu, dict) else "{}{}".format("P" if _team=="player" else "E", i+1)) or "?")
+                                $ _hp = int((_uu.get("hp", 0) if isinstance(_uu, dict) else 0) or 0)
+                                $ _mx = int((_uu.get("max_hp", 1) if isinstance(_uu, dict) else 1) or 1)
+                                $ _active = bool(str(_ctx_u.get("owner_team", "")) == _team and int(_ctx_u.get("owner_slot", 0) or 0) == i)
+                                frame at hud_fade_in:
+                                    background "#0008"
+                                    xpadding 10
+                                    ypadding 6
+                                    xmaximum 250
+                                    vbox:
+                                        spacing 2
+                                        text "{} {}".format("▣" if _active else "▫", _name) color ("#88CCFF" if _team=="player" else "#FF7777") size 18 bold True
+                                        bar:
+                                            value (float(_hp) / max(1.0, float(_mx)))
+                                            range 1.0 xmaximum 220 ymaximum 12
+                                            left_bar ("#00BFFF" if _team=="player" else "#FF3333") right_bar "#222222"
+                                        text "HP: {} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)) color "#FFFFFF" size 13
+                                        text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))) size 12 color "#55FFFF"
+                                        text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))) size 12 color "#FFA500"
+            else:
+                frame at hud_fade_in:
+                    background "#0008"
+                    xalign 0.0 yalign 0.0
+                    xpadding 12 ypadding 8
+                    vbox at hp_pulse_player:
+                        spacing 2
+                        text hud_player_name color "#88CCFF" size 22 bold True
+                        bar:
+                            value (float(battle_hp_player) / battle_hp_player_max)
+                            range 1.0 xmaximum 280 ymaximum 16
+                            left_bar "#00BFFF" right_bar "#222222"
+                        text "{} / {}".format(battle_fmt_num(battle_hp_player), battle_fmt_num(battle_hp_player_max)) color "#FFFFFF" size 16
                         text "Reiatsu: {}".format(battle_fmt_num(player_reiatsu)) size 15 color "#55FFFF"
-
-                        $ rei_diff = 0
-                        if hasattr(store, "pending_tech_list") and store.pending_tech_list:
-                            $ rei_diff = simulated_reiatsu - player_reiatsu
-
-                        if rei_diff != 0:
-                            text "-{}".format(battle_fmt_num(abs(rei_diff))) size 15 color "#66CCFFAA"
-
-                    # -----------------------------
-                    # ENERGÍA (con resta dinámica)
-                    # -----------------------------
-                    hbox:
-                        spacing 6
                         text "Energía: {}".format(battle_fmt_num(player_energy)) size 15 color "#FFA500"
 
-                        $ ene_diff = 0
-                        if hasattr(store, "pending_tech_list") and store.pending_tech_list:
-                            $ ene_diff = simulated_energy - player_energy
-
-                        if ene_diff != 0:
-                            text "-{}".format(battle_fmt_num(abs(ene_diff))) size 15 color "#FFBB66AA"
-
-
-
-        # ======================================================
-        # 👹 HUD DEL ENEMIGO
-        # ======================================================
-            frame at hud_fade_in:
-                background "#0008"
-                xalign 1.0 yalign 0.0
-                xpadding 12 ypadding 8
-
-                vbox at hp_pulse_enemy:
-                    spacing 2
-
-                    # ✅ Nombre dinámico
-                    text hud_enemy_name color "#FF7777" size 22 bold True
-
-                    bar:
-                        value (float(battle_hp_enemy) / battle_hp_enemy_max)
-                        range 1.0 xmaximum 280 ymaximum 16
-                        left_bar "#FF3333" right_bar "#222222"
-
-                    text "{} / {}".format(
-                        battle_fmt_num(battle_hp_enemy),
-                        battle_fmt_num(battle_hp_enemy_max)
-                    ) color "#FFFFFF" size 16
-
-                    hbox:
-                        spacing 6
+                frame at hud_fade_in:
+                    background "#0008"
+                    xalign 1.0 yalign 0.0
+                    xpadding 12 ypadding 8
+                    vbox at hp_pulse_enemy:
+                        spacing 2
+                        text hud_enemy_name color "#FF7777" size 22 bold True
+                        bar:
+                            value (float(battle_hp_enemy) / battle_hp_enemy_max)
+                            range 1.0 xmaximum 280 ymaximum 16
+                            left_bar "#FF3333" right_bar "#222222"
+                        text "{} / {}".format(battle_fmt_num(battle_hp_enemy), battle_fmt_num(battle_hp_enemy_max)) color "#FFFFFF" size 16
                         text "Reiatsu: {}".format(battle_fmt_num(enemy_reiatsu)) size 15 color "#55FFFF"
-
-                    hbox:
-                        spacing 6
                         text "Energía: {}".format(battle_fmt_num(enemy_energy)) size 15 color "#FFA500"
 
 
@@ -335,6 +315,12 @@ screen battle_hp_overlay():
                     spacing 4
                     text "2v2 · Turno: {} S{}".format(str(_ctx.get("owner_team", "player") or "player").upper(), int(_ctx.get("owner_slot", 0) or 0) + 1) color "#FFE082" size 15 bold True
                     text "Contador: T{}".format(int(getattr(store, "battle_turn_index", 0) or 0)) color "#B3E5FC" size 13
+                    text "DEBUG actor={} defender={} idx={} order={}".format(
+                        str(getattr(store, "current_actor_unit_key", "") or "-"),
+                        str(getattr(store, "incoming_damage_target_key", "") or "-"),
+                        int(getattr(store, "battle_turn_index", 0) or 0),
+                        ",".join(getattr(store, "bs_get_turn_order_keys", lambda: [])() if hasattr(store, "bs_get_turn_order_keys") else []),
+                    ) color "#80DEEA" size 11
 
                     $ _p1 = store.bs_get_unit_by_key(store.bs_unit_key("player", 0)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None
                     $ _p2 = store.bs_get_unit_by_key(store.bs_unit_key("player", 1)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None

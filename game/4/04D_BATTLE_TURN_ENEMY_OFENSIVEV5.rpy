@@ -135,6 +135,13 @@ label battle_enemy_turn:
             if _mode == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
                 nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
                 _next = str(S.bs_parse_unit_key(nk, default_side="player", default_slot=0).get("team", "player") or "player")
+                try:
+                    fn_desc = getattr(S, "bs_describe_unit_key", None)
+                    nm = str(fn_desc(nk) if callable(fn_desc) else nk)
+                    if callable(getattr(S, "battle_log_add", None)):
+                        S.battle_log_add("{color=#80DEEA}[DEBUG] TURN_ADVANCE next_actor_id=%s next_name=%s{/color}" % (str(nk), str(nm)))
+                except:
+                    pass
 
         if _next == "enemy":
             jump battle_enemy_turn
@@ -622,6 +629,9 @@ label battle_enemy_turn:
                     info = fn_parse(tkey, default_side="player", default_slot=0)
                     if str(info.get("team", "player") or "player") == "player":
                         fn_set_ctx(owner_team="player", owner_slot=int(info.get("slot", 0) or 0), phase="defensive", mirror_legacy=True)
+                S.incoming_damage_target_key = str(tkey or "")
+                S.incoming_damage_source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+                S.incoming_damage_sources = [str(getattr(S, "current_enemy_unit_key", "") or "")]
             except:
                 pass
 
@@ -696,6 +706,9 @@ label battle_enemy_turn:
             if str(info.get("team", "player") or "player") == "player":
                 _slot_idx = int(info.get("slot", 0) or 0)
                 fn_set_ctx(owner_team="player", owner_slot=_slot_idx, phase="defensive", mirror_legacy=True)
+            S.incoming_damage_target_key = str(tkey or "")
+            S.incoming_damage_source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+            S.incoming_damage_sources = [str(getattr(S, "current_enemy_unit_key", "") or "")]
 
         try:
             if callable(fn_sync):

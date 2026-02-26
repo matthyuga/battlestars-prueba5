@@ -385,6 +385,80 @@ init -989 python:
                 return dict(u)
         return None
 
+    def _bs_get_char_resource(char_id, key, default=0):
+        try:
+            fn = getattr(S, "get_character", None)
+            if callable(fn):
+                ch = fn(str(char_id or ""))
+                if isinstance(ch, dict):
+                    if key in ch:
+                        return max(0, _bs_to_int(ch.get(key, default), default))
+                    alt = "Energy" if key == "Energía" else key
+                    if alt in ch:
+                        return max(0, _bs_to_int(ch.get(alt, default), default))
+        except:
+            pass
+        return max(0, _bs_to_int(default, 0))
+
+    def bs_ensure_unit_resources():
+        bs = battle_state_ensure()
+        teams = bs.get("teams", {}) if isinstance(bs.get("teams", {}), dict) else {}
+        touched = False
+        for side in ("player", "enemy"):
+            arr = list(teams.get(side, []) or [])
+            for i, u in enumerate(arr):
+                if not isinstance(u, dict):
+                    continue
+                cid = str(u.get("char_id", _bs_default_char_id(side)) or _bs_default_char_id(side))
+                if "reiatsu" not in u:
+                    u["reiatsu"] = _bs_get_char_resource(cid, "Reiatsu", 0)
+                    touched = True
+                if "energy" not in u:
+                    u["energy"] = _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0))
+                    touched = True
+                arr[i] = u
+            teams[side] = arr
+        if touched:
+            bs["teams"] = teams
+            S.battle_state = bs
+        return bs
+
+    def bs_get_unit_resources(unit_key):
+        bs_ensure_unit_resources()
+        info = bs_parse_unit_key(unit_key)
+        side = info.get("team", "player")
+        slot = max(0, _bs_to_int(info.get("slot", 0), 0))
+        u = bs_get_unit_by_key(bs_unit_key(side, slot))
+        if not isinstance(u, dict):
+            return {"reiatsu": 0, "energy": 0}
+        return {
+            "reiatsu": max(0, _bs_to_int(u.get("reiatsu", 0), 0)),
+            "energy": max(0, _bs_to_int(u.get("energy", 0), 0)),
+        }
+
+    def bs_consume_unit_resources(unit_key, reiatsu_cost=0, energy_cost=0):
+        bs = bs_ensure_unit_resources()
+        info = bs_parse_unit_key(unit_key)
+        side = info.get("team", "player")
+        slot = max(0, _bs_to_int(info.get("slot", 0), 0))
+        teams = bs.get("teams", {}) if isinstance(bs.get("teams", {}), dict) else {}
+        arr = list(teams.get(side, []) or [])
+        if slot >= len(arr) or not isinstance(arr[slot], dict):
+            return {"reiatsu_spent": 0, "energy_spent": 0, "reiatsu_after": 0, "energy_after": 0}
+
+        u = dict(arr[slot])
+        cur_r = max(0, _bs_to_int(u.get("reiatsu", 0), 0))
+        cur_e = max(0, _bs_to_int(u.get("energy", 0), 0))
+        use_r = min(cur_r, max(0, _bs_to_int(reiatsu_cost, 0)))
+        use_e = min(cur_e, max(0, _bs_to_int(energy_cost, 0)))
+        u["reiatsu"] = cur_r - use_r
+        u["energy"] = cur_e - use_e
+        arr[slot] = u
+        teams[side] = arr
+        bs["teams"] = teams
+        S.battle_state = bs
+        return {"reiatsu_spent": use_r, "energy_spent": use_e, "reiatsu_after": u["reiatsu"], "energy_after": u["energy"]}
+
     def bs_init_single_teams(player_char_id=None, enemy_char_id=None, player_hp=None, player_max_hp=None, enemy_hp=None, enemy_max_hp=None):
         bs = battle_state_ensure()
 
@@ -407,6 +481,8 @@ init -989 python:
             "hp": p_hp,
             "max_hp": p_mx,
             "alive": bool(p_hp > 0),
+            "reiatsu": _bs_get_char_resource(p_char, "Reiatsu", getattr(S, "player_reiatsu", 0)),
+            "energy": _bs_get_char_resource(p_char, "Energy", getattr(S, "player_energy", 0)),
         }]
         bs.setdefault("teams", {})["enemy"] = [{
             "uid": "enemy_1",
@@ -414,6 +490,8 @@ init -989 python:
             "hp": e_hp,
             "max_hp": e_mx,
             "alive": bool(e_hp > 0),
+            "reiatsu": _bs_get_char_resource(e_char, "Reiatsu", getattr(S, "enemy_reiatsu", 0)),
+            "energy": _bs_get_char_resource(e_char, "Energy", getattr(S, "enemy_energy", 0)),
         }]
         bs.setdefault("active", {})["player"] = "player_1"
         bs.setdefault("active", {})["enemy"] = "enemy_1"
@@ -462,6 +540,8 @@ init -989 python:
                     "hp": hp_i,
                     "max_hp": mx_i,
                     "alive": bool(hp_i > 0),
+                    "reiatsu": _bs_get_char_resource(cid, "Reiatsu", 0),
+                    "energy": _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0)),
                 })
 
             while len(out) < 2:
@@ -955,7 +1035,7 @@ init -989 python:
             "unit": updated,
         }
 
-    def bs_make_damage_plan(source_key=None, entries=None, mode="single_target", skill_id=None, meta=None):
+    def bs_make_damage_plan(source_key=None, entries=None, mode="single_target", skill_id=None, effect_scope="primary", meta=None):
         src = bs_parse_unit_key(source_key).get("key", "") if source_key is not None else ""
         out_entries = []
 
@@ -972,6 +1052,10 @@ init -989 python:
 
         m = dict(meta) if isinstance(meta, dict) else {}
         m.setdefault("mode", str(mode or "single_target"))
+        eff = str(effect_scope or "primary").strip().lower()
+        if eff not in ("primary", "all", "none", "all_if_buff"):
+            eff = "primary"
+        m.setdefault("effect_scope", eff)
         if skill_id is not None:
             m.setdefault("skill_id", skill_id)
 
@@ -1022,6 +1106,31 @@ init -989 python:
             "entries_count": len(results),
             "winner_team": bs_get_battle_winner_team(),
         }
+
+
+    def bs_effect_targets_from_plan(plan, buff_allow_split_effects=False):
+        p = dict(plan) if isinstance(plan, dict) else {}
+        entries = p.get("entries", []) if isinstance(p.get("entries", []), list) else []
+        meta = dict(p.get("meta", {})) if isinstance(p.get("meta", {}), dict) else {}
+        scope = str(meta.get("effect_scope", "primary") or "primary").strip().lower()
+
+        ordered = []
+        for e in entries:
+            if not isinstance(e, dict):
+                continue
+            tk = bs_parse_unit_key(e.get("target_key", e.get("target")), default_side="enemy", default_slot=0).get("key", "")
+            if tk and tk not in ordered:
+                ordered.append(tk)
+
+        if scope == "none":
+            return []
+        if scope == "all":
+            return ordered
+        if scope == "all_if_buff" and bool(buff_allow_split_effects):
+            return ordered
+        if ordered:
+            return [ordered[0]]
+        return []
 
     def bs_reflect_policy_get():
         bs = battle_state_ensure()
@@ -1437,10 +1546,14 @@ init -989 python:
     S.bs_is_player_turn = bs_is_player_turn
     S.bs_turn_advance = bs_turn_advance
     S.bs_get_valid_target_keys = bs_get_valid_target_keys
+    S.bs_ensure_unit_resources = bs_ensure_unit_resources
+    S.bs_get_unit_resources = bs_get_unit_resources
+    S.bs_consume_unit_resources = bs_consume_unit_resources
     S.bs_resolve_target_keys = bs_resolve_target_keys
     S.bs_apply_damage_to_unit_key = bs_apply_damage_to_unit_key
     S.bs_make_damage_plan = bs_make_damage_plan
     S.bs_apply_damage_plan = bs_apply_damage_plan
+    S.bs_effect_targets_from_plan = bs_effect_targets_from_plan
     S.bs_reflect_policy_get = bs_reflect_policy_get
     S.bs_reflect_policy_set = bs_reflect_policy_set
     S.bs_reflect_queue = bs_reflect_queue

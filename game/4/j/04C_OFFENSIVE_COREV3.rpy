@@ -54,6 +54,7 @@ label battle_offensive_turn:
         S._reflect_consumed_this_turn = False
         if getattr(S, "player_skip_attack", False):
             S.player_skip_attack = False
+            S.offense_cancelled = True
 
             # Si el jugador no ataca este turno, reflect pendiente se desvanece.
             try:
@@ -126,6 +127,7 @@ label battle_offensive_turn:
     # ============================================================
     $ import renpy.store as S
     $ S.turn_reiatsu_start = getattr(S, "player_reiatsu", 0)
+    $ S.offense_cancelled = False
     $ S.turn_energy_start  = getattr(S, "player_energy", 0)
     $ S.turn_reiatsu_spent = 0
     $ S.turn_energy_spent  = 0
@@ -626,11 +628,15 @@ label battle_offensive_turn:
                 S.offensive_target_key = first_key
 
                 if entries and callable(fn_make_plan):
+                    effect_scope = str(getattr(S, "offensive_effect_scope", "primary") or "primary").strip().lower()
+                    if effect_scope not in ("primary", "all", "none", "all_if_buff"):
+                        effect_scope = "primary"
                     S.offensive_damage_plan = fn_make_plan(
                         source_key=getattr(S, "current_actor_unit_key", None),
                         entries=entries,
                         mode=("split_manual" if manual_completed else policy),
                         skill_id="offensive_turn",
+                        effect_scope=effect_scope,
                         meta={"total_expected": total_available, "manual_completed": bool(manual_completed)},
                     )
 

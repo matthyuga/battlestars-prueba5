@@ -253,7 +253,13 @@ init -988 python:
             if key == "noatk_attack":
                 if success:
                     S.player_skip_attack = True
+                    S.offense_cancelled = True
                     status = "NO ATK"
+                    try:
+                        if callable(getattr(S, "battle_log_add", None)):
+                            S.battle_log_add("{color=#80DEEA}[DEBUG] OFFENSE_CANCELLED actor_id=%s reason=noatk_attack{/color}" % str(getattr(S, "current_actor_unit_key", "") or ""))
+                    except:
+                        pass
                 else:
                     status = "FALLÓ"
 
