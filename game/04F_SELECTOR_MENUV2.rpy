@@ -291,24 +291,12 @@ init python:
 
 
 # ------------------------------------------------------------
-# BOTÓN DE CAMBIO DE VISTA
-# ------------------------------------------------------------
-screen selector_toggle_button():
-    frame:
-        background "#0004"
-        padding (6, 6)
-        textbutton "⇆" action ToggleScreenVariable("selector_compact") text_size 28
-
-
-# ------------------------------------------------------------
 # MENÚ PRINCIPAL
 # ------------------------------------------------------------
 screen battle_command_menu():
     tag battlecommand
     zorder 50
     modal False
-
-    use selector_toggle_button
 
     $ OFF = [
         "extra_attack",
