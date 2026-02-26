@@ -12,6 +12,7 @@ init 999 python:
     style.hp_bar_enemy  = Style("bar")
 
     overlays = [
+        "battle_ui_hotkeys",
         "battle_hp_overlay",
         "battle_damage_popups",
         "battle_turn_summary_overlay"

@@ -233,94 +233,95 @@ screen battle_hp_overlay():
         # ======================================================
         # ⚔️ HUD DEL JUGADOR
         # ======================================================
-        frame at hud_fade_in:
-            background "#0008"
-            xalign 0.0 yalign 0.0
-            xpadding 12 ypadding 8
+        if ui_show_unit_hud:
+            frame at hud_fade_in:
+                background "#0008"
+                xalign 0.0 yalign 0.0
+                xpadding 12 ypadding 8
 
-            vbox at hp_pulse_player:
-                spacing 2
+                vbox at hp_pulse_player:
+                    spacing 2
 
-                # ✅ Nombre dinámico
-                text hud_player_name color "#88CCFF" size 22 bold True
+                    # ✅ Nombre dinámico
+                    text hud_player_name color "#88CCFF" size 22 bold True
 
-                bar:
-                    value (float(battle_hp_player) / battle_hp_player_max)
-                    range 1.0 xmaximum 280 ymaximum 16
-                    left_bar "#00BFFF" right_bar "#222222"
+                    bar:
+                        value (float(battle_hp_player) / battle_hp_player_max)
+                        range 1.0 xmaximum 280 ymaximum 16
+                        left_bar "#00BFFF" right_bar "#222222"
 
-                text "{} / {}".format(
-                    battle_fmt_num(battle_hp_player),
-                    battle_fmt_num(battle_hp_player_max)
-                ) color "#FFFFFF" size 16
+                    text "{} / {}".format(
+                        battle_fmt_num(battle_hp_player),
+                        battle_fmt_num(battle_hp_player_max)
+                    ) color "#FFFFFF" size 16
 
-                # -----------------------------
-                # REIATSU (con resta dinámica)
-                # -----------------------------
-                hbox:
-                    spacing 6
-                    text "Reiatsu: {}".format(battle_fmt_num(player_reiatsu)) size 15 color "#55FFFF"
+                    # -----------------------------
+                    # REIATSU (con resta dinámica)
+                    # -----------------------------
+                    hbox:
+                        spacing 6
+                        text "Reiatsu: {}".format(battle_fmt_num(player_reiatsu)) size 15 color "#55FFFF"
 
-                    $ rei_diff = 0
-                    if hasattr(store, "pending_tech_list") and store.pending_tech_list:
-                        $ rei_diff = simulated_reiatsu - player_reiatsu
+                        $ rei_diff = 0
+                        if hasattr(store, "pending_tech_list") and store.pending_tech_list:
+                            $ rei_diff = simulated_reiatsu - player_reiatsu
 
-                    if rei_diff != 0:
-                        text "-{}".format(battle_fmt_num(abs(rei_diff))) size 15 color "#66CCFFAA"
+                        if rei_diff != 0:
+                            text "-{}".format(battle_fmt_num(abs(rei_diff))) size 15 color "#66CCFFAA"
 
-                # -----------------------------
-                # ENERGÍA (con resta dinámica)
-                # -----------------------------
-                hbox:
-                    spacing 6
-                    text "Energía: {}".format(battle_fmt_num(player_energy)) size 15 color "#FFA500"
+                    # -----------------------------
+                    # ENERGÍA (con resta dinámica)
+                    # -----------------------------
+                    hbox:
+                        spacing 6
+                        text "Energía: {}".format(battle_fmt_num(player_energy)) size 15 color "#FFA500"
 
-                    $ ene_diff = 0
-                    if hasattr(store, "pending_tech_list") and store.pending_tech_list:
-                        $ ene_diff = simulated_energy - player_energy
+                        $ ene_diff = 0
+                        if hasattr(store, "pending_tech_list") and store.pending_tech_list:
+                            $ ene_diff = simulated_energy - player_energy
 
-                    if ene_diff != 0:
-                        text "-{}".format(battle_fmt_num(abs(ene_diff))) size 15 color "#FFBB66AA"
+                        if ene_diff != 0:
+                            text "-{}".format(battle_fmt_num(abs(ene_diff))) size 15 color "#FFBB66AA"
 
 
 
         # ======================================================
         # 👹 HUD DEL ENEMIGO
         # ======================================================
-        frame at hud_fade_in:
-            background "#0008"
-            xalign 1.0 yalign 0.0
-            xpadding 12 ypadding 8
+            frame at hud_fade_in:
+                background "#0008"
+                xalign 1.0 yalign 0.0
+                xpadding 12 ypadding 8
 
-            vbox at hp_pulse_enemy:
-                spacing 2
+                vbox at hp_pulse_enemy:
+                    spacing 2
 
-                # ✅ Nombre dinámico
-                text hud_enemy_name color "#FF7777" size 22 bold True
+                    # ✅ Nombre dinámico
+                    text hud_enemy_name color "#FF7777" size 22 bold True
 
-                bar:
-                    value (float(battle_hp_enemy) / battle_hp_enemy_max)
-                    range 1.0 xmaximum 280 ymaximum 16
-                    left_bar "#FF3333" right_bar "#222222"
+                    bar:
+                        value (float(battle_hp_enemy) / battle_hp_enemy_max)
+                        range 1.0 xmaximum 280 ymaximum 16
+                        left_bar "#FF3333" right_bar "#222222"
 
-                text "{} / {}".format(
-                    battle_fmt_num(battle_hp_enemy),
-                    battle_fmt_num(battle_hp_enemy_max)
-                ) color "#FFFFFF" size 16
+                    text "{} / {}".format(
+                        battle_fmt_num(battle_hp_enemy),
+                        battle_fmt_num(battle_hp_enemy_max)
+                    ) color "#FFFFFF" size 16
 
-                hbox:
-                    spacing 6
-                    text "Reiatsu: {}".format(battle_fmt_num(enemy_reiatsu)) size 15 color "#55FFFF"
+                    hbox:
+                        spacing 6
+                        text "Reiatsu: {}".format(battle_fmt_num(enemy_reiatsu)) size 15 color "#55FFFF"
 
-                hbox:
-                    spacing 6
-                    text "Energía: {}".format(battle_fmt_num(enemy_energy)) size 15 color "#FFA500"
+                    hbox:
+                        spacing 6
+                        text "Energía: {}".format(battle_fmt_num(enemy_energy)) size 15 color "#FFA500"
 
 
         # ======================================================
         # 🧩 HUD 2v2 mínimo (slots + HP/KO + activo + turn owner)
         # ======================================================
-        if str(getattr(store, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2":
+        if ui_show_2v2_summary and str(getattr(store, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2":
             $ _ctx = store.bs_get_turn_ctx() if hasattr(store, "bs_get_turn_ctx") else {"owner_team": "player", "owner_slot": 0}
 
             frame:
@@ -379,6 +380,15 @@ screen battle_hp_overlay():
                                 $ _alive = bool(_hp > 0)
                                 $ _is_active = bool((_ctx.get("owner_team", "") == "enemy") and int(_ctx.get("owner_slot", 0) or 0) == i)
                                 text "{} {} · S{} · {}/{}{}".format("▣" if _is_active else "▫", _name, i+1, battle_fmt_num(_hp), battle_fmt_num(_mx), " KO" if not _alive else "") color ("#FF8888" if _alive else "#888888") size 13
+
+
+screen battle_ui_hotkeys():
+    zorder 999
+    modal False
+
+    key "K_p" action ToggleField(store, "ui_show_options_panel")
+    key "K_j" action ToggleField(store, "ui_show_unit_hud")
+    key "K_v" action ToggleField(store, "ui_show_2v2_summary")
 
 
 # ===========================================================

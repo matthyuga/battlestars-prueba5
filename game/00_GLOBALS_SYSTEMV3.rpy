@@ -299,3 +299,8 @@ default enemy_energy   = 0
 default enemy_direct_pending_damage = 0
 default enemy_direct_base_damage = 0
 default player_skip_attack = False
+
+# visibilidad UI de combate (toggles por hotkey)
+default ui_show_options_panel = True
+default ui_show_unit_hud = True
+default ui_show_2v2_summary = True
