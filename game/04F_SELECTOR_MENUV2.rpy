@@ -341,19 +341,20 @@ screen battle_command_menu():
                     $ ok, fr, fe = tech_cost_check(tech_key)
                     $ locked = bool(_only_defense)
                     $ can_use = bool(ok and not locked)
+                    $ tooltip_text = tip + "\n\nTurno ofensivo cancelado: solo Defensa." if locked else tip
 
                     if can_use:
                         imagebutton:
                             idle icon
                             hover icon
                             action Function(add_technique_safe, label, tech_key)
-                            tooltip (tip + "\n\nTurno ofensivo cancelado: solo Defensa.") if locked else tip
+                            tooltip tooltip_text
                     else:
                         imagebutton:
                             idle Transform(icon, alpha=0.40)
                             hover Transform(icon, alpha=0.40)
                             action NullAction()
-                            tooltip (tip + "\n\nTurno ofensivo cancelado: solo Defensa.") if locked else tip
+                            tooltip tooltip_text
 
 
     # ============================================================
@@ -376,16 +377,17 @@ screen battle_command_menu():
                     $ ok, fr, fe = tech_cost_check(tech_key)
                     $ locked = bool(_only_defense)
                     $ can_use = bool(ok and not locked)
+                    $ tooltip_text = tip + "\n\nTurno ofensivo cancelado: solo Defensa." if locked else tip
 
                     if can_use:
                         imagebutton:
                             idle icon
                             hover icon
                             action Function(add_technique_safe, label, tech_key)
-                            tooltip (tip + "\n\nTurno ofensivo cancelado: solo Defensa.") if locked else tip
+                            tooltip tooltip_text
                     else:
                         imagebutton:
                             idle Transform(icon, alpha=0.40)
                             hover Transform(icon, alpha=0.40)
                             action NullAction()
-                            tooltip (tip + "\n\nTurno ofensivo cancelado: solo Defensa.") if locked else tip
+                            tooltip tooltip_text
