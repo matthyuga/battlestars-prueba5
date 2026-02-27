@@ -277,6 +277,8 @@ default incoming_damage_target_key = ""
 default incoming_damage_source_key = ""
 default incoming_damage_sources = []
 default offense_cancelled = False
+default player_pending_damage_by_key = {}
+default enemy_pending_def_reduction_by_key = {}
 default battle_reflected_pending = 0
 
 # Bootstrap seguro sin hardcode de HP; se sincroniza en runtime al iniciar combate.

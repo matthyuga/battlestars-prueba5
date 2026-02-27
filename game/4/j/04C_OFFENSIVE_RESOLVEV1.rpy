@@ -167,6 +167,24 @@ label battle_offensive_resolve_enemy:
                 S.incoming_damage_target_key = str(target_key or (list(alloc.keys())[0] if alloc else ""))
                 S.incoming_damage_source_key = str(getattr(S, "current_actor_unit_key", "") or "")
                 S.incoming_damage_sources = [str(getattr(S, "current_actor_unit_key", "") or "")]
+
+                # Debuff de defensa pendiente por target (2v2 deferred)
+                deb_map = getattr(S, "enemy_pending_def_reduction_by_key", None)
+                if not isinstance(deb_map, dict):
+                    deb_map = {}
+                try:
+                    deb_pct = float(getattr(S, "next_defense_reduction", 0.0) or 0.0)
+                except:
+                    deb_pct = 0.0
+                if deb_pct > 0.0:
+                    for tk_eff in (effect_targets or []):
+                        if not tk_eff:
+                            continue
+                        curp = float(deb_map.get(tk_eff, 0.0) or 0.0)
+                        deb_map[tk_eff] = min(0.90, curp + deb_pct)
+                    S.enemy_pending_def_reduction_by_key = deb_map
+                    S.next_defense_reduction = 0.0
+
                 try:
                     if callable(getattr(S, "battle_log_add", None)) and alloc:
                         fn_desc = getattr(S, "bs_describe_unit_key", None)

@@ -123,6 +123,51 @@ label battle_offensive_turn:
             renpy.jump("battle_enemy_turn")
 
     # ============================================================
+    # ⭐ 2v2: resolver daño entrante SOLO cuando le toca al defensor
+    # ============================================================
+    python:
+        import renpy.store as S
+        _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if _mode == "2v2" and callable(getattr(S, "bs_current_actor_key", None)):
+            akey = str(S.bs_current_actor_key() or "")
+            ppend = getattr(S, "player_pending_damage_by_key", None)
+            if isinstance(ppend, dict):
+                pend_amt = max(0, int(ppend.get(akey, 0) or 0))
+                if pend_amt > 0:
+                    ppend[akey] = 0
+                    S.player_pending_damage_by_key = ppend
+                    S.incoming_damage = int(pend_amt)
+                    S.incoming_damage_target_key = str(akey)
+                    S.incoming_damage_source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+                    S.incoming_damage_sources = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+
+                    info = S.bs_parse_unit_key(akey, default_side="player", default_slot=0) if callable(getattr(S, "bs_parse_unit_key", None)) else {"slot":0}
+                    slot_idx = int(info.get("slot", 0) or 0)
+                    if callable(getattr(S, "bs_set_turn_ctx", None)):
+                        S.bs_set_turn_ctx(owner_team="player", owner_slot=slot_idx, phase="defensive", mirror_legacy=True)
+
+                    def_name = akey
+                    try:
+                        fn_desc = getattr(S, "bs_describe_unit_key", None)
+                        if callable(fn_desc):
+                            def_name = str(fn_desc(akey, default_side="player", default_slot=0) or akey)
+                    except:
+                        pass
+
+                    try:
+                        if callable(getattr(S, "battle_log_add", None)):
+                            S.battle_log_add("{color=#80DEEA}[DEBUG] INCOMING_DAMAGE defender_id=%s defender_name=%s pending_amount=%s sources=%s{/color}" % (
+                                str(akey), str(def_name), str(int(pend_amt)), str(getattr(S, "incoming_damage_sources", []) or [])))
+                    except:
+                        pass
+
+                    try:
+                        S.battle_popup_turn("Daño entrante — {}".format(def_name), "#00BFFF", 0.6)
+                    except:
+                        pass
+                    renpy.jump("battle_defensive_turn")
+
+    # ============================================================
     # Snapshot de recursos al inicio del turno (STORE = real)
     # ============================================================
     $ import renpy.store as S

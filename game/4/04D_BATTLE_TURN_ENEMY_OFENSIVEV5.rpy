@@ -72,12 +72,35 @@ label battle_enemy_turn:
 
                 fn_def = getattr(S, "enemy_compute_reactive_defense", None)
                 final_in = int(_enemy_pending_damage)
+
+                # aplicar debuff acumulado por target en 2v2
+                _deb_map = getattr(S, "enemy_pending_def_reduction_by_key", None)
+                _saved_red = float(getattr(S, "next_defense_reduction", 0.0) or 0.0)
+                _applied_red = 0.0
+                if isinstance(_deb_map, dict) and akey:
+                    try:
+                        _applied_red = float(_deb_map.get(akey, 0.0) or 0.0)
+                    except:
+                        _applied_red = 0.0
+                if _applied_red > 0.0:
+                    S.next_defense_reduction = float(_applied_red)
+
                 if callable(fn_def):
                     try:
                         info = fn_def(_enemy_pending_damage)
                         final_in = max(0, int(info.get("final_damage", _enemy_pending_damage) or _enemy_pending_damage))
                     except:
                         final_in = int(_enemy_pending_damage)
+
+                # consumir debuff acumulado de este target y restaurar valor temporal
+                try:
+                    if isinstance(_deb_map, dict) and akey:
+                        _deb_map[akey] = 0.0
+                        S.enemy_pending_def_reduction_by_key = _deb_map
+                except:
+                    pass
+                if _applied_red <= 0.0:
+                    S.next_defense_reduction = _saved_red
 
                 try:
                     fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
@@ -539,9 +562,74 @@ label battle_enemy_turn:
                 pass
 
     # ============================================================
+    # ⭐ 2v2: daño diferido al turno del defensor (sin maniobra inmediata)
+    # ============================================================
+    python:
+        import renpy.store as S
+        _mode2 = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        _deferred_2v2 = False
+        if _mode2 == "2v2":
+            plan = getattr(S, "enemy_damage_plan", None)
+            ppend = getattr(S, "player_pending_damage_by_key", None)
+            if not isinstance(ppend, dict):
+                ppend = {}
+
+            if isinstance(plan, dict):
+                for e in (list(plan.get("entries", []) or [])):
+                    if not isinstance(e, dict):
+                        continue
+                    tk = str(e.get("target_key", "") or "")
+                    amt = max(0, int(e.get("amount", 0) or 0))
+                    if tk and amt > 0:
+                        ppend[tk] = int(ppend.get(tk, 0) or 0) + amt
+                        _deferred_2v2 = True
+
+            if _deferred_2v2:
+                S.player_pending_damage_by_key = ppend
+                try:
+                    if callable(getattr(S, "battle_log_add", None)):
+                        fn_desc = getattr(S, "bs_describe_unit_key", None)
+                        parts = []
+                        for _k, _v in ppend.items():
+                            if int(_v or 0) <= 0:
+                                continue
+                            if callable(fn_desc):
+                                parts.append("{}:+{}".format(fn_desc(_k, default_side="player", default_slot=0), int(_v or 0)))
+                            else:
+                                parts.append("{}:+{}".format(_k, int(_v or 0)))
+                        S.battle_log_add("{color=#B39DDB}Daño entrante en cola 2v2 → %s{/color}" % (" | ".join(parts)))
+                except:
+                    pass
+
+                # limpiar plan de este turno y avanzar
+                S.enemy_damage_plan = None
+                S.enemy_target_key = ""
+
+    # ============================================================
     # ⭐ IMPORTANTE: traer el daño a variable Ren’Py
     # ============================================================
     $ incoming_damage = renpy.store.incoming_damage
+
+    if _deferred_2v2:
+        python:
+            import renpy.store as S
+            _next_team = "player"
+            nk = ""
+            if callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                _next_team = str(S.bs_parse_unit_key(nk, default_side="player", default_slot=0).get("team", "player") or "player")
+            try:
+                if callable(getattr(S, "battle_log_add", None)) and nk:
+                    fn_desc = getattr(S, "bs_describe_unit_key", None)
+                    nm = str(fn_desc(nk) if callable(fn_desc) else nk)
+                    S.battle_log_add("{color=#80DEEA}[DEBUG] TURN_ADVANCE next_actor_id=%s next_name=%s{/color}" % (str(nk), str(nm)))
+            except:
+                pass
+
+        if _next_team == "enemy":
+            jump battle_enemy_turn
+        else:
+            jump battle_offensive_turn
 
     # ============================================================
     # ⭐ VISUAL DAMAGE AL JUGADOR
