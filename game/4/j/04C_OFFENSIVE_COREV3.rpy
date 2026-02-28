@@ -164,10 +164,18 @@ label battle_offensive_turn:
                     except:
                         pass
 
+                    S.deferred_defense_return_to_offense = True
+                    S.deferred_defense_actor_key = str(akey)
+
                     try:
-                        S.battle_popup_turn("Daño entrante — {}".format(def_name), "#00BFFF", 0.6)
+                        renpy.show_screen("battle_popup_turn", text="Daño entrante — {}".format(def_name), color="#00BFFF")
+                        renpy.pause(0.7, hard=True)
+                        renpy.hide_screen("battle_popup_turn")
                     except:
-                        pass
+                        try:
+                            S.battle_popup_turn("Daño entrante — {}".format(def_name), "#00BFFF", 0.6)
+                        except:
+                            pass
                     renpy.jump("battle_defensive_turn")
 
     # ============================================================
