@@ -118,7 +118,9 @@ label battle_defensive_turn:
 
             if callable(fn_ctx) and callable(fn_key):
                 ctx = fn_ctx()
-                S.defense_target_key = str(fn_key("player", int(ctx.get("owner_slot", 0) or 0)) or "")
+                # solo usar owner_slot del ctx si NO vino target explícito de incoming
+                if not forced_in:
+                    S.defense_target_key = str(fn_key("player", int(ctx.get("owner_slot", 0) or 0)) or "")
 
             if isinstance(plan, dict):
                 entries = list(plan.get("entries", []) or [])

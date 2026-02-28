@@ -768,6 +768,19 @@ label battle_enemy_turn:
 
             _slot_txt = " ({})".format(S.bs_slot_tag("player", int(_slot_idx or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(_slot_idx or 0) + 1)) if _mode == "2v2" else ""
 
+        python:
+            import renpy
+            import renpy.store as S
+            _itxt = "Daño entrante{} — {}".format(_slot_txt, _pname)
+            try:
+                renpy.show_screen("battle_popup_turn", text=_itxt, color="#00BFFF")
+                renpy.pause(0.7, hard=True)
+                renpy.hide_screen("battle_popup_turn")
+            except:
+                try:
+                    S.battle_popup_turn(_itxt, "#00BFFF", 0.6)
+                except:
+                    pass
         $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.6)
         jump battle_defensive_turn
 
@@ -819,6 +832,19 @@ label battle_enemy_turn:
 
         _slot_txt = " ({})".format(S.bs_slot_tag("player", int(_slot_idx or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(_slot_idx or 0) + 1)) if _mode == "2v2" else ""
 
+    python:
+        import renpy
+        import renpy.store as S
+        _itxt = "Daño entrante{} — {}".format(_slot_txt, _pname)
+        try:
+            renpy.show_screen("battle_popup_turn", text=_itxt, color="#00BFFF")
+            renpy.pause(0.7, hard=True)
+            renpy.hide_screen("battle_popup_turn")
+        except:
+            try:
+                S.battle_popup_turn(_itxt, "#00BFFF", 0.6)
+            except:
+                pass
     $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.8)
     call battle_defensive_turn
 
