@@ -243,6 +243,11 @@ label battle_defensive_turn:
                 if isinstance(u, dict):
                     player_name = str(u.get("char_id", "") or "")
 
+            if (not player_name) and callable(getattr(S, "bs_get_unit_by_key", None)):
+                uu2 = S.bs_get_unit_by_key(str(getattr(S, "defense_target_key", "") or ""))
+                if isinstance(uu2, dict):
+                    player_name = str(uu2.get("char_id", "") or "")
+
         if not player_name:
             _bp = getattr(S, "battle_player", None)
             if isinstance(_bp, dict):

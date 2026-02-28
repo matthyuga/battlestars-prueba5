@@ -711,6 +711,8 @@ label battle_enemy_turn:
             try:
                 mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
                 tkey = str(getattr(S, "enemy_target_key", "") or "")
+                if (not tkey) and callable(getattr(S, "bs_get_active_unit_key", None)):
+                    tkey = str(S.bs_get_active_unit_key("player") or "")
                 fn_parse = getattr(S, "bs_parse_unit_key", None)
                 fn_set_ctx = getattr(S, "bs_set_turn_ctx", None)
                 if mode == "2v2" and tkey and callable(fn_parse) and callable(fn_set_ctx):
@@ -742,6 +744,8 @@ label battle_enemy_turn:
 
             if _mode == "2v2" and callable(fn_parse) and callable(fn_set_ctx):
                 tkey = str(getattr(S, "enemy_target_key", "") or "")
+                if (not tkey) and callable(getattr(S, "bs_get_active_unit_key", None)):
+                    tkey = str(S.bs_get_active_unit_key("player") or "")
                 info = fn_parse(tkey, default_side="player", default_slot=0)
                 if str(info.get("team", "player") or "player") == "player":
                     _slot_idx = int(info.get("slot", 0) or 0)
@@ -803,6 +807,8 @@ label battle_enemy_turn:
 
         if _mode == "2v2" and callable(fn_parse) and callable(fn_set_ctx):
             tkey = str(getattr(S, "enemy_target_key", "") or "")
+            if (not tkey) and callable(getattr(S, "bs_get_active_unit_key", None)):
+                tkey = str(S.bs_get_active_unit_key("player") or "")
             info = fn_parse(tkey, default_side="player", default_slot=0)
             if str(info.get("team", "player") or "player") == "player":
                 _slot_idx = int(info.get("slot", 0) or 0)
