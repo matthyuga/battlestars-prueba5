@@ -104,6 +104,15 @@ label defensive_resolve(received_damage, hp_after, reflected):
             hp_before_u = int(getattr(S, "defense_hp_before", 0) or 0)
             dmg_apply = max(0, int(hp_before_u) - int(hp_after or 0))
             S.bs_apply_damage_to_unit_key(def_key, dmg_apply, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat_defended_target", tags=["defense"])
+
+            # alinear aliases legacy con la unidad defendida real
+            try:
+                if callable(getattr(S, "bs_get_unit_by_key", None)):
+                    du = S.bs_get_unit_by_key(def_key)
+                    if isinstance(du, dict):
+                        S.player_hp = int(du.get("hp", getattr(S, "player_hp", 0)) or 0)
+            except:
+                pass
         else:
             # hp_after ya incluye el directo si existió
             fn_set_hp = getattr(S, "bs_set_hp", None)

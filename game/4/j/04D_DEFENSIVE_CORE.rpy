@@ -102,6 +102,13 @@ label battle_defensive_turn:
         mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
         S.defense_target_key = str(getattr(S, "current_actor_unit_key", "") or "")
 
+        # priorizar target explícito de daño entrante y validar que sea del team player
+        forced_in = str(getattr(S, "incoming_damage_target_key", "") or "")
+        if forced_in and callable(getattr(S, "bs_parse_unit_key", None)):
+            fi = S.bs_parse_unit_key(forced_in, default_side="player", default_slot=0)
+            if str(fi.get("team", "player") or "player") == "player":
+                S.defense_target_key = str(fi.get("key", forced_in) or forced_in)
+
         if mode == "2v2":
             plan = getattr(S, "enemy_damage_plan", None)
             fn_ctx = getattr(S, "bs_get_turn_ctx", None)
@@ -219,11 +226,13 @@ label battle_defensive_turn:
             if callable(fn_key):
                 S.current_actor_unit_key = str(fn_key("player", slot_idx) or "")
 
-            forced_key = str(getattr(S, "incoming_damage_target_key", "") or "")
+            forced_key = str(getattr(S, "defense_target_key", "") or getattr(S, "incoming_damage_target_key", "") or "")
             if forced_key and callable(getattr(S, "bs_parse_unit_key", None)):
                 info = S.bs_parse_unit_key(forced_key, default_side="player", default_slot=slot_idx)
                 if str(info.get("team", "player") or "player") == "player":
                     slot_idx = int(info.get("slot", slot_idx) or slot_idx)
+                    if callable(getattr(S, "bs_set_turn_ctx", None)):
+                        S.bs_set_turn_ctx(owner_team="player", owner_slot=slot_idx, phase="defensive", mirror_legacy=True)
                     if callable(fn_key):
                         S.current_actor_unit_key = str(fn_key("player", slot_idx) or S.current_actor_unit_key)
 

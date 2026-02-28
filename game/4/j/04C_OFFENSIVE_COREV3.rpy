@@ -128,10 +128,13 @@ label battle_offensive_turn:
     python:
         import renpy.store as S
         _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
-        if _mode == "2v2" and callable(getattr(S, "bs_current_actor_key", None)):
+        if _mode == "2v2" and callable(getattr(S, "bs_current_actor_key", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
             akey = str(S.bs_current_actor_key() or "")
+            ainfo = S.bs_parse_unit_key(akey, default_side="player", default_slot=0)
+            if str(ainfo.get("team", "player") or "player") != "player":
+                akey = ""
             ppend = getattr(S, "player_pending_damage_by_key", None)
-            if isinstance(ppend, dict):
+            if akey and isinstance(ppend, dict):
                 pend_amt = max(0, int(ppend.get(akey, 0) or 0))
                 if pend_amt > 0:
                     ppend[akey] = 0
