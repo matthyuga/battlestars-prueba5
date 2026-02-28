@@ -292,8 +292,20 @@ screen battle_hp_overlay():
                             range 1.0 xmaximum 280 ymaximum 16
                             left_bar "#00BFFF" right_bar "#222222"
                         text "{} / {}".format(battle_fmt_num(battle_hp_player), battle_fmt_num(battle_hp_player_max)) color "#FFFFFF" size 16
-                        text "Reiatsu: {}".format(battle_fmt_num(player_reiatsu)) size 15 color "#55FFFF"
-                        text "Energía: {}".format(battle_fmt_num(player_energy)) size 15 color "#FFA500"
+
+                        hbox:
+                            spacing 6
+                            text "Reiatsu: {}".format(battle_fmt_num(player_reiatsu)) size 15 color "#55FFFF"
+                            $ _rei_diff_1v1 = (simulated_reiatsu - player_reiatsu) if (hasattr(store, "pending_tech_list") and store.pending_tech_list) else 0
+                            if _rei_diff_1v1 != 0:
+                                text "-{}".format(battle_fmt_num(abs(_rei_diff_1v1))) size 15 color "#66CCFFAA"
+
+                        hbox:
+                            spacing 6
+                            text "Energía: {}".format(battle_fmt_num(player_energy)) size 15 color "#FFA500"
+                            $ _ene_diff_1v1 = (simulated_energy - player_energy) if (hasattr(store, "pending_tech_list") and store.pending_tech_list) else 0
+                            if _ene_diff_1v1 != 0:
+                                text "-{}".format(battle_fmt_num(abs(_ene_diff_1v1))) size 15 color "#FFBB66AA"
 
                 frame at hud_fade_in:
                     background "#0008"
