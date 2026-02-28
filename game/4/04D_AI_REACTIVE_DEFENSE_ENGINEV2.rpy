@@ -326,6 +326,14 @@ init -988 python:
         # (4) HP
         # -------------------------------
         hp_before = int(getattr(S, "enemy_hp", 0) or 0)
+        try:
+            mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        except:
+            mode = "1v1"
+        if mode == "2v2" and callable(getattr(S, "bs_get_unit_by_key", None)):
+            cu = S.bs_get_unit_by_key(str(getattr(S, "current_enemy_unit_key", "") or ""))
+            if isinstance(cu, dict):
+                hp_before = int(cu.get("hp", hp_before) or hp_before)
         hp_after  = max(0, hp_before - int(final_damage))
 
         try:

@@ -250,7 +250,7 @@ label battle_offensive_turn:
     # ============================================================
     # Encabezado del turno
     # ============================================================
-    $ _slot_txt = " (S{})".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
+    $ _slot_txt = " ({})".format(S.bs_slot_tag(getattr(S, "turn_owner_team", "player"), int(getattr(S, "turn_owner_slot", 0) or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, player_name))
 
     $ renpy.show_screen("battle_popup_turn",

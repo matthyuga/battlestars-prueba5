@@ -242,7 +242,7 @@ label battle_defensive_turn:
         S.turn_owner_slot = int(slot_idx or 0)
         S.turn_owner_team = "player"
 
-    $ _slot_txt = " (S{})".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
+    $ _slot_txt = " ({})".format(S.bs_slot_tag(getattr(S, "turn_owner_team", "player"), int(getattr(S, "turn_owner_slot", 0) or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ operation_clear()
     $ battle_log_phase("TURNO DEFENSIVO{} – {}".format(_slot_txt, player_name))
     $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, player_name), "#00BFFF", delay=0.6)

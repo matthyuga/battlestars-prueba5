@@ -664,6 +664,12 @@ init -989 python:
         out["unit_key"] = parsed.get("key", bs_unit_key(side, slot))
         return out
 
+    def bs_slot_tag(team, slot):
+        side = _bs_side_key(team)
+        idx = max(0, _bs_to_int(slot, 0))
+        prefix = "P" if side == "player" else "E"
+        return "{}{}".format(prefix, idx + 1)
+
     def bs_describe_unit_key(key, default_side="player", default_slot=0):
         info = bs_parse_unit_key(key, default_side=default_side, default_slot=default_slot)
         side = str(info.get("team", "player") or "player")
@@ -1530,6 +1536,7 @@ init -989 python:
     S.bs_get_active_unit_key = bs_get_active_unit_key
     S.bs_get_unit_by_key = bs_get_unit_by_key
     S.bs_describe_unit_key = bs_describe_unit_key
+    S.bs_slot_tag = bs_slot_tag
     S.bs_set_active_by_key = bs_set_active_by_key
     S.bs_set_active_slot = bs_set_active_slot
     S.bs_get_team_alive = bs_get_team_alive
