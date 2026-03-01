@@ -129,6 +129,12 @@ While running game code:
   File "renpy/common/000statements.rpy", line 548, in execute_show_screen
     renpy.show_screen(name, *args, **kwargs)
 AttributeError: 'module' object has no attribute 'show_screen'
+
+Traceback adicional reportado (después de limpiar cache/saves y avanzar en defensivo):
+While running game code:
+  File "game/4/j/04D_DEFENSIVE_CORE.rpy", line 323, in <module>
+    renpy.pause(0.1, hard=True)
+AttributeError: 'module' object has no attribute 'pause'
 ```
 
 ---
@@ -165,7 +171,7 @@ No ejecutado por limitación de entorno (sin launcher Ren'Py).
 
 1. Ejecutar smoke 1v1 real en build Ren'Py limpia fuera del contenedor (Caso A y Caso B).
 2. Confirmar en logs runtime `ROUTE_PREP`/`ROUTE mode=1v1` durante entrada defensiva.
-3. Auditar mapeo traceback ↔ commit/build distribuido (el traceback recibido sigue apuntando a línea legacy con `show screen`).
+3. Auditar mapeo traceback ↔ commit/build distribuido y completar hardening de APIs `renpy` faltantes (`show_screen`, `pause`) en runtime.
 
 ---
 

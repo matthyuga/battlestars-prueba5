@@ -352,6 +352,7 @@ init -2000 python:
         _wire("restart_interaction", lambda *args, **kwargs: None)
         _wire("get_screen", lambda *args, **kwargs: None)
         _wire("has_screen", lambda *args, **kwargs: False)
+        _wire("pause", lambda *args, **kwargs: None)
 
     ensure_renpy_ui_apis()
     try:

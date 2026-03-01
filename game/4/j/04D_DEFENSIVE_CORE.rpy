@@ -320,7 +320,14 @@ label battle_defensive_turn_legacy_entry:
         while True:
             if getattr(S, "turn_confirmed", False):
                 break
-            renpy.pause(0.1, hard=True)
+            fn_pause = getattr(S, "ui_pause_safe", None)
+            if callable(fn_pause):
+                fn_pause(0.1, hard=True)
+            else:
+                try:
+                    renpy.pause(0.1, hard=True)
+                except:
+                    pass
 
     python:
         import renpy.store as S

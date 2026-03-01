@@ -182,6 +182,19 @@ init -990 python:
         except:
             return False
 
+    def ui_pause_safe(delay=0.0, hard=True):
+        try:
+            fn = getattr(renpy, "pause", None)
+            if callable(fn):
+                try:
+                    fn(float(delay or 0.0), hard=bool(hard))
+                except:
+                    fn(float(delay or 0.0))
+                return True
+        except Exception as e:
+            _safe_log("ui_pause_safe error: {}".format(e))
+        return False
+
     def ui_restart_interaction_safe():
         try:
             fn = getattr(renpy, "restart_interaction", None)
@@ -197,6 +210,7 @@ init -990 python:
     S.ui_get_screen_safe = ui_get_screen_safe
     S.ui_has_screen_safe = ui_has_screen_safe
     S.ui_restart_interaction_safe = ui_restart_interaction_safe
+    S.ui_pause_safe = ui_pause_safe
 
     # -------------------------------------------------------
     # Fallback: battle_popup_turn (bloque corto + hide explícito)
