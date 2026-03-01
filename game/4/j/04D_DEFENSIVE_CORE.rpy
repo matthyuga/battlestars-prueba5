@@ -9,6 +9,21 @@
 
 label battle_defensive_turn_legacy_entry:
 
+    python:
+        import renpy
+        import renpy.store as S
+        _fp = "DEF_CORE_FP=2026-03-01-router-safe-no-show-stmt"
+        try:
+            renpy.log("[BS_RUNTIME] {} label=battle_defensive_turn_legacy_entry".format(_fp))
+        except:
+            pass
+        try:
+            fn_log = getattr(S, "battle_log_add", None)
+            if callable(fn_log):
+                fn_log("{color=#80DEEA}[DEBUG] ROUTE_FINGERPRINT %s{/color}" % _fp)
+        except:
+            pass
+
     # ========================================================
     # 🧹 LIMPIEZA INICIAL DE HUD / SIMULACIONES
     # ========================================================

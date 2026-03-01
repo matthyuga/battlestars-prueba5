@@ -9,7 +9,7 @@
 
 - **Fecha/Hora:** 2026-03-01
 - **Responsable QA:** Codex (sesión técnica)
-- **Commit probado:** `(working tree local previo a commit final)`
+- **Commit probado:** `f2c74a4` (baseline previo) + cambios locales de auditoría de fingerprint en esta sesión
 - **Build/paquete probado (id o ruta):** Repositorio local `/workspace/battlestars-prueba5` (sin paquete distribuible adjunto en esta sesión)
 - **Entorno (OS / versión Ren'Py):** Contenedor Linux (sin binario `renpy` disponible en PATH)
 
@@ -119,7 +119,16 @@ No ejecutado en runtime Ren'Py real: entorno sin binario/launcher renpy.
 Si hubo error, pegar traceback completo:
 
 ```
-No aplica en esta sesión (sin ejecución de runtime).
+While running game code:
+  File "game/04b_battle_startV2.rpy", line 70, in script call
+    call battle_select_player
+  File "game/4/04D_BATTLE_TURN_ENEMY_OFENSIVEV5.rpy", line 939, in script call
+    call battle_defensive_turn
+  File "game/4/j/04D_DEFENSIVE_CORE.rpy", line 289, in script
+    show screen battle_command_menu
+  File "renpy/common/000statements.rpy", line 548, in execute_show_screen
+    renpy.show_screen(name, *args, **kwargs)
+AttributeError: 'module' object has no attribute 'show_screen'
 ```
 
 ---
@@ -156,7 +165,7 @@ No ejecutado por limitación de entorno (sin launcher Ren'Py).
 
 1. Ejecutar smoke 1v1 real en build Ren'Py limpia fuera del contenedor (Caso A y Caso B).
 2. Confirmar en logs runtime `ROUTE_PREP`/`ROUTE mode=1v1` durante entrada defensiva.
-3. Si reaparece traceback legacy, auditar mapeo traceback ↔ commit/build distribuido.
+3. Auditar mapeo traceback ↔ commit/build distribuido (el traceback recibido sigue apuntando a línea legacy con `show screen`).
 
 ---
 
