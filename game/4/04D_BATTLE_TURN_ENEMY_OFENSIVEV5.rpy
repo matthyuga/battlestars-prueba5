@@ -714,7 +714,7 @@ label battle_enemy_turn_legacy_entry:
                     tkey = str(S.bs_get_active_unit_key("player") or "")
                 srcs = [str(getattr(S, "current_enemy_unit_key", "") or "")]
                 if mode == "2v2" and bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_set_incoming_ctx", None)):
-                    S.bs_set_incoming_ctx(defender_key=tkey, pending_damage=getattr(S, "incoming_damage", 0), sources=srcs, reason="enemy_turn_def_from_atk", default_side="player", default_slot=0, set_turn_ctx=True)
+                    S.bs_set_incoming_ctx(defender_key=tkey, pending_damage=getattr(S, "incoming_damage", 0), sources=srcs, reason="enemy_turn_def_from_atk", default_side="player", default_slot=0, set_turn_ctx=True, expected_team="player")
                 else:
                     S.incoming_damage_target_key = str(tkey or "")
                     S.incoming_damage_source_key = str(srcs[0] if srcs else "")
@@ -807,7 +807,7 @@ label battle_enemy_turn_legacy_entry:
                 tkey = str(S.bs_get_active_unit_key("player") or "")
             srcs = [str(getattr(S, "current_enemy_unit_key", "") or "")]
             if bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_set_incoming_ctx", None)):
-                ctx = S.bs_set_incoming_ctx(defender_key=tkey, pending_damage=getattr(S, "incoming_damage", 0), sources=srcs, reason="enemy_turn_defense", default_side="player", default_slot=0, set_turn_ctx=True)
+                ctx = S.bs_set_incoming_ctx(defender_key=tkey, pending_damage=getattr(S, "incoming_damage", 0), sources=srcs, reason="enemy_turn_defense", default_side="player", default_slot=0, set_turn_ctx=True, expected_team="player")
             else:
                 S.incoming_damage_target_key = str(tkey or "")
                 S.incoming_damage_source_key = str(srcs[0] if srcs else "")

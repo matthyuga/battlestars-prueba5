@@ -307,9 +307,10 @@ style battlelog_scroll_vthumb:
 
 
 # -----------------------------------------------------------
-# POPUP DE TURNO (con delay configurable)
+# POPUP DE TURNO (LEGACY BASIC)
+# NOTE C4: el popup canónico vive en 06D_BATTLE_POPUP_TURN.RPY
 # -----------------------------------------------------------
-screen battle_popup_turn(text, color="#FFD700", delay=2.5):
+screen battle_popup_turn_legacy_basic(text, color="#FFD700", delay=2.5):
     zorder 300
     frame:
         background "#0008"
@@ -321,7 +322,7 @@ screen battle_popup_turn(text, color="#FFD700", delay=2.5):
             xalign 0.5
             spacing 8
             text text size 46 color color bold True xalign 0.5 outlines [(2, "#000", 0, 0)]
-    timer delay action Hide("battle_popup_turn")
+    timer delay action Hide("battle_popup_turn_legacy_basic")
 
 
 # -----------------------------------------------------------

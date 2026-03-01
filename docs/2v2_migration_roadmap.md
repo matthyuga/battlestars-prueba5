@@ -113,7 +113,7 @@ Agregar logs de validación en C2:
 ---
 
 ### C4 — Limpieza final + consolidación UI popups + hardening
-**Estado:** pendiente.
+**Estado:** implementado.
 
 - Consolidar popups para evitar solapamientos por múltiples definiciones.
 - Limpiar rutas legacy de parches transitorios.
@@ -122,6 +122,13 @@ Agregar logs de validación en C2:
 **Resultado esperado:** arquitectura mantenible con separación clara 1v1/2v2.
 
 ---
+
+
+## Estado de ejecución (tracking)
+- [x] C1 — Router por modo + congelar legado.
+- [x] C2 — Incoming context SSOT + popup defensor 2v2.
+- [x] C3 — Resolución HP por defender_key + sync HUD/log.
+- [x] C4 — Consolidación popup/hardening + limpieza final.
 
 ## Definición de "Done" global (C1..C4)
 - `1v1` preservado sin regresiones funcionales.

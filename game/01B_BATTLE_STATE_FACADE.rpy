@@ -1526,7 +1526,7 @@ init -989 python:
             "reason": str(reason or "incoming"),
         }
 
-    def bs_set_incoming_ctx(defender_key="", pending_damage=None, sources=None, reason="incoming", default_side="player", default_slot=0, set_turn_ctx=True):
+    def bs_set_incoming_ctx(defender_key="", pending_damage=None, sources=None, reason="incoming", default_side="player", default_slot=0, set_turn_ctx=True, expected_team=None):
         ctx = bs_build_incoming_ctx(
             defender_key=defender_key,
             pending_damage=pending_damage,
@@ -1535,6 +1535,20 @@ init -989 python:
             default_side=default_side,
             default_slot=default_slot,
         )
+
+        exp_team = str(expected_team or "").strip().lower()
+        if exp_team in ("player", "enemy"):
+            got_team = str(ctx.get("defender_team", "") or "").strip().lower()
+            if got_team != exp_team:
+                try:
+                    fn_log = getattr(S, "battle_log_add", None)
+                    if callable(fn_log):
+                        fn_log("{color=#FFCC80}[WARN] INCOMING_CTX_TEAM_MISMATCH expected=%s got=%s key=%s{/color}" % (
+                            str(exp_team), str(got_team), str(ctx.get("defender_key", "") or ""),
+                        ))
+                except:
+                    pass
+                return {}
 
         S.incoming_ctx = dict(ctx)
         S.incoming_damage = int(ctx.get("pending_damage", 0) or 0)

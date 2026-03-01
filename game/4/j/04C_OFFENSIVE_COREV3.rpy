@@ -151,6 +151,7 @@ label battle_offensive_turn_legacy_entry:
                             default_side="player",
                             default_slot=0,
                             set_turn_ctx=True,
+                            expected_team="player",
                         )
                     else:
                         S.incoming_damage = int(pend_amt)
