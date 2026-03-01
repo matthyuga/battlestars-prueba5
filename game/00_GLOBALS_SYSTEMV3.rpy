@@ -352,7 +352,18 @@ init -2000 python:
         _wire("restart_interaction", lambda *args, **kwargs: None)
         _wire("get_screen", lambda *args, **kwargs: None)
         _wire("has_screen", lambda *args, **kwargs: False)
-        _wire("pause", lambda *args, **kwargs: None)
+
+        def _fallback_pause(*args, **kwargs):
+            try:
+                exp2 = getattr(renpy, "exports", None)
+                fn2 = getattr(exp2, "pause", None) if exp2 else None
+                if callable(fn2):
+                    return fn2(*args, **kwargs)
+            except:
+                pass
+            return None
+        _fallback_pause._bs_noop = True
+        _wire("pause", _fallback_pause)
 
     ensure_renpy_ui_apis()
     try:

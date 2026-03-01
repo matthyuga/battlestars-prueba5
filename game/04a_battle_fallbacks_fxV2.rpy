@@ -183,16 +183,30 @@ init -990 python:
             return False
 
     def ui_pause_safe(delay=0.0, hard=True):
+        d = float(delay or 0.0)
         try:
             fn = getattr(renpy, "pause", None)
-            if callable(fn):
+            if callable(fn) and (not bool(getattr(fn, "_bs_noop", False))):
                 try:
-                    fn(float(delay or 0.0), hard=bool(hard))
+                    fn(d, hard=bool(hard))
                 except:
-                    fn(float(delay or 0.0))
+                    fn(d)
                 return True
         except Exception as e:
-            _safe_log("ui_pause_safe error: {}".format(e))
+            _safe_log("ui_pause_safe renpy.pause error: {}".format(e))
+
+        try:
+            exp = getattr(renpy, "exports", None)
+            fn_exp = getattr(exp, "pause", None) if exp else None
+            if callable(fn_exp):
+                try:
+                    fn_exp(d, hard=bool(hard))
+                except:
+                    fn_exp(d)
+                return True
+        except Exception as e:
+            _safe_log("ui_pause_safe renpy.exports.pause error: {}".format(e))
+
         return False
 
     def ui_restart_interaction_safe():
