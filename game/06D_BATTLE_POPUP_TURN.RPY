@@ -9,6 +9,34 @@
 # ===========================================================
 
 init -968 python:
+    import renpy.store as S
+
+    def _ui_call_safe(primary_name, export_name, *args, **kwargs):
+        """Gateway runtime-safe para APIs UI (store -> renpy -> exports)."""
+        try:
+            fn_primary = getattr(S, primary_name, None)
+            if callable(fn_primary):
+                return fn_primary(*args, **kwargs)
+        except Exception:
+            pass
+
+        try:
+            fn = getattr(renpy, export_name, None)
+            if callable(fn):
+                return fn(*args, **kwargs)
+        except Exception:
+            pass
+
+        try:
+            exp = getattr(renpy, "exports", None)
+            fn_exp = getattr(exp, export_name, None) if exp else None
+            if callable(fn_exp):
+                return fn_exp(*args, **kwargs)
+        except Exception:
+            pass
+
+        return None
+
     # -------------------------------------------------------
     # 🔹 Popup animado (sin sonido)
     # -------------------------------------------------------
@@ -18,9 +46,9 @@ init -968 python:
         Puede usarse para '¡Preparados!', '¡Fight!' o avisos de turno.
         """
         try:
-            renpy.show_screen("battle_popup_turn", text=text, color=color, glow=glow)
+            _ui_call_safe("ui_show_screen_safe", "show_screen", "battle_popup_turn", text=text, color=color, glow=glow)
             renpy.pause(delay)
-            renpy.hide_screen("battle_popup_turn")
+            _ui_call_safe("ui_hide_screen_safe", "hide_screen", "battle_popup_turn")
         except Exception as e:
             renpy.log("battle_popup_turn error: {}".format(e))
 
@@ -31,12 +59,12 @@ init -968 python:
         Retorna True si se intentó mostrar sin error.
         """
         try:
-            renpy.show_screen("battle_popup_turn", text=text, color=color, glow=True)
+            _ui_call_safe("ui_show_screen_safe", "show_screen", "battle_popup_turn", text=text, color=color, glow=True)
             try:
                 renpy.pause(float(delay or 0.85), hard=bool(hard))
             except:
                 renpy.pause(float(delay or 0.85))
-            renpy.hide_screen("battle_popup_turn")
+            _ui_call_safe("ui_hide_screen_safe", "hide_screen", "battle_popup_turn")
             return True
         except Exception as e:
             try:
