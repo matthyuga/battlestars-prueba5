@@ -88,7 +88,15 @@ label battle_defensive_turn_legacy_entry:
     # 🔥 A partir de aquí: SIEMPRE hay daño real que defender
     # ========================================================
     scene black
-    with fade
+    python:
+        import renpy
+        try:
+            renpy.with_statement(fade)
+        except Exception as e:
+            try:
+                renpy.log("[DEFENSE] fade transition skipped: {}".format(e))
+            except:
+                pass
 
     # --- Daño entrante ---
     python:
