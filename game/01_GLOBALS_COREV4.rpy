@@ -64,33 +64,60 @@ init -984 python:
     if not hasattr(S, "focus_off_decay"):   S.focus_off_decay   = 0
     if not hasattr(S, "focus_off_consumed_this_turn"): S.focus_off_consumed_this_turn = False
 
+    # 2v2: estado espejo para IA (evita compartir focus ofensivo con player)
+    if not hasattr(S, "enemy_focus_off_charges"): S.enemy_focus_off_charges = 0
+    if not hasattr(S, "enemy_focus_off_decay"):   S.enemy_focus_off_decay   = 0
+    if not hasattr(S, "enemy_focus_off_consumed_this_turn"): S.enemy_focus_off_consumed_this_turn = False
+
     # Compat legacy (NO SSOT de costos)
     if not hasattr(S, "focus_cost_active"): S.focus_cost_active = False
 
-    def offensive_focus_multiplier_peek():
+    def _focus_team_slot(actor_team="player"):
+        t = str(actor_team or "player").strip().lower()
+        if t == "enemy":
+            return ("enemy_focus_off_charges", "enemy_focus_off_decay", "enemy_focus_off_consumed_this_turn")
+        return ("focus_off_charges", "focus_off_decay", "focus_off_consumed_this_turn")
+
+    def _focus_team_get(actor_team="player"):
+        ch_name, de_name, co_name = _focus_team_slot(actor_team)
         try:
-            c = int(S.focus_off_charges or 0)
+            c = int(getattr(S, ch_name, 0) or 0)
         except:
             c = 0
+        try:
+            d = int(getattr(S, de_name, 0) or 0)
+        except:
+            d = 0
+        consumed = bool(getattr(S, co_name, False))
+        return c, d, consumed
+
+    def _focus_team_set(actor_team="player", charges=None, decay=None, consumed=None):
+        ch_name, de_name, co_name = _focus_team_slot(actor_team)
+        if charges is not None:
+            setattr(S, ch_name, int(charges or 0))
+        if decay is not None:
+            setattr(S, de_name, int(decay or 0))
+        if consumed is not None:
+            setattr(S, co_name, bool(consumed))
+
+    def offensive_focus_multiplier_peek(actor_team="player"):
+        c, _d, _consumed = _focus_team_get(actor_team)
         if c <= 0: return 1
         if c == 1: return 2
         return 4
 
-    def activate_offensive_focus():
-        try:
-            c = int(S.focus_off_charges or 0)
-        except:
-            c = 0
+    def activate_offensive_focus(actor_team="player"):
+        c, _d, _consumed = _focus_team_get(actor_team)
         c += 1
         if c > FOCUS_OFF_MAX_CHARGES:
             c = FOCUS_OFF_MAX_CHARGES
-        S.focus_off_charges = c
+        _focus_team_set(actor_team, charges=c)
 
         # seguridad: legacy flag no gobierna costos
         S.focus_cost_active = False
 
-    def apply_offensive_focus(value):
-        mult = offensive_focus_multiplier_peek()
+    def apply_offensive_focus(value, actor_team="player"):
+        mult = offensive_focus_multiplier_peek(actor_team)
         if mult <= 1:
             return value
 
@@ -102,42 +129,27 @@ init -984 python:
             except:
                 result = value
 
-        S.focus_off_charges = 0
-        S.focus_off_decay   = 0
-        S.focus_off_consumed_this_turn = True
+        _focus_team_set(actor_team, charges=0, decay=0, consumed=True)
         S.focus_cost_active = False
         return result
 
-    def focus_off_end_turn_decay():
+    def focus_off_end_turn_decay(actor_team="player"):
         if not FOCUS_OFF_CAN_STORE:
-            S.focus_off_charges = 0
-            S.focus_off_decay = 0
-            S.focus_off_consumed_this_turn = False
+            _focus_team_set(actor_team, charges=0, decay=0, consumed=False)
             return
 
-        if getattr(S, "focus_off_consumed_this_turn", False):
-            S.focus_off_decay = 0
-            S.focus_off_consumed_this_turn = False
-            return
+        c, d, consumed = _focus_team_get(actor_team)
 
-        try:
-            c = int(S.focus_off_charges or 0)
-        except:
-            c = 0
+        if consumed:
+            _focus_team_set(actor_team, decay=0, consumed=False)
+            return
 
         if c > 0:
-            try:
-                d = int(S.focus_off_decay or 0)
-            except:
-                d = 0
-
             if d >= 1:
                 c = max(0, c - 1)
-                S.focus_off_charges = c
+            _focus_team_set(actor_team, charges=c, decay=1)
 
-            S.focus_off_decay = 1
-
-        S.focus_off_consumed_this_turn = False
+        _focus_team_set(actor_team, consumed=False)
         S.focus_cost_active = False
 
     # Export
