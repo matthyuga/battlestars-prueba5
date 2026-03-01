@@ -352,6 +352,17 @@ init -2000 python:
         _wire("restart_interaction", lambda *args, **kwargs: None)
         _wire("get_screen", lambda *args, **kwargs: None)
         _wire("has_screen", lambda *args, **kwargs: False)
+        def _fallback_with_statement(*args, **kwargs):
+            try:
+                exp2 = getattr(renpy, "exports", None)
+                fn2 = getattr(exp2, "with_statement", None) if exp2 else None
+                if callable(fn2):
+                    return fn2(*args, **kwargs)
+            except:
+                pass
+            return None
+        _fallback_with_statement._bs_noop = True
+        _wire("with_statement", _fallback_with_statement)
 
         def _fallback_pause(*args, **kwargs):
             try:

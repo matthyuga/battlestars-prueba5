@@ -9,17 +9,42 @@
 init -969 python:
     battle_floating_texts = []
 
+    def _fx_with_safe(trans):
+        try:
+            import renpy.store as S
+            fn = getattr(S, "ui_with_statement_safe", None)
+            if callable(fn):
+                return bool(fn(trans))
+        except:
+            pass
+        try:
+            fnr = getattr(renpy, "with_statement", None)
+            if callable(fnr):
+                fnr(trans)
+                return True
+        except:
+            pass
+        try:
+            exp = getattr(renpy, "exports", None)
+            fnx = getattr(exp, "with_statement", None) if exp else None
+            if callable(fnx):
+                fnx(trans)
+                return True
+        except:
+            pass
+        return False
+
     # -------------------------------------------------------
     # 🔹 Sacudida de cámara según tipo de golpe (SE MANTIENE)
     # -------------------------------------------------------
     def battle_shake_effect(fx_type="normal"):
         if fx_type == "critical":
-            renpy.with_statement(vpunch)
-            renpy.with_statement(hpunch)
+            _fx_with_safe(vpunch)
+            _fx_with_safe(hpunch)
         elif fx_type == "power":
-            renpy.with_statement(vpunch)
+            _fx_with_safe(vpunch)
         else:
-            renpy.with_statement(hpunch)
+            _fx_with_safe(hpunch)
 
     # -------------------------------------------------------
     # 🔹 Flash de impacto configurable
@@ -88,7 +113,7 @@ init -969 python:
         if damage < 3000:
             return
         # No llama a battle_visual_critical_flash()
-        renpy.with_statement(vpunch)
+        _fx_with_safe(vpunch)
         renpy.pause(0.25)
 
     def battle_visual_on_attack(target="enemy", damage=0):
@@ -103,10 +128,10 @@ init -969 python:
         if damage < 1000 and rel < 0.10:
             battle_light_glow("#CCCCCC", 0.25); return
         if damage < 3000 and rel < 0.30:
-            battle_light_glow("#FFFFFF", 0.3); renpy.with_statement(hpunch); return
+            battle_light_glow("#FFFFFF", 0.3); _fx_with_safe(hpunch); return
         if damage < 5000 and rel < 0.40:
             # 🔕 sin flash rojo
-            renpy.with_statement(vpunch); return
+            _fx_with_safe(vpunch); return
         battle_cinematic_impact(target, damage)
 
     # -------------------------------------------------------

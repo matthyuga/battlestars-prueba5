@@ -139,6 +139,15 @@ AttributeError: 'module' object has no attribute 'pause'
 Observación adicional reportada por QA manual en runtime real:
 - Sin crash inmediato, pero el turno defensivo quedaba congelado/no respondía en 1v1 y 2v2 al esperar confirmación de acción.
 - Síntoma compatible con loop de espera sin `pause` funcional en runtime.
+
+Traceback adicional reportado (resolución defensiva, FX final):
+While running game code:
+  File "game/4/j/04D_DEFENSIVE_RESOLVEV3.rpy", line 165, in <module>
+    $ battle_visual_float("player", received_damage, "#66CCFF", is_final=True)
+  File "game/06B1_BATTLE_FX_CORE.rpy", line 22, in battle_shake_effect
+    renpy.with_statement(hpunch)
+AttributeError: _Feature instance has no __call__ method
+
 ```
 
 ---
@@ -175,7 +184,7 @@ No ejecutado por limitación de entorno (sin launcher Ren'Py).
 
 1. Ejecutar smoke 1v1 real en build Ren'Py limpia fuera del contenedor (Caso A y Caso B).
 2. Confirmar en logs runtime `ROUTE_PREP`/`ROUTE mode=1v1` durante entrada defensiva.
-3. Auditar mapeo traceback ↔ commit/build distribuido y completar hardening de APIs `renpy` faltantes (`show_screen`, `pause`) en runtime.
+3. Auditar mapeo traceback ↔ commit/build distribuido y completar hardening de APIs `renpy` faltantes (`show_screen`, `pause`, `with_statement`) en runtime.
 
 ---
 
