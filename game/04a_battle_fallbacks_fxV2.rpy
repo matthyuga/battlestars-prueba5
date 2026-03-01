@@ -35,6 +35,15 @@ init -990 python:
             setattr(S, name, fn)
 
     # -------------------------------------------------------
+    # Compat Ren'Py 7.4.x: side-image helper faltante
+    # -------------------------------------------------------
+    if not hasattr(renpy, "get_side_image"):
+        def _compat_get_side_image(*args, **kwargs):
+            return None
+        renpy.get_side_image = _compat_get_side_image
+        _safe_log("[Compat] injected renpy.get_side_image shim")
+
+    # -------------------------------------------------------
     # Fallback: battle_popup_turn (bloque corto + hide explícito)
     # -------------------------------------------------------
     if not hasattr(S, "battle_popup_turn"):
