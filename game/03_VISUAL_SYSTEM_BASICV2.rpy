@@ -324,6 +324,10 @@ screen battle_popup_turn_legacy_basic(text, color="#FFD700", delay=2.5):
             text text size 46 color color bold True xalign 0.5 outlines [(2, "#000", 0, 0)]
     timer delay action Hide("battle_popup_turn_legacy_basic")
 
+# Compat C4: garantizar existencia temprana del screen canónico.
+screen battle_popup_turn(text="", color="#FFD700", delay=2.5, glow=True):
+    use battle_popup_turn_legacy_basic(text=text, color=color, delay=delay)
+
 
 # -----------------------------------------------------------
 # ⌨️ HOTKEYS
