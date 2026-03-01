@@ -174,6 +174,8 @@ label battle_offensive_turn_legacy_entry:
 
                     S.deferred_defense_return_to_offense = True
                     S.deferred_defense_actor_key = str(def_key)
+                    S.incoming_damage = int(pend_amt)
+                    S.enemy_target_key = str(def_key)
 
                     notice_id = "{}|{}|{}".format(str(def_key), str(int(pend_amt or 0)), str(int(getattr(S, "turn_count", 0) or 0)))
                     ack_key = str(getattr(S, "incoming_popup_ack_key", "") or "")
@@ -200,7 +202,7 @@ label battle_offensive_turn_legacy_entry:
                                     pass
                         S.incoming_popup_ack_key = ""
                         S.incoming_notice_last_id = str(notice_id)
-                    renpy.jump("battle_defensive_turn")
+                    renpy.jump("battle_enemy_incoming_defense_gate")
 
     # ============================================================
     # Snapshot de recursos al inicio del turno (STORE = real)

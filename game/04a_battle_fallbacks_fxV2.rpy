@@ -35,20 +35,23 @@ init -990 python:
             setattr(S, name, fn)
 
     # -------------------------------------------------------
-    # Fallback: battle_popup_turn (sin bloquear, screen maneja timer)
+    # Fallback: battle_popup_turn (bloque corto + hide explícito)
     # -------------------------------------------------------
     if not hasattr(S, "battle_popup_turn"):
         def battle_popup_turn(text, color="#FFD700", delay=0.8, glow=True):
             """
-            Fallback seguro:
-            - Si existe el screen 'battle_popup_turn': lo muestra y le pasa delay.
-              (NO pausa/hide: el screen se autocierra con timer)
-            - Si no existe screen: loguea texto.
+            Fallback seguro y autocontenido:
+            - Muestra popup, espera breve y oculta explícitamente.
+            - Evita pantallas "pegadas" si el screen no trae timer.
             """
             try:
                 if renpy.has_screen("battle_popup_turn"):
-                    # El screen actualizado acepta delay
-                    renpy.show_screen("battle_popup_turn", text=text, color=color, delay=delay)
+                    renpy.show_screen("battle_popup_turn", text=text, color=color, glow=glow)
+                    try:
+                        renpy.pause(float(delay or 0.8), hard=True)
+                    except:
+                        renpy.pause(float(delay or 0.8))
+                    renpy.hide_screen("battle_popup_turn")
                 else:
                     _safe_log("[Fallback popup] {}".format(text))
             except Exception as e:

@@ -686,6 +686,14 @@ label battle_enemy_turn_legacy_entry:
         else:
             jump battle_offensive_turn
 
+    jump battle_enemy_incoming_defense_gate
+
+    return
+
+label battle_enemy_incoming_defense_gate:
+
+    $ incoming_damage = int(getattr(renpy.store, "incoming_damage", 0) or 0)
+
     # ============================================================
     # ⭐ VISUAL DAMAGE AL JUGADOR
     # ============================================================
