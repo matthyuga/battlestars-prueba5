@@ -7,7 +7,7 @@
 # - HUD limpio y colas limpias
 # ============================================================
 
-label battle_defensive_turn:
+label battle_defensive_turn_legacy_entry:
 
     # ========================================================
     # 🧹 LIMPIEZA INICIAL DE HUD / SIMULACIONES

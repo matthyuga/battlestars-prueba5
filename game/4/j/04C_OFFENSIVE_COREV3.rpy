@@ -15,7 +15,7 @@
 # - ✅ FIX: Ataque Negador del jugador setea enemy_skip_attack (no player)
 # ============================================================
 
-label battle_offensive_turn:
+label battle_offensive_turn_legacy_entry:
 
     # ============================================================
     # ⭐ ROUTING FIX — si Defensa por ataque está activa,
