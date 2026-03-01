@@ -18,7 +18,7 @@ init -950 python:
             return False
 
 
-label battle_offensive_turn:
+label battle_offensive_turn_router_entry:
     $ _is_2v2 = bool(bs_is_2v2_mode())
     python:
         import renpy.store as S
@@ -31,7 +31,7 @@ label battle_offensive_turn:
     jump expression _router_target
 
 
-label battle_enemy_turn:
+label battle_enemy_turn_router_entry:
     $ _is_2v2 = bool(bs_is_2v2_mode())
     python:
         import renpy.store as S
@@ -44,13 +44,20 @@ label battle_enemy_turn:
     jump expression _router_target
 
 
-label battle_defensive_turn:
+label battle_defensive_turn_router_entry:
     $ _is_2v2 = bool(bs_is_2v2_mode())
     python:
         import renpy.store as S
         try:
+            fn_ensure = getattr(S, "ensure_renpy_ui_apis", None)
+            if callable(fn_ensure):
+                fn_ensure()
+        except:
+            pass
+        try:
             if callable(getattr(S, "battle_log_add", None)):
-                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_defensive_turn mode=%s{/color}" % ("2v2" if _is_2v2 else "1v1"))
+                import renpy
+                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_defensive_turn mode=%s has_show=%s{/color}" % ("2v2" if _is_2v2 else "1v1", str(callable(getattr(renpy, "show_screen", None)))))
         except:
             pass
     $ _router_target = "battle_defensive_turn_2v2_entry" if _is_2v2 else "battle_defensive_turn_legacy_entry"
