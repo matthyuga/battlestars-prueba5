@@ -175,15 +175,21 @@ label battle_offensive_turn_legacy_entry:
                     S.deferred_defense_return_to_offense = True
                     S.deferred_defense_actor_key = str(def_key)
 
-                    try:
-                        renpy.show_screen("battle_popup_turn", text="Daño entrante — {}".format(label), color="#00BFFF")
-                        renpy.pause(0.7, hard=True)
-                        renpy.hide_screen("battle_popup_turn")
-                    except:
+                    ack_key = str(getattr(S, "incoming_popup_ack_key", "") or "")
+                    if ack_key and ack_key == def_key:
+                        # Ya fue mostrado en pre-aviso al avanzar turno enemigo.
+                        S.incoming_popup_ack_key = ""
+                    else:
                         try:
-                            S.battle_popup_turn("Daño entrante — {}".format(label), "#00BFFF", 0.6)
+                            renpy.show_screen("battle_popup_turn", text="Daño entrante — {}".format(label), color="#00BFFF")
+                            renpy.pause(0.7, hard=True)
+                            renpy.hide_screen("battle_popup_turn")
                         except:
-                            pass
+                            try:
+                                S.battle_popup_turn("Daño entrante — {}".format(label), "#00BFFF", 0.6)
+                            except:
+                                pass
+                        S.incoming_popup_ack_key = ""
                     renpy.jump("battle_defensive_turn")
 
     # ============================================================

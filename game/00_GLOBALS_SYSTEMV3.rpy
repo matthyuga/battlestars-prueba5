@@ -281,6 +281,7 @@ default use_incoming_ctx_2v2 = True
 default offense_cancelled = False
 default deferred_defense_return_to_offense = False
 default deferred_defense_actor_key = ""
+default incoming_popup_ack_key = ""
 default player_pending_damage_by_key = {}
 default enemy_pending_def_reduction_by_key = {}
 default battle_reflected_pending = 0

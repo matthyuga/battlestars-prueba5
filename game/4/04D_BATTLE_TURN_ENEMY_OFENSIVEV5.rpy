@@ -231,7 +231,37 @@ label battle_enemy_turn_legacy_entry:
 
             renpy.pause(0.5, hard=True)
 
-            # Diseño elegido: NO limpiamos reflect aquí.
+            # En 2v2 avanzar por iniciativa real (evita repetir P1 tras negador).
+            mode_now = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            if mode_now == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                next_team = str(S.bs_parse_unit_key(nk, default_side="player", default_slot=0).get("team", "player") or "player")
+                try:
+                    if callable(getattr(S, "battle_log_add", None)) and nk:
+                        fn_desc = getattr(S, "bs_describe_unit_key", None)
+                        nm = str(fn_desc(nk) if callable(fn_desc) else nk)
+                        S.battle_log_add("{color=#80DEEA}[DEBUG] TURN_ADVANCE next_actor_id=%s next_name=%s{/color}" % (str(nk), str(nm)))
+                except:
+                    pass
+
+                if next_team == "enemy":
+                    try:
+                        fn_desc = getattr(S, "bs_describe_unit_key", None)
+                        _nm = str(fn_desc(nk) if callable(fn_desc) else "Enemigo")
+                        S.battle_popup_turn("Turno ofensivo — {}".format(_nm), "#FFD700", 0.7)
+                    except:
+                        pass
+                    renpy.jump("battle_enemy_turn")
+                else:
+                    try:
+                        fn_desc = getattr(S, "bs_describe_unit_key", None)
+                        _nm = str(fn_desc(nk) if callable(fn_desc) else "Jugador")
+                        S.battle_popup_turn("Turno ofensivo — {}".format(_nm), "#FFD700", 0.7)
+                    except:
+                        pass
+                    renpy.jump("battle_offensive_turn")
+
+            # Legacy 1v1
             S.battle_turn_change("player")
             try:
                 _bp = getattr(S, "battle_player", None)
@@ -623,6 +653,25 @@ label battle_enemy_turn_legacy_entry:
                     fn_desc = getattr(S, "bs_describe_unit_key", None)
                     nm = str(fn_desc(nk) if callable(fn_desc) else nk)
                     S.battle_log_add("{color=#80DEEA}[DEBUG] TURN_ADVANCE next_actor_id=%s next_name=%s{/color}" % (str(nk), str(nm)))
+            except:
+                pass
+
+            # C4.1 UX: pre-aviso de daño entrante para el próximo defensor en cola.
+            try:
+                if _next_team == "player" and nk:
+                    ppend = getattr(S, "player_pending_damage_by_key", None)
+                    pending_amt = int((ppend.get(nk, 0) if isinstance(ppend, dict) else 0) or 0)
+                    if pending_amt > 0:
+                        srcs = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+                        ctx = {}
+                        if bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_set_incoming_ctx", None)):
+                            ctx = S.bs_set_incoming_ctx(defender_key=nk, pending_damage=pending_amt, sources=srcs, reason="enemy_deferred_preview", default_side="player", default_slot=0, set_turn_ctx=False, expected_team="player")
+                        if isinstance(ctx, dict) and ctx:
+                            S.incoming_popup_ack_key = str(ctx.get("defender_key", "") or "")
+                            lbl = ("{} {}".format(str(ctx.get("defender_tag", "") or ""), str(ctx.get("defender_name", "") or ""))).strip()
+                            if not lbl:
+                                lbl = str(nk)
+                            S.battle_popup_turn("Daño entrante — {}".format(lbl), "#00BFFF", 0.6)
             except:
                 pass
 
