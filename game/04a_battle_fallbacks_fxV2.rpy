@@ -44,6 +44,32 @@ init -990 python:
         _safe_log("[Compat] injected renpy.get_side_image shim")
 
     # -------------------------------------------------------
+    # Compat Ren'Py 7.4.x: wrappers UI en módulo renpy
+    # -------------------------------------------------------
+    try:
+        _exp = getattr(renpy, "exports", None)
+    except:
+        _exp = None
+
+    def _wire_renpy_fn(name):
+        try:
+            if callable(getattr(renpy, name, None)):
+                return True
+            if _exp and callable(getattr(_exp, name, None)):
+                setattr(renpy, name, getattr(_exp, name))
+                _safe_log("[Compat] wired renpy.{} from renpy.exports".format(name))
+                return True
+        except Exception as e:
+            _safe_log("[Compat] failed wiring renpy.{}: {}".format(name, e))
+        return False
+
+    _wire_renpy_fn("get_screen")
+    _wire_renpy_fn("show_screen")
+    _wire_renpy_fn("hide_screen")
+    _wire_renpy_fn("restart_interaction")
+    _wire_renpy_fn("has_screen")
+
+    # -------------------------------------------------------
     # Fallback: battle_popup_turn (bloque corto + hide explícito)
     # -------------------------------------------------------
     if not hasattr(S, "battle_popup_turn"):
