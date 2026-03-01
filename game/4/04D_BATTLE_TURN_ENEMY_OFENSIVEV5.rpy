@@ -707,21 +707,18 @@ label battle_enemy_turn_legacy_entry:
             import renpy.store as S
             S.defense_for_attack_active = True
 
-            # M6 MVP: la defensa se hace sobre la unidad objetivo principal.
             try:
                 mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
                 tkey = str(getattr(S, "enemy_target_key", "") or "")
                 if (not tkey) and callable(getattr(S, "bs_get_active_unit_key", None)):
                     tkey = str(S.bs_get_active_unit_key("player") or "")
-                fn_parse = getattr(S, "bs_parse_unit_key", None)
-                fn_set_ctx = getattr(S, "bs_set_turn_ctx", None)
-                if mode == "2v2" and tkey and callable(fn_parse) and callable(fn_set_ctx):
-                    info = fn_parse(tkey, default_side="player", default_slot=0)
-                    if str(info.get("team", "player") or "player") == "player":
-                        fn_set_ctx(owner_team="player", owner_slot=int(info.get("slot", 0) or 0), phase="defensive", mirror_legacy=True)
-                S.incoming_damage_target_key = str(tkey or "")
-                S.incoming_damage_source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
-                S.incoming_damage_sources = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+                srcs = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+                if mode == "2v2" and bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_set_incoming_ctx", None)):
+                    S.bs_set_incoming_ctx(defender_key=tkey, pending_damage=getattr(S, "incoming_damage", 0), sources=srcs, reason="enemy_turn_def_from_atk", default_side="player", default_slot=0, set_turn_ctx=True)
+                else:
+                    S.incoming_damage_target_key = str(tkey or "")
+                    S.incoming_damage_source_key = str(srcs[0] if srcs else "")
+                    S.incoming_damage_sources = list(srcs)
             except:
                 pass
 
@@ -735,21 +732,17 @@ label battle_enemy_turn_legacy_entry:
             _pname = ""
             _slot_idx = 0
             _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            _tag = ""
 
-            fn_parse = getattr(S, "bs_parse_unit_key", None)
-            fn_set_ctx = getattr(S, "bs_set_turn_ctx", None)
-            fn_get = getattr(S, "bs_get_unit_by_key", None)
-            fn_key = getattr(S, "bs_unit_key", None)
             fn_sync = getattr(S, "bs_sync_to_legacy", None)
+            ctx = {}
+            if _mode == "2v2" and bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_get_incoming_ctx", None)):
+                ctx = S.bs_get_incoming_ctx(default={})
 
-            if _mode == "2v2" and callable(fn_parse) and callable(fn_set_ctx):
-                tkey = str(getattr(S, "enemy_target_key", "") or "")
-                if (not tkey) and callable(getattr(S, "bs_get_active_unit_key", None)):
-                    tkey = str(S.bs_get_active_unit_key("player") or "")
-                info = fn_parse(tkey, default_side="player", default_slot=0)
-                if str(info.get("team", "player") or "player") == "player":
-                    _slot_idx = int(info.get("slot", 0) or 0)
-                    fn_set_ctx(owner_team="player", owner_slot=_slot_idx, phase="defensive", mirror_legacy=True)
+            if isinstance(ctx, dict) and ctx:
+                _slot_idx = int(ctx.get("defender_slot", 0) or 0)
+                _pname = str(ctx.get("defender_name", "") or "")
+                _tag = str(ctx.get("defender_tag", "") or "")
 
             try:
                 if callable(fn_sync):
@@ -757,11 +750,14 @@ label battle_enemy_turn_legacy_entry:
             except:
                 pass
 
-            if callable(fn_key) and callable(fn_get):
-                uk = str(fn_key("player", _slot_idx) or "")
-                uu = fn_get(uk) if uk else None
-                if isinstance(uu, dict):
-                    _pname = str(uu.get("char_id", "") or "")
+            if not _pname:
+                fn_get = getattr(S, "bs_get_unit_by_key", None)
+                fn_key = getattr(S, "bs_unit_key", None)
+                if callable(fn_key) and callable(fn_get):
+                    uk = str(fn_key("player", _slot_idx) or "")
+                    uu = fn_get(uk) if uk else None
+                    if isinstance(uu, dict):
+                        _pname = str(uu.get("char_id", "") or "")
 
             if not _pname:
                 _bp = getattr(S, "battle_player", None)
@@ -770,7 +766,10 @@ label battle_enemy_turn_legacy_entry:
             if not _pname:
                 _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
 
-            _slot_txt = " ({})".format(S.bs_slot_tag("player", int(_slot_idx or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(_slot_idx or 0) + 1)) if _mode == "2v2" else ""
+            if _mode == "2v2":
+                _slot_txt = " ({})".format(_tag or (S.bs_slot_tag("player", int(_slot_idx or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(_slot_idx or 0) + 1)))
+            else:
+                _slot_txt = ""
 
         python:
             import renpy
@@ -798,24 +797,27 @@ label battle_enemy_turn_legacy_entry:
         _pname = ""
         _slot_idx = 0
         _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        _tag = ""
 
-        fn_parse = getattr(S, "bs_parse_unit_key", None)
-        fn_set_ctx = getattr(S, "bs_set_turn_ctx", None)
-        fn_get = getattr(S, "bs_get_unit_by_key", None)
-        fn_key = getattr(S, "bs_unit_key", None)
         fn_sync = getattr(S, "bs_sync_to_legacy", None)
 
-        if _mode == "2v2" and callable(fn_parse) and callable(fn_set_ctx):
+        if _mode == "2v2":
             tkey = str(getattr(S, "enemy_target_key", "") or "")
             if (not tkey) and callable(getattr(S, "bs_get_active_unit_key", None)):
                 tkey = str(S.bs_get_active_unit_key("player") or "")
-            info = fn_parse(tkey, default_side="player", default_slot=0)
-            if str(info.get("team", "player") or "player") == "player":
-                _slot_idx = int(info.get("slot", 0) or 0)
-                fn_set_ctx(owner_team="player", owner_slot=_slot_idx, phase="defensive", mirror_legacy=True)
-            S.incoming_damage_target_key = str(tkey or "")
-            S.incoming_damage_source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
-            S.incoming_damage_sources = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+            srcs = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+            if bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_set_incoming_ctx", None)):
+                ctx = S.bs_set_incoming_ctx(defender_key=tkey, pending_damage=getattr(S, "incoming_damage", 0), sources=srcs, reason="enemy_turn_defense", default_side="player", default_slot=0, set_turn_ctx=True)
+            else:
+                S.incoming_damage_target_key = str(tkey or "")
+                S.incoming_damage_source_key = str(srcs[0] if srcs else "")
+                S.incoming_damage_sources = list(srcs)
+                ctx = {}
+
+            if isinstance(ctx, dict) and ctx:
+                _slot_idx = int(ctx.get("defender_slot", 0) or 0)
+                _pname = str(ctx.get("defender_name", "") or "")
+                _tag = str(ctx.get("defender_tag", "") or "")
 
         try:
             if callable(fn_sync):
@@ -823,11 +825,14 @@ label battle_enemy_turn_legacy_entry:
         except:
             pass
 
-        if callable(fn_key) and callable(fn_get):
-            uk = str(fn_key("player", _slot_idx) or "")
-            uu = fn_get(uk) if uk else None
-            if isinstance(uu, dict):
-                _pname = str(uu.get("char_id", "") or "")
+        if not _pname:
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            fn_key = getattr(S, "bs_unit_key", None)
+            if callable(fn_key) and callable(fn_get):
+                uk = str(fn_key("player", _slot_idx) or "")
+                uu = fn_get(uk) if uk else None
+                if isinstance(uu, dict):
+                    _pname = str(uu.get("char_id", "") or "")
 
         if not _pname:
             _bp = getattr(S, "battle_player", None)
@@ -836,7 +841,10 @@ label battle_enemy_turn_legacy_entry:
         if not _pname:
             _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
 
-        _slot_txt = " ({})".format(S.bs_slot_tag("player", int(_slot_idx or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(_slot_idx or 0) + 1)) if _mode == "2v2" else ""
+        if _mode == "2v2":
+            _slot_txt = " ({})".format(_tag or (S.bs_slot_tag("player", int(_slot_idx or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(_slot_idx or 0) + 1)))
+        else:
+            _slot_txt = ""
 
     python:
         import renpy

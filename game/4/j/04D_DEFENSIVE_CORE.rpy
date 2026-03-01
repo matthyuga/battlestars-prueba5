@@ -102,8 +102,9 @@ label battle_defensive_turn_legacy_entry:
         mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
         S.defense_target_key = str(getattr(S, "current_actor_unit_key", "") or "")
 
-        # priorizar target explícito de daño entrante y validar que sea del team player
-        forced_in = str(getattr(S, "incoming_damage_target_key", "") or "")
+        # priorizar target explícito de incoming_ctx / daño entrante y validar team player
+        in_ctx = S.bs_get_incoming_ctx(default={}) if callable(getattr(S, "bs_get_incoming_ctx", None)) else {}
+        forced_in = str((in_ctx.get("defender_key", "") if isinstance(in_ctx, dict) else "") or getattr(S, "incoming_damage_target_key", "") or "")
         if forced_in and callable(getattr(S, "bs_parse_unit_key", None)):
             fi = S.bs_parse_unit_key(forced_in, default_side="player", default_slot=0)
             if str(fi.get("team", "player") or "player") == "player":
@@ -228,7 +229,8 @@ label battle_defensive_turn_legacy_entry:
             if callable(fn_key):
                 S.current_actor_unit_key = str(fn_key("player", slot_idx) or "")
 
-            forced_key = str(getattr(S, "defense_target_key", "") or getattr(S, "incoming_damage_target_key", "") or "")
+            in_ctx = S.bs_get_incoming_ctx(default={}) if callable(getattr(S, "bs_get_incoming_ctx", None)) else {}
+            forced_key = str((in_ctx.get("defender_key", "") if isinstance(in_ctx, dict) else "") or getattr(S, "defense_target_key", "") or getattr(S, "incoming_damage_target_key", "") or "")
             if forced_key and callable(getattr(S, "bs_parse_unit_key", None)):
                 info = S.bs_parse_unit_key(forced_key, default_side="player", default_slot=slot_idx)
                 if str(info.get("team", "player") or "player") == "player":
@@ -247,6 +249,9 @@ label battle_defensive_turn_legacy_entry:
                 uu2 = S.bs_get_unit_by_key(str(getattr(S, "defense_target_key", "") or ""))
                 if isinstance(uu2, dict):
                     player_name = str(uu2.get("char_id", "") or "")
+
+        if not player_name and isinstance(in_ctx, dict) and in_ctx:
+            player_name = str(in_ctx.get("defender_name", "") or "")
 
         if not player_name:
             _bp = getattr(S, "battle_player", None)

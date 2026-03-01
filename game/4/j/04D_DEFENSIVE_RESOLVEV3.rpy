@@ -153,6 +153,10 @@ label defensive_resolve(received_damage, hp_after, reflected):
         S.incoming_damage_target_key = ""
         S.incoming_damage_source_key = ""
         S.incoming_damage_sources = []
+        if callable(getattr(S, "bs_clear_incoming_ctx", None)):
+            S.bs_clear_incoming_ctx(reset_damage=False)
+        else:
+            S.incoming_ctx = {}
         try:
             incoming_damage = 0
         except:

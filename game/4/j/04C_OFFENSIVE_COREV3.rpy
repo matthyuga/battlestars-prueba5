@@ -139,41 +139,48 @@ label battle_offensive_turn_legacy_entry:
                 if pend_amt > 0:
                     ppend[akey] = 0
                     S.player_pending_damage_by_key = ppend
-                    S.incoming_damage = int(pend_amt)
-                    S.incoming_damage_target_key = str(akey)
-                    S.incoming_damage_source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
-                    S.incoming_damage_sources = [str(getattr(S, "current_enemy_unit_key", "") or "")]
 
-                    info = S.bs_parse_unit_key(akey, default_side="player", default_slot=0) if callable(getattr(S, "bs_parse_unit_key", None)) else {"slot":0}
-                    slot_idx = int(info.get("slot", 0) or 0)
-                    if callable(getattr(S, "bs_set_turn_ctx", None)):
-                        S.bs_set_turn_ctx(owner_team="player", owner_slot=slot_idx, phase="defensive", mirror_legacy=True)
+                    srcs = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+                    ctx = {}
+                    if bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_set_incoming_ctx", None)):
+                        ctx = S.bs_set_incoming_ctx(
+                            defender_key=akey,
+                            pending_damage=pend_amt,
+                            sources=srcs,
+                            reason="deferred_player_pending",
+                            default_side="player",
+                            default_slot=0,
+                            set_turn_ctx=True,
+                        )
+                    else:
+                        S.incoming_damage = int(pend_amt)
+                        S.incoming_damage_target_key = str(akey)
+                        S.incoming_damage_sources = list(srcs)
+                        S.incoming_damage_source_key = str(srcs[0] if srcs else "")
+                        ctx = {"defender_key": akey, "defender_name": akey, "defender_tag": "", "pending_damage": int(pend_amt), "sources": list(srcs)}
 
-                    def_name = akey
-                    try:
-                        fn_desc = getattr(S, "bs_describe_unit_key", None)
-                        if callable(fn_desc):
-                            def_name = str(fn_desc(akey, default_side="player", default_slot=0) or akey)
-                    except:
-                        pass
+                    def_key = str(ctx.get("defender_key", akey) or akey)
+                    def_name = str(ctx.get("defender_name", def_key) or def_key)
+                    def_tag = str(ctx.get("defender_tag", "") or "")
+                    label = ("{} {}".format(def_tag, def_name)).strip() if def_tag else def_name
 
                     try:
                         if callable(getattr(S, "battle_log_add", None)):
                             S.battle_log_add("{color=#80DEEA}[DEBUG] INCOMING_DAMAGE defender_id=%s defender_name=%s pending_amount=%s sources=%s{/color}" % (
-                                str(akey), str(def_name), str(int(pend_amt)), str(getattr(S, "incoming_damage_sources", []) or [])))
+                                str(def_key), str(label), str(int(pend_amt)), str(ctx.get("sources", srcs) or [])))
                     except:
                         pass
 
                     S.deferred_defense_return_to_offense = True
-                    S.deferred_defense_actor_key = str(akey)
+                    S.deferred_defense_actor_key = str(def_key)
 
                     try:
-                        renpy.show_screen("battle_popup_turn", text="Daño entrante — {}".format(def_name), color="#00BFFF")
+                        renpy.show_screen("battle_popup_turn", text="Daño entrante — {}".format(label), color="#00BFFF")
                         renpy.pause(0.7, hard=True)
                         renpy.hide_screen("battle_popup_turn")
                     except:
                         try:
-                            S.battle_popup_turn("Daño entrante — {}".format(def_name), "#00BFFF", 0.6)
+                            S.battle_popup_turn("Daño entrante — {}".format(label), "#00BFFF", 0.6)
                         except:
                             pass
                     renpy.jump("battle_defensive_turn")

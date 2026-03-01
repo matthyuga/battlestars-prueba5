@@ -79,6 +79,11 @@ screen battle_maneuver_choice(damage):
     default show_submenu = False
 
     $ import renpy.store as S
+    $ _incoming_ctx = S.bs_get_incoming_ctx(default={}) if callable(getattr(S, "bs_get_incoming_ctx", None)) else {}
+    $ _incoming_mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+    $ _incoming_tag = str((_incoming_ctx.get("defender_tag", "") if isinstance(_incoming_ctx, dict) else "") or "")
+    $ _incoming_name = str((_incoming_ctx.get("defender_name", "") if isinstance(_incoming_ctx, dict) else "") or "")
+    $ _incoming_badge = ("{} {}".format(_incoming_tag, _incoming_name)).strip()
     $ will_die = S.player_hp - damage <= 0
     $ is_dead  = S.player_hp <= 0
 
@@ -97,6 +102,13 @@ screen battle_maneuver_choice(damage):
                 xmaximum 640
 
                 vbox spacing 18:
+
+                    if _incoming_mode == "2v2" and _incoming_badge:
+                        frame:
+                            background "#00BFFF33"
+                            xpadding 10
+                            ypadding 6
+                            text "Recibe daño: [_incoming_badge]" size 22 color "#B3E5FC" bold True
 
                     hbox:
                         xfill True
