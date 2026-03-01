@@ -52,6 +52,10 @@ init -990 python:
         _exp = None
 
     def _wire_renpy_fn(name):
+        """
+        Intenta cablear renpy.<name> desde renpy.exports.<name>.
+        Si no existe, instala fallback seguro para evitar crashes.
+        """
         try:
             if callable(getattr(renpy, name, None)):
                 return True
@@ -61,6 +65,73 @@ init -990 python:
                 return True
         except Exception as e:
             _safe_log("[Compat] failed wiring renpy.{}: {}".format(name, e))
+
+        # Fallbacks explícitos (última línea de defensa)
+        try:
+            if name == "show_screen":
+                def _fallback_show_screen(*args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "show_screen", None)):
+                            return _exp.show_screen(*args, **kwargs)
+                    except:
+                        pass
+                    _safe_log("[Compat] fallback show_screen no-op args={} kwargs={}".format(args, kwargs))
+                    return None
+                setattr(renpy, name, _fallback_show_screen)
+                return True
+
+            if name == "hide_screen":
+                def _fallback_hide_screen(*args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "hide_screen", None)):
+                            return _exp.hide_screen(*args, **kwargs)
+                    except:
+                        pass
+                    return None
+                setattr(renpy, name, _fallback_hide_screen)
+                return True
+
+            if name == "get_screen":
+                def _fallback_get_screen(*args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "get_screen", None)):
+                            return _exp.get_screen(*args, **kwargs)
+                    except:
+                        pass
+                    return None
+                setattr(renpy, name, _fallback_get_screen)
+                return True
+
+            if name == "has_screen":
+                def _fallback_has_screen(scr_name, *args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "has_screen", None)):
+                            return bool(_exp.has_screen(scr_name, *args, **kwargs))
+                    except:
+                        pass
+                    try:
+                        fn = getattr(renpy, "get_screen", None)
+                        if callable(fn):
+                            return fn(scr_name) is not None
+                    except:
+                        pass
+                    return False
+                setattr(renpy, name, _fallback_has_screen)
+                return True
+
+            if name == "restart_interaction":
+                def _fallback_restart_interaction(*args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "restart_interaction", None)):
+                            return _exp.restart_interaction(*args, **kwargs)
+                    except:
+                        pass
+                    return None
+                setattr(renpy, name, _fallback_restart_interaction)
+                return True
+        except Exception as e:
+            _safe_log("[Compat] failed fallback renpy.{}: {}".format(name, e))
+
         return False
 
     _wire_renpy_fn("get_screen")
