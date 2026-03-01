@@ -51,6 +51,12 @@ init -900 python:
 label start:
     scene fondo3 with fade
 
+    python:
+        import renpy.store as S
+        fn_ensure = getattr(S, "ensure_renpy_ui_apis", None)
+        if callable(fn_ensure):
+            fn_ensure()
+
     # Mostrar log UNA sola vez (evita redundancia/“parpadeo”)
     python:
         import renpy.store as S
@@ -70,6 +76,11 @@ label start:
 label battle_start:
     $ import random
     $ import renpy.store as S
+
+    python:
+        fn_ensure = getattr(S, "ensure_renpy_ui_apis", None)
+        if callable(fn_ensure):
+            fn_ensure()
 
     # =======================================================
     # 🎯 Selección del enemigo (ID del sistema)

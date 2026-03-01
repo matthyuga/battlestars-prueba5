@@ -217,6 +217,14 @@ init -990 python:
         }
 
     def show_dice_result(roll_data):
+        try:
+            import renpy.store as S
+            fn = getattr(S, "ui_show_screen_safe", None)
+            if callable(fn):
+                fn("dice_roll_result", rolls=roll_data["rolls"])
+                return
+        except:
+            pass
         renpy.show_screen("dice_roll_result", rolls=roll_data["rolls"])
 
     store.roll_3d = roll_3d
@@ -316,3 +324,38 @@ default player_skip_attack = False
 default ui_show_options_panel = True
 default ui_show_unit_hud = True
 default ui_show_2v2_summary = True
+init -2000 python:
+    def ensure_renpy_ui_apis():
+        """Garantiza APIs UI base en renpy para runtimes incompletos."""
+        try:
+            exp = getattr(renpy, "exports", None)
+        except:
+            exp = None
+
+        def _wire(name, fallback=None):
+            try:
+                if callable(getattr(renpy, name, None)):
+                    return
+                if exp and callable(getattr(exp, name, None)):
+                    setattr(renpy, name, getattr(exp, name))
+                    return
+            except:
+                pass
+            if fallback is not None:
+                try:
+                    setattr(renpy, name, fallback)
+                except:
+                    pass
+
+        _wire("show_screen", lambda *args, **kwargs: None)
+        _wire("hide_screen", lambda *args, **kwargs: None)
+        _wire("restart_interaction", lambda *args, **kwargs: None)
+        _wire("get_screen", lambda *args, **kwargs: None)
+        _wire("has_screen", lambda *args, **kwargs: False)
+
+    ensure_renpy_ui_apis()
+    try:
+        import renpy.store as S
+        S.ensure_renpy_ui_apis = ensure_renpy_ui_apis
+    except:
+        pass
