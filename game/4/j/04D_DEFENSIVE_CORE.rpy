@@ -286,8 +286,15 @@ label battle_defensive_turn_legacy_entry:
     $ extra_defensive_actions = 0
     $ actions_available_start = actions_available
 
-    show screen battle_command_menu
-    show screen technique_selector
+    python:
+        import renpy.store as S
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        if callable(fn_show):
+            fn_show("battle_command_menu")
+            fn_show("technique_selector")
+        else:
+            renpy.show_screen("battle_command_menu")
+            renpy.show_screen("technique_selector")
     $ renpy.restart_interaction()
 
     python:
@@ -297,8 +304,15 @@ label battle_defensive_turn_legacy_entry:
                 break
             renpy.pause(0.1, hard=True)
 
-    hide screen battle_command_menu
-    hide screen technique_selector
+    python:
+        import renpy.store as S
+        fn_hide = getattr(S, "ui_hide_screen_safe", None)
+        if callable(fn_hide):
+            fn_hide("battle_command_menu")
+            fn_hide("technique_selector")
+        else:
+            renpy.hide_screen("battle_command_menu")
+            renpy.hide_screen("technique_selector")
 
     # --- Técnicas seleccionadas ---
     python:

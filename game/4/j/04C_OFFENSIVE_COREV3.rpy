@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04C_OFFENSIVE_CORE.rpy – Turno ofensivo del jugador (Núcleo)
 # ============================================================
 # v8.5 – SafeLogHub + UsedFlag Strict + StoreSafe Dice/Text
@@ -304,8 +304,15 @@ label battle_offensive_turn_legacy_entry:
     $ actions_available = actions
     $ operation_clear()
 
-    show screen battle_command_menu
-    show screen technique_selector
+    python:
+        import renpy.store as S
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        if callable(fn_show):
+            fn_show("battle_command_menu")
+            fn_show("technique_selector")
+        else:
+            renpy.show_screen("battle_command_menu")
+            renpy.show_screen("technique_selector")
     $ renpy.restart_interaction()
 
     python:
@@ -313,8 +320,15 @@ label battle_offensive_turn_legacy_entry:
         while not getattr(S, "turn_confirmed", False):
             renpy.pause(0.1, hard=True)
 
-    hide screen battle_command_menu
-    hide screen technique_selector
+    python:
+        import renpy.store as S
+        fn_hide = getattr(S, "ui_hide_screen_safe", None)
+        if callable(fn_hide):
+            fn_hide("battle_command_menu")
+            fn_hide("technique_selector")
+        else:
+            renpy.hide_screen("battle_command_menu")
+            renpy.hide_screen("technique_selector")
 
     # ============================================================
     # Copiar técnicas seleccionadas (STORE-safe)

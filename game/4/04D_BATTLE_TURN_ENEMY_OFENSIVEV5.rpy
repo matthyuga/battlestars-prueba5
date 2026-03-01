@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04D_BATTLE_TURN_ENEMY.RPY – Turno ofensivo IA (MANEUVER EXTENDED)
 # Versión v12.3.1 Reflect RESOLVE ON TARGET HP (SyntaxFix + Sync) ✅
 # ------------------------------------------------------------
@@ -704,7 +704,13 @@ label battle_enemy_incoming_defense_gate:
     # ⭐ MANIOBRA
     # ============================================================
     $ maneuver_selected = "none"
-    show screen battle_maneuver_choice(damage=incoming_damage)
+    python:
+        import renpy.store as S
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        if callable(fn_show):
+            fn_show("battle_maneuver_choice", damage=incoming_damage)
+        else:
+            renpy.show_screen("battle_maneuver_choice", damage=incoming_damage)
 
     python:
         while maneuver_selected == "none":

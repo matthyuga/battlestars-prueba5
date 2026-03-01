@@ -140,6 +140,30 @@ init -990 python:
     _wire_renpy_fn("restart_interaction")
     _wire_renpy_fn("has_screen")
 
+    # Helpers UI seguros (usar desde labels críticos en vez de statements show/hide)
+    def ui_show_screen_safe(name, **kwargs):
+        try:
+            fn = getattr(renpy, "show_screen", None)
+            if callable(fn):
+                fn(name, **kwargs)
+                return True
+        except Exception as e:
+            _safe_log("ui_show_screen_safe error {}: {}".format(name, e))
+        return False
+
+    def ui_hide_screen_safe(name):
+        try:
+            fn = getattr(renpy, "hide_screen", None)
+            if callable(fn):
+                fn(name)
+                return True
+        except Exception as e:
+            _safe_log("ui_hide_screen_safe error {}: {}".format(name, e))
+        return False
+
+    S.ui_show_screen_safe = ui_show_screen_safe
+    S.ui_hide_screen_safe = ui_hide_screen_safe
+
     # -------------------------------------------------------
     # Fallback: battle_popup_turn (bloque corto + hide explícito)
     # -------------------------------------------------------

@@ -52,7 +52,13 @@ label start:
     scene fondo3 with fade
 
     # Mostrar log UNA sola vez (evita redundancia/“parpadeo”)
-    show screen battle_log_screen
+    python:
+        import renpy.store as S
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        if callable(fn_show):
+            fn_show("battle_log_screen")
+        else:
+            renpy.show_screen("battle_log_screen")
 
     "Sistema cargado correctamente."
     call battle_select_player
@@ -259,7 +265,13 @@ label battle_start:
     # =======================================================
     # 🧩 Panel debug (toggle “T”)
     # =======================================================
-    show screen debug_battle_identity
+    python:
+        import renpy.store as S
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        if callable(fn_show):
+            fn_show("debug_battle_identity")
+        else:
+            renpy.show_screen("debug_battle_identity")
 
     # =======================================================
     # 🌀 Aparición visual del enemigo (display)
