@@ -19,42 +19,42 @@ init -950 python:
 
 
 label battle_offensive_turn:
+    $ _is_2v2 = bool(bs_is_2v2_mode())
     python:
-        import renpy
         import renpy.store as S
-        _is_2v2 = bool(bs_is_2v2_mode())
         try:
             if callable(getattr(S, "battle_log_add", None)):
                 S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_offensive_turn mode=%s{/color}" % ("2v2" if _is_2v2 else "1v1"))
         except:
             pass
-        renpy.jump("battle_offensive_turn_2v2_entry" if _is_2v2 else "battle_offensive_turn_legacy_entry")
+    $ _router_target = "battle_offensive_turn_2v2_entry" if _is_2v2 else "battle_offensive_turn_legacy_entry"
+    jump expression _router_target
 
 
 label battle_enemy_turn:
+    $ _is_2v2 = bool(bs_is_2v2_mode())
     python:
-        import renpy
         import renpy.store as S
-        _is_2v2 = bool(bs_is_2v2_mode())
         try:
             if callable(getattr(S, "battle_log_add", None)):
                 S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_enemy_turn mode=%s{/color}" % ("2v2" if _is_2v2 else "1v1"))
         except:
             pass
-        renpy.jump("battle_enemy_turn_2v2_entry" if _is_2v2 else "battle_enemy_turn_legacy_entry")
+    $ _router_target = "battle_enemy_turn_2v2_entry" if _is_2v2 else "battle_enemy_turn_legacy_entry"
+    jump expression _router_target
 
 
 label battle_defensive_turn:
+    $ _is_2v2 = bool(bs_is_2v2_mode())
     python:
-        import renpy
         import renpy.store as S
-        _is_2v2 = bool(bs_is_2v2_mode())
         try:
             if callable(getattr(S, "battle_log_add", None)):
                 S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_defensive_turn mode=%s{/color}" % ("2v2" if _is_2v2 else "1v1"))
         except:
             pass
-        renpy.jump("battle_defensive_turn_2v2_entry" if _is_2v2 else "battle_defensive_turn_legacy_entry")
+    $ _router_target = "battle_defensive_turn_2v2_entry" if _is_2v2 else "battle_defensive_turn_legacy_entry"
+    jump expression _router_target
 
 
 # ------------------------------------------------------------
