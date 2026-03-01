@@ -27,7 +27,7 @@ label battle_offensive_turn_router_entry:
                 S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_offensive_turn mode=%s{/color}" % ("2v2" if _is_2v2 else "1v1"))
         except:
             pass
-    $ _router_target = "battle_offensive_turn_2v2_entry" if _is_2v2 else "battle_offensive_turn_legacy_entry"
+    $ _router_target = "battle_offensive_turn_2v2_entry" if _is_2v2 else "battle_offensive_turn_1v1_entry"
     jump expression _router_target
 
 
@@ -40,7 +40,7 @@ label battle_enemy_turn_router_entry:
                 S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_enemy_turn mode=%s{/color}" % ("2v2" if _is_2v2 else "1v1"))
         except:
             pass
-    $ _router_target = "battle_enemy_turn_2v2_entry" if _is_2v2 else "battle_enemy_turn_legacy_entry"
+    $ _router_target = "battle_enemy_turn_2v2_entry" if _is_2v2 else "battle_enemy_turn_1v1_entry"
     jump expression _router_target
 
 
@@ -60,7 +60,7 @@ label battle_defensive_turn_router_entry:
                 S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_defensive_turn mode=%s has_show=%s{/color}" % ("2v2" if _is_2v2 else "1v1", str(callable(getattr(renpy, "show_screen", None)))))
         except:
             pass
-    $ _router_target = "battle_defensive_turn_2v2_entry" if _is_2v2 else "battle_defensive_turn_legacy_entry"
+    $ _router_target = "battle_defensive_turn_2v2_entry" if _is_2v2 else "battle_defensive_turn_1v1_entry"
     jump expression _router_target
 
 

@@ -292,16 +292,13 @@ label battle_defensive_turn_legacy_entry:
         if callable(fn_show):
             fn_show("battle_command_menu")
             fn_show("technique_selector")
-        else:
-            renpy.show_screen("battle_command_menu")
-            renpy.show_screen("technique_selector")
+
     python:
         import renpy.store as S
         fn_restart = getattr(S, "ui_restart_interaction_safe", None)
         if callable(fn_restart):
             fn_restart()
-        else:
-            renpy.restart_interaction()
+
 
     python:
         import renpy.store as S
@@ -316,9 +313,6 @@ label battle_defensive_turn_legacy_entry:
         if callable(fn_hide):
             fn_hide("battle_command_menu")
             fn_hide("technique_selector")
-        else:
-            renpy.hide_screen("battle_command_menu")
-            renpy.hide_screen("technique_selector")
 
     # --- Técnicas seleccionadas ---
     python:
