@@ -671,7 +671,13 @@ label battle_enemy_turn_legacy_entry:
                             lbl = ("{} {}".format(str(ctx.get("defender_tag", "") or ""), str(ctx.get("defender_name", "") or ""))).strip()
                             if not lbl:
                                 lbl = str(nk)
-                            S.battle_popup_turn("Daño entrante — {}".format(lbl), "#00BFFF", 0.6)
+                            notice_id = "{}|{}|{}".format(str(ctx.get("defender_key", nk) or nk), str(int(pending_amt or 0)), str(int(getattr(S, "turn_count", 0) or 0)))
+                            S.incoming_notice_last_id = str(notice_id)
+                            fn_notice = getattr(S, "bs_show_incoming_notice", None)
+                            if callable(fn_notice):
+                                fn_notice("Daño entrante — {}".format(lbl), color="#00BFFF", delay=0.85, hard=True)
+                            else:
+                                S.battle_popup_turn("Daño entrante — {}".format(lbl), "#00BFFF", 0.85)
             except:
                 pass
 

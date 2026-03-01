@@ -282,6 +282,7 @@ default offense_cancelled = False
 default deferred_defense_return_to_offense = False
 default deferred_defense_actor_key = ""
 default incoming_popup_ack_key = ""
+default incoming_notice_last_id = ""
 default player_pending_damage_by_key = {}
 default enemy_pending_def_reduction_by_key = {}
 default battle_reflected_pending = 0

@@ -25,6 +25,33 @@ init -968 python:
             renpy.log("battle_popup_turn error: {}".format(e))
 
 
+    def bs_show_incoming_notice(text, color="#00BFFF", delay=0.85, hard=True):
+        """
+        Aviso unificado de daño entrante para 1v1/2v2.
+        Retorna True si se intentó mostrar sin error.
+        """
+        try:
+            renpy.show_screen("battle_popup_turn", text=text, color=color, glow=True)
+            try:
+                renpy.pause(float(delay or 0.85), hard=bool(hard))
+            except:
+                renpy.pause(float(delay or 0.85))
+            renpy.hide_screen("battle_popup_turn")
+            return True
+        except Exception as e:
+            try:
+                renpy.log("bs_show_incoming_notice error: {}".format(e))
+            except:
+                pass
+            try:
+                battle_popup_turn(text, color=color, delay=delay, glow=True)
+                return True
+            except:
+                return False
+
+    renpy.store.bs_show_incoming_notice = bs_show_incoming_notice
+
+
 # -----------------------------------------------------------
 # 🔹 SCREEN – Popup centrado cinematográfico
 # -----------------------------------------------------------
