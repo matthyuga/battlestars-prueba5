@@ -161,8 +161,42 @@ init -990 python:
             _safe_log("ui_hide_screen_safe error {}: {}".format(name, e))
         return False
 
+    def ui_get_screen_safe(name):
+        try:
+            fn = getattr(renpy, "get_screen", None)
+            if callable(fn):
+                return fn(name)
+        except Exception as e:
+            _safe_log("ui_get_screen_safe error {}: {}".format(name, e))
+        return None
+
+    def ui_has_screen_safe(name):
+        try:
+            fn = getattr(renpy, "has_screen", None)
+            if callable(fn):
+                return bool(fn(name))
+        except Exception as e:
+            _safe_log("ui_has_screen_safe error {}: {}".format(name, e))
+        try:
+            return ui_get_screen_safe(name) is not None
+        except:
+            return False
+
+    def ui_restart_interaction_safe():
+        try:
+            fn = getattr(renpy, "restart_interaction", None)
+            if callable(fn):
+                fn()
+                return True
+        except Exception as e:
+            _safe_log("ui_restart_interaction_safe error: {}".format(e))
+        return False
+
     S.ui_show_screen_safe = ui_show_screen_safe
     S.ui_hide_screen_safe = ui_hide_screen_safe
+    S.ui_get_screen_safe = ui_get_screen_safe
+    S.ui_has_screen_safe = ui_has_screen_safe
+    S.ui_restart_interaction_safe = ui_restart_interaction_safe
 
     # -------------------------------------------------------
     # Fallback: battle_popup_turn (bloque corto + hide explícito)

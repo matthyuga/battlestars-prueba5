@@ -166,11 +166,23 @@ init -966 python:
                 pass
 
             if owner_team == "player":
-                renpy.show_screen("battle_turn_change", text="🔹 TU TURNO · {}".format(banner), color="#00BFFF", side="left")
+                fn_show = getattr(S, "ui_show_screen_safe", None)
+                if callable(fn_show):
+                    fn_show("battle_turn_change", text="🔹 TU TURNO · {}".format(banner), color="#00BFFF", side="left")
+                else:
+                    renpy.show_screen("battle_turn_change", text="🔹 TU TURNO · {}".format(banner), color="#00BFFF", side="left")
             else:
-                renpy.show_screen("battle_turn_change", text="🔻 TURNO IA · {}".format(banner), color="#FF4444", side="right")
+                fn_show = getattr(S, "ui_show_screen_safe", None)
+                if callable(fn_show):
+                    fn_show("battle_turn_change", text="🔻 TURNO IA · {}".format(banner), color="#FF4444", side="right")
+                else:
+                    renpy.show_screen("battle_turn_change", text="🔻 TURNO IA · {}".format(banner), color="#FF4444", side="right")
             renpy.pause(1.0)
-            renpy.hide_screen("battle_turn_change")
+            fn_hide = getattr(S, "ui_hide_screen_safe", None)
+            if callable(fn_hide):
+                fn_hide("battle_turn_change")
+            else:
+                renpy.hide_screen("battle_turn_change")
         except Exception as e:
             renpy.log("battle_turn_change error: {}".format(e))
 

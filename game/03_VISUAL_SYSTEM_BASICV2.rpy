@@ -128,6 +128,12 @@ init -978 python:
     def _safe_get_screen(name):
         """Compat: algunos runtimes no exponen renpy.get_screen."""
         try:
+            fn_s = getattr(S, "ui_get_screen_safe", None)
+            if callable(fn_s):
+                return fn_s(name)
+        except:
+            pass
+        try:
             fn = getattr(renpy, "get_screen", None)
             if callable(fn):
                 return fn(name)
@@ -143,6 +149,13 @@ init -978 python:
         return None
 
     def _safe_restart():
+        try:
+            fn_r = getattr(S, "ui_restart_interaction_safe", None)
+            if callable(fn_r):
+                fn_r()
+                return
+        except:
+            pass
         try:
             renpy.restart_interaction()
         except:
@@ -358,9 +371,17 @@ screen battle_popup_turn(text="", color="#FFD700", delay=2.5, glow=True):
 init python:
     def toggle_battle_log():
         if _safe_get_screen("battle_log_screen"):
-            renpy.hide_screen("battle_log_screen")
+            fn_h = getattr(S, "ui_hide_screen_safe", None)
+            if callable(fn_h):
+                fn_h("battle_log_screen")
+            else:
+                renpy.hide_screen("battle_log_screen")
         else:
-            renpy.show_screen("battle_log_screen")
+            fn_sh = getattr(S, "ui_show_screen_safe", None)
+            if callable(fn_sh):
+                fn_sh("battle_log_screen")
+            else:
+                renpy.show_screen("battle_log_screen")
 
 screen battle_keymap_layer():
     key "k" action Function(toggle_battle_log)

@@ -143,6 +143,7 @@ init -970 python:
     # ===========================================================
     def battle_update_hp_bars(player_hp, enemy_hp, flash_target=None, color=None):
         global battle_hp_player, battle_hp_enemy, hp_flash_timer, hp_flash_color
+        import renpy.store as S
 
         battle_hp_player = int(player_hp)
         battle_hp_enemy = int(enemy_hp)
@@ -151,8 +152,22 @@ init -970 python:
             hp_flash_timer = 10
             hp_flash_color = color
 
-        if renpy.get_screen("battle_hp_overlay"):
-            renpy.restart_interaction()
+        fn_get = getattr(S, "ui_get_screen_safe", None)
+        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
+        _has_overlay = False
+        if callable(fn_get):
+            _has_overlay = fn_get("battle_hp_overlay") is not None
+        else:
+            try:
+                _has_overlay = renpy.get_screen("battle_hp_overlay") is not None
+            except:
+                _has_overlay = False
+
+        if _has_overlay:
+            if callable(fn_restart):
+                fn_restart()
+            else:
+                renpy.restart_interaction()
 
         try:
             battle_update_atmosphere_by_hp(player_hp, enemy_hp)
@@ -192,11 +207,22 @@ init -970 python:
         if sync_fade:
             renpy.with_statement(Dissolve(0.35))
 
-        renpy.show_screen("battle_hp_overlay")
-        renpy.show_screen("battle_damage_popups")
-        renpy.show_screen("battle_turn_summary_overlay")
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
 
-        renpy.restart_interaction()
+        if callable(fn_show):
+            fn_show("battle_hp_overlay")
+            fn_show("battle_damage_popups")
+            fn_show("battle_turn_summary_overlay")
+        else:
+            renpy.show_screen("battle_hp_overlay")
+            renpy.show_screen("battle_damage_popups")
+            renpy.show_screen("battle_turn_summary_overlay")
+
+        if callable(fn_restart):
+            fn_restart()
+        else:
+            renpy.restart_interaction()
 
 
     # ===========================================================
@@ -208,11 +234,23 @@ init -970 python:
 
         renpy.with_statement(Dissolve(0.25))
 
-        renpy.hide_screen("battle_hp_overlay")
-        renpy.hide_screen("battle_damage_popups")
-        renpy.hide_screen("battle_turn_summary_overlay")
+        import renpy.store as S
+        fn_hide = getattr(S, "ui_hide_screen_safe", None)
+        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
 
-        renpy.restart_interaction()
+        if callable(fn_hide):
+            fn_hide("battle_hp_overlay")
+            fn_hide("battle_damage_popups")
+            fn_hide("battle_turn_summary_overlay")
+        else:
+            renpy.hide_screen("battle_hp_overlay")
+            renpy.hide_screen("battle_damage_popups")
+            renpy.hide_screen("battle_turn_summary_overlay")
+
+        if callable(fn_restart):
+            fn_restart()
+        else:
+            renpy.restart_interaction()
 
 
 

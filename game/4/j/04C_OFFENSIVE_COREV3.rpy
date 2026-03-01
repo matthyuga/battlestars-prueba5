@@ -313,7 +313,13 @@ label battle_offensive_turn_legacy_entry:
         else:
             renpy.show_screen("battle_command_menu")
             renpy.show_screen("technique_selector")
-    $ renpy.restart_interaction()
+    python:
+        import renpy.store as S
+        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
+        if callable(fn_restart):
+            fn_restart()
+        else:
+            renpy.restart_interaction()
 
     python:
         import renpy.store as S
