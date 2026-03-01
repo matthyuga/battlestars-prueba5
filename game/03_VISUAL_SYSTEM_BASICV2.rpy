@@ -125,6 +125,29 @@ init -978 python:
     # -------------------------------------------------------
     # API DEL LOG
     # -------------------------------------------------------
+    def _safe_get_screen(name):
+        """Compat: algunos runtimes no exponen renpy.get_screen."""
+        try:
+            fn = getattr(renpy, "get_screen", None)
+            if callable(fn):
+                return fn(name)
+        except:
+            pass
+        try:
+            exp = getattr(renpy, "exports", None)
+            fn2 = getattr(exp, "get_screen", None) if exp else None
+            if callable(fn2):
+                return fn2(name)
+        except:
+            pass
+        return None
+
+    def _safe_restart():
+        try:
+            renpy.restart_interaction()
+        except:
+            pass
+
     def _trim_log_if_needed():
         try:
             if len(battle_log) > MAX_LOG_LINES:
@@ -134,8 +157,8 @@ init -978 python:
 
     def battle_log_clear():
         del battle_log[:]
-        if renpy.get_screen("battle_log_screen"):
-            renpy.restart_interaction()
+        if _safe_get_screen("battle_log_screen"):
+            _safe_restart()
 
     def battle_log_add(text, color=None, tech_key=None):
         techniques = getattr(S, "battle_techniques", {}) or {}
@@ -166,8 +189,8 @@ init -978 python:
 
         _trim_log_if_needed()
 
-        if renpy.get_screen("battle_log_screen"):
-            renpy.restart_interaction()
+        if _safe_get_screen("battle_log_screen"):
+            _safe_restart()
 
     def battle_log_phase(title):
         upper = str(title).upper()
@@ -218,8 +241,8 @@ init -978 python:
 
         _trim_log_if_needed()
 
-        if renpy.get_screen("battle_log_screen"):
-            renpy.restart_interaction()
+        if _safe_get_screen("battle_log_screen"):
+            _safe_restart()
 
     def battle_log_result(target, dmg, hp):
         battle_log_add(
@@ -334,7 +357,7 @@ screen battle_popup_turn(text="", color="#FFD700", delay=2.5, glow=True):
 # -----------------------------------------------------------
 init python:
     def toggle_battle_log():
-        if renpy.get_screen("battle_log_screen"):
+        if _safe_get_screen("battle_log_screen"):
             renpy.hide_screen("battle_log_screen")
         else:
             renpy.show_screen("battle_log_screen")
