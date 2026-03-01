@@ -144,9 +144,17 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
         # (5) HP objetivo defendido
         # --------------------------------------------------------
         mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
-        def_key = str(getattr(S, "defense_target_key", "") or "")
+        in_ctx = S.bs_get_incoming_ctx(default={}) if callable(getattr(S, "bs_get_incoming_ctx", None)) else {}
+        def_key = str((in_ctx.get("defender_key", "") if isinstance(in_ctx, dict) else "") or getattr(S, "defense_target_key", "") or getattr(S, "incoming_damage_target_key", "") or getattr(S, "current_actor_unit_key", "") or "")
 
         hp_before = int(getattr(S, "player_hp", 0) or 0)
+        if mode == "2v2" and def_key:
+            fn_parse = getattr(S, "bs_parse_unit_key", None)
+            if callable(fn_parse):
+                info = fn_parse(def_key, default_side="player", default_slot=0)
+                if str(info.get("team", "player") or "player") != "player":
+                    def_key = ""
+
         if mode == "2v2" and def_key:
             fn_get_key = getattr(S, "bs_get_unit_by_key", None)
             if callable(fn_get_key):
@@ -156,6 +164,8 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
 
         hp_after  = max(0, hp_before - received_damage)
         S.defense_hp_before = int(hp_before)
+        S.defense_target_resolved_key = str(def_key or "")
+        S.defense_hp_after_calc = int(hp_after)
 
         operation_add(
             S.op_def_hp(
@@ -165,6 +175,18 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
             ),
             border
         )
+
+        try:
+            fn_log = getattr(S, "battle_log_add", None)
+            if callable(fn_log):
+                fn_log("{color=#80DEEA}[DEBUG] DEFENSE_HP_CALC defender_id=%s hp_before=%s dmg=%s hp_after=%s{/color}" % (
+                    str(def_key or ""),
+                    str(int(hp_before or 0)),
+                    str(int(received_damage or 0)),
+                    str(int(hp_after or 0)),
+                ))
+        except:
+            pass
 
 
         # Si existe daño directo pendiente de IA, reflejar HP total esperado en el registro.

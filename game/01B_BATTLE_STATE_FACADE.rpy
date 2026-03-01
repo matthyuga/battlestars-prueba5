@@ -385,6 +385,80 @@ init -989 python:
                 return dict(u)
         return None
 
+    def _bs_get_char_resource(char_id, key, default=0):
+        try:
+            fn = getattr(S, "get_character", None)
+            if callable(fn):
+                ch = fn(str(char_id or ""))
+                if isinstance(ch, dict):
+                    if key in ch:
+                        return max(0, _bs_to_int(ch.get(key, default), default))
+                    alt = "Energy" if key == "Energía" else key
+                    if alt in ch:
+                        return max(0, _bs_to_int(ch.get(alt, default), default))
+        except:
+            pass
+        return max(0, _bs_to_int(default, 0))
+
+    def bs_ensure_unit_resources():
+        bs = battle_state_ensure()
+        teams = bs.get("teams", {}) if isinstance(bs.get("teams", {}), dict) else {}
+        touched = False
+        for side in ("player", "enemy"):
+            arr = list(teams.get(side, []) or [])
+            for i, u in enumerate(arr):
+                if not isinstance(u, dict):
+                    continue
+                cid = str(u.get("char_id", _bs_default_char_id(side)) or _bs_default_char_id(side))
+                if "reiatsu" not in u:
+                    u["reiatsu"] = _bs_get_char_resource(cid, "Reiatsu", 0)
+                    touched = True
+                if "energy" not in u:
+                    u["energy"] = _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0))
+                    touched = True
+                arr[i] = u
+            teams[side] = arr
+        if touched:
+            bs["teams"] = teams
+            S.battle_state = bs
+        return bs
+
+    def bs_get_unit_resources(unit_key):
+        bs_ensure_unit_resources()
+        info = bs_parse_unit_key(unit_key)
+        side = info.get("team", "player")
+        slot = max(0, _bs_to_int(info.get("slot", 0), 0))
+        u = bs_get_unit_by_key(bs_unit_key(side, slot))
+        if not isinstance(u, dict):
+            return {"reiatsu": 0, "energy": 0}
+        return {
+            "reiatsu": max(0, _bs_to_int(u.get("reiatsu", 0), 0)),
+            "energy": max(0, _bs_to_int(u.get("energy", 0), 0)),
+        }
+
+    def bs_consume_unit_resources(unit_key, reiatsu_cost=0, energy_cost=0):
+        bs = bs_ensure_unit_resources()
+        info = bs_parse_unit_key(unit_key)
+        side = info.get("team", "player")
+        slot = max(0, _bs_to_int(info.get("slot", 0), 0))
+        teams = bs.get("teams", {}) if isinstance(bs.get("teams", {}), dict) else {}
+        arr = list(teams.get(side, []) or [])
+        if slot >= len(arr) or not isinstance(arr[slot], dict):
+            return {"reiatsu_spent": 0, "energy_spent": 0, "reiatsu_after": 0, "energy_after": 0}
+
+        u = dict(arr[slot])
+        cur_r = max(0, _bs_to_int(u.get("reiatsu", 0), 0))
+        cur_e = max(0, _bs_to_int(u.get("energy", 0), 0))
+        use_r = min(cur_r, max(0, _bs_to_int(reiatsu_cost, 0)))
+        use_e = min(cur_e, max(0, _bs_to_int(energy_cost, 0)))
+        u["reiatsu"] = cur_r - use_r
+        u["energy"] = cur_e - use_e
+        arr[slot] = u
+        teams[side] = arr
+        bs["teams"] = teams
+        S.battle_state = bs
+        return {"reiatsu_spent": use_r, "energy_spent": use_e, "reiatsu_after": u["reiatsu"], "energy_after": u["energy"]}
+
     def bs_init_single_teams(player_char_id=None, enemy_char_id=None, player_hp=None, player_max_hp=None, enemy_hp=None, enemy_max_hp=None):
         bs = battle_state_ensure()
 
@@ -407,6 +481,8 @@ init -989 python:
             "hp": p_hp,
             "max_hp": p_mx,
             "alive": bool(p_hp > 0),
+            "reiatsu": _bs_get_char_resource(p_char, "Reiatsu", getattr(S, "player_reiatsu", 0)),
+            "energy": _bs_get_char_resource(p_char, "Energy", getattr(S, "player_energy", 0)),
         }]
         bs.setdefault("teams", {})["enemy"] = [{
             "uid": "enemy_1",
@@ -414,6 +490,8 @@ init -989 python:
             "hp": e_hp,
             "max_hp": e_mx,
             "alive": bool(e_hp > 0),
+            "reiatsu": _bs_get_char_resource(e_char, "Reiatsu", getattr(S, "enemy_reiatsu", 0)),
+            "energy": _bs_get_char_resource(e_char, "Energy", getattr(S, "enemy_energy", 0)),
         }]
         bs.setdefault("active", {})["player"] = "player_1"
         bs.setdefault("active", {})["enemy"] = "enemy_1"
@@ -462,6 +540,8 @@ init -989 python:
                     "hp": hp_i,
                     "max_hp": mx_i,
                     "alive": bool(hp_i > 0),
+                    "reiatsu": _bs_get_char_resource(cid, "Reiatsu", 0),
+                    "energy": _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0)),
                 })
 
             while len(out) < 2:
@@ -583,6 +663,12 @@ init -989 python:
         out["slot"] = slot
         out["unit_key"] = parsed.get("key", bs_unit_key(side, slot))
         return out
+
+    def bs_slot_tag(team, slot):
+        side = _bs_side_key(team)
+        idx = max(0, _bs_to_int(slot, 0))
+        prefix = "P" if side == "player" else "E"
+        return "{}{}".format(prefix, idx + 1)
 
     def bs_describe_unit_key(key, default_side="player", default_slot=0):
         info = bs_parse_unit_key(key, default_side=default_side, default_slot=default_slot)
@@ -955,7 +1041,7 @@ init -989 python:
             "unit": updated,
         }
 
-    def bs_make_damage_plan(source_key=None, entries=None, mode="single_target", skill_id=None, meta=None):
+    def bs_make_damage_plan(source_key=None, entries=None, mode="single_target", skill_id=None, effect_scope="primary", meta=None):
         src = bs_parse_unit_key(source_key).get("key", "") if source_key is not None else ""
         out_entries = []
 
@@ -972,6 +1058,10 @@ init -989 python:
 
         m = dict(meta) if isinstance(meta, dict) else {}
         m.setdefault("mode", str(mode or "single_target"))
+        eff = str(effect_scope or "primary").strip().lower()
+        if eff not in ("primary", "all", "none", "all_if_buff"):
+            eff = "primary"
+        m.setdefault("effect_scope", eff)
         if skill_id is not None:
             m.setdefault("skill_id", skill_id)
 
@@ -1022,6 +1112,31 @@ init -989 python:
             "entries_count": len(results),
             "winner_team": bs_get_battle_winner_team(),
         }
+
+
+    def bs_effect_targets_from_plan(plan, buff_allow_split_effects=False):
+        p = dict(plan) if isinstance(plan, dict) else {}
+        entries = p.get("entries", []) if isinstance(p.get("entries", []), list) else []
+        meta = dict(p.get("meta", {})) if isinstance(p.get("meta", {}), dict) else {}
+        scope = str(meta.get("effect_scope", "primary") or "primary").strip().lower()
+
+        ordered = []
+        for e in entries:
+            if not isinstance(e, dict):
+                continue
+            tk = bs_parse_unit_key(e.get("target_key", e.get("target")), default_side="enemy", default_slot=0).get("key", "")
+            if tk and tk not in ordered:
+                ordered.append(tk)
+
+        if scope == "none":
+            return []
+        if scope == "all":
+            return ordered
+        if scope == "all_if_buff" and bool(buff_allow_split_effects):
+            return ordered
+        if ordered:
+            return [ordered[0]]
+        return []
 
     def bs_reflect_policy_get():
         bs = battle_state_ensure()
@@ -1380,6 +1495,106 @@ init -989 python:
         owner = _bs_side_key(getattr(S, "battle_turn_owner", "player"))
         return bs_set_turn_owner(owner, mirror_legacy=False)
 
+    def bs_build_incoming_ctx(defender_key="", pending_damage=None, sources=None, reason="incoming", default_side="player", default_slot=0):
+        info = bs_parse_unit_key(defender_key, default_side=default_side, default_slot=default_slot)
+        team = str(info.get("team", _bs_side_key(default_side)) or _bs_side_key(default_side))
+        slot = max(0, _bs_to_int(info.get("slot", default_slot), default_slot))
+        key = str(info.get("key", bs_unit_key(team, slot)) or bs_unit_key(team, slot))
+
+        unit = bs_get_unit_by_key(key)
+        name = ""
+        if isinstance(unit, dict):
+            name = str(unit.get("char_id", "") or "")
+        if not name:
+            name = ("P{}".format(slot + 1) if team == "player" else "E{}".format(slot + 1))
+
+        tag = bs_slot_tag(team, slot)
+        dmg = max(0, _bs_to_int(pending_damage, _bs_to_int(getattr(S, "incoming_damage", 0), 0)))
+
+        src = list(sources) if isinstance(sources, (list, tuple)) else []
+        if not src:
+            src = list(getattr(S, "incoming_damage_sources", []) or [])
+
+        return {
+            "defender_key": key,
+            "defender_team": team,
+            "defender_slot": slot,
+            "defender_tag": tag,
+            "defender_name": name,
+            "pending_damage": dmg,
+            "sources": src,
+            "reason": str(reason or "incoming"),
+        }
+
+    def bs_set_incoming_ctx(defender_key="", pending_damage=None, sources=None, reason="incoming", default_side="player", default_slot=0, set_turn_ctx=True, expected_team=None):
+        ctx = bs_build_incoming_ctx(
+            defender_key=defender_key,
+            pending_damage=pending_damage,
+            sources=sources,
+            reason=reason,
+            default_side=default_side,
+            default_slot=default_slot,
+        )
+
+        exp_team = str(expected_team or "").strip().lower()
+        if exp_team in ("player", "enemy"):
+            got_team = str(ctx.get("defender_team", "") or "").strip().lower()
+            if got_team != exp_team:
+                try:
+                    fn_log = getattr(S, "battle_log_add", None)
+                    if callable(fn_log):
+                        fn_log("{color=#FFCC80}[WARN] INCOMING_CTX_TEAM_MISMATCH expected=%s got=%s key=%s{/color}" % (
+                            str(exp_team), str(got_team), str(ctx.get("defender_key", "") or ""),
+                        ))
+                except:
+                    pass
+                return {}
+
+        S.incoming_ctx = dict(ctx)
+        S.incoming_damage = int(ctx.get("pending_damage", 0) or 0)
+        S.incoming_damage_target_key = str(ctx.get("defender_key", "") or "")
+        _src = list(ctx.get("sources", []) or [])
+        S.incoming_damage_sources = _src
+        S.incoming_damage_source_key = str(_src[0] if _src else getattr(S, "incoming_damage_source_key", "") or "")
+
+        if set_turn_ctx and callable(getattr(S, "bs_set_turn_ctx", None)):
+            if str(ctx.get("defender_team", "player") or "player") in ("player", "enemy"):
+                bs_set_turn_ctx(
+                    owner_team=str(ctx.get("defender_team", "player") or "player"),
+                    owner_slot=int(ctx.get("defender_slot", 0) or 0),
+                    phase="defensive",
+                    mirror_legacy=True,
+                )
+
+        return dict(ctx)
+
+    def bs_get_incoming_ctx(default=None):
+        raw = getattr(S, "incoming_ctx", None)
+        if isinstance(raw, dict) and raw:
+            return dict(raw)
+
+        fallback_key = str(getattr(S, "incoming_damage_target_key", "") or "")
+        if fallback_key:
+            ctx = bs_build_incoming_ctx(
+                defender_key=fallback_key,
+                pending_damage=getattr(S, "incoming_damage", 0),
+                sources=getattr(S, "incoming_damage_sources", []),
+                reason="legacy_fallback",
+                default_side="player",
+                default_slot=0,
+            )
+            return ctx
+
+        return dict(default or {})
+
+    def bs_clear_incoming_ctx(reset_damage=False):
+        S.incoming_ctx = {}
+        S.incoming_damage_target_key = ""
+        S.incoming_damage_source_key = ""
+        S.incoming_damage_sources = []
+        if reset_damage:
+            S.incoming_damage = 0
+
     # -------------------------------------------------------
     # Legacy-friendly wrappers (API pública de transición)
     # -------------------------------------------------------
@@ -1421,6 +1636,7 @@ init -989 python:
     S.bs_get_active_unit_key = bs_get_active_unit_key
     S.bs_get_unit_by_key = bs_get_unit_by_key
     S.bs_describe_unit_key = bs_describe_unit_key
+    S.bs_slot_tag = bs_slot_tag
     S.bs_set_active_by_key = bs_set_active_by_key
     S.bs_set_active_slot = bs_set_active_slot
     S.bs_get_team_alive = bs_get_team_alive
@@ -1437,10 +1653,14 @@ init -989 python:
     S.bs_is_player_turn = bs_is_player_turn
     S.bs_turn_advance = bs_turn_advance
     S.bs_get_valid_target_keys = bs_get_valid_target_keys
+    S.bs_ensure_unit_resources = bs_ensure_unit_resources
+    S.bs_get_unit_resources = bs_get_unit_resources
+    S.bs_consume_unit_resources = bs_consume_unit_resources
     S.bs_resolve_target_keys = bs_resolve_target_keys
     S.bs_apply_damage_to_unit_key = bs_apply_damage_to_unit_key
     S.bs_make_damage_plan = bs_make_damage_plan
     S.bs_apply_damage_plan = bs_apply_damage_plan
+    S.bs_effect_targets_from_plan = bs_effect_targets_from_plan
     S.bs_reflect_policy_get = bs_reflect_policy_get
     S.bs_reflect_policy_set = bs_reflect_policy_set
     S.bs_reflect_queue = bs_reflect_queue
@@ -1460,3 +1680,7 @@ init -989 python:
     S.bs_advance_turn = bs_advance_turn
     S.bs_sync_turn_to_legacy = bs_sync_turn_to_legacy
     S.bs_sync_turn_from_legacy = bs_sync_turn_from_legacy
+    S.bs_build_incoming_ctx = bs_build_incoming_ctx
+    S.bs_set_incoming_ctx = bs_set_incoming_ctx
+    S.bs_get_incoming_ctx = bs_get_incoming_ctx
+    S.bs_clear_incoming_ctx = bs_clear_incoming_ctx

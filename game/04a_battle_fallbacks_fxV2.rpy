@@ -35,20 +35,187 @@ init -990 python:
             setattr(S, name, fn)
 
     # -------------------------------------------------------
-    # Fallback: battle_popup_turn (sin bloquear, screen maneja timer)
+    # Compat Ren'Py 7.4.x: side-image helper faltante
+    # -------------------------------------------------------
+    if not hasattr(renpy, "get_side_image"):
+        def _compat_get_side_image(*args, **kwargs):
+            return None
+        renpy.get_side_image = _compat_get_side_image
+        _safe_log("[Compat] injected renpy.get_side_image shim")
+
+    # -------------------------------------------------------
+    # Compat Ren'Py 7.4.x: wrappers UI en módulo renpy
+    # -------------------------------------------------------
+    try:
+        _exp = getattr(renpy, "exports", None)
+    except:
+        _exp = None
+
+    def _wire_renpy_fn(name):
+        """
+        Intenta cablear renpy.<name> desde renpy.exports.<name>.
+        Si no existe, instala fallback seguro para evitar crashes.
+        """
+        try:
+            if callable(getattr(renpy, name, None)):
+                return True
+            if _exp and callable(getattr(_exp, name, None)):
+                setattr(renpy, name, getattr(_exp, name))
+                _safe_log("[Compat] wired renpy.{} from renpy.exports".format(name))
+                return True
+        except Exception as e:
+            _safe_log("[Compat] failed wiring renpy.{}: {}".format(name, e))
+
+        # Fallbacks explícitos (última línea de defensa)
+        try:
+            if name == "show_screen":
+                def _fallback_show_screen(*args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "show_screen", None)):
+                            return _exp.show_screen(*args, **kwargs)
+                    except:
+                        pass
+                    _safe_log("[Compat] fallback show_screen no-op args={} kwargs={}".format(args, kwargs))
+                    return None
+                setattr(renpy, name, _fallback_show_screen)
+                return True
+
+            if name == "hide_screen":
+                def _fallback_hide_screen(*args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "hide_screen", None)):
+                            return _exp.hide_screen(*args, **kwargs)
+                    except:
+                        pass
+                    return None
+                setattr(renpy, name, _fallback_hide_screen)
+                return True
+
+            if name == "get_screen":
+                def _fallback_get_screen(*args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "get_screen", None)):
+                            return _exp.get_screen(*args, **kwargs)
+                    except:
+                        pass
+                    return None
+                setattr(renpy, name, _fallback_get_screen)
+                return True
+
+            if name == "has_screen":
+                def _fallback_has_screen(scr_name, *args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "has_screen", None)):
+                            return bool(_exp.has_screen(scr_name, *args, **kwargs))
+                    except:
+                        pass
+                    try:
+                        fn = getattr(renpy, "get_screen", None)
+                        if callable(fn):
+                            return fn(scr_name) is not None
+                    except:
+                        pass
+                    return False
+                setattr(renpy, name, _fallback_has_screen)
+                return True
+
+            if name == "restart_interaction":
+                def _fallback_restart_interaction(*args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "restart_interaction", None)):
+                            return _exp.restart_interaction(*args, **kwargs)
+                    except:
+                        pass
+                    return None
+                setattr(renpy, name, _fallback_restart_interaction)
+                return True
+        except Exception as e:
+            _safe_log("[Compat] failed fallback renpy.{}: {}".format(name, e))
+
+        return False
+
+    _wire_renpy_fn("get_screen")
+    _wire_renpy_fn("show_screen")
+    _wire_renpy_fn("hide_screen")
+    _wire_renpy_fn("restart_interaction")
+    _wire_renpy_fn("has_screen")
+
+    # Helpers UI seguros (usar desde labels críticos en vez de statements show/hide)
+    def ui_show_screen_safe(name, **kwargs):
+        try:
+            fn = getattr(renpy, "show_screen", None)
+            if callable(fn):
+                fn(name, **kwargs)
+                return True
+        except Exception as e:
+            _safe_log("ui_show_screen_safe error {}: {}".format(name, e))
+        return False
+
+    def ui_hide_screen_safe(name):
+        try:
+            fn = getattr(renpy, "hide_screen", None)
+            if callable(fn):
+                fn(name)
+                return True
+        except Exception as e:
+            _safe_log("ui_hide_screen_safe error {}: {}".format(name, e))
+        return False
+
+    def ui_get_screen_safe(name):
+        try:
+            fn = getattr(renpy, "get_screen", None)
+            if callable(fn):
+                return fn(name)
+        except Exception as e:
+            _safe_log("ui_get_screen_safe error {}: {}".format(name, e))
+        return None
+
+    def ui_has_screen_safe(name):
+        try:
+            fn = getattr(renpy, "has_screen", None)
+            if callable(fn):
+                return bool(fn(name))
+        except Exception as e:
+            _safe_log("ui_has_screen_safe error {}: {}".format(name, e))
+        try:
+            return ui_get_screen_safe(name) is not None
+        except:
+            return False
+
+    def ui_restart_interaction_safe():
+        try:
+            fn = getattr(renpy, "restart_interaction", None)
+            if callable(fn):
+                fn()
+                return True
+        except Exception as e:
+            _safe_log("ui_restart_interaction_safe error: {}".format(e))
+        return False
+
+    S.ui_show_screen_safe = ui_show_screen_safe
+    S.ui_hide_screen_safe = ui_hide_screen_safe
+    S.ui_get_screen_safe = ui_get_screen_safe
+    S.ui_has_screen_safe = ui_has_screen_safe
+    S.ui_restart_interaction_safe = ui_restart_interaction_safe
+
+    # -------------------------------------------------------
+    # Fallback: battle_popup_turn (bloque corto + hide explícito)
     # -------------------------------------------------------
     if not hasattr(S, "battle_popup_turn"):
         def battle_popup_turn(text, color="#FFD700", delay=0.8, glow=True):
             """
-            Fallback seguro:
-            - Si existe el screen 'battle_popup_turn': lo muestra y le pasa delay.
-              (NO pausa/hide: el screen se autocierra con timer)
-            - Si no existe screen: loguea texto.
+            Fallback seguro y autocontenido:
+            - Muestra popup, espera breve y oculta explícitamente.
+            - Evita pantallas "pegadas" si el screen no trae timer.
             """
             try:
                 if renpy.has_screen("battle_popup_turn"):
-                    # El screen actualizado acepta delay
-                    renpy.show_screen("battle_popup_turn", text=text, color=color, delay=delay)
+                    renpy.show_screen("battle_popup_turn", text=text, color=color, glow=glow)
+                    try:
+                        renpy.pause(float(delay or 0.8), hard=True)
+                    except:
+                        renpy.pause(float(delay or 0.8))
+                    renpy.hide_screen("battle_popup_turn")
                 else:
                     _safe_log("[Fallback popup] {}".format(text))
             except Exception as e:

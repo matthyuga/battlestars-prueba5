@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04D_BATTLE_TURN_ENEMY.RPY – Turno ofensivo IA (MANEUVER EXTENDED)
 # Versión v12.3.1 Reflect RESOLVE ON TARGET HP (SyntaxFix + Sync) ✅
 # ------------------------------------------------------------
@@ -10,7 +10,7 @@
 # ✔ Sync HP bars si muere/recibe reflect
 # ============================================================
 
-label battle_enemy_turn:
+label battle_enemy_turn_legacy_entry:
 
     $ battle_turn_change("enemy")
 
@@ -72,12 +72,35 @@ label battle_enemy_turn:
 
                 fn_def = getattr(S, "enemy_compute_reactive_defense", None)
                 final_in = int(_enemy_pending_damage)
+
+                # aplicar debuff acumulado por target en 2v2
+                _deb_map = getattr(S, "enemy_pending_def_reduction_by_key", None)
+                _saved_red = float(getattr(S, "next_defense_reduction", 0.0) or 0.0)
+                _applied_red = 0.0
+                if isinstance(_deb_map, dict) and akey:
+                    try:
+                        _applied_red = float(_deb_map.get(akey, 0.0) or 0.0)
+                    except:
+                        _applied_red = 0.0
+                if _applied_red > 0.0:
+                    S.next_defense_reduction = float(_applied_red)
+
                 if callable(fn_def):
                     try:
                         info = fn_def(_enemy_pending_damage)
                         final_in = max(0, int(info.get("final_damage", _enemy_pending_damage) or _enemy_pending_damage))
                     except:
                         final_in = int(_enemy_pending_damage)
+
+                # consumir debuff acumulado de este target y restaurar valor temporal
+                try:
+                    if isinstance(_deb_map, dict) and akey:
+                        _deb_map[akey] = 0.0
+                        S.enemy_pending_def_reduction_by_key = _deb_map
+                except:
+                    pass
+                if _applied_red <= 0.0:
+                    S.next_defense_reduction = _saved_red
 
                 try:
                     fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
@@ -135,6 +158,13 @@ label battle_enemy_turn:
             if _mode == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
                 nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
                 _next = str(S.bs_parse_unit_key(nk, default_side="player", default_slot=0).get("team", "player") or "player")
+                try:
+                    fn_desc = getattr(S, "bs_describe_unit_key", None)
+                    nm = str(fn_desc(nk) if callable(fn_desc) else nk)
+                    if callable(getattr(S, "battle_log_add", None)):
+                        S.battle_log_add("{color=#80DEEA}[DEBUG] TURN_ADVANCE next_actor_id=%s next_name=%s{/color}" % (str(nk), str(nm)))
+                except:
+                    pass
 
         if _next == "enemy":
             jump battle_enemy_turn
@@ -201,7 +231,37 @@ label battle_enemy_turn:
 
             renpy.pause(0.5, hard=True)
 
-            # Diseño elegido: NO limpiamos reflect aquí.
+            # En 2v2 avanzar por iniciativa real (evita repetir P1 tras negador).
+            mode_now = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            if mode_now == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                next_team = str(S.bs_parse_unit_key(nk, default_side="player", default_slot=0).get("team", "player") or "player")
+                try:
+                    if callable(getattr(S, "battle_log_add", None)) and nk:
+                        fn_desc = getattr(S, "bs_describe_unit_key", None)
+                        nm = str(fn_desc(nk) if callable(fn_desc) else nk)
+                        S.battle_log_add("{color=#80DEEA}[DEBUG] TURN_ADVANCE next_actor_id=%s next_name=%s{/color}" % (str(nk), str(nm)))
+                except:
+                    pass
+
+                if next_team == "enemy":
+                    try:
+                        fn_desc = getattr(S, "bs_describe_unit_key", None)
+                        _nm = str(fn_desc(nk) if callable(fn_desc) else "Enemigo")
+                        S.battle_popup_turn("Turno ofensivo — {}".format(_nm), "#FFD700", 0.7)
+                    except:
+                        pass
+                    renpy.jump("battle_enemy_turn")
+                else:
+                    try:
+                        fn_desc = getattr(S, "bs_describe_unit_key", None)
+                        _nm = str(fn_desc(nk) if callable(fn_desc) else "Jugador")
+                        S.battle_popup_turn("Turno ofensivo — {}".format(_nm), "#FFD700", 0.7)
+                    except:
+                        pass
+                    renpy.jump("battle_offensive_turn")
+
+            # Legacy 1v1
             S.battle_turn_change("player")
             try:
                 _bp = getattr(S, "battle_player", None)
@@ -219,7 +279,7 @@ label battle_enemy_turn:
     # ============================================================
     # ⭐ ENCABEZADO IA
     # ============================================================
-    $ _slot_txt = " (S{})".format(int(getattr(store, "turn_owner_slot", 0) or 0) + 1) if str(getattr(store, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
+    $ _slot_txt = " ({})".format(store.bs_slot_tag(getattr(store, "turn_owner_team", "enemy"), int(getattr(store, "turn_owner_slot", 0) or 0)) if hasattr(store, "bs_slot_tag") else "S{}".format(int(getattr(store, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(store, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_popup_turn("Turno ofensivo{} — {}".format(_slot_txt, enemy_name), "#FFD700", delay=0.6)
     $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, enemy_name))
     $ renpy.pause(0.8, hard=True)
@@ -532,9 +592,107 @@ label battle_enemy_turn:
                 pass
 
     # ============================================================
+    # ⭐ 2v2: daño diferido al turno del defensor (sin maniobra inmediata)
+    # ============================================================
+    python:
+        import renpy.store as S
+        _mode2 = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        _deferred_2v2 = False
+        if _mode2 == "2v2":
+            plan = getattr(S, "enemy_damage_plan", None)
+            ppend = getattr(S, "player_pending_damage_by_key", None)
+            if not isinstance(ppend, dict):
+                ppend = {}
+
+            if isinstance(plan, dict):
+                for e in (list(plan.get("entries", []) or [])):
+                    if not isinstance(e, dict):
+                        continue
+                    tk = str(e.get("target_key", "") or "")
+                    amt = max(0, int(e.get("amount", 0) or 0))
+                    if tk and amt > 0:
+                        ppend[tk] = int(ppend.get(tk, 0) or 0) + amt
+                        _deferred_2v2 = True
+
+            if _deferred_2v2:
+                S.player_pending_damage_by_key = ppend
+                try:
+                    if callable(getattr(S, "battle_log_add", None)):
+                        fn_desc = getattr(S, "bs_describe_unit_key", None)
+                        parts = []
+                        for _k, _v in ppend.items():
+                            if int(_v or 0) <= 0:
+                                continue
+                            if callable(fn_desc):
+                                parts.append("{}:+{}".format(fn_desc(_k, default_side="player", default_slot=0), int(_v or 0)))
+                            else:
+                                parts.append("{}:+{}".format(_k, int(_v or 0)))
+                        S.battle_log_add("{color=#B39DDB}Daño entrante en cola 2v2 → %s{/color}" % (" | ".join(parts)))
+                except:
+                    pass
+
+                # limpiar plan de este turno y avanzar
+                S.enemy_damage_plan = None
+                S.enemy_target_key = ""
+
+    # ============================================================
     # ⭐ IMPORTANTE: traer el daño a variable Ren’Py
     # ============================================================
     $ incoming_damage = renpy.store.incoming_damage
+
+    if _deferred_2v2:
+        python:
+            import renpy.store as S
+            _next_team = "player"
+            nk = ""
+            if callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                _next_team = str(S.bs_parse_unit_key(nk, default_side="player", default_slot=0).get("team", "player") or "player")
+            try:
+                if callable(getattr(S, "battle_log_add", None)) and nk:
+                    fn_desc = getattr(S, "bs_describe_unit_key", None)
+                    nm = str(fn_desc(nk) if callable(fn_desc) else nk)
+                    S.battle_log_add("{color=#80DEEA}[DEBUG] TURN_ADVANCE next_actor_id=%s next_name=%s{/color}" % (str(nk), str(nm)))
+            except:
+                pass
+
+            # C4.1 UX: pre-aviso de daño entrante para el próximo defensor en cola.
+            try:
+                if _next_team == "player" and nk:
+                    ppend = getattr(S, "player_pending_damage_by_key", None)
+                    pending_amt = int((ppend.get(nk, 0) if isinstance(ppend, dict) else 0) or 0)
+                    if pending_amt > 0:
+                        srcs = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+                        ctx = {}
+                        if bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_set_incoming_ctx", None)):
+                            ctx = S.bs_set_incoming_ctx(defender_key=nk, pending_damage=pending_amt, sources=srcs, reason="enemy_deferred_preview", default_side="player", default_slot=0, set_turn_ctx=False, expected_team="player")
+                        if isinstance(ctx, dict) and ctx:
+                            S.incoming_popup_ack_key = str(ctx.get("defender_key", "") or "")
+                            lbl = ("{} {}".format(str(ctx.get("defender_tag", "") or ""), str(ctx.get("defender_name", "") or ""))).strip()
+                            if not lbl:
+                                lbl = str(nk)
+                            notice_id = "{}|{}|{}".format(str(ctx.get("defender_key", nk) or nk), str(int(pending_amt or 0)), str(int(getattr(S, "turn_count", 0) or 0)))
+                            S.incoming_notice_last_id = str(notice_id)
+                            fn_notice = getattr(S, "bs_show_incoming_notice", None)
+                            if callable(fn_notice):
+                                fn_notice("Daño entrante — {}".format(lbl), color="#00BFFF", delay=0.85, hard=True)
+                            else:
+                                S.battle_popup_turn("Daño entrante — {}".format(lbl), "#00BFFF", 0.85)
+            except:
+                pass
+
+        if _next_team == "enemy":
+            jump battle_enemy_turn
+        else:
+            jump battle_offensive_turn
+
+    jump battle_enemy_incoming_defense_gate
+
+    return
+
+label battle_enemy_incoming_defense_gate:
+
+    $ incoming_damage = int(getattr(renpy.store, "incoming_damage", 0) or 0)
 
     # ============================================================
     # ⭐ VISUAL DAMAGE AL JUGADOR
@@ -546,7 +704,13 @@ label battle_enemy_turn:
     # ⭐ MANIOBRA
     # ============================================================
     $ maneuver_selected = "none"
-    show screen battle_maneuver_choice(damage=incoming_damage)
+    python:
+        import renpy.store as S
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        if callable(fn_show):
+            fn_show("battle_maneuver_choice", damage=incoming_damage)
+        else:
+            renpy.show_screen("battle_maneuver_choice", damage=incoming_damage)
 
     python:
         while maneuver_selected == "none":
@@ -612,16 +776,18 @@ label battle_enemy_turn:
             import renpy.store as S
             S.defense_for_attack_active = True
 
-            # M6 MVP: la defensa se hace sobre la unidad objetivo principal.
             try:
                 mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
                 tkey = str(getattr(S, "enemy_target_key", "") or "")
-                fn_parse = getattr(S, "bs_parse_unit_key", None)
-                fn_set_ctx = getattr(S, "bs_set_turn_ctx", None)
-                if mode == "2v2" and tkey and callable(fn_parse) and callable(fn_set_ctx):
-                    info = fn_parse(tkey, default_side="player", default_slot=0)
-                    if str(info.get("team", "player") or "player") == "player":
-                        fn_set_ctx(owner_team="player", owner_slot=int(info.get("slot", 0) or 0), phase="defensive", mirror_legacy=True)
+                if (not tkey) and callable(getattr(S, "bs_get_active_unit_key", None)):
+                    tkey = str(S.bs_get_active_unit_key("player") or "")
+                srcs = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+                if mode == "2v2" and bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_set_incoming_ctx", None)):
+                    S.bs_set_incoming_ctx(defender_key=tkey, pending_damage=getattr(S, "incoming_damage", 0), sources=srcs, reason="enemy_turn_def_from_atk", default_side="player", default_slot=0, set_turn_ctx=True, expected_team="player")
+                else:
+                    S.incoming_damage_target_key = str(tkey or "")
+                    S.incoming_damage_source_key = str(srcs[0] if srcs else "")
+                    S.incoming_damage_sources = list(srcs)
             except:
                 pass
 
@@ -635,19 +801,17 @@ label battle_enemy_turn:
             _pname = ""
             _slot_idx = 0
             _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            _tag = ""
 
-            fn_parse = getattr(S, "bs_parse_unit_key", None)
-            fn_set_ctx = getattr(S, "bs_set_turn_ctx", None)
-            fn_get = getattr(S, "bs_get_unit_by_key", None)
-            fn_key = getattr(S, "bs_unit_key", None)
             fn_sync = getattr(S, "bs_sync_to_legacy", None)
+            ctx = {}
+            if _mode == "2v2" and bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_get_incoming_ctx", None)):
+                ctx = S.bs_get_incoming_ctx(default={})
 
-            if _mode == "2v2" and callable(fn_parse) and callable(fn_set_ctx):
-                tkey = str(getattr(S, "enemy_target_key", "") or "")
-                info = fn_parse(tkey, default_side="player", default_slot=0)
-                if str(info.get("team", "player") or "player") == "player":
-                    _slot_idx = int(info.get("slot", 0) or 0)
-                    fn_set_ctx(owner_team="player", owner_slot=_slot_idx, phase="defensive", mirror_legacy=True)
+            if isinstance(ctx, dict) and ctx:
+                _slot_idx = int(ctx.get("defender_slot", 0) or 0)
+                _pname = str(ctx.get("defender_name", "") or "")
+                _tag = str(ctx.get("defender_tag", "") or "")
 
             try:
                 if callable(fn_sync):
@@ -655,11 +819,14 @@ label battle_enemy_turn:
             except:
                 pass
 
-            if callable(fn_key) and callable(fn_get):
-                uk = str(fn_key("player", _slot_idx) or "")
-                uu = fn_get(uk) if uk else None
-                if isinstance(uu, dict):
-                    _pname = str(uu.get("char_id", "") or "")
+            if not _pname:
+                fn_get = getattr(S, "bs_get_unit_by_key", None)
+                fn_key = getattr(S, "bs_unit_key", None)
+                if callable(fn_key) and callable(fn_get):
+                    uk = str(fn_key("player", _slot_idx) or "")
+                    uu = fn_get(uk) if uk else None
+                    if isinstance(uu, dict):
+                        _pname = str(uu.get("char_id", "") or "")
 
             if not _pname:
                 _bp = getattr(S, "battle_player", None)
@@ -668,8 +835,24 @@ label battle_enemy_turn:
             if not _pname:
                 _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
 
-            _slot_txt = " (S{})".format(int(_slot_idx or 0) + 1) if _mode == "2v2" else ""
+            if _mode == "2v2":
+                _slot_txt = " ({})".format(_tag or (S.bs_slot_tag("player", int(_slot_idx or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(_slot_idx or 0) + 1)))
+            else:
+                _slot_txt = ""
 
+        python:
+            import renpy
+            import renpy.store as S
+            _itxt = "Daño entrante{} — {}".format(_slot_txt, _pname)
+            try:
+                renpy.show_screen("battle_popup_turn", text=_itxt, color="#00BFFF")
+                renpy.pause(0.7, hard=True)
+                renpy.hide_screen("battle_popup_turn")
+            except:
+                try:
+                    S.battle_popup_turn(_itxt, "#00BFFF", 0.6)
+                except:
+                    pass
         $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.6)
         jump battle_defensive_turn
 
@@ -683,19 +866,27 @@ label battle_enemy_turn:
         _pname = ""
         _slot_idx = 0
         _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        _tag = ""
 
-        fn_parse = getattr(S, "bs_parse_unit_key", None)
-        fn_set_ctx = getattr(S, "bs_set_turn_ctx", None)
-        fn_get = getattr(S, "bs_get_unit_by_key", None)
-        fn_key = getattr(S, "bs_unit_key", None)
         fn_sync = getattr(S, "bs_sync_to_legacy", None)
 
-        if _mode == "2v2" and callable(fn_parse) and callable(fn_set_ctx):
+        if _mode == "2v2":
             tkey = str(getattr(S, "enemy_target_key", "") or "")
-            info = fn_parse(tkey, default_side="player", default_slot=0)
-            if str(info.get("team", "player") or "player") == "player":
-                _slot_idx = int(info.get("slot", 0) or 0)
-                fn_set_ctx(owner_team="player", owner_slot=_slot_idx, phase="defensive", mirror_legacy=True)
+            if (not tkey) and callable(getattr(S, "bs_get_active_unit_key", None)):
+                tkey = str(S.bs_get_active_unit_key("player") or "")
+            srcs = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+            if bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_set_incoming_ctx", None)):
+                ctx = S.bs_set_incoming_ctx(defender_key=tkey, pending_damage=getattr(S, "incoming_damage", 0), sources=srcs, reason="enemy_turn_defense", default_side="player", default_slot=0, set_turn_ctx=True, expected_team="player")
+            else:
+                S.incoming_damage_target_key = str(tkey or "")
+                S.incoming_damage_source_key = str(srcs[0] if srcs else "")
+                S.incoming_damage_sources = list(srcs)
+                ctx = {}
+
+            if isinstance(ctx, dict) and ctx:
+                _slot_idx = int(ctx.get("defender_slot", 0) or 0)
+                _pname = str(ctx.get("defender_name", "") or "")
+                _tag = str(ctx.get("defender_tag", "") or "")
 
         try:
             if callable(fn_sync):
@@ -703,11 +894,14 @@ label battle_enemy_turn:
         except:
             pass
 
-        if callable(fn_key) and callable(fn_get):
-            uk = str(fn_key("player", _slot_idx) or "")
-            uu = fn_get(uk) if uk else None
-            if isinstance(uu, dict):
-                _pname = str(uu.get("char_id", "") or "")
+        if not _pname:
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            fn_key = getattr(S, "bs_unit_key", None)
+            if callable(fn_key) and callable(fn_get):
+                uk = str(fn_key("player", _slot_idx) or "")
+                uu = fn_get(uk) if uk else None
+                if isinstance(uu, dict):
+                    _pname = str(uu.get("char_id", "") or "")
 
         if not _pname:
             _bp = getattr(S, "battle_player", None)
@@ -716,8 +910,31 @@ label battle_enemy_turn:
         if not _pname:
             _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
 
-        _slot_txt = " (S{})".format(int(_slot_idx or 0) + 1) if _mode == "2v2" else ""
+        if _mode == "2v2":
+            _slot_txt = " ({})".format(_tag or (S.bs_slot_tag("player", int(_slot_idx or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(_slot_idx or 0) + 1)))
+        else:
+            _slot_txt = ""
 
+    python:
+        import renpy.store as S
+        _itxt = "Daño entrante{} — {}".format(_slot_txt, _pname)
+        try:
+            fn_show = getattr(S, "ui_show_screen_safe", None)
+            fn_hide = getattr(S, "ui_hide_screen_safe", None)
+            if callable(fn_show) and callable(fn_hide):
+                fn_show("battle_popup_turn", text=_itxt, color="#00BFFF")
+                renpy.pause(0.7, hard=True)
+                fn_hide("battle_popup_turn")
+            else:
+                import renpy
+                renpy.show_screen("battle_popup_turn", text=_itxt, color="#00BFFF")
+                renpy.pause(0.7, hard=True)
+                renpy.hide_screen("battle_popup_turn")
+        except:
+            try:
+                S.battle_popup_turn(_itxt, "#00BFFF", 0.6)
+            except:
+                pass
     $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.8)
     call battle_defensive_turn
 

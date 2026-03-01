@@ -115,7 +115,7 @@ init -988 python:
 
                 return "none"
 
-            S.activate_offensive_focus()
+            S.activate_offensive_focus(actor_team="enemy")
 
             # ✅ marca que el PRÓXIMO ataque paga Reiatsu x2
             S.enemy_focus_cost_pending = True
@@ -171,7 +171,7 @@ init -988 python:
         # Calcular daño REAL (con Focus de daño)
         # --------------------------------------------------------
         base, final = ai_get_base_and_final(key)
-        dmg = S.apply_offensive_focus(final)
+        dmg = S.apply_offensive_focus(final, actor_team="enemy")
 
         # --------------------------------------------------------
         # 🎲 ATAQUES CON DADOS (IA): Directo / Negador
@@ -253,7 +253,13 @@ init -988 python:
             if key == "noatk_attack":
                 if success:
                     S.player_skip_attack = True
+                    S.offense_cancelled = True
                     status = "NO ATK"
+                    try:
+                        if callable(getattr(S, "battle_log_add", None)):
+                            S.battle_log_add("{color=#80DEEA}[DEBUG] OFFENSE_CANCELLED actor_id=%s reason=noatk_attack{/color}" % str(getattr(S, "current_actor_unit_key", "") or ""))
+                    except:
+                        pass
                 else:
                     status = "FALLÓ"
 

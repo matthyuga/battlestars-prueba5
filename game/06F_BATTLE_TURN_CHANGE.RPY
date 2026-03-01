@@ -65,18 +65,33 @@ init -966 python:
             if callable(fn_key):
                 S.current_actor_unit_key = str(fn_key(owner_team, owner_slot) or "")
                 rival = "enemy" if owner_team == "player" else "player"
-                rival_slot = owner_slot if team_mode == "2v2" else None
-                S.current_enemy_unit_key = str(fn_key(rival, rival_slot) or "")
-                if team_mode == "2v2" and callable(getattr(S, "bs_set_active_slot", None)):
+                rival_slot = None
+                if team_mode == "2v2" and callable(getattr(S, "bs_get_active_slot", None)):
                     try:
-                        S.bs_set_active_slot(rival, int(owner_slot or 0), mirror_units=True)
+                        rival_slot = int(S.bs_get_active_slot(rival) or 0)
                     except:
-                        pass
+                        rival_slot = 0
+                S.current_enemy_unit_key = str(fn_key(rival, rival_slot) or "")
 
                 if callable(fn_get):
                     au = fn_get(getattr(S, "current_actor_unit_key", ""))
                     if isinstance(au, dict):
                         actor_name = str(au.get("char_id", "") or "")
+
+            # Sincronizar recursos por unidad para HUD/selector
+            try:
+                fn_res = getattr(S, "bs_get_unit_resources", None)
+                if callable(fn_res):
+                    au_key = str(getattr(S, "current_actor_unit_key", "") or "")
+                    rs = fn_res(au_key)
+                    if owner_team == "player":
+                        S.player_reiatsu = int(rs.get("reiatsu", getattr(S, "player_reiatsu", 0)) or 0)
+                        S.player_energy = int(rs.get("energy", getattr(S, "player_energy", 0)) or 0)
+                    else:
+                        S.enemy_reiatsu = int(rs.get("reiatsu", getattr(S, "enemy_reiatsu", 0)) or 0)
+                        S.enemy_energy = int(rs.get("energy", getattr(S, "enemy_energy", 0)) or 0)
+            except:
+                pass
 
             # Sincronizar HUD/legacy con unidades activas actuales
             try:
@@ -111,7 +126,7 @@ init -966 python:
             except Exception as _e_sync:
                 renpy.log("battle_turn_change sync warn: {}".format(_e_sync))
 
-            slot_txt = " (S{})".format(owner_slot + 1) if team_mode == "2v2" else ""
+            slot_txt = " ({})".format(S.bs_slot_tag(owner_team, owner_slot) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(owner_slot + 1)) if team_mode == "2v2" else ""
 
             if not actor_name:
                 if owner_team == "player":
@@ -139,12 +154,35 @@ init -966 python:
             else:
                 banner = u"T{} · {}".format(turn_idx, actor_name)
 
+            try:
+                fn_log = getattr(S, "battle_log_add", None)
+                if callable(fn_log):
+                    fn_log("{color=#80DEEA}[DEBUG] TURN_START actor_id=%s actor_name=%s team=%s{/color}" % (
+                        str(getattr(S, "current_actor_unit_key", "") or ""),
+                        str(actor_name or "?"),
+                        str(owner_team or "?"),
+                    ))
+            except:
+                pass
+
             if owner_team == "player":
-                renpy.show_screen("battle_turn_change", text="🔹 TU TURNO · {}".format(banner), color="#00BFFF", side="left")
+                fn_show = getattr(S, "ui_show_screen_safe", None)
+                if callable(fn_show):
+                    fn_show("battle_turn_change", text="🔹 TU TURNO · {}".format(banner), color="#00BFFF", side="left")
+                else:
+                    renpy.show_screen("battle_turn_change", text="🔹 TU TURNO · {}".format(banner), color="#00BFFF", side="left")
             else:
-                renpy.show_screen("battle_turn_change", text="🔻 TURNO IA · {}".format(banner), color="#FF4444", side="right")
+                fn_show = getattr(S, "ui_show_screen_safe", None)
+                if callable(fn_show):
+                    fn_show("battle_turn_change", text="🔻 TURNO IA · {}".format(banner), color="#FF4444", side="right")
+                else:
+                    renpy.show_screen("battle_turn_change", text="🔻 TURNO IA · {}".format(banner), color="#FF4444", side="right")
             renpy.pause(1.0)
-            renpy.hide_screen("battle_turn_change")
+            fn_hide = getattr(S, "ui_hide_screen_safe", None)
+            if callable(fn_hide):
+                fn_hide("battle_turn_change")
+            else:
+                renpy.hide_screen("battle_turn_change")
         except Exception as e:
             renpy.log("battle_turn_change error: {}".format(e))
 

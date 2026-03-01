@@ -71,7 +71,7 @@ init -984 python:
                     # Si se usó acción real este turno, puede haber consumido.
                     # La flag S.focus_off_consumed_this_turn la setea apply_offensive_focus().
                     # Si NO hubo consumo, decay suave aplica.
-                    fn_new()
+                    fn_new(getattr(S, "turn_owner_team", "player"))
                 except:
                     pass
             else:

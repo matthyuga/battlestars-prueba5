@@ -98,12 +98,40 @@ label defensive_resolve(received_damage, hp_after, reflected):
     python:
         import renpy.store as S
         mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
-        def_key = str(getattr(S, "defense_target_key", "") or "")
+        in_ctx = S.bs_get_incoming_ctx(default={}) if callable(getattr(S, "bs_get_incoming_ctx", None)) else {}
+        def_key = str((in_ctx.get("defender_key", "") if isinstance(in_ctx, dict) else "") or getattr(S, "defense_target_key", "") or getattr(S, "incoming_damage_target_key", "") or "")
+
+        if mode == "2v2" and callable(getattr(S, "bs_parse_unit_key", None)):
+            info_def = S.bs_parse_unit_key(def_key, default_side="player", default_slot=0)
+            if str(info_def.get("team", "player") or "player") != "player":
+                try:
+                    ctx = S.bs_get_turn_ctx() if callable(getattr(S, "bs_get_turn_ctx", None)) else {"owner_slot":0}
+                    def_key = str(S.bs_unit_key("player", int(ctx.get("owner_slot", 0) or 0)) if callable(getattr(S, "bs_unit_key", None)) else "")
+                except:
+                    def_key = ""
 
         if mode == "2v2" and def_key and callable(getattr(S, "bs_apply_damage_to_unit_key", None)):
             hp_before_u = int(getattr(S, "defense_hp_before", 0) or 0)
             dmg_apply = max(0, int(hp_before_u) - int(hp_after or 0))
             S.bs_apply_damage_to_unit_key(def_key, dmg_apply, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat_defended_target", tags=["defense"])
+
+            hp_after_real = int(hp_after or 0)
+            # alinear aliases legacy con la unidad defendida real
+            try:
+                if callable(getattr(S, "bs_get_unit_by_key", None)):
+                    du = S.bs_get_unit_by_key(def_key)
+                    if isinstance(du, dict):
+                        hp_after_real = int(du.get("hp", hp_after_real) or hp_after_real)
+                        S.player_hp = int(hp_after_real)
+            except:
+                pass
+
+            S.defense_resolve_snapshot = {
+                "defender_key": str(def_key or ""),
+                "hp_before": int(hp_before_u),
+                "damage": int(dmg_apply),
+                "hp_after": int(hp_after_real),
+            }
         else:
             # hp_after ya incluye el directo si existió
             fn_set_hp = getattr(S, "bs_set_hp", None)
@@ -119,6 +147,20 @@ label defensive_resolve(received_damage, hp_after, reflected):
     $ player_hp = getattr(S, "player_hp", int(hp_after or 0))
     $ battle_update_hp_bars(player_hp, enemy_hp)
 
+    python:
+        import renpy.store as S
+        try:
+            snap = getattr(S, "defense_resolve_snapshot", {}) or {}
+            if callable(getattr(S, "battle_log_add", None)) and isinstance(snap, dict) and snap:
+                S.battle_log_add("{color=#80DEEA}[DEBUG] DEFENSE_RESOLVE defender_id=%s hp_before=%s damage=%s hp_after=%s{/color}" % (
+                    str(snap.get("defender_key", "") or ""),
+                    str(int(snap.get("hp_before", 0) or 0)),
+                    str(int(snap.get("damage", 0) or 0)),
+                    str(int(snap.get("hp_after", 0) or 0)),
+                ))
+        except:
+            pass
+
     if received_damage > 0:
         $ battle_visual_float("player", received_damage, "#66CCFF", is_final=True)
 
@@ -132,6 +174,14 @@ label defensive_resolve(received_damage, hp_after, reflected):
 
         # El daño entrante se consume por completo en el turno defensivo
         S.incoming_damage = 0
+        S.incoming_damage_target_key = ""
+        S.incoming_damage_source_key = ""
+        S.incoming_damage_sources = []
+        if callable(getattr(S, "bs_clear_incoming_ctx", None)):
+            S.bs_clear_incoming_ctx(reset_damage=False)
+        else:
+            S.incoming_ctx = {}
+        S.defense_resolve_snapshot = {}
         try:
             incoming_damage = 0
         except:
@@ -248,6 +298,8 @@ label defensive_resolve(received_damage, hp_after, reflected):
         if getattr(S, "defense_for_attack_active", False):
             S.defense_for_attack_active = False
             next_turn = "enemy"
+        elif bool(getattr(S, "deferred_defense_return_to_offense", False)):
+            next_turn = "player_same_actor"
         elif _mode == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
             nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
             next_turn = str(S.bs_parse_unit_key(nk, default_side="player", default_slot=0).get("team", "player") or "player")
@@ -271,7 +323,20 @@ label defensive_resolve(received_damage, hp_after, reflected):
         $ battle_popup_turn("Turno ofensivo — {}".format(enemy_name), "#FFD700", delay=0.7)
         jump battle_enemy_turn
 
+    elif next_turn == "player_same_actor":
+        python:
+            import renpy.store as S
+            S.deferred_defense_return_to_offense = False
+            S.deferred_defense_actor_key = ""
+        $ battle_turn_change("player")
+        $ battle_popup_turn("Turno ofensivo — {}".format(player_name), "#FFD700", delay=0.7)
+        jump battle_offensive_turn
+
     else:
+        python:
+            import renpy.store as S
+            S.deferred_defense_return_to_offense = False
+            S.deferred_defense_actor_key = ""
         $ battle_turn_change("player")
         $ battle_popup_turn("Turno ofensivo — {}".format(player_name), "#FFD700", delay=0.7)
         jump battle_offensive_turn

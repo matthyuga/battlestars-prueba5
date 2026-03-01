@@ -15,6 +15,25 @@ init -986 python:
         enemy = getattr(S, "enemy_ai", None)
         name  = getattr(enemy, "name", "ENEMY")
 
+        team_mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        slot_txt = ""
+        cur_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+        try:
+            if team_mode == "2v2" and cur_key and callable(getattr(S, "bs_parse_unit_key", None)):
+                info = S.bs_parse_unit_key(cur_key, default_side="enemy", default_slot=0)
+                if str(info.get("team", "enemy") or "enemy") == "enemy":
+                    slot_i = int(info.get("slot", 0) or 0)
+                    if callable(getattr(S, "bs_slot_tag", None)):
+                        slot_txt = " ({})".format(S.bs_slot_tag("enemy", slot_i))
+                    else:
+                        slot_txt = " (E{})".format(slot_i + 1)
+                    if callable(getattr(S, "bs_get_unit_by_key", None)):
+                        uu = S.bs_get_unit_by_key(cur_key)
+                        if isinstance(uu, dict):
+                            name = str(uu.get("char_id", name) or name)
+        except:
+            pass
+
         dmg_effective = int(total_damage or 0)
 
         # si no hay daño -> limpia debuff y fin
@@ -47,12 +66,12 @@ init -986 python:
             pass
         try:
             if hasattr(S, "battle_log_phase"):
-                S.battle_log_phase("TURNO DEFENSIVO – {}".format(name))
+                S.battle_log_phase("TURNO DEFENSIVO{} – {}".format(slot_txt, name))
         except:
             pass
         try:
             if hasattr(S, "battle_popup_turn"):
-                S.battle_popup_turn("Turno defensivo — {}".format(name), "#00FFFF", delay=0.6)
+                S.battle_popup_turn("Turno defensivo{} — {}".format(slot_txt, name), "#00FFFF", delay=0.6)
         except:
             pass
         try:

@@ -51,8 +51,20 @@ init -900 python:
 label start:
     scene fondo3 with fade
 
+    python:
+        import renpy.store as S
+        fn_ensure = getattr(S, "ensure_renpy_ui_apis", None)
+        if callable(fn_ensure):
+            fn_ensure()
+
     # Mostrar log UNA sola vez (evita redundancia/“parpadeo”)
-    show screen battle_log_screen
+    python:
+        import renpy.store as S
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        if callable(fn_show):
+            fn_show("battle_log_screen")
+        else:
+            renpy.show_screen("battle_log_screen")
 
     "Sistema cargado correctamente."
     call battle_select_player
@@ -64,6 +76,11 @@ label start:
 label battle_start:
     $ import random
     $ import renpy.store as S
+
+    python:
+        fn_ensure = getattr(S, "ensure_renpy_ui_apis", None)
+        if callable(fn_ensure):
+            fn_ensure()
 
     # =======================================================
     # 🎯 Selección del enemigo (ID del sistema)
@@ -122,6 +139,8 @@ label battle_start:
     $ S.battle_turn_index = 0
     $ S._last_turn_actor_key = ""
     $ S.enemy_pending_damage_by_key = {}
+    $ S.player_pending_damage_by_key = {}
+    $ S.enemy_pending_def_reduction_by_key = {}
 
     # =======================================================
     # 🌆 Fondo de batalla aleatorio
@@ -257,7 +276,13 @@ label battle_start:
     # =======================================================
     # 🧩 Panel debug (toggle “T”)
     # =======================================================
-    show screen debug_battle_identity
+    python:
+        import renpy.store as S
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        if callable(fn_show):
+            fn_show("debug_battle_identity")
+        else:
+            renpy.show_screen("debug_battle_identity")
 
     # =======================================================
     # 🌀 Aparición visual del enemigo (display)

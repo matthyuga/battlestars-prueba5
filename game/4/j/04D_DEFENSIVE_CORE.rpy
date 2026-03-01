@@ -7,7 +7,7 @@
 # - HUD limpio y colas limpias
 # ============================================================
 
-label battle_defensive_turn:
+label battle_defensive_turn_legacy_entry:
 
     # ========================================================
     # 🧹 LIMPIEZA INICIAL DE HUD / SIMULACIONES
@@ -88,7 +88,15 @@ label battle_defensive_turn:
     # 🔥 A partir de aquí: SIEMPRE hay daño real que defender
     # ========================================================
     scene black
-    with fade
+    python:
+        import renpy
+        try:
+            renpy.with_statement(fade)
+        except Exception as e:
+            try:
+                renpy.log("[DEFENSE] fade transition skipped: {}".format(e))
+            except:
+                pass
 
     # --- Daño entrante ---
     python:
@@ -102,6 +110,14 @@ label battle_defensive_turn:
         mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
         S.defense_target_key = str(getattr(S, "current_actor_unit_key", "") or "")
 
+        # priorizar target explícito de incoming_ctx / daño entrante y validar team player
+        in_ctx = S.bs_get_incoming_ctx(default={}) if callable(getattr(S, "bs_get_incoming_ctx", None)) else {}
+        forced_in = str((in_ctx.get("defender_key", "") if isinstance(in_ctx, dict) else "") or getattr(S, "incoming_damage_target_key", "") or "")
+        if forced_in and callable(getattr(S, "bs_parse_unit_key", None)):
+            fi = S.bs_parse_unit_key(forced_in, default_side="player", default_slot=0)
+            if str(fi.get("team", "player") or "player") == "player":
+                S.defense_target_key = str(fi.get("key", forced_in) or forced_in)
+
         if mode == "2v2":
             plan = getattr(S, "enemy_damage_plan", None)
             fn_ctx = getattr(S, "bs_get_turn_ctx", None)
@@ -111,7 +127,9 @@ label battle_defensive_turn:
 
             if callable(fn_ctx) and callable(fn_key):
                 ctx = fn_ctx()
-                S.defense_target_key = str(fn_key("player", int(ctx.get("owner_slot", 0) or 0)) or "")
+                # solo usar owner_slot del ctx si NO vino target explícito de incoming
+                if not forced_in:
+                    S.defense_target_key = str(fn_key("player", int(ctx.get("owner_slot", 0) or 0)) or "")
 
             if isinstance(plan, dict):
                 entries = list(plan.get("entries", []) or [])
@@ -144,9 +162,27 @@ label battle_defensive_turn:
                         except:
                             pass
 
-                if defend_amount > 0:
-                    base_damage = int(defend_amount)
-                    S.incoming_damage = int(defend_amount)
+                base_damage = int(defend_amount)
+                S.incoming_damage = int(defend_amount)
+                S.incoming_damage_target_key = str(S.defense_target_key or "")
+
+    python:
+        import renpy.store as S
+        try:
+            fn_desc = getattr(S, "bs_describe_unit_key", None)
+            def_name = ""
+            if callable(fn_desc):
+                def_name = str(fn_desc(getattr(S, "defense_target_key", ""), default_side="player", default_slot=0) or "")
+            fn_log = getattr(S, "battle_log_add", None)
+            if callable(fn_log):
+                fn_log("{color=#80DEEA}[DEBUG] INCOMING_DAMAGE defender_id=%s defender_name=%s pending_amount=%s sources=%s{/color}" % (
+                    str(getattr(S, "defense_target_key", "") or ""),
+                    str(def_name or "?"),
+                    str(int(base_damage or 0)),
+                    str(getattr(S, "incoming_damage_sources", []) or []),
+                ))
+        except:
+            pass
 
     # --- Variables del turno (store) ---
     python:
@@ -200,10 +236,30 @@ label battle_defensive_turn:
             slot_idx = int(ctx.get("owner_slot", 0) or 0)
             if callable(fn_key):
                 S.current_actor_unit_key = str(fn_key("player", slot_idx) or "")
+
+            in_ctx = S.bs_get_incoming_ctx(default={}) if callable(getattr(S, "bs_get_incoming_ctx", None)) else {}
+            forced_key = str((in_ctx.get("defender_key", "") if isinstance(in_ctx, dict) else "") or getattr(S, "defense_target_key", "") or getattr(S, "incoming_damage_target_key", "") or "")
+            if forced_key and callable(getattr(S, "bs_parse_unit_key", None)):
+                info = S.bs_parse_unit_key(forced_key, default_side="player", default_slot=slot_idx)
+                if str(info.get("team", "player") or "player") == "player":
+                    slot_idx = int(info.get("slot", slot_idx) or slot_idx)
+                    if callable(getattr(S, "bs_set_turn_ctx", None)):
+                        S.bs_set_turn_ctx(owner_team="player", owner_slot=slot_idx, phase="defensive", mirror_legacy=True)
+                    if callable(fn_key):
+                        S.current_actor_unit_key = str(fn_key("player", slot_idx) or S.current_actor_unit_key)
+
             if callable(fn_get):
                 u = fn_get(getattr(S, "current_actor_unit_key", ""))
                 if isinstance(u, dict):
                     player_name = str(u.get("char_id", "") or "")
+
+            if (not player_name) and callable(getattr(S, "bs_get_unit_by_key", None)):
+                uu2 = S.bs_get_unit_by_key(str(getattr(S, "defense_target_key", "") or ""))
+                if isinstance(uu2, dict):
+                    player_name = str(uu2.get("char_id", "") or "")
+
+        if not player_name and isinstance(in_ctx, dict) and in_ctx:
+            player_name = str(in_ctx.get("defender_name", "") or "")
 
         if not player_name:
             _bp = getattr(S, "battle_player", None)
@@ -215,7 +271,7 @@ label battle_defensive_turn:
         S.turn_owner_slot = int(slot_idx or 0)
         S.turn_owner_team = "player"
 
-    $ _slot_txt = " (S{})".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
+    $ _slot_txt = " ({})".format(S.bs_slot_tag(getattr(S, "turn_owner_team", "player"), int(getattr(S, "turn_owner_slot", 0) or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ operation_clear()
     $ battle_log_phase("TURNO DEFENSIVO{} – {}".format(_slot_txt, player_name))
     $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, player_name), "#00BFFF", delay=0.6)
@@ -230,9 +286,22 @@ label battle_defensive_turn:
     $ extra_defensive_actions = 0
     $ actions_available_start = actions_available
 
-    show screen battle_command_menu
-    show screen technique_selector
-    $ renpy.restart_interaction()
+    python:
+        import renpy.store as S
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        if callable(fn_show):
+            fn_show("battle_command_menu")
+            fn_show("technique_selector")
+        else:
+            renpy.show_screen("battle_command_menu")
+            renpy.show_screen("technique_selector")
+    python:
+        import renpy.store as S
+        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
+        if callable(fn_restart):
+            fn_restart()
+        else:
+            renpy.restart_interaction()
 
     python:
         import renpy.store as S
@@ -241,8 +310,15 @@ label battle_defensive_turn:
                 break
             renpy.pause(0.1, hard=True)
 
-    hide screen battle_command_menu
-    hide screen technique_selector
+    python:
+        import renpy.store as S
+        fn_hide = getattr(S, "ui_hide_screen_safe", None)
+        if callable(fn_hide):
+            fn_hide("battle_command_menu")
+            fn_hide("technique_selector")
+        else:
+            renpy.hide_screen("battle_command_menu")
+            renpy.hide_screen("technique_selector")
 
     # --- Técnicas seleccionadas ---
     python:
@@ -266,6 +342,19 @@ label battle_defensive_turn:
     # ========================================================
     # 🔹 MÓDULO 3 — Resolución final
     # ========================================================
+    python:
+        import renpy.store as S
+        try:
+            fn_log = getattr(S, "battle_log_add", None)
+            if callable(fn_log):
+                fn_log("{color=#80DEEA}[DEBUG] DEFENSE_RESOLVE defender_id=%s applied_damage=%s effects_applied=%s{/color}" % (
+                    str(getattr(S, "current_actor_unit_key", "") or ""),
+                    str(int(received_damage or 0)),
+                    str("pending"),
+                ))
+        except:
+            pass
+
     call defensive_resolve(received_damage, hp_after, S.reflected)
 
     return

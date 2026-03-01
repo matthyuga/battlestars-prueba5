@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04C_OFFENSIVE_CORE.rpy – Turno ofensivo del jugador (Núcleo)
 # ============================================================
 # v8.5 – SafeLogHub + UsedFlag Strict + StoreSafe Dice/Text
@@ -15,7 +15,7 @@
 # - ✅ FIX: Ataque Negador del jugador setea enemy_skip_attack (no player)
 # ============================================================
 
-label battle_offensive_turn:
+label battle_offensive_turn_legacy_entry:
 
     # ============================================================
     # ⭐ ROUTING FIX — si Defensa por ataque está activa,
@@ -54,6 +54,7 @@ label battle_offensive_turn:
         S._reflect_consumed_this_turn = False
         if getattr(S, "player_skip_attack", False):
             S.player_skip_attack = False
+            S.offense_cancelled = True
 
             # Si el jugador no ataca este turno, reflect pendiente se desvanece.
             try:
@@ -122,10 +123,93 @@ label battle_offensive_turn:
             renpy.jump("battle_enemy_turn")
 
     # ============================================================
+    # ⭐ 2v2: resolver daño entrante SOLO cuando le toca al defensor
+    # ============================================================
+    python:
+        import renpy.store as S
+        _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if _mode == "2v2" and callable(getattr(S, "bs_current_actor_key", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+            akey = str(S.bs_current_actor_key() or "")
+            ainfo = S.bs_parse_unit_key(akey, default_side="player", default_slot=0)
+            if str(ainfo.get("team", "player") or "player") != "player":
+                akey = ""
+            ppend = getattr(S, "player_pending_damage_by_key", None)
+            if akey and isinstance(ppend, dict):
+                pend_amt = max(0, int(ppend.get(akey, 0) or 0))
+                if pend_amt > 0:
+                    ppend[akey] = 0
+                    S.player_pending_damage_by_key = ppend
+
+                    srcs = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+                    ctx = {}
+                    if bool(getattr(S, "use_incoming_ctx_2v2", True)) and callable(getattr(S, "bs_set_incoming_ctx", None)):
+                        ctx = S.bs_set_incoming_ctx(
+                            defender_key=akey,
+                            pending_damage=pend_amt,
+                            sources=srcs,
+                            reason="deferred_player_pending",
+                            default_side="player",
+                            default_slot=0,
+                            set_turn_ctx=True,
+                            expected_team="player",
+                        )
+                    else:
+                        S.incoming_damage = int(pend_amt)
+                        S.incoming_damage_target_key = str(akey)
+                        S.incoming_damage_sources = list(srcs)
+                        S.incoming_damage_source_key = str(srcs[0] if srcs else "")
+                        ctx = {"defender_key": akey, "defender_name": akey, "defender_tag": "", "pending_damage": int(pend_amt), "sources": list(srcs)}
+
+                    def_key = str(ctx.get("defender_key", akey) or akey)
+                    def_name = str(ctx.get("defender_name", def_key) or def_key)
+                    def_tag = str(ctx.get("defender_tag", "") or "")
+                    label = ("{} {}".format(def_tag, def_name)).strip() if def_tag else def_name
+
+                    try:
+                        if callable(getattr(S, "battle_log_add", None)):
+                            S.battle_log_add("{color=#80DEEA}[DEBUG] INCOMING_DAMAGE defender_id=%s defender_name=%s pending_amount=%s sources=%s{/color}" % (
+                                str(def_key), str(label), str(int(pend_amt)), str(ctx.get("sources", srcs) or [])))
+                    except:
+                        pass
+
+                    S.deferred_defense_return_to_offense = True
+                    S.deferred_defense_actor_key = str(def_key)
+                    S.incoming_damage = int(pend_amt)
+                    S.enemy_target_key = str(def_key)
+
+                    notice_id = "{}|{}|{}".format(str(def_key), str(int(pend_amt or 0)), str(int(getattr(S, "turn_count", 0) or 0)))
+                    ack_key = str(getattr(S, "incoming_popup_ack_key", "") or "")
+                    last_notice_id = str(getattr(S, "incoming_notice_last_id", "") or "")
+                    already_previewed = bool(ack_key and ack_key == def_key and last_notice_id == notice_id)
+
+                    if already_previewed:
+                        # Ya fue mostrado en pre-aviso al avanzar turno enemigo.
+                        S.incoming_popup_ack_key = ""
+                    else:
+                        shown = False
+                        fn_notice = getattr(S, "bs_show_incoming_notice", None)
+                        if callable(fn_notice):
+                            shown = bool(fn_notice("Daño entrante — {}".format(label), color="#00BFFF", delay=0.85, hard=True))
+                        if not shown:
+                            try:
+                                renpy.show_screen("battle_popup_turn", text="Daño entrante — {}".format(label), color="#00BFFF")
+                                renpy.pause(0.85, hard=True)
+                                renpy.hide_screen("battle_popup_turn")
+                            except:
+                                try:
+                                    S.battle_popup_turn("Daño entrante — {}".format(label), "#00BFFF", 0.85)
+                                except:
+                                    pass
+                        S.incoming_popup_ack_key = ""
+                        S.incoming_notice_last_id = str(notice_id)
+                    renpy.jump("battle_enemy_incoming_defense_gate")
+
+    # ============================================================
     # Snapshot de recursos al inicio del turno (STORE = real)
     # ============================================================
     $ import renpy.store as S
     $ S.turn_reiatsu_start = getattr(S, "player_reiatsu", 0)
+    $ S.offense_cancelled = False
     $ S.turn_energy_start  = getattr(S, "player_energy", 0)
     $ S.turn_reiatsu_spent = 0
     $ S.turn_energy_spent  = 0
@@ -203,7 +287,7 @@ label battle_offensive_turn:
     # ============================================================
     # Encabezado del turno
     # ============================================================
-    $ _slot_txt = " (S{})".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
+    $ _slot_txt = " ({})".format(S.bs_slot_tag(getattr(S, "turn_owner_team", "player"), int(getattr(S, "turn_owner_slot", 0) or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, player_name))
 
     $ renpy.show_screen("battle_popup_turn",
@@ -220,17 +304,37 @@ label battle_offensive_turn:
     $ actions_available = actions
     $ operation_clear()
 
-    show screen battle_command_menu
-    show screen technique_selector
-    $ renpy.restart_interaction()
+    python:
+        import renpy.store as S
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        if callable(fn_show):
+            fn_show("battle_command_menu")
+            fn_show("technique_selector")
+        else:
+            renpy.show_screen("battle_command_menu")
+            renpy.show_screen("technique_selector")
+    python:
+        import renpy.store as S
+        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
+        if callable(fn_restart):
+            fn_restart()
+        else:
+            renpy.restart_interaction()
 
     python:
         import renpy.store as S
         while not getattr(S, "turn_confirmed", False):
             renpy.pause(0.1, hard=True)
 
-    hide screen battle_command_menu
-    hide screen technique_selector
+    python:
+        import renpy.store as S
+        fn_hide = getattr(S, "ui_hide_screen_safe", None)
+        if callable(fn_hide):
+            fn_hide("battle_command_menu")
+            fn_hide("technique_selector")
+        else:
+            renpy.hide_screen("battle_command_menu")
+            renpy.hide_screen("technique_selector")
 
     # ============================================================
     # Copiar técnicas seleccionadas (STORE-safe)
@@ -626,11 +730,15 @@ label battle_offensive_turn:
                 S.offensive_target_key = first_key
 
                 if entries and callable(fn_make_plan):
+                    effect_scope = str(getattr(S, "offensive_effect_scope", "primary") or "primary").strip().lower()
+                    if effect_scope not in ("primary", "all", "none", "all_if_buff"):
+                        effect_scope = "primary"
                     S.offensive_damage_plan = fn_make_plan(
                         source_key=getattr(S, "current_actor_unit_key", None),
                         entries=entries,
                         mode=("split_manual" if manual_completed else policy),
                         skill_id="offensive_turn",
+                        effect_scope=effect_scope,
                         meta={"total_expected": total_available, "manual_completed": bool(manual_completed)},
                     )
 

@@ -143,6 +143,7 @@ init -970 python:
     # ===========================================================
     def battle_update_hp_bars(player_hp, enemy_hp, flash_target=None, color=None):
         global battle_hp_player, battle_hp_enemy, hp_flash_timer, hp_flash_color
+        import renpy.store as S
 
         battle_hp_player = int(player_hp)
         battle_hp_enemy = int(enemy_hp)
@@ -151,8 +152,22 @@ init -970 python:
             hp_flash_timer = 10
             hp_flash_color = color
 
-        if renpy.get_screen("battle_hp_overlay"):
-            renpy.restart_interaction()
+        fn_get = getattr(S, "ui_get_screen_safe", None)
+        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
+        _has_overlay = False
+        if callable(fn_get):
+            _has_overlay = fn_get("battle_hp_overlay") is not None
+        else:
+            try:
+                _has_overlay = renpy.get_screen("battle_hp_overlay") is not None
+            except:
+                _has_overlay = False
+
+        if _has_overlay:
+            if callable(fn_restart):
+                fn_restart()
+            else:
+                renpy.restart_interaction()
 
         try:
             battle_update_atmosphere_by_hp(player_hp, enemy_hp)
@@ -192,11 +207,22 @@ init -970 python:
         if sync_fade:
             renpy.with_statement(Dissolve(0.35))
 
-        renpy.show_screen("battle_hp_overlay")
-        renpy.show_screen("battle_damage_popups")
-        renpy.show_screen("battle_turn_summary_overlay")
+        fn_show = getattr(S, "ui_show_screen_safe", None)
+        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
 
-        renpy.restart_interaction()
+        if callable(fn_show):
+            fn_show("battle_hp_overlay")
+            fn_show("battle_damage_popups")
+            fn_show("battle_turn_summary_overlay")
+        else:
+            renpy.show_screen("battle_hp_overlay")
+            renpy.show_screen("battle_damage_popups")
+            renpy.show_screen("battle_turn_summary_overlay")
+
+        if callable(fn_restart):
+            fn_restart()
+        else:
+            renpy.restart_interaction()
 
 
     # ===========================================================
@@ -208,11 +234,23 @@ init -970 python:
 
         renpy.with_statement(Dissolve(0.25))
 
-        renpy.hide_screen("battle_hp_overlay")
-        renpy.hide_screen("battle_damage_popups")
-        renpy.hide_screen("battle_turn_summary_overlay")
+        import renpy.store as S
+        fn_hide = getattr(S, "ui_hide_screen_safe", None)
+        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
 
-        renpy.restart_interaction()
+        if callable(fn_hide):
+            fn_hide("battle_hp_overlay")
+            fn_hide("battle_damage_popups")
+            fn_hide("battle_turn_summary_overlay")
+        else:
+            renpy.hide_screen("battle_hp_overlay")
+            renpy.hide_screen("battle_damage_popups")
+            renpy.hide_screen("battle_turn_summary_overlay")
+
+        if callable(fn_restart):
+            fn_restart()
+        else:
+            renpy.restart_interaction()
 
 
 
@@ -231,90 +269,95 @@ screen battle_hp_overlay():
             $ hp_flash_timer -= 1
 
         # ======================================================
-        # ⚔️ HUD DEL JUGADOR
+        # ⚔️ HUD DE UNIDADES
         # ======================================================
         if ui_show_unit_hud:
-            frame at hud_fade_in:
-                background "#0008"
-                xalign 0.0 yalign 0.0
-                xpadding 12 ypadding 8
+            if str(getattr(store, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2" and hasattr(store, "bs_unit_key") and hasattr(store, "bs_get_unit_by_key"):
+                $ _ctx_u = store.bs_get_turn_ctx() if hasattr(store, "bs_get_turn_ctx") else {"owner_team": "player", "owner_slot": 0}
+                hbox:
+                    xalign 0.5
+                    yalign 0.0
+                    spacing 14
+                    for _team in ["player", "enemy"]:
+                        vbox:
+                            spacing 8
+                            for i in range(2):
+                                $ _uk = store.bs_unit_key(_team, i)
+                                $ _uu = store.bs_get_unit_by_key(_uk)
+                                $ _res = store.bs_get_unit_resources(_uk) if hasattr(store, "bs_get_unit_resources") else {"reiatsu":0,"energy":0}
+                                $ _name = str((_uu.get("char_id", "{}{}".format("P" if _team=="player" else "E", i+1)) if isinstance(_uu, dict) else "{}{}".format("P" if _team=="player" else "E", i+1)) or "?")
+                                $ _hp = int((_uu.get("hp", 0) if isinstance(_uu, dict) else 0) or 0)
+                                $ _mx = int((_uu.get("max_hp", 1) if isinstance(_uu, dict) else 1) or 1)
+                                $ _active = bool(str(_ctx_u.get("owner_team", "")) == _team and int(_ctx_u.get("owner_slot", 0) or 0) == i)
+                                $ _show_sim = bool(_team == "player" and _active and hasattr(store, "pending_tech_list") and store.pending_tech_list)
+                                $ _rei_diff = int((simulated_reiatsu - player_reiatsu) if _show_sim else 0)
+                                $ _ene_diff = int((simulated_energy - player_energy) if _show_sim else 0)
+                                frame at hud_fade_in:
+                                    background "#0008"
+                                    xpadding 10
+                                    ypadding 6
+                                    xmaximum 250
+                                    vbox:
+                                        spacing 2
+                                        text "{} {}".format("▣" if _active else "▫", _name) color ("#88CCFF" if _team=="player" else "#FF7777") size 18 bold True
+                                        bar:
+                                            value (float(_hp) / max(1.0, float(_mx)))
+                                            range 1.0 xmaximum 220 ymaximum 12
+                                            left_bar ("#00BFFF" if _team=="player" else "#FF3333") right_bar "#222222"
+                                        text "HP: {} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)) color "#FFFFFF" size 13
 
-                vbox at hp_pulse_player:
-                    spacing 2
+                                        hbox:
+                                            spacing 5
+                                            text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))) size 12 color "#55FFFF"
+                                            if _rei_diff != 0:
+                                                text "-{}".format(battle_fmt_num(abs(_rei_diff))) size 12 color "#66CCFFAA"
 
-                    # ✅ Nombre dinámico
-                    text hud_player_name color "#88CCFF" size 22 bold True
+                                        hbox:
+                                            spacing 5
+                                            text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))) size 12 color "#FFA500"
+                                            if _ene_diff != 0:
+                                                text "-{}".format(battle_fmt_num(abs(_ene_diff))) size 12 color "#FFBB66AA"
+            else:
+                frame at hud_fade_in:
+                    background "#0008"
+                    xalign 0.0 yalign 0.0
+                    xpadding 12 ypadding 8
+                    vbox at hp_pulse_player:
+                        spacing 2
+                        text hud_player_name color "#88CCFF" size 22 bold True
+                        bar:
+                            value (float(battle_hp_player) / battle_hp_player_max)
+                            range 1.0 xmaximum 280 ymaximum 16
+                            left_bar "#00BFFF" right_bar "#222222"
+                        text "{} / {}".format(battle_fmt_num(battle_hp_player), battle_fmt_num(battle_hp_player_max)) color "#FFFFFF" size 16
 
-                    bar:
-                        value (float(battle_hp_player) / battle_hp_player_max)
-                        range 1.0 xmaximum 280 ymaximum 16
-                        left_bar "#00BFFF" right_bar "#222222"
+                        hbox:
+                            spacing 6
+                            text "Reiatsu: {}".format(battle_fmt_num(player_reiatsu)) size 15 color "#55FFFF"
+                            $ _rei_diff_1v1 = (simulated_reiatsu - player_reiatsu) if (hasattr(store, "pending_tech_list") and store.pending_tech_list) else 0
+                            if _rei_diff_1v1 != 0:
+                                text "-{}".format(battle_fmt_num(abs(_rei_diff_1v1))) size 15 color "#66CCFFAA"
 
-                    text "{} / {}".format(
-                        battle_fmt_num(battle_hp_player),
-                        battle_fmt_num(battle_hp_player_max)
-                    ) color "#FFFFFF" size 16
+                        hbox:
+                            spacing 6
+                            text "Energía: {}".format(battle_fmt_num(player_energy)) size 15 color "#FFA500"
+                            $ _ene_diff_1v1 = (simulated_energy - player_energy) if (hasattr(store, "pending_tech_list") and store.pending_tech_list) else 0
+                            if _ene_diff_1v1 != 0:
+                                text "-{}".format(battle_fmt_num(abs(_ene_diff_1v1))) size 15 color "#FFBB66AA"
 
-                    # -----------------------------
-                    # REIATSU (con resta dinámica)
-                    # -----------------------------
-                    hbox:
-                        spacing 6
-                        text "Reiatsu: {}".format(battle_fmt_num(player_reiatsu)) size 15 color "#55FFFF"
-
-                        $ rei_diff = 0
-                        if hasattr(store, "pending_tech_list") and store.pending_tech_list:
-                            $ rei_diff = simulated_reiatsu - player_reiatsu
-
-                        if rei_diff != 0:
-                            text "-{}".format(battle_fmt_num(abs(rei_diff))) size 15 color "#66CCFFAA"
-
-                    # -----------------------------
-                    # ENERGÍA (con resta dinámica)
-                    # -----------------------------
-                    hbox:
-                        spacing 6
-                        text "Energía: {}".format(battle_fmt_num(player_energy)) size 15 color "#FFA500"
-
-                        $ ene_diff = 0
-                        if hasattr(store, "pending_tech_list") and store.pending_tech_list:
-                            $ ene_diff = simulated_energy - player_energy
-
-                        if ene_diff != 0:
-                            text "-{}".format(battle_fmt_num(abs(ene_diff))) size 15 color "#FFBB66AA"
-
-
-
-        # ======================================================
-        # 👹 HUD DEL ENEMIGO
-        # ======================================================
-            frame at hud_fade_in:
-                background "#0008"
-                xalign 1.0 yalign 0.0
-                xpadding 12 ypadding 8
-
-                vbox at hp_pulse_enemy:
-                    spacing 2
-
-                    # ✅ Nombre dinámico
-                    text hud_enemy_name color "#FF7777" size 22 bold True
-
-                    bar:
-                        value (float(battle_hp_enemy) / battle_hp_enemy_max)
-                        range 1.0 xmaximum 280 ymaximum 16
-                        left_bar "#FF3333" right_bar "#222222"
-
-                    text "{} / {}".format(
-                        battle_fmt_num(battle_hp_enemy),
-                        battle_fmt_num(battle_hp_enemy_max)
-                    ) color "#FFFFFF" size 16
-
-                    hbox:
-                        spacing 6
+                frame at hud_fade_in:
+                    background "#0008"
+                    xalign 1.0 yalign 0.0
+                    xpadding 12 ypadding 8
+                    vbox at hp_pulse_enemy:
+                        spacing 2
+                        text hud_enemy_name color "#FF7777" size 22 bold True
+                        bar:
+                            value (float(battle_hp_enemy) / battle_hp_enemy_max)
+                            range 1.0 xmaximum 280 ymaximum 16
+                            left_bar "#FF3333" right_bar "#222222"
+                        text "{} / {}".format(battle_fmt_num(battle_hp_enemy), battle_fmt_num(battle_hp_enemy_max)) color "#FFFFFF" size 16
                         text "Reiatsu: {}".format(battle_fmt_num(enemy_reiatsu)) size 15 color "#55FFFF"
-
-                    hbox:
-                        spacing 6
                         text "Energía: {}".format(battle_fmt_num(enemy_energy)) size 15 color "#FFA500"
 
 
@@ -335,6 +378,22 @@ screen battle_hp_overlay():
                     spacing 4
                     text "2v2 · Turno: {} S{}".format(str(_ctx.get("owner_team", "player") or "player").upper(), int(_ctx.get("owner_slot", 0) or 0) + 1) color "#FFE082" size 15 bold True
                     text "Contador: T{}".format(int(getattr(store, "battle_turn_index", 0) or 0)) color "#B3E5FC" size 13
+                    $ _inc_ctx = store.bs_get_incoming_ctx(default={}) if hasattr(store, "bs_get_incoming_ctx") else {}
+                    $ _dbg_def = str((_inc_ctx.get("defender_key", "") if isinstance(_inc_ctx, dict) else "") or getattr(store, "incoming_damage_target_key", "") or "-")
+                    text "DEBUG actor={} defender={} idx={} order={}".format(
+                        str(getattr(store, "current_actor_unit_key", "") or "-"),
+                        _dbg_def,
+                        int(getattr(store, "battle_turn_index", 0) or 0),
+                        ",".join(getattr(store, "bs_get_turn_order_keys", lambda: [])() if hasattr(store, "bs_get_turn_order_keys") else []),
+                    ) color "#80DEEA" size 11
+                    $ _snap = getattr(store, "defense_resolve_snapshot", {}) or {}
+                    if isinstance(_snap, dict) and _snap:
+                        text "RESOLVE {}: {} - {} = {}".format(
+                            str(_snap.get("defender_key", "-") or "-"),
+                            int(_snap.get("hp_before", 0) or 0),
+                            int(_snap.get("damage", 0) or 0),
+                            int(_snap.get("hp_after", 0) or 0),
+                        ) color "#B3E5FC" size 11
 
                     $ _p1 = store.bs_get_unit_by_key(store.bs_unit_key("player", 0)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None
                     $ _p2 = store.bs_get_unit_by_key(store.bs_unit_key("player", 1)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None

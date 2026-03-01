@@ -473,9 +473,14 @@ label offensive_process_actions(selected):
                 actions -= 1
 
                 try:
-                    S.next_defense_reduction = action.data.get("defense_reduction", 0.10)
+                    _inc_red = float(action.data.get("defense_reduction", 0.10) or 0.10)
                 except:
-                    S.next_defense_reduction = 0.10
+                    _inc_red = 0.10
+                try:
+                    _cur_red = float(getattr(S, "next_defense_reduction", 0.0) or 0.0)
+                except:
+                    _cur_red = 0.0
+                S.next_defense_reduction = min(0.90, _cur_red + max(0.0, _inc_red))
 
                 try:
                     fx_hit_red(dmg, "#FF9966", 0.28)
