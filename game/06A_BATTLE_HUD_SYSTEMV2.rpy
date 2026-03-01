@@ -340,12 +340,22 @@ screen battle_hp_overlay():
                     spacing 4
                     text "2v2 · Turno: {} S{}".format(str(_ctx.get("owner_team", "player") or "player").upper(), int(_ctx.get("owner_slot", 0) or 0) + 1) color "#FFE082" size 15 bold True
                     text "Contador: T{}".format(int(getattr(store, "battle_turn_index", 0) or 0)) color "#B3E5FC" size 13
+                    $ _inc_ctx = store.bs_get_incoming_ctx(default={}) if hasattr(store, "bs_get_incoming_ctx") else {}
+                    $ _dbg_def = str((_inc_ctx.get("defender_key", "") if isinstance(_inc_ctx, dict) else "") or getattr(store, "incoming_damage_target_key", "") or "-")
                     text "DEBUG actor={} defender={} idx={} order={}".format(
                         str(getattr(store, "current_actor_unit_key", "") or "-"),
-                        str(getattr(store, "incoming_damage_target_key", "") or "-"),
+                        _dbg_def,
                         int(getattr(store, "battle_turn_index", 0) or 0),
                         ",".join(getattr(store, "bs_get_turn_order_keys", lambda: [])() if hasattr(store, "bs_get_turn_order_keys") else []),
                     ) color "#80DEEA" size 11
+                    $ _snap = getattr(store, "defense_resolve_snapshot", {}) or {}
+                    if isinstance(_snap, dict) and _snap:
+                        text "RESOLVE {}: {} - {} = {}".format(
+                            str(_snap.get("defender_key", "-") or "-"),
+                            int(_snap.get("hp_before", 0) or 0),
+                            int(_snap.get("damage", 0) or 0),
+                            int(_snap.get("hp_after", 0) or 0),
+                        ) color "#B3E5FC" size 11
 
                     $ _p1 = store.bs_get_unit_by_key(store.bs_unit_key("player", 0)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None
                     $ _p2 = store.bs_get_unit_by_key(store.bs_unit_key("player", 1)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None
