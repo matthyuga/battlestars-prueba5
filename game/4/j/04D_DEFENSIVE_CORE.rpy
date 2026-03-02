@@ -288,7 +288,24 @@ label battle_defensive_turn_legacy_entry:
 
     $ _slot_txt = " ({})".format(S.bs_slot_tag(getattr(S, "turn_owner_team", "player"), int(getattr(S, "turn_owner_slot", 0) or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ operation_clear()
-    $ battle_log_phase("TURNO DEFENSIVO{} – {}".format(_slot_txt, player_name))
+    python:
+        import renpy.store as S
+        _phase_txt = "TURNO DEFENSIVO{} – {}".format(_slot_txt, player_name)
+        try:
+            fn_phase = getattr(S, "battle_log_phase", None)
+            if callable(fn_phase):
+                fn_phase(_phase_txt)
+            else:
+                fn_add = getattr(S, "battle_log_add", None)
+                if callable(fn_add):
+                    fn_add(_phase_txt, "#00BFFF")
+        except Exception as _e:
+            try:
+                fn_add = getattr(S, "battle_log_add", None)
+                if callable(fn_add):
+                    fn_add("[WARN] battle_log_phase fallback: {}".format(_phase_txt), "#FFA500")
+            except:
+                pass
     $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, player_name), "#00BFFF", delay=0.6)
 
     # ========================================================

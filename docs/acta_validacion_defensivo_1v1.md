@@ -175,6 +175,15 @@ While running game code:
     $ renpy.show_screen("battle_popup_turn", ... color="#FFD700")
 Exception: Unknown keyword arguments: glow
 
+Traceback adicional reportado (entrada defensiva, log de fase):
+While running game code:
+  File "game/4/j/04D_DEFENSIVE_CORE.rpy", line 291, in <module>
+    $ battle_log_phase("TURNO DEFENSIVO{} – {}".format(_slot_txt, player_name))
+  File "game/03_VISUAL_SYSTEM_BASICV2.rpy", line 221, in battle_log_phase
+    if renpy.get_screen("battle_log_screen"):
+AttributeError: 'module' object has no attribute 'get_screen'
+
+
 
 
 ```
@@ -213,7 +222,7 @@ No ejecutado por limitación de entorno (sin launcher Ren'Py).
 
 1. Ejecutar smoke 1v1 real en build Ren'Py limpia fuera del contenedor (Caso A y Caso B).
 2. Confirmar en logs runtime `ROUTE_PREP`/`ROUTE mode=1v1` durante entrada defensiva.
-3. Auditar mapeo traceback ↔ commit/build distribuido y completar hardening de APIs `renpy` faltantes (`show_screen`, `pause`, `with_statement`, `random`, `_`) en runtime.
+3. Auditar mapeo traceback ↔ commit/build distribuido y completar hardening de APIs `renpy` faltantes (`show_screen`, `pause`, `with_statement`, `get_screen`, `random`, `_`) en runtime.
 
 ---
 
