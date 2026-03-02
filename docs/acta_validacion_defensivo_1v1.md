@@ -136,6 +136,8 @@ While running game code:
     renpy.pause(0.1, hard=True)
 AttributeError: 'module' object has no attribute 'pause'
 
+Mitigación aplicada en código: loop defensivo usa `renpy.exports.pause` cuando `renpy.pause` no existe y hace fallback controlado para evitar crash duro.
+
 Observación adicional reportada por QA manual en runtime real:
 - Sin crash inmediato, pero el turno defensivo quedaba congelado/no respondía en 1v1 y 2v2 al esperar confirmación de acción.
 - Síntoma compatible con loop de espera sin `pause` funcional en runtime.

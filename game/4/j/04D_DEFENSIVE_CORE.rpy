@@ -316,11 +316,28 @@ label battle_defensive_turn_legacy_entry:
 
 
     python:
+        import renpy
         import renpy.store as S
+        _exp = getattr(renpy, "exports", None)
+        _pause_exp = getattr(_exp, "pause", None) if _exp else None
         while True:
             if getattr(S, "turn_confirmed", False):
                 break
-            renpy.pause(0.1, hard=True)
+            try:
+                if callable(_pause_exp):
+                    try:
+                        _pause_exp(0.1, hard=True)
+                    except:
+                        _pause_exp(0.1)
+                else:
+                    renpy.pause(0.1, hard=True)
+            except:
+                try:
+                    renpy.log("[DEFENSE][WARN] pause API unavailable; auto-confirm to avoid crash")
+                except:
+                    pass
+                S.turn_confirmed = True
+                break
 
     python:
         import renpy.store as S
