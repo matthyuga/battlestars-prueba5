@@ -106,7 +106,6 @@ label battle_defensive_turn:
             plan = getattr(S, "enemy_damage_plan", None)
             fn_ctx = getattr(S, "bs_get_turn_ctx", None)
             fn_key = getattr(S, "bs_unit_key", None)
-            fn_parse = getattr(S, "bs_parse_unit_key", None)
             fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
 
             if callable(fn_ctx) and callable(fn_key):
@@ -117,7 +116,6 @@ label battle_defensive_turn:
                 entries = list(plan.get("entries", []) or [])
                 defend_amount = 0
                 passthrough = []
-                first_key = ""
 
                 for e in entries:
                     if not isinstance(e, dict):
@@ -126,8 +124,6 @@ label battle_defensive_turn:
                     amt = max(0, int(e.get("amount", 0) or 0))
                     if not tkey or amt <= 0:
                         continue
-                    if not first_key:
-                        first_key = tkey
                     if tkey == S.defense_target_key:
                         defend_amount += amt
                     else:
