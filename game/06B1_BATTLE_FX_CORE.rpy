@@ -9,6 +9,19 @@
 init -969 python:
     battle_floating_texts = []
 
+    def _randint_safe(a=1000, b=9999):
+        try:
+            rr = getattr(renpy, "random", None)
+            if rr and callable(getattr(rr, "randint", None)):
+                return int(rr.randint(int(a), int(b)))
+        except:
+            pass
+        try:
+            import random as _py_random
+            return int(_py_random.randint(int(a), int(b)))
+        except:
+            return int(a)
+
     def _with_statement_safe(trans):
         try:
             fn = getattr(renpy, "with_statement", None)
@@ -73,7 +86,7 @@ init -969 python:
             "value": value,
             "color": color,
             "type": fx_type,
-            "id": renpy.random.randint(1000, 9999),
+            "id": _randint_safe(1000, 9999),
         }
         battle_floating_texts.append(entry)
         renpy.restart_interaction()

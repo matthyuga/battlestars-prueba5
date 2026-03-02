@@ -156,6 +156,13 @@ While running game code:
     self.alt = _("File page [text]")
 NameError: global name '_' is not defined
 
+Traceback adicional reportado (resolución defensiva, id de daño flotante):
+While running game code:
+  File "game/06B1_BATTLE_FX_CORE.rpy", line 76, in battle_visual_float
+    "id": renpy.random.randint(1000, 9999),
+AttributeError: 'module' object has no attribute 'random'
+
+
 ```
 
 ---
@@ -192,7 +199,7 @@ No ejecutado por limitación de entorno (sin launcher Ren'Py).
 
 1. Ejecutar smoke 1v1 real en build Ren'Py limpia fuera del contenedor (Caso A y Caso B).
 2. Confirmar en logs runtime `ROUTE_PREP`/`ROUTE mode=1v1` durante entrada defensiva.
-3. Auditar mapeo traceback ↔ commit/build distribuido y completar hardening de APIs `renpy` faltantes (`show_screen`, `pause`, `with_statement`, `_`) en runtime.
+3. Auditar mapeo traceback ↔ commit/build distribuido y completar hardening de APIs `renpy` faltantes (`show_screen`, `pause`, `with_statement`, `random`, `_`) en runtime.
 
 ---
 
