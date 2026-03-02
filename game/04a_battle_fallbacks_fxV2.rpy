@@ -182,53 +182,6 @@ init -990 python:
         except:
             return False
 
-    def ui_pause_safe(delay=0.0, hard=True):
-        d = float(delay or 0.0)
-        try:
-            fn = getattr(renpy, "pause", None)
-            if callable(fn) and (not bool(getattr(fn, "_bs_noop", False))):
-                try:
-                    fn(d, hard=bool(hard))
-                except:
-                    fn(d)
-                return True
-        except Exception as e:
-            _safe_log("ui_pause_safe renpy.pause error: {}".format(e))
-
-        try:
-            exp = getattr(renpy, "exports", None)
-            fn_exp = getattr(exp, "pause", None) if exp else None
-            if callable(fn_exp):
-                try:
-                    fn_exp(d, hard=bool(hard))
-                except:
-                    fn_exp(d)
-                return True
-        except Exception as e:
-            _safe_log("ui_pause_safe renpy.exports.pause error: {}".format(e))
-
-        return False
-
-    def ui_with_statement_safe(trans=None):
-        try:
-            fn = getattr(renpy, "with_statement", None)
-            if callable(fn) and (not bool(getattr(fn, "_bs_noop", False))):
-                fn(trans)
-                return True
-        except Exception as e:
-            _safe_log("ui_with_statement_safe renpy.with_statement error: {}".format(e))
-
-        try:
-            exp = getattr(renpy, "exports", None)
-            fn_exp = getattr(exp, "with_statement", None) if exp else None
-            if callable(fn_exp):
-                fn_exp(trans)
-                return True
-        except Exception as e:
-            _safe_log("ui_with_statement_safe renpy.exports.with_statement error: {}".format(e))
-
-        return False
-
     def ui_restart_interaction_safe():
         try:
             fn = getattr(renpy, "restart_interaction", None)
@@ -244,8 +197,6 @@ init -990 python:
     S.ui_get_screen_safe = ui_get_screen_safe
     S.ui_has_screen_safe = ui_has_screen_safe
     S.ui_restart_interaction_safe = ui_restart_interaction_safe
-    S.ui_with_statement_safe = ui_with_statement_safe
-    S.ui_pause_safe = ui_pause_safe
 
     # -------------------------------------------------------
     # Fallback: battle_popup_turn (bloque corto + hide explícito)

@@ -47,7 +47,7 @@ init -968 python:
         """
         try:
             _ui_call_safe("ui_show_screen_safe", "show_screen", "battle_popup_turn", text=text, color=color, glow=glow)
-            _ui_call_safe("ui_pause_safe", "pause", delay, hard=True)
+            renpy.pause(delay)
             _ui_call_safe("ui_hide_screen_safe", "hide_screen", "battle_popup_turn")
         except Exception as e:
             renpy.log("battle_popup_turn error: {}".format(e))
@@ -61,9 +61,9 @@ init -968 python:
         try:
             _ui_call_safe("ui_show_screen_safe", "show_screen", "battle_popup_turn", text=text, color=color, glow=True)
             try:
-                _ui_call_safe("ui_pause_safe", "pause", float(delay or 0.85), hard=bool(hard))
+                renpy.pause(float(delay or 0.85), hard=bool(hard))
             except:
-                _ui_call_safe("ui_pause_safe", "pause", float(delay or 0.85), hard=False)
+                renpy.pause(float(delay or 0.85))
             _ui_call_safe("ui_hide_screen_safe", "hide_screen", "battle_popup_turn")
             return True
         except Exception as e:
