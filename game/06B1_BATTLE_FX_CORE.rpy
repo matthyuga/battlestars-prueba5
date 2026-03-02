@@ -1,4 +1,4 @@
-﻿# ===========================================================
+# ===========================================================
 # 06B1_BATTLE_FX_CORE.RPY – Núcleo lógico de efectos visuales
 # v1.02 NoRedFlash Edition (Ren’Py 7.4.9)
 # -----------------------------------------------------------
@@ -9,17 +9,66 @@
 init -969 python:
     battle_floating_texts = []
 
+    def _randint_safe(a=1000, b=9999):
+        try:
+            rr = getattr(renpy, "random", None)
+            if rr and callable(getattr(rr, "randint", None)):
+                return int(rr.randint(int(a), int(b)))
+        except:
+            pass
+        try:
+            import random as _py_random
+            return int(_py_random.randint(int(a), int(b)))
+        except:
+            return int(a)
+
+    def _with_statement_safe(trans):
+        try:
+            fn = getattr(renpy, "with_statement", None)
+            if callable(fn):
+                fn(trans)
+                return True
+        except:
+            pass
+        try:
+            exp = getattr(renpy, "exports", None)
+            fn_exp = getattr(exp, "with_statement", None) if exp else None
+            if callable(fn_exp):
+                fn_exp(trans)
+                return True
+        except:
+            pass
+        return False
+
+    def _restart_interaction_safe():
+        try:
+            fn = getattr(renpy, "restart_interaction", None)
+            if callable(fn):
+                fn()
+                return True
+        except:
+            pass
+        try:
+            exp = getattr(renpy, "exports", None)
+            fn_exp = getattr(exp, "restart_interaction", None) if exp else None
+            if callable(fn_exp):
+                fn_exp()
+                return True
+        except:
+            pass
+        return False
+
     # -------------------------------------------------------
     # 🔹 Sacudida de cámara según tipo de golpe (SE MANTIENE)
     # -------------------------------------------------------
     def battle_shake_effect(fx_type="normal"):
         if fx_type == "critical":
-            renpy.with_statement(vpunch)
-            renpy.with_statement(hpunch)
+            _with_statement_safe(vpunch)
+            _with_statement_safe(hpunch)
         elif fx_type == "power":
-            renpy.with_statement(vpunch)
+            _with_statement_safe(vpunch)
         else:
-            renpy.with_statement(hpunch)
+            _with_statement_safe(hpunch)
 
     # -------------------------------------------------------
     # 🔹 Flash de impacto configurable
@@ -55,10 +104,10 @@ init -969 python:
             "value": value,
             "color": color,
             "type": fx_type,
-            "id": renpy.random.randint(1000, 9999),
+            "id": _randint_safe(1000, 9999),
         }
         battle_floating_texts.append(entry)
-        renpy.restart_interaction()
+        _restart_interaction_safe()
 
     # -------------------------------------------------------
     # 🔹 FX de luz, críticos y cinematic (sin flash rojo)
@@ -88,7 +137,7 @@ init -969 python:
         if damage < 3000:
             return
         # No llama a battle_visual_critical_flash()
-        renpy.with_statement(vpunch)
+        _with_statement_safe(vpunch)
         renpy.pause(0.25)
 
     def battle_visual_on_attack(target="enemy", damage=0):
@@ -103,10 +152,10 @@ init -969 python:
         if damage < 1000 and rel < 0.10:
             battle_light_glow("#CCCCCC", 0.25); return
         if damage < 3000 and rel < 0.30:
-            battle_light_glow("#FFFFFF", 0.3); renpy.with_statement(hpunch); return
+            battle_light_glow("#FFFFFF", 0.3); _with_statement_safe(hpunch); return
         if damage < 5000 and rel < 0.40:
             # 🔕 sin flash rojo
-            renpy.with_statement(vpunch); return
+            _with_statement_safe(vpunch); return
         battle_cinematic_impact(target, damage)
 
     # -------------------------------------------------------

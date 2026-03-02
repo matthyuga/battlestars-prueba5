@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04C_OFFENSIVE_CORE.rpy – Turno ofensivo del jugador (Núcleo)
 # ============================================================
 # v8.5 – SafeLogHub + UsedFlag Strict + StoreSafe Dice/Text
@@ -34,11 +34,15 @@ label battle_offensive_turn_legacy_entry:
                 fn_turn_change("enemy")
 
             try:
-                renpy.show_screen("battle_popup_turn",
-                                  text="Turno ofensivo — {}".format(enemy_name),
-                                  color="#FFD700")
-                renpy.pause(0.7, hard=True)
-                renpy.hide_screen("battle_popup_turn")
+                fn_popup = getattr(S, "battle_popup_turn", None)
+                if callable(fn_popup):
+                    fn_popup("Turno ofensivo — {}".format(enemy_name), "#FFD700", 0.7)
+                else:
+                    renpy.show_screen("battle_popup_turn",
+                                      text="Turno ofensivo — {}".format(enemy_name),
+                                      color="#FFD700")
+                    renpy.pause(0.7, hard=True)
+                    renpy.hide_screen("battle_popup_turn")
             except:
                 pass
 
@@ -112,11 +116,15 @@ label battle_offensive_turn_legacy_entry:
             # Popup opcional
             try:
                 enemy_name = getattr(getattr(S, "enemy_ai", None), "name", "Enemigo")
-                renpy.show_screen("battle_popup_turn",
-                                  text="Turno ofensivo — {}".format(enemy_name),
-                                  color="#FFD700")
-                renpy.pause(0.7, hard=True)
-                renpy.hide_screen("battle_popup_turn")
+                fn_popup = getattr(S, "battle_popup_turn", None)
+                if callable(fn_popup):
+                    fn_popup("Turno ofensivo — {}".format(enemy_name), "#FFD700", 0.7)
+                else:
+                    renpy.show_screen("battle_popup_turn",
+                                      text="Turno ofensivo — {}".format(enemy_name),
+                                      color="#FFD700")
+                    renpy.pause(0.7, hard=True)
+                    renpy.hide_screen("battle_popup_turn")
             except:
                 pass
 
@@ -290,11 +298,7 @@ label battle_offensive_turn_legacy_entry:
     $ _slot_txt = " ({})".format(S.bs_slot_tag(getattr(S, "turn_owner_team", "player"), int(getattr(S, "turn_owner_slot", 0) or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, player_name))
 
-    $ renpy.show_screen("battle_popup_turn",
-                        text="Turno ofensivo{} — {}".format(_slot_txt, player_name),
-                        color="#FFD700")
-    $ renpy.pause(0.6, hard=True)
-    $ renpy.hide_screen("battle_popup_turn")
+    $ battle_popup_turn("Turno ofensivo{} — {}".format(_slot_txt, player_name), "#FFD700", delay=0.6)
 
     # ============================================================
     # UI selección
@@ -310,21 +314,29 @@ label battle_offensive_turn_legacy_entry:
         if callable(fn_show):
             fn_show("battle_command_menu")
             fn_show("technique_selector")
-        else:
-            renpy.show_screen("battle_command_menu")
-            renpy.show_screen("technique_selector")
     python:
         import renpy.store as S
         fn_restart = getattr(S, "ui_restart_interaction_safe", None)
         if callable(fn_restart):
             fn_restart()
-        else:
-            renpy.restart_interaction()
 
     python:
+        import renpy
         import renpy.store as S
+        _exp = getattr(renpy, "exports", None)
+        _pause_exp = getattr(_exp, "pause", None) if _exp else None
         while not getattr(S, "turn_confirmed", False):
-            renpy.pause(0.1, hard=True)
+            try:
+                if callable(_pause_exp):
+                    try:
+                        _pause_exp(0.1, hard=True)
+                    except:
+                        _pause_exp(0.1)
+                else:
+                    renpy.pause(0.1, hard=True)
+            except:
+                S.turn_confirmed = True
+                break
 
     python:
         import renpy.store as S
@@ -332,9 +344,6 @@ label battle_offensive_turn_legacy_entry:
         if callable(fn_hide):
             fn_hide("battle_command_menu")
             fn_hide("technique_selector")
-        else:
-            renpy.hide_screen("battle_command_menu")
-            renpy.hide_screen("technique_selector")
 
     # ============================================================
     # Copiar técnicas seleccionadas (STORE-safe)

@@ -1,4 +1,4 @@
-﻿# ===========================================================
+# ===========================================================
 # 07_BATTLE_BACKGROUNDS.RPY – Escenarios y Overlays Dinámicos
 # v2.44 Base+Desert Only (Ren’Py 7.4.9)
 # - Usa solo bg_battle_base y bg_battle_desert

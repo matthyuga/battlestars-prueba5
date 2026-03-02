@@ -326,34 +326,42 @@ default ui_show_unit_hud = True
 default ui_show_2v2_summary = True
 init -2000 python:
     def ensure_renpy_ui_apis():
-        """Garantiza APIs UI base en renpy para runtimes incompletos."""
+        """Mantener hook sin monkey-patch global de renpy.* (rollback quirúrgico)."""
+        return None
+
+    def ensure_translation_alias():
+        """Garantiza alias global _ para acciones de menú/save-load en runtimes parciales."""
         try:
-            exp = getattr(renpy, "exports", None)
+            import renpy
+            _tr = renpy.translation.translate_string
         except:
-            exp = None
+            return None
 
-        def _wire(name, fallback=None):
+        try:
+            import __builtin__ as _bi
+        except:
             try:
-                if callable(getattr(renpy, name, None)):
-                    return
-                if exp and callable(getattr(exp, name, None)):
-                    setattr(renpy, name, getattr(exp, name))
-                    return
+                import builtins as _bi
             except:
-                pass
-            if fallback is not None:
-                try:
-                    setattr(renpy, name, fallback)
-                except:
-                    pass
+                _bi = None
 
-        _wire("show_screen", lambda *args, **kwargs: None)
-        _wire("hide_screen", lambda *args, **kwargs: None)
-        _wire("restart_interaction", lambda *args, **kwargs: None)
-        _wire("get_screen", lambda *args, **kwargs: None)
-        _wire("has_screen", lambda *args, **kwargs: False)
+        try:
+            if _bi is not None and (not hasattr(_bi, "_")):
+                setattr(_bi, "_", _tr)
+        except:
+            pass
+
+        try:
+            import renpy.store as S
+            if not hasattr(S, "_"):
+                S._ = _tr
+        except:
+            pass
+
+        return None
 
     ensure_renpy_ui_apis()
+    ensure_translation_alias()
     try:
         import renpy.store as S
         S.ensure_renpy_ui_apis = ensure_renpy_ui_apis
