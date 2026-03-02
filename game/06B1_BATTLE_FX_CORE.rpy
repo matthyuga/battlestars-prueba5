@@ -40,6 +40,24 @@ init -969 python:
             pass
         return False
 
+    def _restart_interaction_safe():
+        try:
+            fn = getattr(renpy, "restart_interaction", None)
+            if callable(fn):
+                fn()
+                return True
+        except:
+            pass
+        try:
+            exp = getattr(renpy, "exports", None)
+            fn_exp = getattr(exp, "restart_interaction", None) if exp else None
+            if callable(fn_exp):
+                fn_exp()
+                return True
+        except:
+            pass
+        return False
+
     # -------------------------------------------------------
     # 🔹 Sacudida de cámara según tipo de golpe (SE MANTIENE)
     # -------------------------------------------------------
@@ -89,7 +107,7 @@ init -969 python:
             "id": _randint_safe(1000, 9999),
         }
         battle_floating_texts.append(entry)
-        renpy.restart_interaction()
+        _restart_interaction_safe()
 
     # -------------------------------------------------------
     # 🔹 FX de luz, críticos y cinematic (sin flash rojo)
