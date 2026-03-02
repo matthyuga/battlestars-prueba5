@@ -326,55 +326,8 @@ default ui_show_unit_hud = True
 default ui_show_2v2_summary = True
 init -2000 python:
     def ensure_renpy_ui_apis():
-        """Garantiza APIs UI base en renpy para runtimes incompletos."""
-        try:
-            exp = getattr(renpy, "exports", None)
-        except:
-            exp = None
-
-        def _wire(name, fallback=None):
-            try:
-                if callable(getattr(renpy, name, None)):
-                    return
-                if exp and callable(getattr(exp, name, None)):
-                    setattr(renpy, name, getattr(exp, name))
-                    return
-            except:
-                pass
-            if fallback is not None:
-                try:
-                    setattr(renpy, name, fallback)
-                except:
-                    pass
-
-        _wire("show_screen", lambda *args, **kwargs: None)
-        _wire("hide_screen", lambda *args, **kwargs: None)
-        _wire("restart_interaction", lambda *args, **kwargs: None)
-        _wire("get_screen", lambda *args, **kwargs: None)
-        _wire("has_screen", lambda *args, **kwargs: False)
-        def _fallback_with_statement(*args, **kwargs):
-            try:
-                exp2 = getattr(renpy, "exports", None)
-                fn2 = getattr(exp2, "with_statement", None) if exp2 else None
-                if callable(fn2):
-                    return fn2(*args, **kwargs)
-            except:
-                pass
-            return None
-        _fallback_with_statement._bs_noop = True
-        _wire("with_statement", _fallback_with_statement)
-
-        def _fallback_pause(*args, **kwargs):
-            try:
-                exp2 = getattr(renpy, "exports", None)
-                fn2 = getattr(exp2, "pause", None) if exp2 else None
-                if callable(fn2):
-                    return fn2(*args, **kwargs)
-            except:
-                pass
-            return None
-        _fallback_pause._bs_noop = True
-        _wire("pause", _fallback_pause)
+        """Mantener hook sin monkey-patch global de renpy.* (rollback quirúrgico)."""
+        return None
 
     ensure_renpy_ui_apis()
     try:

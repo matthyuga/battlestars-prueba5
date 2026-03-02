@@ -316,34 +316,11 @@ label battle_defensive_turn_legacy_entry:
 
 
     python:
-        import renpy
         import renpy.store as S
-        _pause_fail_streak = 0
         while True:
             if getattr(S, "turn_confirmed", False):
                 break
-            ok_pause = False
-            fn_pause = getattr(S, "ui_pause_safe", None)
-            if callable(fn_pause):
-                ok_pause = bool(fn_pause(0.1, hard=True))
-            else:
-                try:
-                    renpy.pause(0.1, hard=True)
-                    ok_pause = True
-                except:
-                    ok_pause = False
-
-            if not ok_pause:
-                _pause_fail_streak += 1
-                if _pause_fail_streak >= 3:
-                    try:
-                        renpy.log("[DEFENSE][WARN] pause unavailable in defensive loop; auto-confirm fallback to avoid freeze")
-                    except:
-                        pass
-                    S.turn_confirmed = True
-                    break
-            else:
-                _pause_fail_streak = 0
+            renpy.pause(0.1, hard=True)
 
     python:
         import renpy.store as S
