@@ -169,6 +169,13 @@ While running game code:
     $ renpy.pause(0.8, hard=True)
 Exception: ui.interact called with non-empty widget/layer stack. Did you forget a ui.close() somewhere?
 
+Traceback adicional reportado (popup turno ofensivo):
+While running game code:
+  File "game/4/j/04C_OFFENSIVE_COREV3.rpy", line 293, in script
+    $ renpy.show_screen("battle_popup_turn", ... color="#FFD700")
+Exception: Unknown keyword arguments: glow
+
+
 
 ```
 

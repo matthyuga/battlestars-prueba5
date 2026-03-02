@@ -202,7 +202,7 @@ init -990 python:
     # Fallback: battle_popup_turn (bloque corto + hide explícito)
     # -------------------------------------------------------
     if not hasattr(S, "battle_popup_turn"):
-        def battle_popup_turn(text, color="#FFD700", delay=0.8, glow=True):
+        def battle_popup_turn(text, color="#FFD700", delay=0.8):
             """
             Fallback seguro y autocontenido:
             - Muestra popup, espera breve y oculta explícitamente.
@@ -210,7 +210,7 @@ init -990 python:
             """
             try:
                 if renpy.has_screen("battle_popup_turn"):
-                    renpy.show_screen("battle_popup_turn", text=text, color=color, glow=glow)
+                    renpy.show_screen("battle_popup_turn", text=text, color=color)
                     try:
                         renpy.pause(float(delay or 0.8), hard=True)
                     except:
