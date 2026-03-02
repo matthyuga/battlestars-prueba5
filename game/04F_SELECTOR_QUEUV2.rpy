@@ -164,20 +164,29 @@ init python:
         fn_valid = getattr(S, "bs_get_valid_target_keys", None)
 
         if mode == "split_equal":
-            valid = list(fn_valid(target_team) or []) if callable(fn_valid) else []
+            try:
+                valid = list(fn_valid(target_team) or []) if callable(fn_valid) else []
+            except:
+                valid = []
             if not valid:
                 return "AUTO"
             labels = []
             for k in valid:
                 if callable(fn_desc):
-                    labels.append(str(fn_desc(k, default_side=target_team, default_slot=0) or k))
+                    try:
+                        labels.append(str(fn_desc(k, default_side=target_team, default_slot=0) or k))
+                    except:
+                        labels.append(str(k))
                 else:
                     labels.append(str(k))
             return " + ".join(labels)
 
         if sel:
             if callable(fn_desc):
-                return str(fn_desc(sel, default_side=target_team, default_slot=0) or sel)
+                try:
+                    return str(fn_desc(sel, default_side=target_team, default_slot=0) or sel)
+                except:
+                    return str(sel)
             return sel
         return "AUTO"
 
@@ -387,7 +396,6 @@ screen technique_selector():
                     vbox spacing 14:
                         if battle_mode == "offensive":
                             $ _policy = str(getattr(store, "offensive_targeting_policy", "single_target") or "single_target")
-                            $ _sel = str(getattr(store, "offensive_selected_target_key", "") or "")
                             $ _sel_txt = selector_target_preview_text("enemy")
                             $ _dmg_mode_txt = "Dividir x2" if _policy == "split_equal" else "Foco único"
                             text "Objetivo: [_sel_txt]" size 18 color "#88DDFF"
