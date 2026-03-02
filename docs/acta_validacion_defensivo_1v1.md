@@ -163,6 +163,13 @@ While running game code:
 AttributeError: 'module' object has no attribute 'random'
 
 
+Traceback adicional reportado (inicio de combate, pausa en turno enemigo):
+While running game code:
+  File "game/4/04D_BATTLE_TURN_ENEMY_OFENSIVEV5.rpy", line 225, in <module>
+    $ renpy.pause(0.8, hard=True)
+Exception: ui.interact called with non-empty widget/layer stack. Did you forget a ui.close() somewhere?
+
+
 ```
 
 ---

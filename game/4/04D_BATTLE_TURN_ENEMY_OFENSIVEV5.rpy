@@ -229,7 +229,13 @@ label battle_enemy_turn_legacy_entry:
             except:
                 pass
 
-            renpy.pause(0.5, hard=True)
+            try:
+                renpy.pause(0.5, hard=True)
+            except Exception:
+                try:
+                    renpy.pause(0.5)
+                except Exception:
+                    pass
 
             # En 2v2 avanzar por iniciativa real (evita repetir P1 tras negador).
             mode_now = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
