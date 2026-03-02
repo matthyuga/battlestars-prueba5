@@ -329,7 +329,39 @@ init -2000 python:
         """Mantener hook sin monkey-patch global de renpy.* (rollback quirúrgico)."""
         return None
 
+    def ensure_translation_alias():
+        """Garantiza alias global _ para acciones de menú/save-load en runtimes parciales."""
+        try:
+            import renpy
+            _tr = renpy.translation.translate_string
+        except:
+            return None
+
+        try:
+            import __builtin__ as _bi
+        except:
+            try:
+                import builtins as _bi
+            except:
+                _bi = None
+
+        try:
+            if _bi is not None and (not hasattr(_bi, "_")):
+                setattr(_bi, "_", _tr)
+        except:
+            pass
+
+        try:
+            import renpy.store as S
+            if not hasattr(S, "_"):
+                S._ = _tr
+        except:
+            pass
+
+        return None
+
     ensure_renpy_ui_apis()
+    ensure_translation_alias()
     try:
         import renpy.store as S
         S.ensure_renpy_ui_apis = ensure_renpy_ui_apis

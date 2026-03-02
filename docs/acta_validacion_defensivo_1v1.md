@@ -150,6 +150,12 @@ While running game code:
     renpy.with_statement(hpunch)
 AttributeError: _Feature instance has no __call__ method
 
+Traceback adicional reportado (click secundario / menú guardar):
+While running game code:
+  File "renpy/common/00action_file.rpy", line 580, in __init__
+    self.alt = _("File page [text]")
+NameError: global name '_' is not defined
+
 ```
 
 ---
@@ -186,7 +192,7 @@ No ejecutado por limitación de entorno (sin launcher Ren'Py).
 
 1. Ejecutar smoke 1v1 real en build Ren'Py limpia fuera del contenedor (Caso A y Caso B).
 2. Confirmar en logs runtime `ROUTE_PREP`/`ROUTE mode=1v1` durante entrada defensiva.
-3. Auditar mapeo traceback ↔ commit/build distribuido y completar hardening de APIs `renpy` faltantes (`show_screen`, `pause`, `with_statement`) en runtime.
+3. Auditar mapeo traceback ↔ commit/build distribuido y completar hardening de APIs `renpy` faltantes (`show_screen`, `pause`, `with_statement`, `_`) en runtime.
 
 ---
 
