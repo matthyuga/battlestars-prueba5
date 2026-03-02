@@ -175,6 +175,13 @@ While running game code:
     $ renpy.show_screen("battle_popup_turn", ... color="#FFD700")
 Exception: Unknown keyword arguments: glow
 
+
+Traceback adicional reportado (turno ofensivo, popup de cabecera):
+While running game code:
+  File "game/4/j/04C_OFFENSIVE_COREV3.rpy", line 293, in <module>
+    $ renpy.show_screen("battle_popup_turn", ...)
+AttributeError: 'module' object has no attribute 'show_screen'
+
 Traceback adicional reportado (entrada defensiva, log de fase):
 While running game code:
   File "game/4/j/04D_DEFENSIVE_CORE.rpy", line 291, in <module>
