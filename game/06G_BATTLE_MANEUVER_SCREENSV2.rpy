@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 06F_BATTLE_MANEUVER_SCREENS.rpy
 # Sistema de selección de Maniobras
 # v1.7.4 Persistent Pos + NoRenpyImport (Ren’Py 7.4.9)
