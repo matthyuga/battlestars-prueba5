@@ -10,6 +10,22 @@
 # ✔ Sync HP bars si muere/recibe reflect
 # ============================================================
 
+label battle_enemy_turn:
+    python:
+        import renpy
+        _enemy_turn_target = "battle_enemy_turn_legacy_entry"
+        try:
+            _fn_has = getattr(renpy, "has_label", None)
+            if not callable(_fn_has):
+                _exp = getattr(renpy, "exports", None)
+                _fn_has = getattr(_exp, "has_label", None) if _exp else None
+            if callable(_fn_has) and _fn_has("battle_enemy_turn_router_entry"):
+                _enemy_turn_target = "battle_enemy_turn_router_entry"
+        except:
+            _enemy_turn_target = "battle_enemy_turn_legacy_entry"
+    jump expression _enemy_turn_target
+
+
 label battle_enemy_turn_legacy_entry:
 
     $ battle_turn_change("enemy")
@@ -287,8 +303,28 @@ label battle_enemy_turn_legacy_entry:
     # ============================================================
     $ _slot_txt = " ({})".format(store.bs_slot_tag(getattr(store, "turn_owner_team", "enemy"), int(getattr(store, "turn_owner_slot", 0) or 0)) if hasattr(store, "bs_slot_tag") else "S{}".format(int(getattr(store, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(store, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_popup_turn("Turno ofensivo{} — {}".format(_slot_txt, enemy_name), "#FFD700", delay=0.6)
-    $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, enemy_name))
-    $ renpy.pause(0.8, hard=True)
+    python:
+        import renpy
+        import renpy.store as S
+        try:
+            _fn_phase = getattr(S, "battle_log_phase", None)
+            if callable(_fn_phase):
+                _fn_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, enemy_name))
+        except:
+            pass
+        try:
+            _fn_pause = getattr(renpy, "pause", None)
+            if not callable(_fn_pause):
+                _exp = getattr(renpy, "exports", None)
+                _fn_pause = getattr(_exp, "pause", None) if _exp else None
+            if callable(_fn_pause):
+                _fn_pause(0.8, hard=True)
+        except:
+            try:
+                if callable(getattr(S, "battle_log_add", None)):
+                    S.battle_log_add("{color=#80DEEA}[DEBUG] enemy header pause fallback{/color}")
+            except:
+                pass
 
     python:
         import renpy.store as S
@@ -847,16 +883,17 @@ label battle_enemy_incoming_defense_gate:
                 _slot_txt = ""
 
         python:
-            import renpy
             import renpy.store as S
             _itxt = "Daño entrante{} — {}".format(_slot_txt, _pname)
             try:
-                renpy.show_screen("battle_popup_turn", text=_itxt, color="#00BFFF")
-                renpy.pause(0.7, hard=True)
-                renpy.hide_screen("battle_popup_turn")
+                fn_notice = getattr(S, "bs_show_incoming_notice", None)
+                if callable(fn_notice):
+                    fn_notice(_itxt, color="#00BFFF", delay=0.7, hard=True)
+                else:
+                    S.battle_popup_turn(_itxt, "#00BFFF", 0.7)
             except:
                 try:
-                    S.battle_popup_turn(_itxt, "#00BFFF", 0.6)
+                    S.battle_popup_turn(_itxt, "#00BFFF", 0.7)
                 except:
                     pass
         $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.6)
@@ -925,20 +962,14 @@ label battle_enemy_incoming_defense_gate:
         import renpy.store as S
         _itxt = "Daño entrante{} — {}".format(_slot_txt, _pname)
         try:
-            fn_show = getattr(S, "ui_show_screen_safe", None)
-            fn_hide = getattr(S, "ui_hide_screen_safe", None)
-            if callable(fn_show) and callable(fn_hide):
-                fn_show("battle_popup_turn", text=_itxt, color="#00BFFF")
-                renpy.pause(0.7, hard=True)
-                fn_hide("battle_popup_turn")
+            fn_notice = getattr(S, "bs_show_incoming_notice", None)
+            if callable(fn_notice):
+                fn_notice(_itxt, color="#00BFFF", delay=0.7, hard=True)
             else:
-                import renpy
-                renpy.show_screen("battle_popup_turn", text=_itxt, color="#00BFFF")
-                renpy.pause(0.7, hard=True)
-                renpy.hide_screen("battle_popup_turn")
+                S.battle_popup_turn(_itxt, "#00BFFF", 0.7)
         except:
             try:
-                S.battle_popup_turn(_itxt, "#00BFFF", 0.6)
+                S.battle_popup_turn(_itxt, "#00BFFF", 0.7)
             except:
                 pass
     $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.8)
