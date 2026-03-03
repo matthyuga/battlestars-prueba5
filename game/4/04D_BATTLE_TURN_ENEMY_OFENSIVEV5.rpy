@@ -303,8 +303,28 @@ label battle_enemy_turn_legacy_entry:
     # ============================================================
     $ _slot_txt = " ({})".format(store.bs_slot_tag(getattr(store, "turn_owner_team", "enemy"), int(getattr(store, "turn_owner_slot", 0) or 0)) if hasattr(store, "bs_slot_tag") else "S{}".format(int(getattr(store, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(store, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_popup_turn("Turno ofensivo{} — {}".format(_slot_txt, enemy_name), "#FFD700", delay=0.6)
-    $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, enemy_name))
-    $ renpy.pause(0.8, hard=True)
+    python:
+        import renpy
+        import renpy.store as S
+        try:
+            _fn_phase = getattr(S, "battle_log_phase", None)
+            if callable(_fn_phase):
+                _fn_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, enemy_name))
+        except:
+            pass
+        try:
+            _fn_pause = getattr(renpy, "pause", None)
+            if not callable(_fn_pause):
+                _exp = getattr(renpy, "exports", None)
+                _fn_pause = getattr(_exp, "pause", None) if _exp else None
+            if callable(_fn_pause):
+                _fn_pause(0.8, hard=True)
+        except:
+            try:
+                if callable(getattr(S, "battle_log_add", None)):
+                    S.battle_log_add("{color=#80DEEA}[DEBUG] enemy header pause fallback{/color}")
+            except:
+                pass
 
     python:
         import renpy.store as S
