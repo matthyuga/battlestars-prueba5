@@ -847,16 +847,17 @@ label battle_enemy_incoming_defense_gate:
                 _slot_txt = ""
 
         python:
-            import renpy
             import renpy.store as S
             _itxt = "Daño entrante{} — {}".format(_slot_txt, _pname)
             try:
-                renpy.show_screen("battle_popup_turn", text=_itxt, color="#00BFFF")
-                renpy.pause(0.7, hard=True)
-                renpy.hide_screen("battle_popup_turn")
+                fn_notice = getattr(S, "bs_show_incoming_notice", None)
+                if callable(fn_notice):
+                    fn_notice(_itxt, color="#00BFFF", delay=0.7, hard=True)
+                else:
+                    S.battle_popup_turn(_itxt, "#00BFFF", 0.7)
             except:
                 try:
-                    S.battle_popup_turn(_itxt, "#00BFFF", 0.6)
+                    S.battle_popup_turn(_itxt, "#00BFFF", 0.7)
                 except:
                     pass
         $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.6)
@@ -925,20 +926,14 @@ label battle_enemy_incoming_defense_gate:
         import renpy.store as S
         _itxt = "Daño entrante{} — {}".format(_slot_txt, _pname)
         try:
-            fn_show = getattr(S, "ui_show_screen_safe", None)
-            fn_hide = getattr(S, "ui_hide_screen_safe", None)
-            if callable(fn_show) and callable(fn_hide):
-                fn_show("battle_popup_turn", text=_itxt, color="#00BFFF")
-                renpy.pause(0.7, hard=True)
-                fn_hide("battle_popup_turn")
+            fn_notice = getattr(S, "bs_show_incoming_notice", None)
+            if callable(fn_notice):
+                fn_notice(_itxt, color="#00BFFF", delay=0.7, hard=True)
             else:
-                import renpy
-                renpy.show_screen("battle_popup_turn", text=_itxt, color="#00BFFF")
-                renpy.pause(0.7, hard=True)
-                renpy.hide_screen("battle_popup_turn")
+                S.battle_popup_turn(_itxt, "#00BFFF", 0.7)
         except:
             try:
-                S.battle_popup_turn(_itxt, "#00BFFF", 0.6)
+                S.battle_popup_turn(_itxt, "#00BFFF", 0.7)
             except:
                 pass
     $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.8)
