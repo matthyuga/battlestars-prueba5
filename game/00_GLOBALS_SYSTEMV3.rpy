@@ -326,7 +326,14 @@ default ui_show_unit_hud = True
 default ui_show_2v2_summary = True
 init -2000 python:
     def ensure_renpy_ui_apis():
-        """Mantener hook sin monkey-patch global de renpy.* (rollback quirúrgico)."""
+        """Reintenta compat runtime-safe a través de la capa battle fallbacks."""
+        try:
+            import renpy.store as S
+            fn_wire = getattr(S, "compat_wire_renpy_runtime_apis", None)
+            if callable(fn_wire):
+                fn_wire()
+        except:
+            pass
         return None
 
     def ensure_translation_alias():

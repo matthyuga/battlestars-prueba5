@@ -119,6 +119,47 @@ init -990 python:
                 setattr(renpy, name, _fallback_has_screen)
                 return True
 
+            if name == "pause":
+                def _fallback_pause(*args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "pause", None)):
+                            return _exp.pause(*args, **kwargs)
+                    except:
+                        pass
+                    return None
+                setattr(renpy, name, _fallback_pause)
+                return True
+
+            if name == "with_statement":
+                def _fallback_with_statement(*args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "with_statement", None)):
+                            return _exp.with_statement(*args, **kwargs)
+                    except:
+                        pass
+                    return None
+                setattr(renpy, name, _fallback_with_statement)
+                return True
+
+            if name == "has_label":
+                def _fallback_has_label(lbl, *args, **kwargs):
+                    try:
+                        if _exp and callable(getattr(_exp, "has_label", None)):
+                            return bool(_exp.has_label(lbl, *args, **kwargs))
+                    except:
+                        pass
+                    return False
+                setattr(renpy, name, _fallback_has_label)
+                return True
+
+            if name == "random":
+                try:
+                    import random as _py_random
+                    setattr(renpy, name, _py_random)
+                    return True
+                except:
+                    return False
+
             if name == "restart_interaction":
                 def _fallback_restart_interaction(*args, **kwargs):
                     try:
@@ -139,6 +180,21 @@ init -990 python:
     _wire_renpy_fn("hide_screen")
     _wire_renpy_fn("restart_interaction")
     _wire_renpy_fn("has_screen")
+    _wire_renpy_fn("pause")
+    _wire_renpy_fn("with_statement")
+    _wire_renpy_fn("has_label")
+    _wire_renpy_fn("random")
+
+    def compat_wire_renpy_runtime_apis():
+        """Reintenta cableado de APIs Ren'Py en runtimes parciales/legacy."""
+        try:
+            for _n in ("get_screen", "show_screen", "hide_screen", "restart_interaction", "has_screen", "pause", "with_statement", "has_label", "random"):
+                _wire_renpy_fn(_n)
+        except Exception as e:
+            _safe_log("compat_wire_renpy_runtime_apis error: {}".format(e))
+        return None
+
+    S.compat_wire_renpy_runtime_apis = compat_wire_renpy_runtime_apis
 
     # Helpers UI seguros (usar desde labels críticos en vez de statements show/hide)
     def ui_show_screen_safe(name, **kwargs):
