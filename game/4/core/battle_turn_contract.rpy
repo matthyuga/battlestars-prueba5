@@ -15,6 +15,9 @@
 #   - battle_defensive_turn_legacy_entry
 # ============================================================
 
+default battle_debug_routes = False
+
+
 init -960 python:
     BATTLE_PUBLIC_TURN_LABELS = (
         "battle_offensive_turn",
@@ -28,14 +31,24 @@ init -960 python:
         "battle_defensive_turn_legacy_entry",
     )
 
-    def bs_log_turn_contract(route_label, mode, owner=None, target=None):
+    def bs_route_debug_enabled():
+        try:
+            import renpy.store as S
+            return bool(getattr(S, "battle_debug_routes", False))
+        except Exception:
+            return False
+
+    def bs_log_turn_contract(route_label, mode, owner=None, target=None, phase=None):
         """Log uniforme para trazabilidad de router por modo."""
         try:
             import renpy.store as S
+            if not bs_route_debug_enabled():
+                return
             if callable(getattr(S, "battle_log_add", None)):
                 S.battle_log_add(
-                    "{color=#80DEEA}[DEBUG] ROUTE mode=%s owner=%s target=%s label=%s{/color}" % (
+                    "{color=#80DEEA}[DEBUG] ROUTE mode=%s phase=%s owner=%s target=%s label=%s{/color}" % (
                         str(mode or "?"),
+                        str(phase or "?"),
                         str(owner or "?"),
                         str(target or "auto"),
                         str(route_label or "?"),
