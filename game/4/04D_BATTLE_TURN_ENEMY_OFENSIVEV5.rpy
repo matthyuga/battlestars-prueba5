@@ -10,7 +10,7 @@
 # ✔ Sync HP bars si muere/recibe reflect
 # ============================================================
 
-label battle_enemy_turn:
+label battle_enemy_turn_legacy_entry:
 
     $ battle_turn_change("enemy")
 
