@@ -10,6 +10,13 @@
 # ✔ Sync HP bars si muere/recibe reflect
 # ============================================================
 
+label battle_enemy_turn:
+    python:
+        import renpy
+        _enemy_turn_target = "battle_enemy_turn_router_entry" if renpy.has_label("battle_enemy_turn_router_entry") else "battle_enemy_turn_legacy_entry"
+    jump expression _enemy_turn_target
+
+
 label battle_enemy_turn_legacy_entry:
 
     $ battle_turn_change("enemy")
