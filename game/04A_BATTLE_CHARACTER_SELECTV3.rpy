@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04A_BATTLE_CHARACTER_SELECT.rpy – Selección de jugador/oponente + HUD Dificultad IA
 # ============================================================
 
@@ -20,22 +20,11 @@ default battle_enemy_slot_0 = ""
 default battle_enemy_slot_1 = ""
 default battle_enemy_pick_mode = "random"   # "random" | "manual"
 
-init -5 python:
-    def bs_show_select_screens():
-        """Muestra screens base de selección usando wrappers compatibles."""
-        import renpy.store as S
-        fn_show = getattr(S, "ui_show_screen_safe", None)
-        if callable(fn_show):
-            fn_show("battle_log_screen")
-            fn_show("ai_difficulty_hud")
-        else:
-            renpy.show_screen("battle_log_screen")
-            renpy.show_screen("ai_difficulty_hud")
-
 
 label battle_select_player:
     scene bg_battle_base
-    $ bs_show_select_screens()
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
 
     menu:
         "Selecciona modo de combate"
@@ -50,7 +39,8 @@ label battle_select_player:
 
 label battle_select_player_1v1:
     scene bg_battle_base
-    $ bs_show_select_screens()
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
     "Selecciona tu personaje."
 
     menu:
@@ -73,7 +63,8 @@ label battle_select_player_1v1:
 
 label battle_select_opponent:
     scene bg_battle_base
-    $ bs_show_select_screens()
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
     "Selecciona a tu oponente."
 
     menu:
@@ -92,7 +83,8 @@ label battle_select_opponent:
 
 label battle_select_player_slot_0:
     scene bg_battle_base
-    $ bs_show_select_screens()
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
     "2v2 — Selecciona tu personaje (slot 1)."
 
     menu:
@@ -112,7 +104,8 @@ label battle_select_player_slot_0:
 
 label battle_select_player_slot_1:
     scene bg_battle_base
-    $ bs_show_select_screens()
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
     "2v2 — Selecciona tu personaje (slot 2, sin duplicados)."
 
     menu:
@@ -132,7 +125,8 @@ label battle_select_player_slot_1:
 
 label battle_select_enemy_mode_2v2:
     scene bg_battle_base
-    $ bs_show_select_screens()
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
     "2v2 — Selección de equipo IA"
 
     python:
@@ -154,7 +148,8 @@ label battle_select_enemy_mode_2v2:
 
 label battle_select_enemy_slot_0_2v2:
     scene bg_battle_base
-    $ bs_show_select_screens()
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
     "2v2 — Elige enemigo (slot 1)."
 
     menu:
@@ -174,7 +169,8 @@ label battle_select_enemy_slot_0_2v2:
 
 label battle_select_enemy_slot_1_2v2:
     scene bg_battle_base
-    $ bs_show_select_screens()
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
     "2v2 — Elige enemigo (slot 2, sin duplicados)."
 
     menu:
