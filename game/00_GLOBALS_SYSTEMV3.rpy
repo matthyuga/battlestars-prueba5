@@ -217,14 +217,6 @@ init -990 python:
         }
 
     def show_dice_result(roll_data):
-        try:
-            import renpy.store as S
-            fn = getattr(S, "ui_show_screen_safe", None)
-            if callable(fn):
-                fn("dice_roll_result", rolls=roll_data["rolls"])
-                return
-        except:
-            pass
         renpy.show_screen("dice_roll_result", rolls=roll_data["rolls"])
 
     store.roll_3d = roll_3d
@@ -284,13 +276,9 @@ default incoming_damage = 0
 default incoming_damage_target_key = ""
 default incoming_damage_source_key = ""
 default incoming_damage_sources = []
-default incoming_ctx = {}
-default use_incoming_ctx_2v2 = True
 default offense_cancelled = False
 default deferred_defense_return_to_offense = False
 default deferred_defense_actor_key = ""
-default incoming_popup_ack_key = ""
-default incoming_notice_last_id = ""
 default player_pending_damage_by_key = {}
 default enemy_pending_def_reduction_by_key = {}
 default battle_reflected_pending = 0
@@ -324,46 +312,3 @@ default player_skip_attack = False
 default ui_show_options_panel = True
 default ui_show_unit_hud = True
 default ui_show_2v2_summary = True
-init -2000 python:
-    def ensure_renpy_ui_apis():
-        """Mantener hook sin monkey-patch global de renpy.* (rollback quirúrgico)."""
-        return None
-
-    def ensure_translation_alias():
-        """Garantiza alias global _ para acciones de menú/save-load en runtimes parciales."""
-        try:
-            import renpy
-            _tr = renpy.translation.translate_string
-        except:
-            return None
-
-        try:
-            import __builtin__ as _bi
-        except:
-            try:
-                import builtins as _bi
-            except:
-                _bi = None
-
-        try:
-            if _bi is not None and (not hasattr(_bi, "_")):
-                setattr(_bi, "_", _tr)
-        except:
-            pass
-
-        try:
-            import renpy.store as S
-            if not hasattr(S, "_"):
-                S._ = _tr
-        except:
-            pass
-
-        return None
-
-    ensure_renpy_ui_apis()
-    ensure_translation_alias()
-    try:
-        import renpy.store as S
-        S.ensure_renpy_ui_apis = ensure_renpy_ui_apis
-    except:
-        pass

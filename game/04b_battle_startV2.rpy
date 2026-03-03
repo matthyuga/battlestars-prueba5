@@ -1,4 +1,4 @@
-# ===========================================================
+﻿# ===========================================================
 # 04B_BATTLE_START.RPY – Inicio y preparación del combate
 # ===========================================================
 # Versión: v5.2 Resource+Identity+ID Selection + Safe Resets (Ren’Py 7.4.9)
@@ -51,20 +51,8 @@ init -900 python:
 label start:
     scene fondo3 with fade
 
-    python:
-        import renpy.store as S
-        fn_ensure = getattr(S, "ensure_renpy_ui_apis", None)
-        if callable(fn_ensure):
-            fn_ensure()
-
     # Mostrar log UNA sola vez (evita redundancia/“parpadeo”)
-    python:
-        import renpy.store as S
-        fn_show = getattr(S, "ui_show_screen_safe", None)
-        if callable(fn_show):
-            fn_show("battle_log_screen")
-        else:
-            renpy.show_screen("battle_log_screen")
+    show screen battle_log_screen
 
     "Sistema cargado correctamente."
     call battle_select_player
@@ -76,11 +64,6 @@ label start:
 label battle_start:
     $ import random
     $ import renpy.store as S
-
-    python:
-        fn_ensure = getattr(S, "ensure_renpy_ui_apis", None)
-        if callable(fn_ensure):
-            fn_ensure()
 
     # =======================================================
     # 🎯 Selección del enemigo (ID del sistema)
@@ -276,13 +259,7 @@ label battle_start:
     # =======================================================
     # 🧩 Panel debug (toggle “T”)
     # =======================================================
-    python:
-        import renpy.store as S
-        fn_show = getattr(S, "ui_show_screen_safe", None)
-        if callable(fn_show):
-            fn_show("debug_battle_identity")
-        else:
-            renpy.show_screen("debug_battle_identity")
+    show screen debug_battle_identity
 
     # =======================================================
     # 🌀 Aparición visual del enemigo (display)
