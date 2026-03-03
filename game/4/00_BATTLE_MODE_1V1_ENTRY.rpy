@@ -29,7 +29,8 @@ init -949 python:
             S.turn_owner_team = str(owner or "player")
             S.turn_owner_slot = 0
 
-            if callable(getattr(S, "battle_log_add", None)):
+            fn_debug_enabled = getattr(S, "bs_route_debug_enabled", None)
+            if callable(fn_debug_enabled) and fn_debug_enabled() and callable(getattr(S, "battle_log_add", None)):
                 S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE_PREP mode=1v1 owner=%s cleared_incoming=1{/color}" % str(owner or "player"))
         except Exception:
             pass
@@ -42,8 +43,10 @@ label battle_offensive_turn_1v1_entry:
             fn_route_log = getattr(S, "bs_log_turn_contract", None)
             if callable(fn_route_log):
                 fn_route_log("battle_offensive_turn_legacy_entry", "1v1", owner="player", target="auto", phase="off")
-            elif callable(getattr(S, "battle_log_add", None)):
-                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 phase=off owner=player target=auto label=battle_offensive_turn_legacy_entry{/color}")
+            else:
+                fn_debug_enabled = getattr(S, "bs_route_debug_enabled", None)
+                if callable(fn_debug_enabled) and fn_debug_enabled() and callable(getattr(S, "battle_log_add", None)):
+                    S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 phase=off owner=player target=auto label=battle_offensive_turn_legacy_entry{/color}")
         except:
             pass
     jump battle_offensive_turn_legacy_entry
@@ -57,8 +60,10 @@ label battle_enemy_turn_1v1_entry:
             fn_route_log = getattr(S, "bs_log_turn_contract", None)
             if callable(fn_route_log):
                 fn_route_log("battle_enemy_turn_legacy_entry", "1v1", owner="enemy", target="auto", phase="enemy")
-            elif callable(getattr(S, "battle_log_add", None)):
-                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 phase=enemy owner=enemy target=auto label=battle_enemy_turn_legacy_entry{/color}")
+            else:
+                fn_debug_enabled = getattr(S, "bs_route_debug_enabled", None)
+                if callable(fn_debug_enabled) and fn_debug_enabled() and callable(getattr(S, "battle_log_add", None)):
+                    S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 phase=enemy owner=enemy target=auto label=battle_enemy_turn_legacy_entry{/color}")
         except:
             pass
     jump battle_enemy_turn_legacy_entry
@@ -72,8 +77,10 @@ label battle_defensive_turn_1v1_entry:
             fn_route_log = getattr(S, "bs_log_turn_contract", None)
             if callable(fn_route_log):
                 fn_route_log("battle_defensive_turn_legacy_entry", "1v1", owner="player", target="auto", phase="def")
-            elif callable(getattr(S, "battle_log_add", None)):
-                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 phase=def owner=player target=auto label=battle_defensive_turn_legacy_entry{/color}")
+            else:
+                fn_debug_enabled = getattr(S, "bs_route_debug_enabled", None)
+                if callable(fn_debug_enabled) and fn_debug_enabled() and callable(getattr(S, "battle_log_add", None)):
+                    S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 phase=def owner=player target=auto label=battle_defensive_turn_legacy_entry{/color}")
         except:
             pass
     jump battle_defensive_turn_legacy_entry
