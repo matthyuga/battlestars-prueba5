@@ -1,4 +1,4 @@
-# ===========================================================
+﻿# ===========================================================
 # 06A_BATTLE_HUD_SYSTEM.RPY – Sistema de Barras de HP y HUD
 # v3.5 FocusSync Edition (Ren'Py 7.4.9)
 # -----------------------------------------------------------
@@ -143,7 +143,6 @@ init -970 python:
     # ===========================================================
     def battle_update_hp_bars(player_hp, enemy_hp, flash_target=None, color=None):
         global battle_hp_player, battle_hp_enemy, hp_flash_timer, hp_flash_color
-        import renpy.store as S
 
         battle_hp_player = int(player_hp)
         battle_hp_enemy = int(enemy_hp)
@@ -152,22 +151,8 @@ init -970 python:
             hp_flash_timer = 10
             hp_flash_color = color
 
-        fn_get = getattr(S, "ui_get_screen_safe", None)
-        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
-        _has_overlay = False
-        if callable(fn_get):
-            _has_overlay = fn_get("battle_hp_overlay") is not None
-        else:
-            try:
-                _has_overlay = renpy.get_screen("battle_hp_overlay") is not None
-            except:
-                _has_overlay = False
-
-        if _has_overlay:
-            if callable(fn_restart):
-                fn_restart()
-            else:
-                renpy.restart_interaction()
+        if renpy.get_screen("battle_hp_overlay"):
+            renpy.restart_interaction()
 
         try:
             battle_update_atmosphere_by_hp(player_hp, enemy_hp)
@@ -207,22 +192,11 @@ init -970 python:
         if sync_fade:
             renpy.with_statement(Dissolve(0.35))
 
-        fn_show = getattr(S, "ui_show_screen_safe", None)
-        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
+        renpy.show_screen("battle_hp_overlay")
+        renpy.show_screen("battle_damage_popups")
+        renpy.show_screen("battle_turn_summary_overlay")
 
-        if callable(fn_show):
-            fn_show("battle_hp_overlay")
-            fn_show("battle_damage_popups")
-            fn_show("battle_turn_summary_overlay")
-        else:
-            renpy.show_screen("battle_hp_overlay")
-            renpy.show_screen("battle_damage_popups")
-            renpy.show_screen("battle_turn_summary_overlay")
-
-        if callable(fn_restart):
-            fn_restart()
-        else:
-            renpy.restart_interaction()
+        renpy.restart_interaction()
 
 
     # ===========================================================
@@ -234,23 +208,11 @@ init -970 python:
 
         renpy.with_statement(Dissolve(0.25))
 
-        import renpy.store as S
-        fn_hide = getattr(S, "ui_hide_screen_safe", None)
-        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
+        renpy.hide_screen("battle_hp_overlay")
+        renpy.hide_screen("battle_damage_popups")
+        renpy.hide_screen("battle_turn_summary_overlay")
 
-        if callable(fn_hide):
-            fn_hide("battle_hp_overlay")
-            fn_hide("battle_damage_popups")
-            fn_hide("battle_turn_summary_overlay")
-        else:
-            renpy.hide_screen("battle_hp_overlay")
-            renpy.hide_screen("battle_damage_popups")
-            renpy.hide_screen("battle_turn_summary_overlay")
-
-        if callable(fn_restart):
-            fn_restart()
-        else:
-            renpy.restart_interaction()
+        renpy.restart_interaction()
 
 
 
@@ -378,22 +340,12 @@ screen battle_hp_overlay():
                     spacing 4
                     text "2v2 · Turno: {} S{}".format(str(_ctx.get("owner_team", "player") or "player").upper(), int(_ctx.get("owner_slot", 0) or 0) + 1) color "#FFE082" size 15 bold True
                     text "Contador: T{}".format(int(getattr(store, "battle_turn_index", 0) or 0)) color "#B3E5FC" size 13
-                    $ _inc_ctx = store.bs_get_incoming_ctx(default={}) if hasattr(store, "bs_get_incoming_ctx") else {}
-                    $ _dbg_def = str((_inc_ctx.get("defender_key", "") if isinstance(_inc_ctx, dict) else "") or getattr(store, "incoming_damage_target_key", "") or "-")
                     text "DEBUG actor={} defender={} idx={} order={}".format(
                         str(getattr(store, "current_actor_unit_key", "") or "-"),
-                        _dbg_def,
+                        str(getattr(store, "incoming_damage_target_key", "") or "-"),
                         int(getattr(store, "battle_turn_index", 0) or 0),
                         ",".join(getattr(store, "bs_get_turn_order_keys", lambda: [])() if hasattr(store, "bs_get_turn_order_keys") else []),
                     ) color "#80DEEA" size 11
-                    $ _snap = getattr(store, "defense_resolve_snapshot", {}) or {}
-                    if isinstance(_snap, dict) and _snap:
-                        text "RESOLVE {}: {} - {} = {}".format(
-                            str(_snap.get("defender_key", "-") or "-"),
-                            int(_snap.get("hp_before", 0) or 0),
-                            int(_snap.get("damage", 0) or 0),
-                            int(_snap.get("hp_after", 0) or 0),
-                        ) color "#B3E5FC" size 11
 
                     $ _p1 = store.bs_get_unit_by_key(store.bs_unit_key("player", 0)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None
                     $ _p2 = store.bs_get_unit_by_key(store.bs_unit_key("player", 1)) if hasattr(store, "bs_get_unit_by_key") and hasattr(store, "bs_unit_key") else None
