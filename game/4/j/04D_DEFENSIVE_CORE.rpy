@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04D_DEFENSIVE_CORE.rpy – Turno defensivo del jugador (Núcleo)
 # Versión v9.3 – StoreSafe + OneShotBoost Sync
 # ------------------------------------------------------------
@@ -7,22 +7,7 @@
 # - HUD limpio y colas limpias
 # ============================================================
 
-label battle_defensive_turn_legacy_entry:
-
-    python:
-        import renpy
-        import renpy.store as S
-        _fp = "DEF_CORE_FP=2026-03-01-router-safe-no-show-stmt"
-        try:
-            renpy.log("[BS_RUNTIME] {} label=battle_defensive_turn_legacy_entry".format(_fp))
-        except:
-            pass
-        try:
-            fn_log = getattr(S, "battle_log_add", None)
-            if callable(fn_log):
-                fn_log("{color=#80DEEA}[DEBUG] ROUTE_FINGERPRINT %s{/color}" % _fp)
-        except:
-            pass
+label battle_defensive_turn:
 
     # ========================================================
     # 🧹 LIMPIEZA INICIAL DE HUD / SIMULACIONES
@@ -103,15 +88,7 @@ label battle_defensive_turn_legacy_entry:
     # 🔥 A partir de aquí: SIEMPRE hay daño real que defender
     # ========================================================
     scene black
-    python:
-        import renpy
-        try:
-            renpy.with_statement(fade)
-        except Exception as e:
-            try:
-                renpy.log("[DEFENSE] fade transition skipped: {}".format(e))
-            except:
-                pass
+    with fade
 
     # --- Daño entrante ---
     python:
@@ -125,9 +102,8 @@ label battle_defensive_turn_legacy_entry:
         mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
         S.defense_target_key = str(getattr(S, "current_actor_unit_key", "") or "")
 
-        # priorizar target explícito de incoming_ctx / daño entrante y validar team player
-        in_ctx = S.bs_get_incoming_ctx(default={}) if callable(getattr(S, "bs_get_incoming_ctx", None)) else {}
-        forced_in = str((in_ctx.get("defender_key", "") if isinstance(in_ctx, dict) else "") or getattr(S, "incoming_damage_target_key", "") or "")
+        # priorizar target explícito de daño entrante y validar que sea del team player
+        forced_in = str(getattr(S, "incoming_damage_target_key", "") or "")
         if forced_in and callable(getattr(S, "bs_parse_unit_key", None)):
             fi = S.bs_parse_unit_key(forced_in, default_side="player", default_slot=0)
             if str(fi.get("team", "player") or "player") == "player":
@@ -142,9 +118,7 @@ label battle_defensive_turn_legacy_entry:
 
             if callable(fn_ctx) and callable(fn_key):
                 ctx = fn_ctx()
-                # solo usar owner_slot del ctx si NO vino target explícito de incoming
-                if not forced_in:
-                    S.defense_target_key = str(fn_key("player", int(ctx.get("owner_slot", 0) or 0)) or "")
+                S.defense_target_key = str(fn_key("player", int(ctx.get("owner_slot", 0) or 0)) or "")
 
             if isinstance(plan, dict):
                 entries = list(plan.get("entries", []) or [])
@@ -252,8 +226,7 @@ label battle_defensive_turn_legacy_entry:
             if callable(fn_key):
                 S.current_actor_unit_key = str(fn_key("player", slot_idx) or "")
 
-            in_ctx = S.bs_get_incoming_ctx(default={}) if callable(getattr(S, "bs_get_incoming_ctx", None)) else {}
-            forced_key = str((in_ctx.get("defender_key", "") if isinstance(in_ctx, dict) else "") or getattr(S, "defense_target_key", "") or getattr(S, "incoming_damage_target_key", "") or "")
+            forced_key = str(getattr(S, "defense_target_key", "") or getattr(S, "incoming_damage_target_key", "") or "")
             if forced_key and callable(getattr(S, "bs_parse_unit_key", None)):
                 info = S.bs_parse_unit_key(forced_key, default_side="player", default_slot=slot_idx)
                 if str(info.get("team", "player") or "player") == "player":
@@ -268,14 +241,6 @@ label battle_defensive_turn_legacy_entry:
                 if isinstance(u, dict):
                     player_name = str(u.get("char_id", "") or "")
 
-            if (not player_name) and callable(getattr(S, "bs_get_unit_by_key", None)):
-                uu2 = S.bs_get_unit_by_key(str(getattr(S, "defense_target_key", "") or ""))
-                if isinstance(uu2, dict):
-                    player_name = str(uu2.get("char_id", "") or "")
-
-        if not player_name and isinstance(in_ctx, dict) and in_ctx:
-            player_name = str(in_ctx.get("defender_name", "") or "")
-
         if not player_name:
             _bp = getattr(S, "battle_player", None)
             if isinstance(_bp, dict):
@@ -288,24 +253,7 @@ label battle_defensive_turn_legacy_entry:
 
     $ _slot_txt = " ({})".format(S.bs_slot_tag(getattr(S, "turn_owner_team", "player"), int(getattr(S, "turn_owner_slot", 0) or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ operation_clear()
-    python:
-        import renpy.store as S
-        _phase_txt = "TURNO DEFENSIVO{} – {}".format(_slot_txt, player_name)
-        try:
-            fn_phase = getattr(S, "battle_log_phase", None)
-            if callable(fn_phase):
-                fn_phase(_phase_txt)
-            else:
-                fn_add = getattr(S, "battle_log_add", None)
-                if callable(fn_add):
-                    fn_add(_phase_txt, "#00BFFF")
-        except Exception as _e:
-            try:
-                fn_add = getattr(S, "battle_log_add", None)
-                if callable(fn_add):
-                    fn_add("[WARN] battle_log_phase fallback: {}".format(_phase_txt), "#FFA500")
-            except:
-                pass
+    $ battle_log_phase("TURNO DEFENSIVO{} – {}".format(_slot_txt, player_name))
     $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, player_name), "#00BFFF", delay=0.6)
 
     # ========================================================
@@ -318,50 +266,19 @@ label battle_defensive_turn_legacy_entry:
     $ extra_defensive_actions = 0
     $ actions_available_start = actions_available
 
-    python:
-        import renpy.store as S
-        fn_show = getattr(S, "ui_show_screen_safe", None)
-        if callable(fn_show):
-            fn_show("battle_command_menu")
-            fn_show("technique_selector")
+    show screen battle_command_menu
+    show screen technique_selector
+    $ renpy.restart_interaction()
 
     python:
         import renpy.store as S
-        fn_restart = getattr(S, "ui_restart_interaction_safe", None)
-        if callable(fn_restart):
-            fn_restart()
-
-
-    python:
-        import renpy
-        import renpy.store as S
-        _exp = getattr(renpy, "exports", None)
-        _pause_exp = getattr(_exp, "pause", None) if _exp else None
         while True:
             if getattr(S, "turn_confirmed", False):
                 break
-            try:
-                if callable(_pause_exp):
-                    try:
-                        _pause_exp(0.1, hard=True)
-                    except:
-                        _pause_exp(0.1)
-                else:
-                    renpy.pause(0.1, hard=True)
-            except:
-                try:
-                    renpy.log("[DEFENSE][WARN] pause API unavailable; auto-confirm to avoid crash")
-                except:
-                    pass
-                S.turn_confirmed = True
-                break
+            renpy.pause(0.1, hard=True)
 
-    python:
-        import renpy.store as S
-        fn_hide = getattr(S, "ui_hide_screen_safe", None)
-        if callable(fn_hide):
-            fn_hide("battle_command_menu")
-            fn_hide("technique_selector")
+    hide screen battle_command_menu
+    hide screen technique_selector
 
     # --- Técnicas seleccionadas ---
     python:

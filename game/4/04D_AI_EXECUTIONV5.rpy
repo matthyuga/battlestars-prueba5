@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04D_AI_EXECUTION.rpy – Ejecución ofensiva y defensiva
 # v12.6.2 ReflectQueue Centralized (Target=Attacker, Source=Defender) ✅
 # ------------------------------------------------------------
@@ -115,7 +115,7 @@ init -988 python:
 
                 return "none"
 
-            S.activate_offensive_focus(actor_team="enemy")
+            S.activate_offensive_focus()
 
             # ✅ marca que el PRÓXIMO ataque paga Reiatsu x2
             S.enemy_focus_cost_pending = True
@@ -171,7 +171,7 @@ init -988 python:
         # Calcular daño REAL (con Focus de daño)
         # --------------------------------------------------------
         base, final = ai_get_base_and_final(key)
-        dmg = S.apply_offensive_focus(final, actor_team="enemy")
+        dmg = S.apply_offensive_focus(final)
 
         # --------------------------------------------------------
         # 🎲 ATAQUES CON DADOS (IA): Directo / Negador
