@@ -128,10 +128,13 @@ label battle_offensive_turn:
     python:
         import renpy.store as S
         _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
-        if _mode == "2v2" and callable(getattr(S, "bs_current_actor_key", None)):
+        if _mode == "2v2" and callable(getattr(S, "bs_current_actor_key", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
             akey = str(S.bs_current_actor_key() or "")
+            ainfo = S.bs_parse_unit_key(akey, default_side="player", default_slot=0)
+            if str(ainfo.get("team", "player") or "player") != "player":
+                akey = ""
             ppend = getattr(S, "player_pending_damage_by_key", None)
-            if isinstance(ppend, dict):
+            if akey and isinstance(ppend, dict):
                 pend_amt = max(0, int(ppend.get(akey, 0) or 0))
                 if pend_amt > 0:
                     ppend[akey] = 0
@@ -161,10 +164,18 @@ label battle_offensive_turn:
                     except:
                         pass
 
+                    S.deferred_defense_return_to_offense = True
+                    S.deferred_defense_actor_key = str(akey)
+
                     try:
-                        S.battle_popup_turn("Daño entrante — {}".format(def_name), "#00BFFF", 0.6)
+                        renpy.show_screen("battle_popup_turn", text="Daño entrante — {}".format(def_name), color="#00BFFF")
+                        renpy.pause(0.7, hard=True)
+                        renpy.hide_screen("battle_popup_turn")
                     except:
-                        pass
+                        try:
+                            S.battle_popup_turn("Daño entrante — {}".format(def_name), "#00BFFF", 0.6)
+                        except:
+                            pass
                     renpy.jump("battle_defensive_turn")
 
     # ============================================================
@@ -250,7 +261,7 @@ label battle_offensive_turn:
     # ============================================================
     # Encabezado del turno
     # ============================================================
-    $ _slot_txt = " (S{})".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
+    $ _slot_txt = " ({})".format(S.bs_slot_tag(getattr(S, "turn_owner_team", "player"), int(getattr(S, "turn_owner_slot", 0) or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, player_name))
 
     $ renpy.show_screen("battle_popup_turn",

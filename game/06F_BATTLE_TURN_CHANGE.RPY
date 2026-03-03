@@ -126,7 +126,7 @@ init -966 python:
             except Exception as _e_sync:
                 renpy.log("battle_turn_change sync warn: {}".format(_e_sync))
 
-            slot_txt = " (S{})".format(owner_slot + 1) if team_mode == "2v2" else ""
+            slot_txt = " ({})".format(S.bs_slot_tag(owner_team, owner_slot) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(owner_slot + 1)) if team_mode == "2v2" else ""
 
             if not actor_name:
                 if owner_team == "player":

@@ -251,6 +251,9 @@ screen battle_hp_overlay():
                                 $ _hp = int((_uu.get("hp", 0) if isinstance(_uu, dict) else 0) or 0)
                                 $ _mx = int((_uu.get("max_hp", 1) if isinstance(_uu, dict) else 1) or 1)
                                 $ _active = bool(str(_ctx_u.get("owner_team", "")) == _team and int(_ctx_u.get("owner_slot", 0) or 0) == i)
+                                $ _show_sim = bool(_team == "player" and _active and hasattr(store, "pending_tech_list") and store.pending_tech_list)
+                                $ _rei_diff = int((simulated_reiatsu - player_reiatsu) if _show_sim else 0)
+                                $ _ene_diff = int((simulated_energy - player_energy) if _show_sim else 0)
                                 frame at hud_fade_in:
                                     background "#0008"
                                     xpadding 10
@@ -264,8 +267,18 @@ screen battle_hp_overlay():
                                             range 1.0 xmaximum 220 ymaximum 12
                                             left_bar ("#00BFFF" if _team=="player" else "#FF3333") right_bar "#222222"
                                         text "HP: {} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)) color "#FFFFFF" size 13
-                                        text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))) size 12 color "#55FFFF"
-                                        text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))) size 12 color "#FFA500"
+
+                                        hbox:
+                                            spacing 5
+                                            text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))) size 12 color "#55FFFF"
+                                            if _rei_diff != 0:
+                                                text "-{}".format(battle_fmt_num(abs(_rei_diff))) size 12 color "#66CCFFAA"
+
+                                        hbox:
+                                            spacing 5
+                                            text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))) size 12 color "#FFA500"
+                                            if _ene_diff != 0:
+                                                text "-{}".format(battle_fmt_num(abs(_ene_diff))) size 12 color "#FFBB66AA"
             else:
                 frame at hud_fade_in:
                     background "#0008"
@@ -279,8 +292,20 @@ screen battle_hp_overlay():
                             range 1.0 xmaximum 280 ymaximum 16
                             left_bar "#00BFFF" right_bar "#222222"
                         text "{} / {}".format(battle_fmt_num(battle_hp_player), battle_fmt_num(battle_hp_player_max)) color "#FFFFFF" size 16
-                        text "Reiatsu: {}".format(battle_fmt_num(player_reiatsu)) size 15 color "#55FFFF"
-                        text "Energía: {}".format(battle_fmt_num(player_energy)) size 15 color "#FFA500"
+
+                        hbox:
+                            spacing 6
+                            text "Reiatsu: {}".format(battle_fmt_num(player_reiatsu)) size 15 color "#55FFFF"
+                            $ _rei_diff_1v1 = (simulated_reiatsu - player_reiatsu) if (hasattr(store, "pending_tech_list") and store.pending_tech_list) else 0
+                            if _rei_diff_1v1 != 0:
+                                text "-{}".format(battle_fmt_num(abs(_rei_diff_1v1))) size 15 color "#66CCFFAA"
+
+                        hbox:
+                            spacing 6
+                            text "Energía: {}".format(battle_fmt_num(player_energy)) size 15 color "#FFA500"
+                            $ _ene_diff_1v1 = (simulated_energy - player_energy) if (hasattr(store, "pending_tech_list") and store.pending_tech_list) else 0
+                            if _ene_diff_1v1 != 0:
+                                text "-{}".format(battle_fmt_num(abs(_ene_diff_1v1))) size 15 color "#FFBB66AA"
 
                 frame at hud_fade_in:
                     background "#0008"
