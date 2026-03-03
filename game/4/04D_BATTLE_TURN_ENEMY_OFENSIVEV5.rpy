@@ -13,7 +13,16 @@
 label battle_enemy_turn:
     python:
         import renpy
-        _enemy_turn_target = "battle_enemy_turn_router_entry" if renpy.has_label("battle_enemy_turn_router_entry") else "battle_enemy_turn_legacy_entry"
+        _enemy_turn_target = "battle_enemy_turn_legacy_entry"
+        try:
+            _fn_has = getattr(renpy, "has_label", None)
+            if not callable(_fn_has):
+                _exp = getattr(renpy, "exports", None)
+                _fn_has = getattr(_exp, "has_label", None) if _exp else None
+            if callable(_fn_has) and _fn_has("battle_enemy_turn_router_entry"):
+                _enemy_turn_target = "battle_enemy_turn_router_entry"
+        except:
+            _enemy_turn_target = "battle_enemy_turn_legacy_entry"
     jump expression _enemy_turn_target
 
 
