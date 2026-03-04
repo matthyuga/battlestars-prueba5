@@ -28,8 +28,6 @@ label battle_defensive_turn:
         import renpy.store as S
         try:
             fn_ensure = getattr(S, "bs_ui_gateway_ensure", None)
-            if not callable(fn_ensure):
-                fn_ensure = getattr(S, "ensure_renpy_ui_apis", None)
             if callable(fn_ensure):
                 fn_ensure()
         except:
