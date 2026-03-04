@@ -26,6 +26,15 @@ init -968 python:
 
 
 # -----------------------------------------------------------
+# CONTRATO DE RESPONSABILIDAD (Paso 1)
+# - Concepto A (canónico): battle_popup_turn = aviso de turno
+#   (ej: "Turno ofensivo", "Turno defensivo").
+# - NO usar para selector de maniobras/daño entrante.
+# - La ventana de maniobras vive en 06G_BATTLE_MANEUVER_SCREENSV2.rpy
+#   bajo el screen: battle_maneuver_choice.
+# -----------------------------------------------------------
+
+# -----------------------------------------------------------
 # 🔹 SCREEN – Popup centrado cinematográfico
 # -----------------------------------------------------------
 screen battle_popup_turn(text="", color="#FFD700", glow=True):

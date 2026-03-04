@@ -68,6 +68,15 @@ init -990 python:
             R.restart_interaction()
 
 
+# -----------------------------------------------------------
+# CONTRATO DE RESPONSABILIDAD (Paso 1)
+# - Concepto B (canónico): battle_maneuver_choice = ventana de
+#   daño entrante + elección de maniobra defensiva.
+# - NO usar para avisos de turno ofensivo/defensivo.
+# - Los avisos de turno viven en 06D_BATTLE_POPUP_TURN.RPY
+#   bajo battle_popup_turn.
+# -----------------------------------------------------------
+
 screen battle_maneuver_choice(damage):
 
     modal False
