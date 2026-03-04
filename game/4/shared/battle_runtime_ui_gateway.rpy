@@ -24,7 +24,13 @@ init -980 python:
     def bs_ui_show(name, **kwargs):
         fn = getattr(_renpy_api, "show_screen", None)
         if callable(fn):
-            return fn(name, **kwargs)
+            try:
+                return fn(name, **kwargs)
+            except Exception as e:
+                log_fn = getattr(_renpy_api, "log", None)
+                if callable(log_fn):
+                    log_fn("[bs_ui_show] failed name={} err={}".format(name, e))
+                return None
         return None
 
     def bs_ui_hide(name):
