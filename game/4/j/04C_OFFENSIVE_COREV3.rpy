@@ -15,7 +15,7 @@
 # - ✅ FIX: Ataque Negador del jugador setea enemy_skip_attack (no player)
 # ============================================================
 
-label battle_offensive_turn:
+label battle_offensive_turn_legacy_entry:
 
     # ============================================================
     # ⭐ ROUTING FIX — si Defensa por ataque está activa,
@@ -34,11 +34,11 @@ label battle_offensive_turn:
                 fn_turn_change("enemy")
 
             try:
-                renpy.show_screen("battle_popup_turn",
+                bs_ui_show("battle_popup_turn",
                                   text="Turno ofensivo — {}".format(enemy_name),
                                   color="#FFD700")
-                renpy.pause(0.7, hard=True)
-                renpy.hide_screen("battle_popup_turn")
+                bs_ui_pause(0.7, hard=True)
+                bs_ui_hide("battle_popup_turn")
             except:
                 pass
 
@@ -112,11 +112,11 @@ label battle_offensive_turn:
             # Popup opcional
             try:
                 enemy_name = getattr(getattr(S, "enemy_ai", None), "name", "Enemigo")
-                renpy.show_screen("battle_popup_turn",
+                bs_ui_show("battle_popup_turn",
                                   text="Turno ofensivo — {}".format(enemy_name),
                                   color="#FFD700")
-                renpy.pause(0.7, hard=True)
-                renpy.hide_screen("battle_popup_turn")
+                bs_ui_pause(0.7, hard=True)
+                bs_ui_hide("battle_popup_turn")
             except:
                 pass
 
@@ -140,9 +140,14 @@ label battle_offensive_turn:
                     ppend[akey] = 0
                     S.player_pending_damage_by_key = ppend
                     S.incoming_damage = int(pend_amt)
-                    S.incoming_damage_target_key = str(akey)
-                    S.incoming_damage_source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
-                    S.incoming_damage_sources = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+                    fn_set_incoming_ctx = getattr(S, "bs_set_incoming_ctx_2v2", None)
+                    _src_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+                    if _mode == "2v2" and callable(fn_set_incoming_ctx):
+                        fn_set_incoming_ctx(target_key=str(akey), source_key=_src_key, owner_team="player", owner_slot=int(ainfo.get("slot", 0) or 0), phase="def")
+                    else:
+                        S.incoming_damage_target_key = str(akey)
+                        S.incoming_damage_source_key = _src_key
+                        S.incoming_damage_sources = [_src_key]
 
                     info = S.bs_parse_unit_key(akey, default_side="player", default_slot=0) if callable(getattr(S, "bs_parse_unit_key", None)) else {"slot":0}
                     slot_idx = int(info.get("slot", 0) or 0)
@@ -168,9 +173,9 @@ label battle_offensive_turn:
                     S.deferred_defense_actor_key = str(akey)
 
                     try:
-                        renpy.show_screen("battle_popup_turn", text="Daño entrante — {}".format(def_name), color="#00BFFF")
-                        renpy.pause(0.7, hard=True)
-                        renpy.hide_screen("battle_popup_turn")
+                        bs_ui_show("battle_popup_turn", text="Daño entrante — {}".format(def_name), color="#00BFFF")
+                        bs_ui_pause(0.7, hard=True)
+                        bs_ui_hide("battle_popup_turn")
                     except:
                         try:
                             S.battle_popup_turn("Daño entrante — {}".format(def_name), "#00BFFF", 0.6)
@@ -264,11 +269,11 @@ label battle_offensive_turn:
     $ _slot_txt = " ({})".format(S.bs_slot_tag(getattr(S, "turn_owner_team", "player"), int(getattr(S, "turn_owner_slot", 0) or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, player_name))
 
-    $ renpy.show_screen("battle_popup_turn",
+    $ bs_ui_show("battle_popup_turn",
                         text="Turno ofensivo{} — {}".format(_slot_txt, player_name),
                         color="#FFD700")
-    $ renpy.pause(0.6, hard=True)
-    $ renpy.hide_screen("battle_popup_turn")
+    $ bs_ui_pause(0.6, hard=True)
+    $ bs_ui_hide("battle_popup_turn")
 
     # ============================================================
     # UI selección
@@ -280,12 +285,12 @@ label battle_offensive_turn:
 
     show screen battle_command_menu
     show screen technique_selector
-    $ renpy.restart_interaction()
+    $ bs_ui_restart()
 
     python:
         import renpy.store as S
         while not getattr(S, "turn_confirmed", False):
-            renpy.pause(0.1, hard=True)
+            bs_ui_pause(0.1, hard=True)
 
     hide screen battle_command_menu
     hide screen technique_selector
@@ -408,7 +413,7 @@ label battle_offensive_turn:
                         fn_show(roll)
                     else:
                         try:
-                            renpy.show_screen("dice_roll_result", rolls=roll.get("rolls", []))
+                            bs_ui_show("dice_roll_result", rolls=roll.get("rolls", []))
                         except:
                             pass
                 except:
@@ -480,7 +485,7 @@ label battle_offensive_turn:
                         S.direct_pending_damage = 0
 
                 try:
-                    renpy.pause(0.8, hard=True)
+                    bs_ui_pause(0.8, hard=True)
                 except:
                     pass
 
