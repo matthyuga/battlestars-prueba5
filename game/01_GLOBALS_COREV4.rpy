@@ -101,15 +101,25 @@ init -984 python:
         return 4
 
     def activate_offensive_focus(owner_team=None):
+        req = str(owner_team or _focus_owner_now("player") or "player").strip().lower()
+        cur_owner = str(getattr(S, "focus_off_owner_team", "") or "").strip().lower()
+
         try:
             c = int(S.focus_off_charges or 0)
         except:
             c = 0
+
+        # Si existe focus almacenado del equipo contrario, no se acumula:
+        # el nuevo focus reemplaza al ajeno antes de sumar su carga.
+        if c > 0 and cur_owner and req and cur_owner != req:
+            c = 0
+            S.focus_off_decay = 0
+
         c += 1
         if c > FOCUS_OFF_MAX_CHARGES:
             c = FOCUS_OFF_MAX_CHARGES
         S.focus_off_charges = c
-        S.focus_off_owner_team = str(owner_team or _focus_owner_now("player") or "player").strip().lower()
+        S.focus_off_owner_team = req
 
         # seguridad: legacy flag no gobierna costos
         S.focus_cost_active = False
