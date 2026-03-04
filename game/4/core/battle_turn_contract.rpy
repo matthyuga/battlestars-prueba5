@@ -37,6 +37,12 @@ init -960 python:
         "battle_defensive_turn_1v1_impl",
     )
 
+    BATTLE_MODE_2V2_IMPL_LABELS = (
+        "battle_offensive_turn_2v2_impl",
+        "battle_enemy_turn_2v2_impl",
+        "battle_defensive_turn_2v2_impl",
+    )
+
 
     def bs_route_debug_enabled():
         try:
