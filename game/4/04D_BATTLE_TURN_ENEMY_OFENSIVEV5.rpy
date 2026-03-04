@@ -773,7 +773,28 @@ label battle_enemy_turn_legacy_entry:
 
             _slot_txt = " ({})".format(S.bs_slot_tag("player", int(_slot_idx or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(_slot_idx or 0) + 1)) if _mode == "2v2" else ""
 
-        $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.6)
+        python:
+            import renpy.store as S
+            _mode_dbg = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            _slot_dbg = int(getattr(S, "turn_owner_slot", 0) or 0)
+            _target_dbg = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "")
+            _shown_dbg = False
+            if _mode_dbg == "2v2" and callable(getattr(S, "battle_log_add", None)):
+                S.battle_log_add("{color=#80DEEA}[DEBUG] POPUP_TRANSITION enemy->def attempt mode=2v2 slot=%s target=%s branch=def_from_atk{/color}" % (
+                    str(_slot_dbg), str(_target_dbg or "?")))
+            try:
+                battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.6)
+                _shown_dbg = True
+            except Exception as e:
+                _shown_dbg = False
+                if _mode_dbg == "2v2" and callable(getattr(S, "battle_log_add", None)):
+                    S.battle_log_add("{color=#FF8A80}[DEBUG] POPUP_TRANSITION enemy->def omitted mode=2v2 slot=%s target=%s branch=def_from_atk err=%s{/color}" % (
+                        str(_slot_dbg), str(_target_dbg or "?"), str(e)))
+            if _mode_dbg == "2v2" and callable(getattr(S, "battle_log_add", None)):
+                S.battle_log_add("{color=#80DEEA}[DEBUG] POPUP_TRANSITION enemy->def result=%s mode=2v2 slot=%s target=%s branch=def_from_atk{/color}" % (
+                    "shown" if _shown_dbg else "omitted",
+                    str(_slot_dbg),
+                    str(_target_dbg or "?")))
         jump battle_defensive_turn
 
     # ============================================================
@@ -829,7 +850,28 @@ label battle_enemy_turn_legacy_entry:
 
         _slot_txt = " ({})".format(S.bs_slot_tag("player", int(_slot_idx or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(_slot_idx or 0) + 1)) if _mode == "2v2" else ""
 
-    $ battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.8)
+    python:
+        import renpy.store as S
+        _mode_dbg = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        _slot_dbg = int(getattr(S, "turn_owner_slot", 0) or 0)
+        _target_dbg = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "")
+        _shown_dbg = False
+        if _mode_dbg == "2v2" and callable(getattr(S, "battle_log_add", None)):
+            S.battle_log_add("{color=#80DEEA}[DEBUG] POPUP_TRANSITION enemy->def attempt mode=2v2 slot=%s target=%s branch=def_normal{/color}" % (
+                str(_slot_dbg), str(_target_dbg or "?")))
+        try:
+            battle_popup_turn("Turno defensivo{} — {}".format(_slot_txt, _pname), "#00BFFF", delay=0.8)
+            _shown_dbg = True
+        except Exception as e:
+            _shown_dbg = False
+            if _mode_dbg == "2v2" and callable(getattr(S, "battle_log_add", None)):
+                S.battle_log_add("{color=#FF8A80}[DEBUG] POPUP_TRANSITION enemy->def omitted mode=2v2 slot=%s target=%s branch=def_normal err=%s{/color}" % (
+                    str(_slot_dbg), str(_target_dbg or "?"), str(e)))
+        if _mode_dbg == "2v2" and callable(getattr(S, "battle_log_add", None)):
+            S.battle_log_add("{color=#80DEEA}[DEBUG] POPUP_TRANSITION enemy->def result=%s mode=2v2 slot=%s target=%s branch=def_normal{/color}" % (
+                "shown" if _shown_dbg else "omitted",
+                str(_slot_dbg),
+                str(_target_dbg or "?")))
     call battle_defensive_turn
 
     return
