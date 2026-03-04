@@ -90,6 +90,7 @@ screen battle_maneuver_choice(damage):
     $ import renpy.store as S
     $ will_die = S.player_hp - damage <= 0
     $ is_dead  = S.player_hp <= 0
+    $ offense_locked = bool(getattr(S, "player_skip_attack", False) or getattr(S, "enemy_skip_attack", False))
 
     if show_maneuver_choice:
 
@@ -122,7 +123,7 @@ screen battle_maneuver_choice(damage):
                             action SetScreenVariable("local_choice", "defense")
                             text_size 26
 
-                        if will_die or is_dead:
+                        if will_die or is_dead or offense_locked:
                             textbutton "Ataque por defensa (no disponible)":
                                 action NullAction()
                                 text_size 26
@@ -132,7 +133,7 @@ screen battle_maneuver_choice(damage):
                                 action SetScreenVariable("local_choice", "atk_from_def")
                                 text_size 26
 
-                        if is_dead:
+                        if is_dead or offense_locked:
                             textbutton "Defensa por ataque (no disponible)":
                                 action NullAction()
                                 text_size 26
@@ -146,6 +147,8 @@ screen battle_maneuver_choice(damage):
                             text "{color=#FF4444}No puedes contraatacar: este daño te matará.{/color}"
                         elif is_dead:
                             text "{color=#FF4444}Estás derrotada. No puedes contraatacar.{/color}"
+                        elif offense_locked:
+                            text "{color=#FF66CC}Ataque negador activo: solo puedes defender normalmente.{/color}"
 
                         textbutton "Ver maniobras…":
                             action SetScreenVariable("show_submenu", True)
@@ -167,7 +170,7 @@ screen battle_maneuver_choice(damage):
 
                         text "Maniobras disponibles:" size 30 color "#FFD700" bold True
 
-                        if will_die or is_dead:
+                        if will_die or is_dead or offense_locked:
                             textbutton "Ataque por defensa (no disponible)":
                                 action NullAction()
                                 text_size 26
@@ -180,7 +183,7 @@ screen battle_maneuver_choice(damage):
                                 ]
                                 text_size 26
 
-                        if is_dead:
+                        if is_dead or offense_locked:
                             textbutton "Defensa por ataque (no disponible)":
                                 action NullAction()
                                 text_size 26

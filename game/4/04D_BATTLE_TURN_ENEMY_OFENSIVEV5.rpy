@@ -232,19 +232,38 @@ label battle_enemy_turn_legacy_entry:
             bs_ui_pause(0.5, hard=True)
 
             # Diseño elegido: NO limpiamos reflect aquí.
-            S.battle_turn_change("player")
-            try:
-                _bp = getattr(S, "battle_player", None)
-                if isinstance(_bp, dict):
-                    _pname = str(_bp.get("name", "") or "")
-                else:
+            _mode_skip = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            _next_team = "player"
+            _next_key = ""
+            if _mode_skip == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                _next_key = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                _next_team = str(S.bs_parse_unit_key(_next_key, default_side="player", default_slot=0).get("team", "player") or "player")
+
+            S.battle_turn_change(_next_team)
+            if _next_team == "enemy":
+                try:
+                    fn_desc = getattr(S, "bs_describe_unit_key", None)
+                    _ename = str(fn_desc(_next_key) if callable(fn_desc) and _next_key else enemy_name)
+                    S.battle_popup_turn("Turno ofensivo — {}".format(_ename or enemy_name), "#FFD700", 0.7)
+                except:
+                    pass
+                renpy.jump("battle_enemy_turn")
+            else:
+                try:
+                    fn_desc = getattr(S, "bs_describe_unit_key", None)
                     _pname = ""
-                if not _pname:
-                    _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
-                S.battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", 0.7)
-            except:
-                pass
-            renpy.jump("battle_offensive_turn")
+                    if callable(fn_desc) and _next_key:
+                        _pname = str(fn_desc(_next_key) or "")
+                    if not _pname:
+                        _bp = getattr(S, "battle_player", None)
+                        if isinstance(_bp, dict):
+                            _pname = str(_bp.get("name", "") or "")
+                    if not _pname:
+                        _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+                    S.battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", 0.7)
+                except:
+                    pass
+                renpy.jump("battle_offensive_turn")
 
     # ============================================================
     # ⭐ ENCABEZADO IA

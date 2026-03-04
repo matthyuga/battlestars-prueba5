@@ -52,7 +52,24 @@ label battle_offensive_turn_legacy_entry:
         import renpy.store as S
 
         S._reflect_consumed_this_turn = False
-        if getattr(S, "player_skip_attack", False):
+        _should_skip_offense = bool(getattr(S, "player_skip_attack", False))
+
+        # En 2v2, si este actor tiene daño pendiente, primero debe resolver
+        # su ventana defensiva/maniobra antes de perder el turno ofensivo.
+        if _should_skip_offense:
+            try:
+                _mode_skip = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+                if _mode_skip == "2v2" and callable(getattr(S, "bs_current_actor_key", None)):
+                    _akey_skip = str(S.bs_current_actor_key() or "")
+                    _ppend_skip = getattr(S, "player_pending_damage_by_key", None)
+                    if _akey_skip and isinstance(_ppend_skip, dict):
+                        _pend_skip = max(0, int(_ppend_skip.get(_akey_skip, 0) or 0))
+                        if _pend_skip > 0:
+                            _should_skip_offense = False
+            except:
+                pass
+
+        if _should_skip_offense:
             S.player_skip_attack = False
             S.offense_cancelled = True
 
