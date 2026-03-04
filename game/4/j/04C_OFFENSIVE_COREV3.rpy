@@ -181,7 +181,30 @@ label battle_offensive_turn_legacy_entry:
                             S.battle_popup_turn("Daño entrante — {}".format(def_name), "#00BFFF", 0.6)
                         except:
                             pass
-                    renpy.jump("battle_defensive_turn")
+
+                    try:
+                        battle_visual_float("player", int(pend_amt or 0), "#FF4444", is_final=True)
+                        bs_ui_pause(0.35, hard=True)
+                    except:
+                        pass
+
+                    S.maneuver_selected = "none"
+                    bs_ui_show("battle_maneuver_choice", damage=int(pend_amt or 0))
+                    while getattr(S, "maneuver_selected", "none") == "none":
+                        bs_ui_pause(0.1, hard=True)
+
+                    msel = str(getattr(S, "maneuver_selected", "none") or "none")
+                    if msel == "atk_from_def":
+                        fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
+                        if callable(fn_apply_key):
+                            fn_apply_key(str(akey), int(pend_amt or 0), source_key=_src_key, reason="combat")
+                        else:
+                            S.player_hp = max(0, int(getattr(S, "player_hp", 0) or 0) - int(pend_amt or 0))
+                        S.extra_offensive_actions = int(getattr(S, "extra_offensive_actions", 0) or 0) + 1
+                        S.deferred_defense_return_to_offense = False
+                        S.deferred_defense_actor_key = ""
+                    else:
+                        renpy.jump("battle_defensive_turn")
 
     # ============================================================
     # Snapshot de recursos al inicio del turno (STORE = real)
