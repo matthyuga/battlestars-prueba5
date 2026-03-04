@@ -53,6 +53,16 @@ label battle_offensive_turn_legacy_entry:
 
         S._reflect_consumed_this_turn = False
         _should_skip_offense = bool(getattr(S, "player_skip_attack", False))
+        _consumed_keyed_skip = False
+
+        _actor_key_skip = ""
+        if callable(getattr(S, "bs_current_actor_key", None)):
+            _actor_key_skip = str(S.bs_current_actor_key() or "")
+
+        _pmap_skip = getattr(S, "player_skip_attack_by_key", None)
+        if _actor_key_skip and isinstance(_pmap_skip, dict) and bool(_pmap_skip.get(_actor_key_skip, False)):
+            _should_skip_offense = True
+            _consumed_keyed_skip = True
 
         # En 2v2, si este actor tiene daño pendiente, primero debe resolver
         # su ventana defensiva/maniobra antes de perder el turno ofensivo.
@@ -70,6 +80,12 @@ label battle_offensive_turn_legacy_entry:
                 pass
 
         if _should_skip_offense:
+            if _consumed_keyed_skip:
+                try:
+                    _pmap_skip[_actor_key_skip] = False
+                    S.player_skip_attack_by_key = _pmap_skip
+                except:
+                    pass
             S.player_skip_attack = False
             S.offense_cancelled = True
 
@@ -484,8 +500,8 @@ label battle_offensive_turn_legacy_entry:
                     if used_noatk:
                         S.noatk_success = True
 
-                        # ✅ FIX: el Negador del JUGADOR cancela el turno del ENEMIGO
-                        S.enemy_skip_attack = True
+                        # El target de NO ATK se resuelve al final del turno
+                        # (cuando ya existe offensive_target_key/plan estable).
 
                         try:
                             if callable(fmt_purple) and callable(fmt_gold):

@@ -124,6 +124,8 @@ label battle_start:
     $ S.enemy_pending_damage_by_key = {}
     $ S.player_pending_damage_by_key = {}
     $ S.enemy_pending_def_reduction_by_key = {}
+    $ S.player_skip_attack_by_key = {}
+    $ S.enemy_skip_attack_by_key = {}
 
     # =======================================================
     # 🌆 Fondo de batalla aleatorio

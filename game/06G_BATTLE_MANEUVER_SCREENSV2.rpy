@@ -90,7 +90,9 @@ screen battle_maneuver_choice(damage):
     $ import renpy.store as S
     $ will_die = S.player_hp - damage <= 0
     $ is_dead  = S.player_hp <= 0
-    $ offense_locked = bool(getattr(S, "player_skip_attack", False) or getattr(S, "enemy_skip_attack", False))
+    $ _actor_k = str(S.bs_current_actor_key() if callable(getattr(S, "bs_current_actor_key", None)) else "")
+    $ _skip_map = getattr(S, "player_skip_attack_by_key", {}) if isinstance(getattr(S, "player_skip_attack_by_key", {}), dict) else {}
+    $ offense_locked = bool(getattr(S, "player_skip_attack", False) or (_actor_k and bool(_skip_map.get(_actor_k, False))))
 
     if show_maneuver_choice:
 

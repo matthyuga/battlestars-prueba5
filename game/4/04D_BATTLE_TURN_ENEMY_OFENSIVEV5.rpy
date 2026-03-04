@@ -192,8 +192,18 @@ label battle_enemy_turn_legacy_entry:
             or getattr(S, "BATTLE_IDENTITIES", {}).get(player_name_turn, "ID_PLAYER_UNKNOWN")
         )
 
-        if getattr(S, "enemy_skip_attack", False):
+        _enemy_actor_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+        _emap_skip = getattr(S, "enemy_skip_attack_by_key", None)
+        _enemy_skip_for_actor = bool(isinstance(_emap_skip, dict) and _enemy_actor_key and _emap_skip.get(_enemy_actor_key, False))
 
+        if _enemy_skip_for_actor or getattr(S, "enemy_skip_attack", False):
+
+            if _enemy_skip_for_actor:
+                try:
+                    _emap_skip[_enemy_actor_key] = False
+                    S.enemy_skip_attack_by_key = _emap_skip
+                except:
+                    pass
             S.enemy_skip_attack = False
 
             # Si IA no ataca, reflect pendiente contra jugador se consume y se pierde.
