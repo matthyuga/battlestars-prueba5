@@ -1,9 +1,8 @@
 # ============================================================
-# 00_BATTLE_MODE_1V1_ENTRY.rpy – Entry points dedicados 1v1
+# 00_BATTLE_MODE_1V1_ENTRY.rpy – Compat de entradas 1v1
 # ============================================================
-# Fase 1 (plan maestro): línea de vida 1v1 explícita.
-# Mantiene labels públicas/routing estables y evita acoplar
-# accidentalmente decisiones 1v1 a estado 2v2.
+# Mantiene API histórica *_1v1_entry para no romper llamadas,
+# delegando a la implementación dedicada en modes/1v1.
 # ============================================================
 
 init -949 python:
@@ -35,52 +34,14 @@ init -949 python:
         except Exception:
             pass
 
+
 label battle_offensive_turn_1v1_entry:
-    python:
-        import renpy.store as S
-        bs_prepare_1v1_turn_entry(owner="player")
-        try:
-            fn_route_log = getattr(S, "bs_log_turn_contract", None)
-            if callable(fn_route_log):
-                fn_route_log("battle_offensive_turn_legacy_entry", "1v1", owner="player", target="auto", phase="off")
-            else:
-                fn_debug_enabled = getattr(S, "bs_route_debug_enabled", None)
-                if callable(fn_debug_enabled) and fn_debug_enabled() and callable(getattr(S, "battle_log_add", None)):
-                    S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 phase=off owner=player target=auto label=battle_offensive_turn_legacy_entry{/color}")
-        except:
-            pass
-    jump battle_offensive_turn_legacy_entry
+    jump battle_offensive_turn_1v1_impl
 
 
 label battle_enemy_turn_1v1_entry:
-    python:
-        import renpy.store as S
-        bs_prepare_1v1_turn_entry(owner="enemy")
-        try:
-            fn_route_log = getattr(S, "bs_log_turn_contract", None)
-            if callable(fn_route_log):
-                fn_route_log("battle_enemy_turn_legacy_entry", "1v1", owner="enemy", target="auto", phase="enemy")
-            else:
-                fn_debug_enabled = getattr(S, "bs_route_debug_enabled", None)
-                if callable(fn_debug_enabled) and fn_debug_enabled() and callable(getattr(S, "battle_log_add", None)):
-                    S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 phase=enemy owner=enemy target=auto label=battle_enemy_turn_legacy_entry{/color}")
-        except:
-            pass
-    jump battle_enemy_turn_legacy_entry
+    jump battle_enemy_turn_1v1_impl
 
 
 label battle_defensive_turn_1v1_entry:
-    python:
-        import renpy.store as S
-        bs_prepare_1v1_turn_entry(owner="player")
-        try:
-            fn_route_log = getattr(S, "bs_log_turn_contract", None)
-            if callable(fn_route_log):
-                fn_route_log("battle_defensive_turn_legacy_entry", "1v1", owner="player", target="auto", phase="def")
-            else:
-                fn_debug_enabled = getattr(S, "bs_route_debug_enabled", None)
-                if callable(fn_debug_enabled) and fn_debug_enabled() and callable(getattr(S, "battle_log_add", None)):
-                    S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 phase=def owner=player target=auto label=battle_defensive_turn_legacy_entry{/color}")
-        except:
-            pass
-    jump battle_defensive_turn_legacy_entry
+    jump battle_defensive_turn_1v1_impl

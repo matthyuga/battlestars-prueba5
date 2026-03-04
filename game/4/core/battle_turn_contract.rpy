@@ -31,6 +31,13 @@ init -960 python:
         "battle_defensive_turn_legacy_entry",
     )
 
+    BATTLE_MODE_1V1_IMPL_LABELS = (
+        "battle_offensive_turn_1v1_impl",
+        "battle_enemy_turn_1v1_impl",
+        "battle_defensive_turn_1v1_impl",
+    )
+
+
     def bs_route_debug_enabled():
         try:
             import renpy.store as S

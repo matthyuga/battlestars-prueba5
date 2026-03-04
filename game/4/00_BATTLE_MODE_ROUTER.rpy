@@ -34,7 +34,7 @@ label battle_offensive_turn_router_entry:
                 )
         except:
             pass
-    $ _router_target = "battle_offensive_turn_2v2_entry" if _is_2v2 else "battle_offensive_turn_1v1_entry"
+    $ _router_target = "battle_offensive_turn_2v2_entry" if _is_2v2 else "battle_offensive_turn_1v1_impl"
     jump expression _router_target
 
 
@@ -54,7 +54,7 @@ label battle_enemy_turn_router_entry:
                 )
         except:
             pass
-    $ _router_target = "battle_enemy_turn_2v2_entry" if _is_2v2 else "battle_enemy_turn_1v1_entry"
+    $ _router_target = "battle_enemy_turn_2v2_entry" if _is_2v2 else "battle_enemy_turn_1v1_impl"
     jump expression _router_target
 
 
@@ -80,7 +80,7 @@ label battle_defensive_turn_router_entry:
                 )
         except:
             pass
-    $ _router_target = "battle_defensive_turn_2v2_entry" if _is_2v2 else "battle_defensive_turn_1v1_entry"
+    $ _router_target = "battle_defensive_turn_2v2_entry" if _is_2v2 else "battle_defensive_turn_1v1_impl"
     jump expression _router_target
 
 
