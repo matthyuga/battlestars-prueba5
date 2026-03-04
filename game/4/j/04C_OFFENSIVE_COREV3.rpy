@@ -203,6 +203,13 @@ label battle_offensive_turn_legacy_entry:
                         S.extra_offensive_actions = int(getattr(S, "extra_offensive_actions", 0) or 0) + 1
                         S.deferred_defense_return_to_offense = False
                         S.deferred_defense_actor_key = ""
+                    elif msel == "def_from_atk":
+                        S.defense_for_attack_active = True
+                        S.extra_offensive_actions = 0
+                        S.extra_defensive_actions = int(getattr(S, "extra_defensive_actions", 0) or 0) + 1
+                        S.deferred_defense_return_to_offense = False
+                        S.deferred_defense_actor_key = ""
+                        renpy.jump("battle_defensive_turn")
                     else:
                         renpy.jump("battle_defensive_turn")
 
