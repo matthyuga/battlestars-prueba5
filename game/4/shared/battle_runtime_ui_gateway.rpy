@@ -17,52 +17,54 @@
 
 init -980 python:
     import random
-    import renpy
+
+    # Use the store-provided Ren'Py API object; do not `import renpy` here.
+    _renpy_api = renpy
 
     def bs_ui_show(name, **kwargs):
-        fn = getattr(renpy, "show_screen", None)
+        fn = getattr(_renpy_api, "show_screen", None)
         if callable(fn):
             return fn(name, **kwargs)
         return None
 
     def bs_ui_hide(name):
-        fn = getattr(renpy, "hide_screen", None)
+        fn = getattr(_renpy_api, "hide_screen", None)
         if callable(fn):
             return fn(name)
         return None
 
     def bs_ui_get(name):
-        fn = getattr(renpy, "get_screen", None)
+        fn = getattr(_renpy_api, "get_screen", None)
         if callable(fn):
             return fn(name)
         return None
 
     def bs_ui_restart():
-        fn = getattr(renpy, "restart_interaction", None)
+        fn = getattr(_renpy_api, "restart_interaction", None)
         if callable(fn):
             return fn()
         return None
 
     def bs_ui_pause(delay=0.0, hard=False):
-        fn = getattr(renpy, "pause", None)
+        fn = getattr(_renpy_api, "pause", None)
         if callable(fn):
             return fn(delay, hard=hard)
         return None
 
     def bs_ui_with(trans):
-        fn = getattr(renpy, "with_statement", None)
+        fn = getattr(_renpy_api, "with_statement", None)
         if callable(fn):
             return fn(trans)
         return None
 
     def bs_ui_random_int(a, b):
-        fn_rand = getattr(renpy, "random", None)
+        fn_rand = getattr(_renpy_api, "random", None)
         if fn_rand is not None and hasattr(fn_rand, "randint"):
             return fn_rand.randint(a, b)
         return random.randint(a, b)
 
     def bs_ui_has_label(name):
-        fn = getattr(renpy, "has_label", None)
+        fn = getattr(_renpy_api, "has_label", None)
         if callable(fn):
             return bool(fn(name))
         return False
