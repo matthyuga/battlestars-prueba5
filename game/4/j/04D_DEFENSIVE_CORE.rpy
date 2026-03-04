@@ -268,14 +268,14 @@ label battle_defensive_turn_legacy_entry:
 
     show screen battle_command_menu
     show screen technique_selector
-    $ renpy.restart_interaction()
+    $ bs_ui_restart()
 
     python:
         import renpy.store as S
         while True:
             if getattr(S, "turn_confirmed", False):
                 break
-            renpy.pause(0.1, hard=True)
+            bs_ui_pause(0.1, hard=True)
 
     hide screen battle_command_menu
     hide screen technique_selector

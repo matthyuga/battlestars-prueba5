@@ -34,11 +34,11 @@ label battle_offensive_turn_legacy_entry:
                 fn_turn_change("enemy")
 
             try:
-                renpy.show_screen("battle_popup_turn",
+                bs_ui_show("battle_popup_turn",
                                   text="Turno ofensivo — {}".format(enemy_name),
                                   color="#FFD700")
-                renpy.pause(0.7, hard=True)
-                renpy.hide_screen("battle_popup_turn")
+                bs_ui_pause(0.7, hard=True)
+                bs_ui_hide("battle_popup_turn")
             except:
                 pass
 
@@ -112,11 +112,11 @@ label battle_offensive_turn_legacy_entry:
             # Popup opcional
             try:
                 enemy_name = getattr(getattr(S, "enemy_ai", None), "name", "Enemigo")
-                renpy.show_screen("battle_popup_turn",
+                bs_ui_show("battle_popup_turn",
                                   text="Turno ofensivo — {}".format(enemy_name),
                                   color="#FFD700")
-                renpy.pause(0.7, hard=True)
-                renpy.hide_screen("battle_popup_turn")
+                bs_ui_pause(0.7, hard=True)
+                bs_ui_hide("battle_popup_turn")
             except:
                 pass
 
@@ -168,9 +168,9 @@ label battle_offensive_turn_legacy_entry:
                     S.deferred_defense_actor_key = str(akey)
 
                     try:
-                        renpy.show_screen("battle_popup_turn", text="Daño entrante — {}".format(def_name), color="#00BFFF")
-                        renpy.pause(0.7, hard=True)
-                        renpy.hide_screen("battle_popup_turn")
+                        bs_ui_show("battle_popup_turn", text="Daño entrante — {}".format(def_name), color="#00BFFF")
+                        bs_ui_pause(0.7, hard=True)
+                        bs_ui_hide("battle_popup_turn")
                     except:
                         try:
                             S.battle_popup_turn("Daño entrante — {}".format(def_name), "#00BFFF", 0.6)
@@ -264,11 +264,11 @@ label battle_offensive_turn_legacy_entry:
     $ _slot_txt = " ({})".format(S.bs_slot_tag(getattr(S, "turn_owner_team", "player"), int(getattr(S, "turn_owner_slot", 0) or 0)) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(int(getattr(S, "turn_owner_slot", 0) or 0) + 1)) if str(getattr(S, "battle_team_mode", "1v1") or "1v1").lower() == "2v2" else ""
     $ battle_log_phase("TURNO OFENSIVO{} – {}".format(_slot_txt, player_name))
 
-    $ renpy.show_screen("battle_popup_turn",
+    $ bs_ui_show("battle_popup_turn",
                         text="Turno ofensivo{} — {}".format(_slot_txt, player_name),
                         color="#FFD700")
-    $ renpy.pause(0.6, hard=True)
-    $ renpy.hide_screen("battle_popup_turn")
+    $ bs_ui_pause(0.6, hard=True)
+    $ bs_ui_hide("battle_popup_turn")
 
     # ============================================================
     # UI selección
@@ -280,12 +280,12 @@ label battle_offensive_turn_legacy_entry:
 
     show screen battle_command_menu
     show screen technique_selector
-    $ renpy.restart_interaction()
+    $ bs_ui_restart()
 
     python:
         import renpy.store as S
         while not getattr(S, "turn_confirmed", False):
-            renpy.pause(0.1, hard=True)
+            bs_ui_pause(0.1, hard=True)
 
     hide screen battle_command_menu
     hide screen technique_selector
@@ -408,7 +408,7 @@ label battle_offensive_turn_legacy_entry:
                         fn_show(roll)
                     else:
                         try:
-                            renpy.show_screen("dice_roll_result", rolls=roll.get("rolls", []))
+                            bs_ui_show("dice_roll_result", rolls=roll.get("rolls", []))
                         except:
                             pass
                 except:
@@ -480,7 +480,7 @@ label battle_offensive_turn_legacy_entry:
                         S.direct_pending_damage = 0
 
                 try:
-                    renpy.pause(0.8, hard=True)
+                    bs_ui_pause(0.8, hard=True)
                 except:
                     pass
 
