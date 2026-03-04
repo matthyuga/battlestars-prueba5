@@ -16,21 +16,12 @@ init 999 python:
 
 
 label battle_offensive_turn:
-    jump battle_offensive_turn_router_entry
+    jump battle_public_offensive_adapter
 
 
 label battle_enemy_turn:
-    jump battle_enemy_turn_router_entry
+    jump battle_public_enemy_adapter
 
 
 label battle_defensive_turn:
-    python:
-        import renpy.store as S
-        try:
-            fn_ensure = getattr(S, "bs_ui_gateway_ensure", None)
-            if callable(fn_ensure):
-                fn_ensure()
-        except:
-            pass
-
-    jump battle_defensive_turn_router_entry
+    jump battle_public_defensive_adapter
