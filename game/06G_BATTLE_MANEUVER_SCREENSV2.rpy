@@ -93,6 +93,33 @@ screen battle_maneuver_choice(damage):
     $ _actor_k = str(S.bs_current_actor_key() if callable(getattr(S, "bs_current_actor_key", None)) else "")
     $ _skip_map = getattr(S, "player_skip_attack_by_key", {}) if isinstance(getattr(S, "player_skip_attack_by_key", {}), dict) else {}
     $ offense_locked = bool(getattr(S, "player_skip_attack", False) or (_actor_k and bool(_skip_map.get(_actor_k, False))))
+    $ _incoming_key = str(getattr(S, "incoming_damage_target_key", "") or _actor_k or "")
+    $ _incoming_team = "player"
+    $ _incoming_slot = 0
+    $ _incoming_name = "-"
+    $ _incoming_tag = "P1"
+    python:
+        import renpy.store as S
+        try:
+            fn_parse = getattr(S, "bs_parse_unit_key", None)
+            if callable(fn_parse):
+                inf = fn_parse(_incoming_key, default_side="player", default_slot=0)
+                _incoming_team = str(inf.get("team", "player") or "player")
+                _incoming_slot = int(inf.get("slot", 0) or 0)
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            if callable(fn_get) and _incoming_key:
+                uu = fn_get(_incoming_key)
+                if isinstance(uu, dict):
+                    _incoming_name = str(uu.get("char_id", "") or "-")
+            if (_incoming_name == "-" or not _incoming_name) and _incoming_key and callable(getattr(S, "bs_describe_unit_key", None)):
+                _incoming_name = str(S.bs_describe_unit_key(_incoming_key, default_side="player", default_slot=0) or "-")
+            fn_tag = getattr(S, "bs_slot_tag", None)
+            if callable(fn_tag):
+                _incoming_tag = str(fn_tag(_incoming_team, _incoming_slot) or "P1")
+            else:
+                _incoming_tag = ("P{}" if _incoming_team == "player" else "E{}").format(int(_incoming_slot or 0) + 1)
+        except:
+            pass
 
     if show_maneuver_choice:
 
@@ -116,6 +143,15 @@ screen battle_maneuver_choice(damage):
                         textbutton "✖":
                             action SetVariable("show_maneuver_choice", False)
                             text_size 26
+
+                    frame:
+                        background "#0D2233CC"
+                        xfill True
+                        padding (10, 8)
+                        hbox:
+                            spacing 10
+                            text "Objetivo:" size 22 color "#80DEEA" bold True
+                            text "[_incoming_tag] [_incoming_name]" size 24 color "#FFFFFF" bold True
 
                     if not show_submenu:
 
