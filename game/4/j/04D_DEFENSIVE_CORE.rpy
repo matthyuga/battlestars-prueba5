@@ -7,7 +7,7 @@
 # - HUD limpio y colas limpias
 # ============================================================
 
-label battle_defensive_turn:
+label battle_defensive_turn_legacy_entry:
 
     # ========================================================
     # 🧹 LIMPIEZA INICIAL DE HUD / SIMULACIONES
@@ -268,14 +268,14 @@ label battle_defensive_turn:
 
     show screen battle_command_menu
     show screen technique_selector
-    $ renpy.restart_interaction()
+    $ bs_ui_restart()
 
     python:
         import renpy.store as S
         while True:
             if getattr(S, "turn_confirmed", False):
                 break
-            renpy.pause(0.1, hard=True)
+            bs_ui_pause(0.1, hard=True)
 
     hide screen battle_command_menu
     hide screen technique_selector
