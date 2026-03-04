@@ -1,12 +1,12 @@
 # ============================================================
 # battle_router_2v2.rpy — Implementación dedicada de entradas 2v2
 # ============================================================
-# T7: separa orquestación de entrada 2v2 del router general,
-# manteniendo compatibilidad con labels históricas *_2v2_entry.
+# T7/T8: separa orquestación de entrada 2v2 del router general
+# y usa incoming ctx aislado para evitar contaminación cruzada.
 # ============================================================
 
 init -948 python:
-    def bs_prepare_2v2_turn_entry(owner="player"):
+    def bs_prepare_2v2_turn_entry(owner="player", phase=""):
         """Prepara contexto mínimo de entrada para flujo 2v2."""
         try:
             import renpy.store as S
@@ -26,10 +26,17 @@ init -948 python:
             S.turn_owner_team = str(owner or "player")
             S.turn_owner_slot = int(slot_idx or 0)
 
+            # T8: limpiar incoming ctx al inicio de fases de ataque,
+            # mantenerlo en defensivo para no perder target seleccionado.
+            fn_clear_ctx = getattr(S, "bs_clear_incoming_ctx_2v2", None)
+            if phase in ("off", "enemy") and callable(fn_clear_ctx):
+                fn_clear_ctx(clear_plan=False)
+
             fn_debug_enabled = getattr(S, "bs_route_debug_enabled", None)
             if callable(fn_debug_enabled) and fn_debug_enabled() and callable(getattr(S, "battle_log_add", None)):
                 S.battle_log_add(
-                    "{color=#80DEEA}[DEBUG] ROUTE_PREP mode=2v2 owner=%s slot=%s{/color}" % (
+                    "{color=#80DEEA}[DEBUG] ROUTE_PREP mode=2v2 phase=%s owner=%s slot=%s{/color}" % (
+                        str(phase or "?"),
                         str(owner or "player"),
                         str(int(slot_idx or 0)),
                     )
@@ -41,7 +48,7 @@ init -948 python:
 label battle_offensive_turn_2v2_impl:
     python:
         import renpy.store as S
-        bs_prepare_2v2_turn_entry(owner="player")
+        bs_prepare_2v2_turn_entry(owner="player", phase="off")
         try:
             fn_route_log = getattr(S, "bs_log_turn_contract", None)
             if callable(fn_route_log):
@@ -54,7 +61,7 @@ label battle_offensive_turn_2v2_impl:
 label battle_enemy_turn_2v2_impl:
     python:
         import renpy.store as S
-        bs_prepare_2v2_turn_entry(owner="enemy")
+        bs_prepare_2v2_turn_entry(owner="enemy", phase="enemy")
         try:
             fn_route_log = getattr(S, "bs_log_turn_contract", None)
             if callable(fn_route_log):
@@ -67,7 +74,7 @@ label battle_enemy_turn_2v2_impl:
 label battle_defensive_turn_2v2_impl:
     python:
         import renpy.store as S
-        bs_prepare_2v2_turn_entry(owner="player")
+        bs_prepare_2v2_turn_entry(owner="player", phase="def")
         try:
             fn_route_log = getattr(S, "bs_log_turn_contract", None)
             if callable(fn_route_log):

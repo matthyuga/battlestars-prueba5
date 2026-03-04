@@ -717,9 +717,14 @@ label battle_enemy_turn_legacy_entry:
                     info = fn_parse(tkey, default_side="player", default_slot=0)
                     if str(info.get("team", "player") or "player") == "player":
                         fn_set_ctx(owner_team="player", owner_slot=int(info.get("slot", 0) or 0), phase="defensive", mirror_legacy=True)
-                S.incoming_damage_target_key = str(tkey or "")
-                S.incoming_damage_source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
-                S.incoming_damage_sources = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+                fn_set_incoming_ctx = getattr(S, "bs_set_incoming_ctx_2v2", None)
+                _src_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+                if mode == "2v2" and callable(fn_set_incoming_ctx):
+                    fn_set_incoming_ctx(target_key=str(tkey or ""), source_key=_src_key, owner_team="player", owner_slot=int(getattr(S, "turn_owner_slot", 0) or 0), phase="def")
+                else:
+                    S.incoming_damage_target_key = str(tkey or "")
+                    S.incoming_damage_source_key = _src_key
+                    S.incoming_damage_sources = [_src_key]
             except:
                 pass
 
@@ -794,9 +799,14 @@ label battle_enemy_turn_legacy_entry:
             if str(info.get("team", "player") or "player") == "player":
                 _slot_idx = int(info.get("slot", 0) or 0)
                 fn_set_ctx(owner_team="player", owner_slot=_slot_idx, phase="defensive", mirror_legacy=True)
-            S.incoming_damage_target_key = str(tkey or "")
-            S.incoming_damage_source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
-            S.incoming_damage_sources = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+            fn_set_incoming_ctx = getattr(S, "bs_set_incoming_ctx_2v2", None)
+            _src_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+            if _mode == "2v2" and callable(fn_set_incoming_ctx):
+                fn_set_incoming_ctx(target_key=str(tkey or ""), source_key=_src_key, owner_team="player", owner_slot=int(_slot_idx or 0), phase="def")
+            else:
+                S.incoming_damage_target_key = str(tkey or "")
+                S.incoming_damage_source_key = _src_key
+                S.incoming_damage_sources = [_src_key]
 
         try:
             if callable(fn_sync):

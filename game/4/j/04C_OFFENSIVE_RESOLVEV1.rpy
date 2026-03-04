@@ -164,9 +164,15 @@ label battle_offensive_resolve_enemy:
                         continue
                     pend[tk] = int(pend.get(tk, 0) or 0) + ai
                 S.enemy_pending_damage_by_key = pend
-                S.incoming_damage_target_key = str(target_key or (list(alloc.keys())[0] if alloc else ""))
-                S.incoming_damage_source_key = str(getattr(S, "current_actor_unit_key", "") or "")
-                S.incoming_damage_sources = [str(getattr(S, "current_actor_unit_key", "") or "")]
+                fn_set_incoming_ctx = getattr(S, "bs_set_incoming_ctx_2v2", None)
+                _tkey = str(target_key or (list(alloc.keys())[0] if alloc else ""))
+                _src_key = str(getattr(S, "current_actor_unit_key", "") or "")
+                if callable(fn_set_incoming_ctx):
+                    fn_set_incoming_ctx(target_key=_tkey, source_key=_src_key, owner_team="enemy", owner_slot=int(getattr(S, "turn_owner_slot", 0) or 0), phase="off")
+                else:
+                    S.incoming_damage_target_key = _tkey
+                    S.incoming_damage_source_key = _src_key
+                    S.incoming_damage_sources = [_src_key]
 
                 # Debuff de defensa pendiente por target (2v2 deferred)
                 deb_map = getattr(S, "enemy_pending_def_reduction_by_key", None)

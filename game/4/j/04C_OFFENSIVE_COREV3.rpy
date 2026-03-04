@@ -140,9 +140,14 @@ label battle_offensive_turn_legacy_entry:
                     ppend[akey] = 0
                     S.player_pending_damage_by_key = ppend
                     S.incoming_damage = int(pend_amt)
-                    S.incoming_damage_target_key = str(akey)
-                    S.incoming_damage_source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
-                    S.incoming_damage_sources = [str(getattr(S, "current_enemy_unit_key", "") or "")]
+                    fn_set_incoming_ctx = getattr(S, "bs_set_incoming_ctx_2v2", None)
+                    _src_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+                    if _mode == "2v2" and callable(fn_set_incoming_ctx):
+                        fn_set_incoming_ctx(target_key=str(akey), source_key=_src_key, owner_team="player", owner_slot=int(ainfo.get("slot", 0) or 0), phase="def")
+                    else:
+                        S.incoming_damage_target_key = str(akey)
+                        S.incoming_damage_source_key = _src_key
+                        S.incoming_damage_sources = [_src_key]
 
                     info = S.bs_parse_unit_key(akey, default_side="player", default_slot=0) if callable(getattr(S, "bs_parse_unit_key", None)) else {"slot":0}
                     slot_idx = int(info.get("slot", 0) or 0)
