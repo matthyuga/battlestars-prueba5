@@ -1,8 +1,8 @@
 # ============================================================
-# 00_BATTLE_MODE_1V1_ENTRY.rpy – Compat de entradas 1v1
+# 00_BATTLE_MODE_1V1_ENTRY.rpy – Helper de preparación 1v1
 # ============================================================
-# Mantiene API histórica *_1v1_entry para no romper llamadas,
-# delegando a la implementación dedicada en modes/1v1.
+# Expone bs_prepare_1v1_turn_entry() para la implementación
+# dedicada en modes/1v1 (T10: se retiran entries redundantes).
 # ============================================================
 
 init -949 python:
@@ -34,14 +34,3 @@ init -949 python:
         except Exception:
             pass
 
-
-label battle_offensive_turn_1v1_entry:
-    jump battle_offensive_turn_1v1_impl
-
-
-label battle_enemy_turn_1v1_entry:
-    jump battle_enemy_turn_1v1_impl
-
-
-label battle_defensive_turn_1v1_entry:
-    jump battle_defensive_turn_1v1_impl

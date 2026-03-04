@@ -5,7 +5,7 @@
 # - Mantener contrato público de labels legacy:
 #     battle_offensive_turn / battle_enemy_turn / battle_defensive_turn
 # - Enrutar por battle_team_mode sin cambiar reglas de combate.
-# - Preparar stubs 2v2 para migración incremental (C2/C3/C4).
+# - Delegar a implementaciones por modo (1v1/2v2 impl).
 # ============================================================
 
 init -950 python:
@@ -83,17 +83,3 @@ label battle_defensive_turn_router_entry:
     $ _router_target = "battle_defensive_turn_2v2_impl" if _is_2v2 else "battle_defensive_turn_1v1_impl"
     jump expression _router_target
 
-
-# ------------------------------------------------------------
-# Compat 2v2: labels históricas delegan a impl dedicada (T7).
-# ------------------------------------------------------------
-label battle_offensive_turn_2v2_entry:
-    jump battle_offensive_turn_2v2_impl
-
-
-label battle_enemy_turn_2v2_entry:
-    jump battle_enemy_turn_2v2_impl
-
-
-label battle_defensive_turn_2v2_entry:
-    jump battle_defensive_turn_2v2_impl
