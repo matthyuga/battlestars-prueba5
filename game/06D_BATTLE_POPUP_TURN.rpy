@@ -1,4 +1,4 @@
-﻿# ===========================================================
+# ===========================================================
 # 06D_BATTLE_POPUP_TURN.RPY – Popup de Inicio / Turno
 # ===========================================================
 # v1.2 Silent Cinematic Sync Edition (Ren’Py 7.4.9)
@@ -24,6 +24,15 @@ init -968 python:
         except Exception as e:
             renpy.log("battle_popup_turn error: {}".format(e))
 
+
+# -----------------------------------------------------------
+# CONTRATO DE RESPONSABILIDAD (Paso 1)
+# - Concepto A (canónico): battle_popup_turn = aviso de turno
+#   (ej: "Turno ofensivo", "Turno defensivo").
+# - NO usar para selector de maniobras/daño entrante.
+# - La ventana de maniobras vive en 06G_BATTLE_MANEUVER_SCREENSV2.rpy
+#   bajo el screen: battle_maneuver_choice.
+# -----------------------------------------------------------
 
 # -----------------------------------------------------------
 # 🔹 SCREEN – Popup centrado cinematográfico

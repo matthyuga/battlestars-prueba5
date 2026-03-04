@@ -5,7 +5,7 @@
 # - Mantener contrato público de labels legacy:
 #     battle_offensive_turn / battle_enemy_turn / battle_defensive_turn
 # - Enrutar por battle_team_mode sin cambiar reglas de combate.
-# - Preparar stubs 2v2 para migración incremental (C2/C3/C4).
+# - Delegar a implementaciones por modo (1v1/2v2 impl).
 # ============================================================
 
 init -950 python:
@@ -23,11 +23,18 @@ label battle_offensive_turn_router_entry:
     python:
         import renpy.store as S
         try:
-            if callable(getattr(S, "battle_log_add", None)):
-                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_offensive_turn mode=%s{/color}" % ("2v2" if _is_2v2 else "1v1"))
+            fn_route_log = getattr(S, "bs_log_turn_contract", None)
+            if callable(fn_route_log):
+                fn_route_log(
+                    "battle_offensive_turn_router_entry",
+                    "2v2" if _is_2v2 else "1v1",
+                    owner="player",
+                    target="slot" if _is_2v2 else "auto",
+                    phase="off",
+                )
         except:
             pass
-    $ _router_target = "battle_offensive_turn_2v2_entry" if _is_2v2 else "battle_offensive_turn_1v1_entry"
+    $ _router_target = "battle_offensive_turn_2v2_impl" if _is_2v2 else "battle_offensive_turn_1v1_impl"
     jump expression _router_target
 
 
@@ -36,11 +43,18 @@ label battle_enemy_turn_router_entry:
     python:
         import renpy.store as S
         try:
-            if callable(getattr(S, "battle_log_add", None)):
-                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_enemy_turn mode=%s{/color}" % ("2v2" if _is_2v2 else "1v1"))
+            fn_route_log = getattr(S, "bs_log_turn_contract", None)
+            if callable(fn_route_log):
+                fn_route_log(
+                    "battle_enemy_turn_router_entry",
+                    "2v2" if _is_2v2 else "1v1",
+                    owner="enemy",
+                    target="slot" if _is_2v2 else "auto",
+                    phase="enemy",
+                )
         except:
             pass
-    $ _router_target = "battle_enemy_turn_2v2_entry" if _is_2v2 else "battle_enemy_turn_1v1_entry"
+    $ _router_target = "battle_enemy_turn_2v2_impl" if _is_2v2 else "battle_enemy_turn_1v1_impl"
     jump expression _router_target
 
 
@@ -49,31 +63,23 @@ label battle_defensive_turn_router_entry:
     python:
         import renpy.store as S
         try:
-            fn_ensure = getattr(S, "ensure_renpy_ui_apis", None)
+            fn_ensure = getattr(S, "bs_ui_gateway_ensure", None)
             if callable(fn_ensure):
                 fn_ensure()
         except:
             pass
         try:
-            if callable(getattr(S, "battle_log_add", None)):
-                import renpy
-                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTER_ENTER label=battle_defensive_turn mode=%s has_show=%s{/color}" % ("2v2" if _is_2v2 else "1v1", str(callable(getattr(renpy, "show_screen", None)))))
+            fn_route_log = getattr(S, "bs_log_turn_contract", None)
+            if callable(fn_route_log):
+                fn_route_log(
+                    "battle_defensive_turn_router_entry",
+                    "2v2" if _is_2v2 else "1v1",
+                    owner="player",
+                    target="slot" if _is_2v2 else "auto",
+                    phase="def",
+                )
         except:
             pass
-    $ _router_target = "battle_defensive_turn_2v2_entry" if _is_2v2 else "battle_defensive_turn_1v1_entry"
+    $ _router_target = "battle_defensive_turn_2v2_impl" if _is_2v2 else "battle_defensive_turn_1v1_impl"
     jump expression _router_target
 
-
-# ------------------------------------------------------------
-# Stubs 2v2 (C1): por ahora delegan a legacy para no romper.
-# ------------------------------------------------------------
-label battle_offensive_turn_2v2_entry:
-    jump battle_offensive_turn_legacy_entry
-
-
-label battle_enemy_turn_2v2_entry:
-    jump battle_enemy_turn_legacy_entry
-
-
-label battle_defensive_turn_2v2_entry:
-    jump battle_defensive_turn_legacy_entry

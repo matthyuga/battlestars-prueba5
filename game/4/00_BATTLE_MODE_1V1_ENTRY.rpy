@@ -1,9 +1,8 @@
 # ============================================================
-# 00_BATTLE_MODE_1V1_ENTRY.rpy – Entry points dedicados 1v1
+# 00_BATTLE_MODE_1V1_ENTRY.rpy – Helper de preparación 1v1
 # ============================================================
-# Fase 1 (plan maestro): línea de vida 1v1 explícita.
-# Mantiene labels públicas/routing estables y evita acoplar
-# accidentalmente decisiones 1v1 a estado 2v2.
+# Expone bs_prepare_1v1_turn_entry() para la implementación
+# dedicada en modes/1v1 (T10: se retiran entries redundantes).
 # ============================================================
 
 init -949 python:
@@ -29,42 +28,9 @@ init -949 python:
             S.turn_owner_team = str(owner or "player")
             S.turn_owner_slot = 0
 
-            if callable(getattr(S, "battle_log_add", None)):
+            fn_debug_enabled = getattr(S, "bs_route_debug_enabled", None)
+            if callable(fn_debug_enabled) and fn_debug_enabled() and callable(getattr(S, "battle_log_add", None)):
                 S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE_PREP mode=1v1 owner=%s cleared_incoming=1{/color}" % str(owner or "player"))
         except Exception:
             pass
 
-label battle_offensive_turn_1v1_entry:
-    python:
-        import renpy.store as S
-        bs_prepare_1v1_turn_entry(owner="player")
-        try:
-            if callable(getattr(S, "battle_log_add", None)):
-                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 owner=player label=battle_offensive_turn_legacy_entry{/color}")
-        except:
-            pass
-    jump battle_offensive_turn_legacy_entry
-
-
-label battle_enemy_turn_1v1_entry:
-    python:
-        import renpy.store as S
-        bs_prepare_1v1_turn_entry(owner="enemy")
-        try:
-            if callable(getattr(S, "battle_log_add", None)):
-                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 owner=enemy label=battle_enemy_turn_legacy_entry{/color}")
-        except:
-            pass
-    jump battle_enemy_turn_legacy_entry
-
-
-label battle_defensive_turn_1v1_entry:
-    python:
-        import renpy.store as S
-        bs_prepare_1v1_turn_entry(owner="player")
-        try:
-            if callable(getattr(S, "battle_log_add", None)):
-                S.battle_log_add("{color=#80DEEA}[DEBUG] ROUTE mode=1v1 owner=player label=battle_defensive_turn_legacy_entry{/color}")
-        except:
-            pass
-    jump battle_defensive_turn_legacy_entry
