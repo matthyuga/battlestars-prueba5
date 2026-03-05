@@ -192,8 +192,18 @@ label battle_enemy_turn_legacy_entry:
             or getattr(S, "BATTLE_IDENTITIES", {}).get(player_name_turn, "ID_PLAYER_UNKNOWN")
         )
 
-        if getattr(S, "enemy_skip_attack", False):
+        _enemy_actor_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+        _emap_skip = getattr(S, "enemy_skip_attack_by_key", None)
+        _enemy_skip_for_actor = bool(isinstance(_emap_skip, dict) and _enemy_actor_key and _emap_skip.get(_enemy_actor_key, False))
 
+        if _enemy_skip_for_actor or getattr(S, "enemy_skip_attack", False):
+
+            if _enemy_skip_for_actor:
+                try:
+                    _emap_skip[_enemy_actor_key] = False
+                    S.enemy_skip_attack_by_key = _emap_skip
+                except:
+                    pass
             S.enemy_skip_attack = False
 
             # Si IA no ataca, reflect pendiente contra jugador se consume y se pierde.
@@ -232,19 +242,38 @@ label battle_enemy_turn_legacy_entry:
             bs_ui_pause(0.5, hard=True)
 
             # Diseño elegido: NO limpiamos reflect aquí.
-            S.battle_turn_change("player")
-            try:
-                _bp = getattr(S, "battle_player", None)
-                if isinstance(_bp, dict):
-                    _pname = str(_bp.get("name", "") or "")
-                else:
+            _mode_skip = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            _next_team = "player"
+            _next_key = ""
+            if _mode_skip == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                _next_key = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                _next_team = str(S.bs_parse_unit_key(_next_key, default_side="player", default_slot=0).get("team", "player") or "player")
+
+            S.battle_turn_change(_next_team)
+            if _next_team == "enemy":
+                try:
+                    fn_desc = getattr(S, "bs_describe_unit_key", None)
+                    _ename = str(fn_desc(_next_key) if callable(fn_desc) and _next_key else enemy_name)
+                    S.battle_popup_turn("Turno ofensivo — {}".format(_ename or enemy_name), "#FFD700", 0.7)
+                except:
+                    pass
+                renpy.jump("battle_enemy_turn")
+            else:
+                try:
+                    fn_desc = getattr(S, "bs_describe_unit_key", None)
                     _pname = ""
-                if not _pname:
-                    _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
-                S.battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", 0.7)
-            except:
-                pass
-            renpy.jump("battle_offensive_turn")
+                    if callable(fn_desc) and _next_key:
+                        _pname = str(fn_desc(_next_key) or "")
+                    if not _pname:
+                        _bp = getattr(S, "battle_player", None)
+                        if isinstance(_bp, dict):
+                            _pname = str(_bp.get("name", "") or "")
+                    if not _pname:
+                        _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+                    S.battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", 0.7)
+                except:
+                    pass
+                renpy.jump("battle_offensive_turn")
 
     # ============================================================
     # ⭐ ENCABEZADO IA
@@ -266,6 +295,7 @@ label battle_enemy_turn_legacy_entry:
         S.incoming_damage         = 0
         S.incoming_direct_damage  = 0
         S.enemy_attack_records    = []
+        S.enemy_noatk_success     = False
 
         # ID store-safe
         S.current_enemy_id = getattr(S, "BATTLE_IDENTITIES", {}).get(enemy_name, "ID_ENEMY_UNKNOWN")
@@ -445,6 +475,21 @@ label battle_enemy_turn_legacy_entry:
             if primary:
                 S.enemy_target_key = str(primary)
             S.enemy_split_policy_used = str(policy)
+
+            # Negador en 2v2: aplicar NO ATK al target real (primary), no al siguiente actor global.
+            if bool(getattr(S, "enemy_noatk_success", False)):
+                try:
+                    if str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2" and primary:
+                        pskip_map = getattr(S, "player_skip_attack_by_key", None)
+                        if not isinstance(pskip_map, dict):
+                            pskip_map = {}
+                        pskip_map[str(primary)] = True
+                        S.player_skip_attack_by_key = pskip_map
+                        S.player_skip_attack = False
+                    elif str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower() != "2v2":
+                        S.player_skip_attack = True
+                except:
+                    pass
 
             if plan_entries and callable(fn_make_plan):
                 S.enemy_damage_plan = fn_make_plan(

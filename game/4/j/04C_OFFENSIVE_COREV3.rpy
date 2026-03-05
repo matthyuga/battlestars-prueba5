@@ -52,7 +52,40 @@ label battle_offensive_turn_legacy_entry:
         import renpy.store as S
 
         S._reflect_consumed_this_turn = False
-        if getattr(S, "player_skip_attack", False):
+        _should_skip_offense = bool(getattr(S, "player_skip_attack", False))
+        _consumed_keyed_skip = False
+
+        _actor_key_skip = ""
+        if callable(getattr(S, "bs_current_actor_key", None)):
+            _actor_key_skip = str(S.bs_current_actor_key() or "")
+
+        _pmap_skip = getattr(S, "player_skip_attack_by_key", None)
+        if _actor_key_skip and isinstance(_pmap_skip, dict) and bool(_pmap_skip.get(_actor_key_skip, False)):
+            _should_skip_offense = True
+            _consumed_keyed_skip = True
+
+        # En 2v2, si este actor tiene daño pendiente, primero debe resolver
+        # su ventana defensiva/maniobra antes de perder el turno ofensivo.
+        if _should_skip_offense:
+            try:
+                _mode_skip = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+                if _mode_skip == "2v2" and callable(getattr(S, "bs_current_actor_key", None)):
+                    _akey_skip = str(S.bs_current_actor_key() or "")
+                    _ppend_skip = getattr(S, "player_pending_damage_by_key", None)
+                    if _akey_skip and isinstance(_ppend_skip, dict):
+                        _pend_skip = max(0, int(_ppend_skip.get(_akey_skip, 0) or 0))
+                        if _pend_skip > 0:
+                            _should_skip_offense = False
+            except:
+                pass
+
+        if _should_skip_offense:
+            if _consumed_keyed_skip:
+                try:
+                    _pmap_skip[_actor_key_skip] = False
+                    S.player_skip_attack_by_key = _pmap_skip
+                except:
+                    pass
             S.player_skip_attack = False
             S.offense_cancelled = True
 
@@ -104,23 +137,36 @@ label battle_offensive_turn_legacy_entry:
                 except:
                     pass
 
+            _mode_skip_flow = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            _next_team = "enemy"
+            _next_key = ""
+            if _mode_skip_flow == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                _next_key = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                _next_team = str(S.bs_parse_unit_key(_next_key, default_side="enemy", default_slot=0).get("team", "enemy") or "enemy")
+
             # Cambiar turno (si existe helper)
             fn_turn_change = getattr(S, "battle_turn_change", None)
             if callable(fn_turn_change):
-                fn_turn_change("enemy")
+                fn_turn_change(_next_team)
 
             # Popup opcional
             try:
-                enemy_name = getattr(getattr(S, "enemy_ai", None), "name", "Enemigo")
-                bs_ui_show("battle_popup_turn",
-                                  text="Turno ofensivo — {}".format(enemy_name),
-                                  color="#FFD700")
+                fn_desc = getattr(S, "bs_describe_unit_key", None)
+                if _next_team == "enemy":
+                    enemy_name = str(fn_desc(_next_key) if callable(fn_desc) and _next_key else getattr(getattr(S, "enemy_ai", None), "name", "Enemigo"))
+                    bs_ui_show("battle_popup_turn", text="Turno ofensivo — {}".format(enemy_name), color="#FFD700")
+                else:
+                    player_name = str(fn_desc(_next_key) if callable(fn_desc) and _next_key else getattr(S, "battle_player_id", "Harribel"))
+                    bs_ui_show("battle_popup_turn", text="Turno ofensivo — {}".format(player_name), color="#FFD700")
                 bs_ui_pause(0.7, hard=True)
                 bs_ui_hide("battle_popup_turn")
             except:
                 pass
 
-            renpy.jump("battle_enemy_turn")
+            if _next_team == "enemy":
+                renpy.jump("battle_enemy_turn")
+            else:
+                renpy.jump("battle_offensive_turn")
 
     # ============================================================
     # ⭐ 2v2: resolver daño entrante SOLO cuando le toca al defensor
@@ -379,6 +425,17 @@ label battle_offensive_turn_legacy_entry:
         used_direct = ("Ataque Directo" in (selected or []))
         used_noatk  = ("Ataque Negador" in (selected or []))
 
+        _mode_now = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        _policy_now = str(getattr(S, "offensive_targeting_policy", "single_target") or "single_target").strip().lower()
+        _split_effects_blocked = False
+        if _mode_now == "2v2" and _policy_now in ("split_equal", "split_manual"):
+            try:
+                fn_valid = getattr(S, "bs_get_valid_target_keys", None)
+                _targets = list(fn_valid("enemy") or []) if callable(fn_valid) else []
+                _split_effects_blocked = (len(_targets) > 1)
+            except:
+                _split_effects_blocked = True
+
         S.direct_success = False
         S.noatk_success  = False
 
@@ -424,52 +481,96 @@ label battle_offensive_turn_legacy_entry:
 
         battle_fmt_num = getattr(S, "battle_fmt_num", globals().get("battle_fmt_num", None))
 
-        if used_direct or used_noatk:
-
-            roll = None
+        if _split_effects_blocked:
+            # En daño dividido 2v2, todos los efectos especiales se desactivan:
+            # - Sin tiradas de dados (directo/negador)
+            # - Sin NO ATK
+            # - Sin daño directo indefendible
+            # - Sin reducción de defensa
             try:
-                fn_roll = getattr(S, "roll_3d", None)
-                if callable(fn_roll):
-                    roll = fn_roll()
+                S.next_defense_reduction = 0.0
             except:
-                roll = None
+                pass
 
-            if isinstance(roll, dict):
-
-                # mostrar dados
+            if used_direct:
                 try:
-                    fn_show = getattr(S, "show_dice_result", None)
-                    if callable(fn_show):
-                        fn_show(roll)
-                    else:
+                    base_d = int(getattr(S, "direct_base_damage", 0) or 0)
+                except:
+                    base_d = 0
+                try:
+                    dmg_d = int(getattr(S, "direct_pending_damage", 0) or base_d)
+                except:
+                    dmg_d = base_d
+
+                if dmg_d > 0:
+                    try:
+                        attack_records.append((base_d, dmg_d))
+                    except:
+                        pass
+                    try:
+                        total_damage += dmg_d
+                    except:
+                        total_damage = int(total_damage or 0) + int(dmg_d or 0)
+
+                try:
+                    S.direct_pending_damage = 0
+                except:
+                    pass
+
+            try:
+                _blog("{color=#BBBBBB}Modo dividir daño: efectos especiales desactivados (sin dados/negador/directo/reducción).{/color}")
+            except:
+                pass
+
+        elif used_direct or used_noatk:
+            def _roll_for_action(action_label):
+                roll_local = None
+                try:
+                    fn_roll = getattr(S, "roll_3d", None)
+                    if callable(fn_roll):
+                        roll_local = fn_roll()
+                except:
+                    roll_local = None
+
+                if isinstance(roll_local, dict):
+                    # log de slots (preferir store-safe)
+                    try:
+                        fn_slots = getattr(S, "log_dice_slots", None)
+                        if not callable(fn_slots):
+                            fn_slots = globals().get("log_dice_slots", None)
+                        if callable(fn_slots):
+                            _blog("{color=#BBBBBB}Tirada — %s{/color}" % str(action_label or "Técnica"))
+                            _blog(fn_slots(roll_local.get("rolls", [])))
+                    except:
+                        pass
+
+                return roll_local
+
+            _dice_actions = []
+            for _nm in (selected or []):
+                if _nm in ("Ataque Negador", "Ataque Directo") and _nm not in _dice_actions:
+                    _dice_actions.append(_nm)
+
+            _dice_panels = []
+            for _nm in _dice_actions:
+                _roll = _roll_for_action(_nm)
+                _ok = bool(isinstance(_roll, dict) and _roll.get("success", False))
+                if isinstance(_roll, dict):
+                    _dice_panels.append({"label": str(_nm or "Tirada"), "rolls": list(_roll.get("rolls", []) or [])})
+
+                if _nm == "Ataque Directo":
+                    S.direct_success = bool(_ok)
+                    if _ok:
                         try:
-                            bs_ui_show("dice_roll_result", rolls=roll.get("rolls", []))
+                            _blog("Ataque Directo → ÉXITO", "#FFD700")
                         except:
                             pass
-                except:
-                    pass
 
-                # log de slots (preferir store-safe)
-                try:
-                    fn_slots = getattr(S, "log_dice_slots", None)
-                    if not callable(fn_slots):
-                        fn_slots = globals().get("log_dice_slots", None)
-                    if callable(fn_slots):
-                        _blog(fn_slots(roll.get("rolls", [])))
-                except:
-                    pass
-
-                if roll.get("success", False):
-
-                    if used_direct:
-                        S.direct_success = True
-
-                    if used_noatk:
-                        S.noatk_success = True
-
-                        # ✅ FIX: el Negador del JUGADOR cancela el turno del ENEMIGO
-                        S.enemy_skip_attack = True
-
+                if _nm == "Ataque Negador":
+                    S.noatk_success = bool(_ok)
+                    if _ok:
+                        # El target de NO ATK se resuelve al final del turno
+                        # (cuando ya existe offensive_target_key/plan estable).
                         try:
                             if callable(fmt_purple) and callable(fmt_gold):
                                 _blog(fmt_purple("Ataque Negador → ") + fmt_gold("ÉXITO"))
@@ -477,47 +578,70 @@ label battle_offensive_turn_legacy_entry:
                                 _blog("Ataque Negador → ÉXITO", "#C586C0")
                         except:
                             _blog("Ataque Negador → ÉXITO", "#C586C0")
-
-                # === ATAQUE DIRECTO FALLADO → daño defendible ===
-                if (not getattr(S, "direct_success", False)) and ("Ataque Directo" in getattr(S, "last_selected_actions", [])):
-
-                    try:
-                        base_d = int(getattr(S, "direct_base_damage", 0) or 0)
-                    except:
-                        base_d = 0
-                    try:
-                        dmg_d  = int(getattr(S, "direct_pending_damage", 0) or base_d)
-                    except:
-                        dmg_d = base_d
-
-                    if dmg_d > 0:
+                    else:
                         try:
-                            attack_records.append((base_d, dmg_d))
+                            _blog("Ataque Negador → FALLÓ", "#C586C0")
                         except:
                             pass
-                        try:
-                            total_damage += dmg_d
-                        except:
-                            total_damage = int(total_damage or 0) + int(dmg_d or 0)
 
-                        try:
-                            if callable(fmt_white) and callable(fmt_red) and callable(battle_fmt_num):
-                                _blog(
-                                    fmt_white("Ataque Directo fallado → ") +
-                                    fmt_red(battle_fmt_num(dmg_d)) +
-                                    fmt_white(" daño defendible.")
-                                )
-                            else:
-                                _blog("Ataque Directo fallado → {} daño defendible.".format(dmg_d), "#FFFFFF")
-                        except:
-                            _blog("Ataque Directo fallado → {} daño defendible.".format(dmg_d), "#FFFFFF")
+            # Mostrar tiradas en centro:
+            # - 1 técnica => 1 tarjeta centrada.
+            # - 2 técnicas => 2 tarjetas lado a lado.
+            try:
+                fn_show = getattr(S, "show_dice_result", None)
+                if callable(fn_show):
+                    if len(_dice_panels) >= 2:
+                        fn_show(_dice_panels)
+                    elif len(_dice_panels) == 1:
+                        fn_show({"rolls": list(_dice_panels[0].get("rolls", []) or [])}, label_text=str(_dice_panels[0].get("label", "Tirada") or "Tirada"))
+                else:
+                    if len(_dice_panels) >= 2:
+                        bs_ui_show("dice_roll_result_multi", entries=_dice_panels)
+                    elif len(_dice_panels) == 1:
+                        bs_ui_show("dice_roll_result", rolls=list(_dice_panels[0].get("rolls", []) or []), label_text=str(_dice_panels[0].get("label", "Tirada") or "Tirada"))
+            except:
+                pass
 
-                        S.direct_pending_damage = 0
+            # === ATAQUE DIRECTO FALLADO → daño defendible ===
+            if (not getattr(S, "direct_success", False)) and ("Ataque Directo" in getattr(S, "last_selected_actions", [])):
 
                 try:
-                    bs_ui_pause(0.8, hard=True)
+                    base_d = int(getattr(S, "direct_base_damage", 0) or 0)
                 except:
-                    pass
+                    base_d = 0
+                try:
+                    dmg_d  = int(getattr(S, "direct_pending_damage", 0) or base_d)
+                except:
+                    dmg_d = base_d
+
+                if dmg_d > 0:
+                    try:
+                        attack_records.append((base_d, dmg_d))
+                    except:
+                        pass
+                    try:
+                        total_damage += dmg_d
+                    except:
+                        total_damage = int(total_damage or 0) + int(dmg_d or 0)
+
+                    try:
+                        if callable(fmt_white) and callable(fmt_red) and callable(battle_fmt_num):
+                            _blog(
+                                fmt_white("Ataque Directo fallado → ") +
+                                fmt_red(battle_fmt_num(dmg_d)) +
+                                fmt_white(" daño defendible.")
+                            )
+                        else:
+                            _blog("Ataque Directo fallado → {} daño defendible.".format(dmg_d), "#FFFFFF")
+                    except:
+                        _blog("Ataque Directo fallado → {} daño defendible.".format(dmg_d), "#FFFFFF")
+
+                    S.direct_pending_damage = 0
+
+            try:
+                bs_ui_pause(0.8, hard=True)
+            except:
+                pass
 
     # ============================================================
     # Fórmula final (reflect + total defendible)

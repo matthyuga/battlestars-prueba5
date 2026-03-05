@@ -216,8 +216,23 @@ init -990 python:
             "success": successes >= 2
         }
 
-    def show_dice_result(roll_data):
-        renpy.show_screen("dice_roll_result", rolls=roll_data["rolls"])
+    def show_dice_result(roll_data, label_text=""):
+        # Permite mostrar 1 tirada (dict) o varias tiradas simultáneas (list)
+        # para que Directo+Negador puedan verse lado a lado en el centro.
+        if isinstance(roll_data, list):
+            entries = []
+            for e in roll_data:
+                if not isinstance(e, dict):
+                    continue
+                entries.append({
+                    "label": str(e.get("label", "") or ""),
+                    "rolls": list(e.get("rolls", []) or []),
+                })
+            if entries:
+                renpy.show_screen("dice_roll_result_multi", entries=entries)
+            return
+
+        renpy.show_screen("dice_roll_result", rolls=roll_data["rolls"], label_text=label_text)
 
     store.roll_3d = roll_3d
     store.show_dice_result = show_dice_result
@@ -277,6 +292,8 @@ default incoming_damage_target_key = ""
 default incoming_damage_source_key = ""
 default incoming_damage_sources = []
 default offense_cancelled = False
+default player_skip_attack_by_key = {}
+default enemy_skip_attack_by_key = {}
 default deferred_defense_return_to_offense = False
 default deferred_defense_actor_key = ""
 default player_pending_damage_by_key = {}
@@ -293,6 +310,7 @@ default turn_count = 1
 # Flags Directo / Negador
 default direct_success = False
 default noatk_success  = False
+default enemy_noatk_success = False
 
 default maneuver_selected = "none"
 default counter_damage = 0

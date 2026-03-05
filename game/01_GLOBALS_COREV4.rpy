@@ -62,35 +62,71 @@ init -984 python:
     # Bootstrap (save/rollback safe)
     if not hasattr(S, "focus_off_charges"): S.focus_off_charges = 0
     if not hasattr(S, "focus_off_decay"):   S.focus_off_decay   = 0
+    if not hasattr(S, "focus_off_owner_team"): S.focus_off_owner_team = ""
     if not hasattr(S, "focus_off_consumed_this_turn"): S.focus_off_consumed_this_turn = False
 
     # Compat legacy (NO SSOT de costos)
     if not hasattr(S, "focus_cost_active"): S.focus_cost_active = False
 
-    def offensive_focus_multiplier_peek():
+    def _focus_owner_now(default_team="player"):
+        try:
+            fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+            if callable(fn_ctx):
+                ctx = fn_ctx()
+                t = str(ctx.get("owner_team", default_team) or default_team).strip().lower()
+                if t in ("player", "enemy"):
+                    return t
+        except:
+            pass
+        try:
+            t = str(getattr(S, "turn_owner_team", default_team) or default_team).strip().lower()
+            if t in ("player", "enemy"):
+                return t
+        except:
+            pass
+        return str(default_team or "player")
+
+    def offensive_focus_multiplier_peek(owner_team=None):
         try:
             c = int(S.focus_off_charges or 0)
         except:
             c = 0
+        if c > 0:
+            owner = str(getattr(S, "focus_off_owner_team", "") or "").strip().lower()
+            req = str(owner_team or _focus_owner_now("player") or "player").strip().lower()
+            if owner and req and owner != req:
+                return 1
         if c <= 0: return 1
         if c == 1: return 2
         return 4
 
-    def activate_offensive_focus():
+    def activate_offensive_focus(owner_team=None):
+        req = str(owner_team or _focus_owner_now("player") or "player").strip().lower()
+        cur_owner = str(getattr(S, "focus_off_owner_team", "") or "").strip().lower()
+
         try:
             c = int(S.focus_off_charges or 0)
         except:
             c = 0
+
+        # Si existe focus almacenado del equipo contrario, no se acumula:
+        # el nuevo focus reemplaza al ajeno antes de sumar su carga.
+        if c > 0 and cur_owner and req and cur_owner != req:
+            c = 0
+            S.focus_off_decay = 0
+
         c += 1
         if c > FOCUS_OFF_MAX_CHARGES:
             c = FOCUS_OFF_MAX_CHARGES
         S.focus_off_charges = c
+        S.focus_off_owner_team = req
 
         # seguridad: legacy flag no gobierna costos
         S.focus_cost_active = False
 
-    def apply_offensive_focus(value):
-        mult = offensive_focus_multiplier_peek()
+    def apply_offensive_focus(value, owner_team=None):
+        req = str(owner_team or _focus_owner_now("player") or "player").strip().lower()
+        mult = offensive_focus_multiplier_peek(req)
         if mult <= 1:
             return value
 
@@ -104,6 +140,7 @@ init -984 python:
 
         S.focus_off_charges = 0
         S.focus_off_decay   = 0
+        S.focus_off_owner_team = ""
         S.focus_off_consumed_this_turn = True
         S.focus_cost_active = False
         return result
@@ -112,6 +149,7 @@ init -984 python:
         if not FOCUS_OFF_CAN_STORE:
             S.focus_off_charges = 0
             S.focus_off_decay = 0
+            S.focus_off_owner_team = ""
             S.focus_off_consumed_this_turn = False
             return
 
@@ -134,6 +172,8 @@ init -984 python:
             if d >= 1:
                 c = max(0, c - 1)
                 S.focus_off_charges = c
+                if c <= 0:
+                    S.focus_off_owner_team = ""
 
             S.focus_off_decay = 1
 
@@ -243,6 +283,7 @@ init -982 python:
     def reset_focus_multipliers():
         S.focus_off_charges = 0
         S.focus_off_decay = 0
+        S.focus_off_owner_team = ""
         S.focus_off_consumed_this_turn = False
 
         S.boost_def_charges = 0

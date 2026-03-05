@@ -115,7 +115,7 @@ init -988 python:
 
                 return "none"
 
-            S.activate_offensive_focus()
+            S.activate_offensive_focus(owner_team="enemy")
 
             # ✅ marca que el PRÓXIMO ataque paga Reiatsu x2
             S.enemy_focus_cost_pending = True
@@ -171,7 +171,7 @@ init -988 python:
         # Calcular daño REAL (con Focus de daño)
         # --------------------------------------------------------
         base, final = ai_get_base_and_final(key)
-        dmg = S.apply_offensive_focus(final)
+        dmg = S.apply_offensive_focus(final, owner_team="enemy")
 
         # --------------------------------------------------------
         # 🎲 ATAQUES CON DADOS (IA): Directo / Negador
@@ -188,13 +188,14 @@ init -988 python:
 
             # Mostrar dados si existe
             if isinstance(roll, dict):
+                _dice_lbl = str(tech.get("name", key) if isinstance(tech, dict) else key)
                 try:
                     fn_show = getattr(S, "show_dice_result", None)
                     if callable(fn_show):
-                        fn_show(roll)
+                        fn_show(roll, label_text=_dice_lbl)
                     else:
                         import renpy.exports as R
-                        R.show_screen("dice_roll_result", rolls=roll.get("rolls", []))
+                        R.show_screen("dice_roll_result", rolls=roll.get("rolls", []), label_text=_dice_lbl)
                 except:
                     pass
 
@@ -252,7 +253,12 @@ init -988 python:
             # ----------------------------------------------------
             if key == "noatk_attack":
                 if success:
-                    S.player_skip_attack = True
+                    _mode_noatk = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+                    if _mode_noatk == "2v2":
+                        S.enemy_noatk_success = True
+                        S.player_skip_attack = False
+                    else:
+                        S.player_skip_attack = True
                     S.offense_cancelled = True
                     status = "NO ATK"
                     try:

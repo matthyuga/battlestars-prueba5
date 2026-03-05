@@ -203,7 +203,29 @@ label battle_offensive_resolve_enemy:
                         S.battle_log_add("{color=#B39DDB}Daño en cola 2v2 → %s{/color}" % (" | ".join(parts)))
                 except:
                     pass
+
+                # Negador en 2v2: cancelar solo al target real del efecto, no al próximo actor global.
+                if bool(getattr(S, "noatk_success", False)):
+                    try:
+                        skip_map = getattr(S, "enemy_skip_attack_by_key", None)
+                        if not isinstance(skip_map, dict):
+                            skip_map = {}
+
+                        skip_target = str(target_key or "")
+                        if (not skip_target) and alloc:
+                            skip_target = str(list(alloc.keys())[0] or "")
+
+                        if skip_target:
+                            skip_map[skip_target] = True
+                            S.enemy_skip_attack_by_key = skip_map
+                            S.enemy_skip_attack = False
+                    except:
+                        pass
             else:
+                # 1v1 mantiene semántica global legacy.
+                if bool(getattr(S, "noatk_success", False)):
+                    S.enemy_skip_attack = True
+
                 if alloc and callable(fn_apply_key):
                     src = getattr(S, "current_actor_unit_key", None)
                     for tk, amt in alloc.items():
