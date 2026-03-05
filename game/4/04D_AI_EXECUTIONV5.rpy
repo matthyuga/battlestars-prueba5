@@ -253,13 +253,8 @@ init -988 python:
             if key == "noatk_attack":
                 if success:
                     _mode_noatk = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
-                    _target_noatk = str(getattr(S, "enemy_target_key", "") or "")
-                    if _mode_noatk == "2v2" and _target_noatk:
-                        pskip_map = getattr(S, "player_skip_attack_by_key", None)
-                        if not isinstance(pskip_map, dict):
-                            pskip_map = {}
-                        pskip_map[_target_noatk] = True
-                        S.player_skip_attack_by_key = pskip_map
+                    if _mode_noatk == "2v2":
+                        S.enemy_noatk_success = True
                         S.player_skip_attack = False
                     else:
                         S.player_skip_attack = True

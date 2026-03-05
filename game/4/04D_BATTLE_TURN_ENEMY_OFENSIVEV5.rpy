@@ -295,6 +295,7 @@ label battle_enemy_turn_legacy_entry:
         S.incoming_damage         = 0
         S.incoming_direct_damage  = 0
         S.enemy_attack_records    = []
+        S.enemy_noatk_success     = False
 
         # ID store-safe
         S.current_enemy_id = getattr(S, "BATTLE_IDENTITIES", {}).get(enemy_name, "ID_ENEMY_UNKNOWN")
@@ -474,6 +475,21 @@ label battle_enemy_turn_legacy_entry:
             if primary:
                 S.enemy_target_key = str(primary)
             S.enemy_split_policy_used = str(policy)
+
+            # Negador en 2v2: aplicar NO ATK al target real (primary), no al siguiente actor global.
+            if bool(getattr(S, "enemy_noatk_success", False)):
+                try:
+                    if str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2" and primary:
+                        pskip_map = getattr(S, "player_skip_attack_by_key", None)
+                        if not isinstance(pskip_map, dict):
+                            pskip_map = {}
+                        pskip_map[str(primary)] = True
+                        S.player_skip_attack_by_key = pskip_map
+                        S.player_skip_attack = False
+                    elif str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower() != "2v2":
+                        S.player_skip_attack = True
+                except:
+                    pass
 
             if plan_entries and callable(fn_make_plan):
                 S.enemy_damage_plan = fn_make_plan(

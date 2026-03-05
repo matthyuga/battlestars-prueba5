@@ -295,6 +295,7 @@ default turn_count = 1
 # Flags Directo / Negador
 default direct_success = False
 default noatk_success  = False
+default enemy_noatk_success = False
 
 default maneuver_selected = "none"
 default counter_damage = 0

@@ -137,23 +137,36 @@ label battle_offensive_turn_legacy_entry:
                 except:
                     pass
 
+            _mode_skip_flow = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            _next_team = "enemy"
+            _next_key = ""
+            if _mode_skip_flow == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                _next_key = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                _next_team = str(S.bs_parse_unit_key(_next_key, default_side="enemy", default_slot=0).get("team", "enemy") or "enemy")
+
             # Cambiar turno (si existe helper)
             fn_turn_change = getattr(S, "battle_turn_change", None)
             if callable(fn_turn_change):
-                fn_turn_change("enemy")
+                fn_turn_change(_next_team)
 
             # Popup opcional
             try:
-                enemy_name = getattr(getattr(S, "enemy_ai", None), "name", "Enemigo")
-                bs_ui_show("battle_popup_turn",
-                                  text="Turno ofensivo — {}".format(enemy_name),
-                                  color="#FFD700")
+                fn_desc = getattr(S, "bs_describe_unit_key", None)
+                if _next_team == "enemy":
+                    enemy_name = str(fn_desc(_next_key) if callable(fn_desc) and _next_key else getattr(getattr(S, "enemy_ai", None), "name", "Enemigo"))
+                    bs_ui_show("battle_popup_turn", text="Turno ofensivo — {}".format(enemy_name), color="#FFD700")
+                else:
+                    player_name = str(fn_desc(_next_key) if callable(fn_desc) and _next_key else getattr(S, "battle_player_id", "Harribel"))
+                    bs_ui_show("battle_popup_turn", text="Turno ofensivo — {}".format(player_name), color="#FFD700")
                 bs_ui_pause(0.7, hard=True)
                 bs_ui_hide("battle_popup_turn")
             except:
                 pass
 
-            renpy.jump("battle_enemy_turn")
+            if _next_team == "enemy":
+                renpy.jump("battle_enemy_turn")
+            else:
+                renpy.jump("battle_offensive_turn")
 
     # ============================================================
     # ⭐ 2v2: resolver daño entrante SOLO cuando le toca al defensor
