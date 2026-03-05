@@ -236,6 +236,8 @@ screen battle_hp_overlay():
         if ui_show_unit_hud:
             if str(getattr(store, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2" and hasattr(store, "bs_unit_key") and hasattr(store, "bs_get_unit_by_key"):
                 $ _ctx_u = store.bs_get_turn_ctx() if hasattr(store, "bs_get_turn_ctx") else {"owner_team": "player", "owner_slot": 0}
+                $ _pcount_hud = min(2, max(1, len(getattr(store, "battle_player_ids", []) or [])))
+                $ _ecount_hud = min(2, max(1, len(getattr(store, "battle_enemy_ids", []) or [])))
                 hbox:
                     xalign 0.5
                     yalign 0.0
@@ -243,7 +245,8 @@ screen battle_hp_overlay():
                     for _team in ["player", "enemy"]:
                         vbox:
                             spacing 8
-                            for i in range(2):
+                            $ _team_count = _pcount_hud if _team == "player" else _ecount_hud
+                            for i in range(_team_count):
                                 $ _uk = store.bs_unit_key(_team, i)
                                 $ _uu = store.bs_get_unit_by_key(_uk)
                                 $ _res = store.bs_get_unit_resources(_uk) if hasattr(store, "bs_get_unit_resources") else {"reiatsu":0,"energy":0}
@@ -355,7 +358,14 @@ screen battle_hp_overlay():
                     $ _p2n = str((_p2.get("char_id", "P2") if isinstance(_p2, dict) else "P2") or "P2")
                     $ _e1n = str((_e1.get("char_id", "E1") if isinstance(_e1, dict) else "E1") or "E1")
                     $ _e2n = str((_e2.get("char_id", "E2") if isinstance(_e2, dict) else "E2") or "E2")
-                    text "Orden: 1-{} (jugador), 2-{} (ia), 3-{} (jugador), 4-{} (ia)".format(_p1n, _e1n, _p2n, _e2n) color "#C5E1A5" size 12
+                    $ _ord_parts = []
+                    $ _ord_parts.append("1-{} (jugador)".format(_p1n))
+                    $ _ord_parts.append("2-{} (ia)".format(_e1n))
+                    if len(getattr(store, "battle_player_ids", []) or []) > 1:
+                        $ _ord_parts.append("3-{} (jugador)".format(_p2n))
+                    if len(getattr(store, "battle_enemy_ids", []) or []) > 1:
+                        $ _ord_parts.append("4-{} (ia)".format(_e2n))
+                    text "Orden: {}".format(", ".join(_ord_parts)) color "#C5E1A5" size 12
                     $ _ck = store.bs_current_actor_key() if hasattr(store, "bs_current_actor_key") else ""
                     $ _cinfo = store.bs_parse_unit_key(_ck, default_side="player", default_slot=0) if hasattr(store, "bs_parse_unit_key") else {"team":"player", "slot":0}
                     $ _cu = store.bs_get_unit_by_key(_ck) if hasattr(store, "bs_get_unit_by_key") else None
@@ -369,7 +379,8 @@ screen battle_hp_overlay():
                         vbox:
                             spacing 2
                             text "PLAYER" color "#88CCFF" size 14 bold True
-                            for i in range(2):
+                            $ _pcount_dbg = min(2, max(1, len(getattr(store, "battle_player_ids", []) or [])))
+                            for i in range(_pcount_dbg):
                                 $ uk = store.bs_unit_key("player", i) if hasattr(store, "bs_unit_key") else "player:{}".format(i)
                                 $ uu = store.bs_get_unit_by_key(uk) if hasattr(store, "bs_get_unit_by_key") else None
                                 $ _name = str((uu.get("char_id", "P{}".format(i+1)) if isinstance(uu, dict) else "P{}".format(i+1)) or "P{}".format(i+1))
@@ -382,7 +393,8 @@ screen battle_hp_overlay():
                         vbox:
                             spacing 2
                             text "ENEMY" color "#FF7777" size 14 bold True
-                            for i in range(2):
+                            $ _ecount_dbg = min(2, max(1, len(getattr(store, "battle_enemy_ids", []) or [])))
+                            for i in range(_ecount_dbg):
                                 $ uk = store.bs_unit_key("enemy", i) if hasattr(store, "bs_unit_key") else "enemy:{}".format(i)
                                 $ uu = store.bs_get_unit_by_key(uk) if hasattr(store, "bs_get_unit_by_key") else None
                                 $ _name = str((uu.get("char_id", "E{}".format(i+1)) if isinstance(uu, dict) else "E{}".format(i+1)) or "E{}".format(i+1))
