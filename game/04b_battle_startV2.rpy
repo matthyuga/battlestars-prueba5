@@ -164,10 +164,10 @@ label battle_start:
         if mode == "2v2" and callable(getattr(S, "bs_init_teams", None)):
             p_ids = list(getattr(S, "battle_player_ids", []) or [])
             e_ids = list(getattr(S, "battle_enemy_ids", []) or [])
-            if len(p_ids) < 2:
-                p_ids = [str(getattr(S, "battle_player_slot_0", player_id) or player_id), str(getattr(S, "battle_player_slot_1", "Grimmjow") or "Grimmjow")]
-            if len(e_ids) < 2:
-                e_ids = [str(getattr(S, "battle_enemy_slot_0", enemy_id) or enemy_id), str(getattr(S, "battle_enemy_slot_1", "Nel") or "Nel")]
+            if len(p_ids) < 1:
+                p_ids = [str(getattr(S, "battle_player_slot_0", player_id) or player_id)]
+            if len(e_ids) < 1:
+                e_ids = [str(getattr(S, "battle_enemy_slot_0", enemy_id) or enemy_id)]
 
             p_units = []
             e_units = []

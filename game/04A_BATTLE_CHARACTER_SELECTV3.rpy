@@ -19,6 +19,9 @@ default battle_player_slot_1 = ""
 default battle_enemy_slot_0 = ""
 default battle_enemy_slot_1 = ""
 default battle_enemy_pick_mode = "random"   # "random" | "manual"
+default battle_multiplayer_manual = False
+default battle_player_count = 1
+default battle_enemy_count = 1
 
 
 label battle_select_player:
@@ -34,6 +37,41 @@ label battle_select_player:
 
         "2v2":
             $ battle_team_mode = "2v2"
+            $ battle_multiplayer_manual = False
+            jump battle_select_player_slot_0
+
+        "Multijugador (manual P/E)":
+            $ battle_multiplayer_manual = True
+            jump battle_select_multiplayer_player_count
+
+
+label battle_select_multiplayer_player_count:
+    scene bg_battle_base
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
+    "Multijugador — Elige cantidad de jugadores del equipo PLAYER (P)."
+
+    menu:
+        "P = 1":
+            $ battle_player_count = 1
+            jump battle_select_multiplayer_enemy_count
+        "P = 2":
+            $ battle_player_count = 2
+            jump battle_select_multiplayer_enemy_count
+
+
+label battle_select_multiplayer_enemy_count:
+    scene bg_battle_base
+    show screen battle_log_screen
+    show screen ai_difficulty_hud
+    "Multijugador — Elige cantidad de jugadores del equipo ENEMY (E)."
+
+    menu:
+        "E = 1":
+            $ battle_enemy_count = 1
+            jump battle_select_player_slot_0
+        "E = 2":
+            $ battle_enemy_count = 2
             jump battle_select_player_slot_0
 
 
@@ -85,7 +123,8 @@ label battle_select_player_slot_0:
     scene bg_battle_base
     show screen battle_log_screen
     show screen ai_difficulty_hud
-    "2v2 — Selecciona tu personaje (slot 1)."
+    $ _msg_mode = "Multijugador" if battle_multiplayer_manual else "2v2"
+    "[_msg_mode] — Selecciona tu personaje (slot 1)."
 
     menu:
         "Harribel":
@@ -106,7 +145,12 @@ label battle_select_player_slot_1:
     scene bg_battle_base
     show screen battle_log_screen
     show screen ai_difficulty_hud
-    "2v2 — Selecciona tu personaje (slot 2, sin duplicados)."
+    $ _msg_mode = "Multijugador" if battle_multiplayer_manual else "2v2"
+    "[_msg_mode] — Selecciona tu personaje (slot 2, sin duplicados)."
+
+    if battle_multiplayer_manual and int(battle_player_count or 1) <= 1:
+        $ battle_player_slot_1 = ""
+        jump battle_select_enemy_mode_2v2
 
     menu:
         "Harribel" if battle_player_slot_0 != "Harribel":
@@ -127,15 +171,21 @@ label battle_select_enemy_mode_2v2:
     scene bg_battle_base
     show screen battle_log_screen
     show screen ai_difficulty_hud
-    "2v2 — Selección de equipo IA"
+    $ _msg_mode = "Multijugador" if battle_multiplayer_manual else "2v2"
+    "[_msg_mode] — Selección de equipo IA"
 
     python:
         import renpy.store as S
         p0 = str(getattr(S, "battle_player_slot_0", "Harribel") or "Harribel")
         p1 = str(getattr(S, "battle_player_slot_1", "Grimmjow") or "Grimmjow")
-        if p0 == p1:
+        if (not getattr(S, "battle_multiplayer_manual", False)) and p0 == p1:
             p1 = "Grimmjow" if p0 != "Grimmjow" else "Nel"
-        S.battle_player_ids = [p0, p1]
+        pcount = int(getattr(S, "battle_player_count", 2) or 2) if getattr(S, "battle_multiplayer_manual", False) else 2
+        if pcount <= 1:
+            S.battle_player_ids = [p0]
+            S.battle_player_slot_1 = ""
+        else:
+            S.battle_player_ids = [p0, p1]
 
     menu:
         "Aleatorio":
@@ -171,7 +221,12 @@ label battle_select_enemy_slot_1_2v2:
     scene bg_battle_base
     show screen battle_log_screen
     show screen ai_difficulty_hud
-    "2v2 — Elige enemigo (slot 2, sin duplicados)."
+    $ _msg_mode = "Multijugador" if battle_multiplayer_manual else "2v2"
+    "[_msg_mode] — Elige enemigo (slot 2, sin duplicados)."
+
+    if battle_multiplayer_manual and int(battle_enemy_count or 1) <= 1:
+        $ battle_enemy_slot_1 = ""
+        jump battle_finalize_teams_2v2
 
     menu:
         "Hollow" if battle_enemy_slot_0 != "Hollow":
@@ -206,8 +261,9 @@ label battle_select_enemy_slots_2v2_random:
                     e1 = c
                     break
 
+        ecount = int(getattr(S, "battle_enemy_count", 2) or 2) if getattr(S, "battle_multiplayer_manual", False) else 2
         S.battle_enemy_slot_0 = e0
-        S.battle_enemy_slot_1 = e1
+        S.battle_enemy_slot_1 = "" if ecount <= 1 else e1
 
     jump battle_finalize_teams_2v2
 
@@ -220,18 +276,48 @@ label battle_finalize_teams_2v2:
         e0 = str(getattr(S, "battle_enemy_slot_0", "Hollow") or "Hollow")
         e1 = str(getattr(S, "battle_enemy_slot_1", "Nel") or "Nel")
 
-        if p0 == p1:
-            p1 = "Grimmjow" if p0 != "Grimmjow" else "Nel"
-        if e0 == e1:
-            e1 = "Grimmjow" if e0 != "Grimmjow" else "Nel"
+        pmulti = bool(getattr(S, "battle_multiplayer_manual", False))
+        pcount = int(getattr(S, "battle_player_count", 2) or 2) if pmulti else 2
+        ecount = int(getattr(S, "battle_enemy_count", 2) or 2) if pmulti else 2
 
-        S.battle_player_ids = [p0, p1]
-        S.battle_enemy_ids = [e0, e1]
+        if pcount <= 1:
+            p_ids = [p0]
+            S.battle_player_slot_1 = ""
+        else:
+            if p0 == p1:
+                p1 = "Grimmjow" if p0 != "Grimmjow" else "Nel"
+            p_ids = [p0, p1]
+
+        if ecount <= 1:
+            e_ids = [e0]
+            S.battle_enemy_slot_1 = ""
+        else:
+            if e0 == e1:
+                e1 = "Grimmjow" if e0 != "Grimmjow" else "Nel"
+            e_ids = [e0, e1]
+
+        S.battle_player_ids = p_ids
+        S.battle_enemy_ids = e_ids
+        S.battle_team_mode = "1v1" if (len(p_ids) == 1 and len(e_ids) == 1) else "2v2"
 
         # Compat 1v1 fields usan slot 0
         S.battle_player_id = p0
         S.battle_enemy_id = e0
 
-    "2v2 listo. Tu equipo: [battle_player_slot_0] + [battle_player_slot_1]."
-    "Equipo enemigo: [battle_enemy_slot_0] + [battle_enemy_slot_1]."
+    if len(battle_player_ids) > 1:
+        "Equipo PLAYER listo: [battle_player_ids[0]] + [battle_player_ids[1]]."
+    else:
+        "Equipo PLAYER listo: [battle_player_ids[0]]."
+
+    if len(battle_enemy_ids) > 1:
+        "Equipo ENEMY listo: [battle_enemy_ids[0]] + [battle_enemy_ids[1]]."
+    else:
+        "Equipo ENEMY listo: [battle_enemy_ids[0]]."
+
+    if battle_multiplayer_manual:
+        "Modo multijugador manual: P[len(battle_player_ids)] vs E[len(battle_enemy_ids)]."
+    elif battle_team_mode == "2v2":
+        "2v2 listo."
+    else:
+        "1v1 listo."
     jump battle_start
