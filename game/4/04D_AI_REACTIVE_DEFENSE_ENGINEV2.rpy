@@ -62,6 +62,20 @@ init -988 python:
 
             return rei_cost, ene_cost
 
+        def _focus_allowed_unit():
+            try:
+                fnk = getattr(S, "ai_get_current_enemy_unit_key", None)
+                unit_key = str(fnk() or "") if callable(fnk) else str(getattr(S, "current_enemy_unit_key", "") or "")
+            except:
+                unit_key = ""
+            try:
+                fnf = getattr(S, "ai_effective_allow_focus", None)
+                if callable(fnf):
+                    return bool(fnf(unit_key))
+            except:
+                pass
+            return bool(getattr(S, "ai_allow_focus", True))
+
         # -------------------------------
         # ACUMULADORES
         # -------------------------------
@@ -81,9 +95,9 @@ init -988 python:
 
             # ⭐ Focus defensivo (gratis)
             if key == "focus":
-                if not bool(getattr(S, "ai_allow_focus", True)):
+                if not _focus_allowed_unit():
                     try:
-                        S.battle_log_add("%s intenta Potenciar, pero Focus IA está OFF" % name, "#888888")
+                        S.battle_log_add("%s intenta Potenciar, pero Focus IA(unidad) está OFF" % name, "#888888")
                     except:
                         pass
                     continue

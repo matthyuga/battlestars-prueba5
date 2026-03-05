@@ -32,6 +32,33 @@ init -989 python:
             return "normal"
         return mode if mode in _AI_DEF_TEST_MODES else "normal"
 
+    def _resolve_enemy_unit_key_for_plan():
+        fn = getattr(S, "ai_get_current_enemy_unit_key", None)
+        if callable(fn):
+            try:
+                return str(fn() or "")
+            except:
+                pass
+        return str(getattr(S, "current_enemy_unit_key", "") or getattr(S, "current_actor_unit_key", "") or "enemy:0")
+
+    def _effective_defense_mode_for_unit(unit_key):
+        fn = getattr(S, "ai_effective_defense_mode", None)
+        if callable(fn):
+            try:
+                return _norm_def_mode(fn(unit_key))
+            except:
+                pass
+        return _norm_def_mode(getattr(S, "ai_defense_test_mode", "normal"))
+
+    def _effective_defense_concat_for_unit(unit_key):
+        fn = getattr(S, "ai_effective_defense_concat", None)
+        if callable(fn):
+            try:
+                return bool(fn(unit_key))
+            except:
+                pass
+        return bool(getattr(S, "ai_defense_concat", False))
+
     def _ensure_ai_def_defaults():
         """
         Defaults SOLO store (no persistent).
@@ -89,9 +116,10 @@ init -989 python:
     # ------------------------------------------------------------
     # Pick de UNA defensa (normal / stats / force)
     # ------------------------------------------------------------
-    def _def_pick_one(ai, ratio, incoming_damage):
+    def _def_pick_one(ai, ratio, incoming_damage, unit_key=""):
+
         _ensure_ai_def_defaults()
-        mode = _norm_def_mode(getattr(S, "ai_defense_test_mode", "normal"))
+        mode = _effective_defense_mode_for_unit(unit_key)
 
         # ---- FORCE
         if mode == "force_extra":
@@ -170,10 +198,11 @@ init -989 python:
 
         return "def_extra"
 
-    def _def_should_focus(ai, ratio, incoming_damage):
+    def _def_should_focus(ai, ratio, incoming_damage, unit_key=""):
+
         # Focus defensivo es opcional, y se corta si el toggle está OFF.
         try:
-            if not _ai_focus_allowed():
+            if not _ai_focus_allowed(unit_key):
                 return False
         except:
             pass
@@ -208,15 +237,16 @@ init -989 python:
         except:
             ratio = 0.0
 
-        concat = bool(getattr(S, "ai_defense_concat", False))
-        picked = _def_pick_one(ai, ratio, incoming_damage)
+        unit_key = _resolve_enemy_unit_key_for_plan()
+        concat = _effective_defense_concat_for_unit(unit_key)
+        picked = _def_pick_one(ai, ratio, incoming_damage, unit_key=unit_key)
 
         plan = []
 
-        if _def_should_focus(ai, ratio, incoming_damage):
+        if _def_should_focus(ai, ratio, incoming_damage, unit_key=unit_key):
             # (doble check por seguridad)
             try:
-                if _ai_focus_allowed():
+                if _ai_focus_allowed(unit_key):
                     plan.append("focus")
             except:
                 pass
