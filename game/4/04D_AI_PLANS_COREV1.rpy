@@ -15,7 +15,13 @@ init -990 python:
 
     DEFAULT_AI_LEVEL = "basic"
 
-    def _ai_focus_allowed():
+    def _ai_focus_allowed(unit_key=None):
+        try:
+            fn = getattr(S, "ai_effective_allow_focus", None)
+            if callable(fn):
+                return bool(fn(unit_key))
+        except:
+            pass
         try:
             return bool(getattr(S, "ai_allow_focus", True))
         except:

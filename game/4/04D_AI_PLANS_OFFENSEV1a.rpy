@@ -39,6 +39,24 @@ init -989 python:
             return "normal"
         return mode if mode in _AI_FIN_TEST_MODES else "normal"
 
+    def _resolve_enemy_unit_key_for_plan():
+        fn = getattr(S, "ai_get_current_enemy_unit_key", None)
+        if callable(fn):
+            try:
+                return str(fn() or "")
+            except:
+                pass
+        return str(getattr(S, "current_enemy_unit_key", "") or getattr(S, "current_actor_unit_key", "") or "enemy:0")
+
+    def _effective_finisher_mode_for_unit(unit_key):
+        fn = getattr(S, "ai_effective_offense_mode", None)
+        if callable(fn):
+            try:
+                return _norm_finisher_mode(fn(unit_key))
+            except:
+                pass
+        return _norm_finisher_mode(getattr(S, "ai_finisher_test_mode", "normal"))
+
     # ------------------------------------------------------------
     # Defaults SOLO store (HUD se encarga del persistent)
     # ------------------------------------------------------------
@@ -96,7 +114,8 @@ init -989 python:
     # ============================================================
     def _pick_finisher(ai):
         _ensure_ai_fin_defaults()
-        mode = _norm_finisher_mode(getattr(S, "ai_finisher_test_mode", "normal"))
+        unit_key = _resolve_enemy_unit_key_for_plan()
+        mode = _effective_finisher_mode_for_unit(unit_key)
 
         # ---- FORCE
         if mode == "force_reducer":
@@ -148,13 +167,14 @@ init -989 python:
 
         fin = _pick_finisher(ai)
 
-        if _norm_finisher_mode(getattr(S, "ai_finisher_test_mode", "normal")) == "stats":
+        unit_key = _resolve_enemy_unit_key_for_plan()
+        if _effective_finisher_mode_for_unit(unit_key) == "stats":
             _ai_finisher_stats_add(fin)
 
         plan = ["extra_attack", "extra_tech"]
 
         try:
-            if _ai_focus_allowed():
+            if _ai_focus_allowed(unit_key):
                 plan.append("focus")
         except:
             pass

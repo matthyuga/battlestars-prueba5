@@ -72,6 +72,24 @@ init -988 python:
 
         return base, final
 
+    def _ai_focus_allowed_enemy_unit():
+        import renpy.store as S
+        unit_key = ""
+        try:
+            fnk = getattr(S, "ai_get_current_enemy_unit_key", None)
+            if callable(fnk):
+                unit_key = str(fnk() or "")
+        except:
+            unit_key = ""
+
+        try:
+            fn = getattr(S, "ai_effective_allow_focus", None)
+            if callable(fn):
+                return bool(fn(unit_key))
+        except:
+            pass
+        return bool(getattr(S, "ai_allow_focus", True))
+
 
     # ------------------------------------------------------------
     # ⭐ EJECUCIÓN OFENSIVA IA (DAÑO) – con FocusCost real
@@ -84,7 +102,7 @@ init -988 python:
             return "none"
 
         # ✅ BLINDAJE: si Focus IA está OFF, nunca debe quedar pending de costo
-        if not bool(getattr(S, "ai_allow_focus", True)):
+        if not _ai_focus_allowed_enemy_unit():
             try:
                 S.enemy_focus_cost_pending = False
             except:
@@ -96,7 +114,7 @@ init -988 python:
         if key == "focus":
 
             # ✅ CANDADO: si Focus IA está OFF, no permitir concentrar
-            if not bool(getattr(S, "ai_allow_focus", True)):
+            if not _ai_focus_allowed_enemy_unit():
 
                 # seguridad: por si quedó algo pendiente colgado
                 try:
@@ -107,7 +125,7 @@ init -988 python:
                 # log opcional (seguro)
                 try:
                     S.battle_log_add(
-                        "%s intenta Concentrar, pero Focus IA está OFF" % ai.name,
+                        "%s intenta Concentrar, pero Focus IA(unidad) está OFF" % ai.name,
                         "#888888"
                     )
                 except:
@@ -327,12 +345,12 @@ init -988 python:
         if key == "focus":
 
             # ✅ CANDADO: si Focus IA está OFF, no permitir potenciar defensa
-            if not bool(getattr(S, "ai_allow_focus", True)):
+            if not _ai_focus_allowed_enemy_unit():
 
                 # log opcional (seguro)
                 try:
                     S.battle_log_add(
-                        "%s intenta Potenciar, pero Focus IA está OFF" % ai.name,
+                        "%s intenta Potenciar, pero Focus IA(unidad) está OFF" % ai.name,
                         "#888888"
                     )
                 except:

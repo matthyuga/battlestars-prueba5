@@ -82,6 +82,45 @@ screen ai_difficulty_hud():
                     action Function(ai_toggle_save)
 
             # ====================================================
+            # 👥 PERFIL IA POR UNIDAD (E1/E2)
+            # ====================================================
+                textbutton ai_ui_enemy_slot_text():
+                    style "ai_diff_btn"
+                    text_style "ai_diff_btn_text"
+                    text_color "#80DEEA"
+                    action Function(ai_ui_cycle_enemy_slot)
+
+                textbutton ai_ui_target_rule_text():
+                    style "ai_diff_btn"
+                    text_style "ai_diff_btn_text"
+                    text_color "#FFD700"
+                    action Function(ai_ui_cycle_target_rule)
+
+                textbutton ai_ui_offense_mode_text():
+                    style "ai_diff_btn"
+                    text_style "ai_diff_btn_text"
+                    text_color "#FFB74D"
+                    action Function(ai_ui_cycle_offense_mode)
+
+                textbutton ai_ui_defense_mode_text():
+                    style "ai_diff_btn"
+                    text_style "ai_diff_btn_text"
+                    text_color "#64B5F6"
+                    action Function(ai_ui_cycle_defense_mode)
+
+                textbutton ai_ui_concat_rule_text():
+                    style "ai_diff_btn"
+                    text_style "ai_diff_btn_text"
+                    text_color "#66FF99"
+                    action Function(ai_ui_cycle_concat_rule)
+
+                textbutton ai_ui_focus_rule_text():
+                    style "ai_diff_btn"
+                    text_style "ai_diff_btn_text"
+                    text_color "#C586C0"
+                    action Function(ai_ui_cycle_focus_rule)
+
+            # ====================================================
             # ⚔️ OFENSIVA – FINISHER MODE
             # ====================================================
                 if ai_finisher_mode_get() == "stats":

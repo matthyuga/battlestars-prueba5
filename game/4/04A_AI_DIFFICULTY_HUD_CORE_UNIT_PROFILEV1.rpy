@@ -9,6 +9,7 @@
 
 default ai_unit_profile_version = 1
 default ai_unit_profiles = {}
+default ai_ui_selected_enemy_slot = 0
 
 init -18 python:
     import renpy.store as S
@@ -281,3 +282,232 @@ init -18 python:
         if target and target in valid:
             return target
         return ""
+
+
+    def ai_get_current_enemy_unit_key():
+        """Best-effort key de unidad enemy activa en contexto actual."""
+        key = ""
+        try:
+            key = str(getattr(S, "current_actor_unit_key", "") or "")
+            if key and str(key).startswith("enemy:"):
+                return key
+        except:
+            key = ""
+
+        try:
+            key = str(getattr(S, "current_enemy_unit_key", "") or "")
+            if key:
+                return key
+        except:
+            key = ""
+
+        fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+        fn_key = getattr(S, "bs_unit_key", None)
+        if callable(fn_ctx) and callable(fn_key):
+            try:
+                ctx = fn_ctx() or {}
+                team = str(ctx.get("owner_team", "enemy") or "enemy")
+                slot = int(ctx.get("owner_slot", 0) or 0)
+                if team == "enemy":
+                    return str(fn_key("enemy", slot) or "")
+            except:
+                pass
+
+        if callable(fn_key):
+            try:
+                return str(fn_key("enemy", 0) or "")
+            except:
+                return ""
+
+        return "enemy:0"
+
+    def _ai_ui_enemy_slot_count():
+        try:
+            mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        except:
+            mode = "1v1"
+        if mode != "2v2":
+            return 1
+        try:
+            ids = list(getattr(S, "battle_enemy_ids", []) or [])
+            return max(1, min(2, len(ids) if ids else 2))
+        except:
+            return 2
+
+    def _ai_ui_player_slot_count():
+        try:
+            mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        except:
+            mode = "1v1"
+        if mode != "2v2":
+            return 1
+        try:
+            ids = list(getattr(S, "battle_player_ids", []) or [])
+            return max(1, min(2, len(ids) if ids else 2))
+        except:
+            return 2
+
+    def ai_ui_get_selected_enemy_unit_key():
+        cnt = _ai_ui_enemy_slot_count()
+        try:
+            slot = int(getattr(S, "ai_ui_selected_enemy_slot", 0) or 0)
+        except:
+            slot = 0
+        slot = max(0, min(cnt - 1, slot))
+        S.ai_ui_selected_enemy_slot = slot
+
+        fn_key = getattr(S, "bs_unit_key", None)
+        if callable(fn_key):
+            try:
+                return str(fn_key("enemy", slot) or "")
+            except:
+                pass
+        return "enemy:{}".format(slot)
+
+    def ai_ui_cycle_enemy_slot():
+        cnt = _ai_ui_enemy_slot_count()
+        try:
+            cur = int(getattr(S, "ai_ui_selected_enemy_slot", 0) or 0)
+        except:
+            cur = 0
+        S.ai_ui_selected_enemy_slot = (cur + 1) % max(1, cnt)
+        try:
+            import renpy.exports as R
+            R.restart_interaction()
+        except:
+            pass
+
+    def ai_ui_enemy_slot_text():
+        key = ai_ui_get_selected_enemy_unit_key()
+        try:
+            fn_desc = getattr(S, "bs_describe_unit_key", None)
+            if callable(fn_desc):
+                lbl = str(fn_desc(key, default_side="enemy", default_slot=0) or key)
+            else:
+                lbl = key
+        except:
+            lbl = key
+        return "👥 Perfil IA: {}".format(lbl)
+
+    def ai_ui_cycle_target_rule():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=True)
+
+        slots = list(range(_ai_ui_player_slot_count()))
+        seq = [("auto", 0)] + [("force_slot", s) for s in slots]
+
+        cur = (str(prof.get("target_mode", "auto") or "auto"), int(prof.get("target_slot", 0) or 0))
+        idx = 0
+        for i, e in enumerate(seq):
+            if e == cur:
+                idx = i
+                break
+        nxt = seq[(idx + 1) % len(seq)]
+        ai_unit_profile_set(key, {"target_mode": nxt[0], "target_slot": int(nxt[1])})
+
+        try:
+            import renpy.exports as R
+            R.restart_interaction()
+        except:
+            pass
+
+    def ai_ui_target_rule_text():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=False)
+        mode = str(prof.get("target_mode", "auto") or "auto") if isinstance(prof, dict) else "auto"
+        slot = int(prof.get("target_slot", 0) or 0) if isinstance(prof, dict) else 0
+        if mode == "force_slot":
+            return "🎯 Target: Forzar P{}".format(slot + 1)
+        return "🎯 Target: Auto"
+
+    def ai_ui_cycle_offense_mode():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=True)
+        seq = list(_AI_OFFENSE_MODES)
+        cur = str(prof.get("offense_mode", "inherit") or "inherit")
+        try:
+            i = seq.index(cur)
+        except:
+            i = 0
+        ai_unit_profile_set(key, {"offense_mode": seq[(i + 1) % len(seq)]})
+        try:
+            import renpy.exports as R
+            R.restart_interaction()
+        except:
+            pass
+
+    def ai_ui_offense_mode_text():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=False)
+        m = str(prof.get("offense_mode", "inherit") or "inherit") if isinstance(prof, dict) else "inherit"
+        return "⚔️ Ofensiva (unidad): {}".format(m)
+
+    def ai_ui_cycle_defense_mode():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=True)
+        seq = list(_AI_DEFENSE_MODES)
+        cur = str(prof.get("defense_mode", "inherit") or "inherit")
+        try:
+            i = seq.index(cur)
+        except:
+            i = 0
+        ai_unit_profile_set(key, {"defense_mode": seq[(i + 1) % len(seq)]})
+        try:
+            import renpy.exports as R
+            R.restart_interaction()
+        except:
+            pass
+
+    def ai_ui_defense_mode_text():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=False)
+        m = str(prof.get("defense_mode", "inherit") or "inherit") if isinstance(prof, dict) else "inherit"
+        return "🛡️ Defensa (unidad): {}".format(m)
+
+    def ai_ui_cycle_concat_rule():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=True)
+        cur = prof.get("defense_concat", "inherit")
+        seq = ["inherit", True, False]
+        try:
+            i = seq.index(cur)
+        except:
+            i = 0
+        ai_unit_profile_set(key, {"defense_concat": seq[(i + 1) % len(seq)]})
+        try:
+            import renpy.exports as R
+            R.restart_interaction()
+        except:
+            pass
+
+    def ai_ui_concat_rule_text():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=False)
+        cur = prof.get("defense_concat", "inherit") if isinstance(prof, dict) else "inherit"
+        if cur == "inherit":
+            return "🔗 Concat (unidad): Heredar"
+        return "🔗 Concat (unidad): {}".format("ON" if bool(cur) else "OFF")
+
+    def ai_ui_cycle_focus_rule():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=True)
+        cur = prof.get("allow_focus", "inherit")
+        seq = ["inherit", True, False]
+        try:
+            i = seq.index(cur)
+        except:
+            i = 0
+        ai_unit_profile_set(key, {"allow_focus": seq[(i + 1) % len(seq)]})
+        try:
+            import renpy.exports as R
+            R.restart_interaction()
+        except:
+            pass
+
+    def ai_ui_focus_rule_text():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=False)
+        cur = prof.get("allow_focus", "inherit") if isinstance(prof, dict) else "inherit"
+        if cur == "inherit":
+            return "🧿 Focus (unidad): Heredar"
+        return "🧿 Focus (unidad): {}".format("ON" if bool(cur) else "OFF")

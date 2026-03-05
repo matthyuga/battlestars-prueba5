@@ -13,6 +13,15 @@ init -988 python:
     import renpy.store as S
     import random
 
+    def _ai_defense_unit_key_for_reactive():
+        fn = getattr(S, "ai_get_current_enemy_unit_key", None)
+        if callable(fn):
+            try:
+                return str(fn() or "")
+            except:
+                pass
+        return str(getattr(S, "current_enemy_unit_key", "") or getattr(S, "current_actor_unit_key", "") or "enemy:0")
+
     # -------------------------------
     # Defaults / Config (store-safe)
     # -------------------------------
@@ -104,10 +113,18 @@ init -988 python:
     # -------------------------------
     # Pick de UNA defensa según modo
     # -------------------------------
-    def ai_defense_pick_one(dmg_effective):
+    def ai_defense_pick_one(dmg_effective, unit_key=""):
+
         ai_defense_ensure_defaults()
 
-        mode = getattr(S, "ai_defense_test_mode", "normal") or "normal"
+        fn_mode = getattr(S, "ai_effective_defense_mode", None)
+        if callable(fn_mode):
+            try:
+                mode = fn_mode(unit_key)
+            except:
+                mode = getattr(S, "ai_defense_test_mode", "normal") or "normal"
+        else:
+            mode = getattr(S, "ai_defense_test_mode", "normal") or "normal"
         try:
             mode = str(mode)
         except:
@@ -141,17 +158,32 @@ init -988 python:
     # Build plan final (focus + concat)
     # -------------------------------
     def ai_defense_build_plan(dmg_effective):
+
         ai_defense_ensure_defaults()
 
-        picked = ai_defense_pick_one(dmg_effective)
+        unit_key = _ai_defense_unit_key_for_reactive()
+        picked = ai_defense_pick_one(dmg_effective, unit_key=unit_key)
 
         plan = []
 
-        # Focus solo si daño alto y si allow_focus
-        if dmg_effective >= 3000 and bool(getattr(S, "ai_allow_focus", True)):
+        # Focus solo si daño alto y si allow_focus (efectivo por unidad)
+        _allow_focus = bool(getattr(S, "ai_allow_focus", True))
+        try:
+            fn_focus = getattr(S, "ai_effective_allow_focus", None)
+            if callable(fn_focus):
+                _allow_focus = bool(fn_focus(unit_key))
+        except:
+            pass
+        if dmg_effective >= 3000 and _allow_focus:
             plan.append("focus")
 
         concat = bool(getattr(S, "ai_defense_concat", False))
+        try:
+            fn_concat = getattr(S, "ai_effective_defense_concat", None)
+            if callable(fn_concat):
+                concat = bool(fn_concat(unit_key))
+        except:
+            pass
 
         if concat:
             plan.append("def_extra")
