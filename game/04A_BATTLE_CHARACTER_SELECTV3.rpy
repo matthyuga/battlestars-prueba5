@@ -200,7 +200,8 @@ label battle_select_enemy_slot_0_2v2:
     scene bg_battle_base
     show screen battle_log_screen
     show screen ai_difficulty_hud
-    "2v2 — Elige enemigo (slot 1)."
+    $ _msg_mode = "Multijugador" if battle_multiplayer_manual else "2v2"
+    "[_msg_mode] — Elige enemigo (slot 1)."
 
     menu:
         "Hollow":
