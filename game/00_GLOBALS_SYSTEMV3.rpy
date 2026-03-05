@@ -216,8 +216,8 @@ init -990 python:
             "success": successes >= 2
         }
 
-    def show_dice_result(roll_data):
-        renpy.show_screen("dice_roll_result", rolls=roll_data["rolls"])
+    def show_dice_result(roll_data, label_text=""):
+        renpy.show_screen("dice_roll_result", rolls=roll_data["rolls"], label_text=label_text)
 
     store.roll_3d = roll_3d
     store.show_dice_result = show_dice_result

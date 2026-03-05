@@ -350,7 +350,7 @@ init python:
 # -----------------------------------------------------------
 # 🎲 RESULTADO DE DADOS
 # -----------------------------------------------------------
-screen dice_roll_result(rolls):
+screen dice_roll_result(rolls, label_text=""):
     tag dice_result
     modal True
     zorder 500
@@ -361,11 +361,15 @@ screen dice_roll_result(rolls):
         background "#0008"
         padding (20, 20)
 
-        hbox spacing 20:
-            for r in rolls:
-                if r:
-                    add "dice_success_icon"
-                else:
-                    add "dice_fail_icon"
+        vbox spacing 10:
+            if label_text:
+                text "[label_text]" size 28 color "#FFD700" bold True xalign 0.5
+
+            hbox spacing 20:
+                for r in rolls:
+                    if r:
+                        add "dice_success_icon"
+                    else:
+                        add "dice_fail_icon"
 
     timer 2.2 action Hide("dice_roll_result")

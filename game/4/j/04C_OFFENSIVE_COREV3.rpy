@@ -523,51 +523,64 @@ label battle_offensive_turn_legacy_entry:
                 pass
 
         elif used_direct or used_noatk:
-
-            roll = None
-            try:
-                fn_roll = getattr(S, "roll_3d", None)
-                if callable(fn_roll):
-                    roll = fn_roll()
-            except:
-                roll = None
-
-            if isinstance(roll, dict):
-
-                # mostrar dados
+            def _roll_for_action(action_label):
+                roll_local = None
                 try:
-                    fn_show = getattr(S, "show_dice_result", None)
-                    if callable(fn_show):
-                        fn_show(roll)
-                    else:
+                    fn_roll = getattr(S, "roll_3d", None)
+                    if callable(fn_roll):
+                        roll_local = fn_roll()
+                except:
+                    roll_local = None
+
+                if isinstance(roll_local, dict):
+                    # mostrar dados con etiqueta de técnica
+                    try:
+                        fn_show = getattr(S, "show_dice_result", None)
+                        if callable(fn_show):
+                            fn_show(roll_local, label_text=str(action_label or "Tirada"))
+                        else:
+                            try:
+                                bs_ui_show("dice_roll_result", rolls=roll_local.get("rolls", []), label_text=str(action_label or "Tirada"))
+                            except:
+                                pass
+                    except:
+                        pass
+
+                    # log de slots (preferir store-safe)
+                    try:
+                        fn_slots = getattr(S, "log_dice_slots", None)
+                        if not callable(fn_slots):
+                            fn_slots = globals().get("log_dice_slots", None)
+                        if callable(fn_slots):
+                            _blog("{color=#BBBBBB}Tirada — %s{/color}" % str(action_label or "Técnica"))
+                            _blog(fn_slots(roll_local.get("rolls", [])))
+                    except:
+                        pass
+
+                return roll_local
+
+            _dice_actions = []
+            for _nm in (selected or []):
+                if _nm in ("Ataque Negador", "Ataque Directo") and _nm not in _dice_actions:
+                    _dice_actions.append(_nm)
+
+            for _nm in _dice_actions:
+                _roll = _roll_for_action(_nm)
+                _ok = bool(isinstance(_roll, dict) and _roll.get("success", False))
+
+                if _nm == "Ataque Directo":
+                    S.direct_success = bool(_ok)
+                    if _ok:
                         try:
-                            bs_ui_show("dice_roll_result", rolls=roll.get("rolls", []))
+                            _blog("Ataque Directo → ÉXITO", "#FFD700")
                         except:
                             pass
-                except:
-                    pass
 
-                # log de slots (preferir store-safe)
-                try:
-                    fn_slots = getattr(S, "log_dice_slots", None)
-                    if not callable(fn_slots):
-                        fn_slots = globals().get("log_dice_slots", None)
-                    if callable(fn_slots):
-                        _blog(fn_slots(roll.get("rolls", [])))
-                except:
-                    pass
-
-                if roll.get("success", False):
-
-                    if used_direct:
-                        S.direct_success = True
-
-                    if used_noatk:
-                        S.noatk_success = True
-
+                if _nm == "Ataque Negador":
+                    S.noatk_success = bool(_ok)
+                    if _ok:
                         # El target de NO ATK se resuelve al final del turno
                         # (cuando ya existe offensive_target_key/plan estable).
-
                         try:
                             if callable(fmt_purple) and callable(fmt_gold):
                                 _blog(fmt_purple("Ataque Negador → ") + fmt_gold("ÉXITO"))
@@ -575,47 +588,52 @@ label battle_offensive_turn_legacy_entry:
                                 _blog("Ataque Negador → ÉXITO", "#C586C0")
                         except:
                             _blog("Ataque Negador → ÉXITO", "#C586C0")
-
-                # === ATAQUE DIRECTO FALLADO → daño defendible ===
-                if (not getattr(S, "direct_success", False)) and ("Ataque Directo" in getattr(S, "last_selected_actions", [])):
-
-                    try:
-                        base_d = int(getattr(S, "direct_base_damage", 0) or 0)
-                    except:
-                        base_d = 0
-                    try:
-                        dmg_d  = int(getattr(S, "direct_pending_damage", 0) or base_d)
-                    except:
-                        dmg_d = base_d
-
-                    if dmg_d > 0:
+                    else:
                         try:
-                            attack_records.append((base_d, dmg_d))
+                            _blog("Ataque Negador → FALLÓ", "#C586C0")
                         except:
                             pass
-                        try:
-                            total_damage += dmg_d
-                        except:
-                            total_damage = int(total_damage or 0) + int(dmg_d or 0)
 
-                        try:
-                            if callable(fmt_white) and callable(fmt_red) and callable(battle_fmt_num):
-                                _blog(
-                                    fmt_white("Ataque Directo fallado → ") +
-                                    fmt_red(battle_fmt_num(dmg_d)) +
-                                    fmt_white(" daño defendible.")
-                                )
-                            else:
-                                _blog("Ataque Directo fallado → {} daño defendible.".format(dmg_d), "#FFFFFF")
-                        except:
-                            _blog("Ataque Directo fallado → {} daño defendible.".format(dmg_d), "#FFFFFF")
-
-                        S.direct_pending_damage = 0
+            # === ATAQUE DIRECTO FALLADO → daño defendible ===
+            if (not getattr(S, "direct_success", False)) and ("Ataque Directo" in getattr(S, "last_selected_actions", [])):
 
                 try:
-                    bs_ui_pause(0.8, hard=True)
+                    base_d = int(getattr(S, "direct_base_damage", 0) or 0)
                 except:
-                    pass
+                    base_d = 0
+                try:
+                    dmg_d  = int(getattr(S, "direct_pending_damage", 0) or base_d)
+                except:
+                    dmg_d = base_d
+
+                if dmg_d > 0:
+                    try:
+                        attack_records.append((base_d, dmg_d))
+                    except:
+                        pass
+                    try:
+                        total_damage += dmg_d
+                    except:
+                        total_damage = int(total_damage or 0) + int(dmg_d or 0)
+
+                    try:
+                        if callable(fmt_white) and callable(fmt_red) and callable(battle_fmt_num):
+                            _blog(
+                                fmt_white("Ataque Directo fallado → ") +
+                                fmt_red(battle_fmt_num(dmg_d)) +
+                                fmt_white(" daño defendible.")
+                            )
+                        else:
+                            _blog("Ataque Directo fallado → {} daño defendible.".format(dmg_d), "#FFFFFF")
+                    except:
+                        _blog("Ataque Directo fallado → {} daño defendible.".format(dmg_d), "#FFFFFF")
+
+                    S.direct_pending_damage = 0
+
+            try:
+                bs_ui_pause(0.8, hard=True)
+            except:
+                pass
 
     # ============================================================
     # Fórmula final (reflect + total defendible)
