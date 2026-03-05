@@ -373,3 +373,37 @@ screen dice_roll_result(rolls, label_text=""):
                         add "dice_fail_icon"
 
     timer 2.2 action Hide("dice_roll_result")
+
+
+screen dice_roll_result_multi(entries):
+    tag dice_result
+    modal True
+    zorder 500
+
+    frame:
+        xalign 0.5
+        yalign 0.45
+        background "#0008"
+        padding (20, 20)
+
+        hbox spacing 24:
+            for e in (entries or []):
+                $ _lbl = str(e.get("label", "") or "") if isinstance(e, dict) else ""
+                $ _rolls = list(e.get("rolls", []) or []) if isinstance(e, dict) else []
+
+                frame:
+                    background "#0006"
+                    padding (14, 12)
+
+                    vbox spacing 8:
+                        if _lbl:
+                            text "[_lbl]" size 24 color "#FFD700" bold True xalign 0.5
+
+                        hbox spacing 14:
+                            for r in _rolls:
+                                if r:
+                                    add "dice_success_icon"
+                                else:
+                                    add "dice_fail_icon"
+
+    timer 2.4 action Hide("dice_roll_result_multi")

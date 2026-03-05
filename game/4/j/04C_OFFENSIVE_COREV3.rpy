@@ -533,19 +533,6 @@ label battle_offensive_turn_legacy_entry:
                     roll_local = None
 
                 if isinstance(roll_local, dict):
-                    # mostrar dados con etiqueta de técnica
-                    try:
-                        fn_show = getattr(S, "show_dice_result", None)
-                        if callable(fn_show):
-                            fn_show(roll_local, label_text=str(action_label or "Tirada"))
-                        else:
-                            try:
-                                bs_ui_show("dice_roll_result", rolls=roll_local.get("rolls", []), label_text=str(action_label or "Tirada"))
-                            except:
-                                pass
-                    except:
-                        pass
-
                     # log de slots (preferir store-safe)
                     try:
                         fn_slots = getattr(S, "log_dice_slots", None)
@@ -564,9 +551,12 @@ label battle_offensive_turn_legacy_entry:
                 if _nm in ("Ataque Negador", "Ataque Directo") and _nm not in _dice_actions:
                     _dice_actions.append(_nm)
 
+            _dice_panels = []
             for _nm in _dice_actions:
                 _roll = _roll_for_action(_nm)
                 _ok = bool(isinstance(_roll, dict) and _roll.get("success", False))
+                if isinstance(_roll, dict):
+                    _dice_panels.append({"label": str(_nm or "Tirada"), "rolls": list(_roll.get("rolls", []) or [])})
 
                 if _nm == "Ataque Directo":
                     S.direct_success = bool(_ok)
@@ -593,6 +583,24 @@ label battle_offensive_turn_legacy_entry:
                             _blog("Ataque Negador → FALLÓ", "#C586C0")
                         except:
                             pass
+
+            # Mostrar tiradas en centro:
+            # - 1 técnica => 1 tarjeta centrada.
+            # - 2 técnicas => 2 tarjetas lado a lado.
+            try:
+                fn_show = getattr(S, "show_dice_result", None)
+                if callable(fn_show):
+                    if len(_dice_panels) >= 2:
+                        fn_show(_dice_panels)
+                    elif len(_dice_panels) == 1:
+                        fn_show({"rolls": list(_dice_panels[0].get("rolls", []) or [])}, label_text=str(_dice_panels[0].get("label", "Tirada") or "Tirada"))
+                else:
+                    if len(_dice_panels) >= 2:
+                        bs_ui_show("dice_roll_result_multi", entries=_dice_panels)
+                    elif len(_dice_panels) == 1:
+                        bs_ui_show("dice_roll_result", rolls=list(_dice_panels[0].get("rolls", []) or []), label_text=str(_dice_panels[0].get("label", "Tirada") or "Tirada"))
+            except:
+                pass
 
             # === ATAQUE DIRECTO FALLADO → daño defendible ===
             if (not getattr(S, "direct_success", False)) and ("Ataque Directo" in getattr(S, "last_selected_actions", [])):

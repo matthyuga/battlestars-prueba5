@@ -188,13 +188,14 @@ init -988 python:
 
             # Mostrar dados si existe
             if isinstance(roll, dict):
+                _dice_lbl = str(tech.get("name", key) if isinstance(tech, dict) else key)
                 try:
                     fn_show = getattr(S, "show_dice_result", None)
                     if callable(fn_show):
-                        fn_show(roll)
+                        fn_show(roll, label_text=_dice_lbl)
                     else:
                         import renpy.exports as R
-                        R.show_screen("dice_roll_result", rolls=roll.get("rolls", []))
+                        R.show_screen("dice_roll_result", rolls=roll.get("rolls", []), label_text=_dice_lbl)
                 except:
                     pass
 
