@@ -425,6 +425,17 @@ label battle_offensive_turn_legacy_entry:
         used_direct = ("Ataque Directo" in (selected or []))
         used_noatk  = ("Ataque Negador" in (selected or []))
 
+        _mode_now = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        _policy_now = str(getattr(S, "offensive_targeting_policy", "single_target") or "single_target").strip().lower()
+        _split_effects_blocked = False
+        if _mode_now == "2v2" and _policy_now in ("split_equal", "split_manual"):
+            try:
+                fn_valid = getattr(S, "bs_get_valid_target_keys", None)
+                _targets = list(fn_valid("enemy") or []) if callable(fn_valid) else []
+                _split_effects_blocked = (len(_targets) > 1)
+            except:
+                _split_effects_blocked = True
+
         S.direct_success = False
         S.noatk_success  = False
 
@@ -470,7 +481,48 @@ label battle_offensive_turn_legacy_entry:
 
         battle_fmt_num = getattr(S, "battle_fmt_num", globals().get("battle_fmt_num", None))
 
-        if used_direct or used_noatk:
+        if _split_effects_blocked:
+            # En daño dividido 2v2, todos los efectos especiales se desactivan:
+            # - Sin tiradas de dados (directo/negador)
+            # - Sin NO ATK
+            # - Sin daño directo indefendible
+            # - Sin reducción de defensa
+            try:
+                S.next_defense_reduction = 0.0
+            except:
+                pass
+
+            if used_direct:
+                try:
+                    base_d = int(getattr(S, "direct_base_damage", 0) or 0)
+                except:
+                    base_d = 0
+                try:
+                    dmg_d = int(getattr(S, "direct_pending_damage", 0) or base_d)
+                except:
+                    dmg_d = base_d
+
+                if dmg_d > 0:
+                    try:
+                        attack_records.append((base_d, dmg_d))
+                    except:
+                        pass
+                    try:
+                        total_damage += dmg_d
+                    except:
+                        total_damage = int(total_damage or 0) + int(dmg_d or 0)
+
+                try:
+                    S.direct_pending_damage = 0
+                except:
+                    pass
+
+            try:
+                _blog("{color=#BBBBBB}Modo dividir daño: efectos especiales desactivados (sin dados/negador/directo/reducción).{/color}")
+            except:
+                pass
+
+        elif used_direct or used_noatk:
 
             roll = None
             try:
