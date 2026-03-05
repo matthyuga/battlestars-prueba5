@@ -315,7 +315,9 @@ label battle_finalize_teams_2v2:
         "Equipo ENEMY listo: [battle_enemy_ids[0]]."
 
     if battle_multiplayer_manual:
-        "Modo multijugador manual: P[len(battle_player_ids)] vs E[len(battle_enemy_ids)]."
+        $ _pcount_txt = len(battle_player_ids)
+        $ _ecount_txt = len(battle_enemy_ids)
+        "Modo multijugador manual: P[_pcount_txt] vs E[_ecount_txt]."
     elif battle_team_mode == "2v2":
         "2v2 listo."
     else:
