@@ -284,6 +284,13 @@ init -21 python:
             except:
                 pass
 
+            try:
+                fn_unit_save = getattr(S, "ai_unit_profile_save_if_needed", None)
+                if callable(fn_unit_save):
+                    fn_unit_save()
+            except:
+                pass
+
         R.restart_interaction()
 
     # ------------------------------------------------------------

@@ -52,8 +52,8 @@ init -19:
 # ------------------------------------------------------------
 screen ai_difficulty_hud():
 
-    on "show" action Function(ai_sync_from_persistent_if_needed)
-    on "replace" action Function(ai_sync_from_persistent_if_needed)
+    on "show" action [Function(ai_sync_from_persistent_if_needed), Function(ai_unit_profile_sync_from_persistent_if_needed)]
+    on "replace" action [Function(ai_sync_from_persistent_if_needed), Function(ai_unit_profile_sync_from_persistent_if_needed)]
 
     if ui_show_options_panel:
         frame style "ai_diff_frame":

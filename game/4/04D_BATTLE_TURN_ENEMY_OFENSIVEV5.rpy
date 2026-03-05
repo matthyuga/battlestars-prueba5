@@ -433,7 +433,15 @@ label battle_enemy_turn_legacy_entry:
                 scored.append({"key": k, "hp": hp, "mx": mx, "threat": threat, "score": score})
 
             scored.sort(key=lambda x: x.get("score", 0.0), reverse=True)
-            primary = scored[0]["key"] if scored else ""
+            primary_auto = scored[0]["key"] if scored else ""
+            forced_primary = ""
+            try:
+                fn_forced = getattr(S, "ai_resolve_forced_target_key", None)
+                if callable(fn_forced):
+                    forced_primary = str(fn_forced(ai_active_key, target_keys) or "")
+            except:
+                forced_primary = ""
+            primary = forced_primary if forced_primary else primary_auto
 
             # C.3: policy burst vs presión distribuida
             policy = "single_target"
@@ -441,7 +449,9 @@ label battle_enemy_turn_legacy_entry:
             lowest_hp = min([x.get("hp", 0) for x in scored]) if scored else 0
             can_secure_ko = bool(total_damage > 0 and lowest_hp > 0 and total_damage >= lowest_hp)
 
-            if alive_n <= 1:
+            if forced_primary:
+                policy = "single_target"
+            elif alive_n <= 1:
                 policy = "single_target"
             elif can_secure_ko:
                 policy = "single_target"   # burst para confirmar KO
@@ -519,7 +529,15 @@ label battle_enemy_turn_legacy_entry:
                             target_txt = str(fn_desc(primary, default_side="player", default_slot=0) or primary)
                     else:
                         target_txt = primary
-                    S.battle_log_add("{color=#B0E0E6}AI target policy: %s → target asignado: %s{/color}" % (policy, target_txt))
+                    _policy_log = policy
+                    if forced_primary:
+                        try:
+                            info_forced = S.bs_parse_unit_key(forced_primary, default_side="player", default_slot=0) if callable(getattr(S, "bs_parse_unit_key", None)) else {}
+                            _forced_slot = int(info_forced.get("slot", 0) or 0)
+                            _policy_log = "force_slot(P{})".format(_forced_slot + 1)
+                        except:
+                            _policy_log = "force_slot"
+                    S.battle_log_add("{color=#B0E0E6}AI target policy: %s → target asignado: %s{/color}" % (_policy_log, target_txt))
             except:
                 pass
 
