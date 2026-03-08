@@ -239,7 +239,13 @@ init -18 python:
         mode = str(prof.get("offense_mode", "inherit") or "inherit") if isinstance(prof, dict) else "inherit"
         if mode == "inherit":
             try:
-                return str(getattr(S, "ai_finisher_test_mode", "normal") or "normal")
+                mode = str(getattr(S, "ai_finisher_test_mode", "normal") or "normal")
+            except:
+                mode = "normal"
+        if mode in ("force_extra_attack", "force_extra_tech"):
+            try:
+                if str(ai_effective_offense_concat(unit_key) or "level2_full") != "off":
+                    return "normal"
             except:
                 return "normal"
         return mode
@@ -448,10 +454,21 @@ init -18 python:
             return "🎯 Target: Forzar P{}".format(slot + 1)
         return "🎯 Target: Auto"
 
+    def _ai_ui_offense_force_extra_locked_for_unit(unit_key):
+        try:
+            fn = getattr(S, "ai_effective_offense_concat", None)
+            if callable(fn):
+                return str(fn(unit_key) or "level2_full") != "off"
+        except:
+            pass
+        return True
+
     def ai_ui_cycle_offense_mode():
         key = ai_ui_get_selected_enemy_unit_key()
         prof = ai_unit_profile_get(key, create=True)
         seq = list(_AI_OFFENSE_MODES)
+        if _ai_ui_offense_force_extra_locked_for_unit(key):
+            seq = [m for m in seq if m not in ("force_extra_attack", "force_extra_tech")]
         cur = str(prof.get("offense_mode", "inherit") or "inherit")
         try:
             i = seq.index(cur)
@@ -468,6 +485,8 @@ init -18 python:
         key = ai_ui_get_selected_enemy_unit_key()
         prof = ai_unit_profile_get(key, create=False)
         m = str(prof.get("offense_mode", "inherit") or "inherit") if isinstance(prof, dict) else "inherit"
+        if m in ("force_extra_attack", "force_extra_tech") and _ai_ui_offense_force_extra_locked_for_unit(key):
+            m = "normal"
         return "⚔️ Ofensiva (unidad): {}".format(m)
 
     def ai_ui_cycle_offense_concat_rule():

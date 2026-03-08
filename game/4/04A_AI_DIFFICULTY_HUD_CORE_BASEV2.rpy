@@ -77,6 +77,13 @@ init -21 python:
             return "level2_full"
         return s
 
+    def _is_offense_force_extra_mode(mode):
+        try:
+            m = str(mode or "")
+        except:
+            m = ""
+        return m in ("force_extra_attack", "force_extra_tech")
+
     # ------------------------------------------------------------
     # Helpers: persistent dict-safe
     # ------------------------------------------------------------
@@ -341,11 +348,16 @@ init -21 python:
     # ------------------------------------------------------------
     def ai_finisher_mode_get():
         _ensure_store_defaults()
-        return _norm_finisher_mode(getattr(S, "ai_finisher_test_mode", "normal"))
+        mode = _norm_finisher_mode(getattr(S, "ai_finisher_test_mode", "normal"))
+        if _is_offense_force_extra_mode(mode) and ai_offense_concat_mode_get() != "off":
+            return "normal"
+        return mode
 
     def ai_finisher_mode_set(mode):
         _ensure_store_defaults()
         mode = _norm_finisher_mode(mode)
+        if _is_offense_force_extra_mode(mode) and ai_offense_concat_mode_get() != "off":
+            mode = "normal"
         S.ai_finisher_test_mode = mode
         if getattr(S, "ai_difficulty_save", False):
             try:
@@ -355,11 +367,14 @@ init -21 python:
 
     def ai_cycle_finisher_mode():
         cur = ai_finisher_mode_get()
+        seq = list(AI_FIN_TEST_MODES)
+        if ai_offense_concat_mode_get() != "off":
+            seq = [m for m in seq if not _is_offense_force_extra_mode(m)]
         try:
-            i = AI_FIN_TEST_MODES.index(cur)
+            i = seq.index(cur)
         except:
             i = 0
-        ai_finisher_mode_set(AI_FIN_TEST_MODES[(i + 1) % len(AI_FIN_TEST_MODES)])
+        ai_finisher_mode_set(seq[(i + 1) % len(seq)])
         R.restart_interaction()
 
     def ai_reset_finisher_stats():
