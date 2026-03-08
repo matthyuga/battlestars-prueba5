@@ -24,6 +24,8 @@ init -18 python:
         "force_stronger",
         "force_direct",
         "force_noatk",
+        "force_extra_attack",
+        "force_extra_tech",
     )
     _AI_DEFENSE_MODES = (
         "inherit",

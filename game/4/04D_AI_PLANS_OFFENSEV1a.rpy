@@ -28,6 +28,8 @@ init -989 python:
         "force_stronger",
         "force_direct",
         "force_noatk",
+        "force_extra_attack",
+        "force_extra_tech",
     )
 
     _AI_OFFENSE_CONCAT_MODES = (
@@ -147,6 +149,9 @@ init -989 python:
         unit_key = _resolve_enemy_unit_key_for_plan()
         mode = _effective_finisher_mode_for_unit(unit_key)
 
+        concat_mode = _effective_offense_concat_for_unit(unit_key)
+        concat_off = (concat_mode == "off")
+
         # ---- FORCE
         if mode == "force_reducer":
             return "attack_reducer"
@@ -156,6 +161,10 @@ init -989 python:
             return "direct_attack"
         if mode == "force_noatk":
             return "noatk_attack"
+        if mode == "force_extra_attack" and concat_off:
+            return "extra_attack"
+        if mode == "force_extra_tech" and concat_off:
+            return "extra_tech"
 
         finishers = [
             "attack_reducer",
@@ -163,17 +172,30 @@ init -989 python:
             "direct_attack",
             "noatk_attack",
         ]
+        if concat_off:
+            finishers.extend(["extra_attack", "extra_tech"])
 
         base_weights = {
             "attack_reducer": 0.25,
             "stronger_attack": 0.25,
             "direct_attack": 0.25,
             "noatk_attack": 0.25,
+            "extra_attack": 0.25 if concat_off else 0.0,
+            "extra_tech": 0.25 if concat_off else 0.0,
         }
 
         weights = getattr(S, "ai_finisher_weights", {}) or base_weights
         if mode != "stats":
             weights = base_weights
+        else:
+            try:
+                w = dict(weights)
+            except:
+                w = {}
+            for k, v in base_weights.items():
+                if k not in w:
+                    w[k] = v
+            weights = w
 
         # --- Burst rule: si ya usó stronger_attack, forzamos variar
         if getattr(S, "ai_used_strong_attack", False):
@@ -183,6 +205,8 @@ init -989 python:
                 return "attack_reducer"
 
             alt = ["direct_attack", "noatk_attack", "stronger_attack"]
+            if concat_off:
+                alt.extend(["extra_attack", "extra_tech"])
             fin = _pick_from_candidates(ai, alt, weights)
             return fin or "stronger_attack"
 

@@ -27,6 +27,8 @@ init -21 python:
         "force_stronger",
         "force_direct",
         "force_noatk",
+        "force_extra_attack",
+        "force_extra_tech",
     ]
 
     AI_OFFENSE_CONCAT_MODES = [
@@ -200,6 +202,8 @@ init -21 python:
             "force_stronger": "🎯 Forzar: Stronger",
             "force_direct":   "🎯 Forzar: Directo",
             "force_noatk":    "🎯 Forzar: Negador",
+            "force_extra_attack": "🎯 Forzar: Ataque Extra (Concat OFF)",
+            "force_extra_tech":   "🎯 Forzar: Técnica Extra (Concat OFF)",
         }.get(_norm_finisher_mode(mode), "🎯 Probabilidad: Normal")
 
     # ------------------------------------------------------------
