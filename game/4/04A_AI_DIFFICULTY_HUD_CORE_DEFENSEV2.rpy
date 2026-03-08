@@ -30,6 +30,7 @@ init -20 python:
         "force_extra",
         "force_reduct",
         "force_reflect",
+        "force_strong",
     ]
 
     _DEF_KEYS = ("def_extra", "def_reduct", "def_reflect")
@@ -319,6 +320,7 @@ init -20 python:
         if m == "force_extra":   return "🛡️ Forzar: Extra%s" % tag
         if m == "force_reduct":  return "🛡️ Forzar: Reduct%s" % tag
         if m == "force_reflect": return "🛡️ Forzar: Reflect%s" % tag
+        if m == "force_strong":  return "🛡️ Forzar: Strong%s" % tag
         return "🛡️ Defensa: Normal%s" % tag
 
     def ai_defense_color():

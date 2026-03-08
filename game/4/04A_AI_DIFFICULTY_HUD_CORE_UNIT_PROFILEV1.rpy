@@ -34,6 +34,7 @@ init -18 python:
         "force_extra",
         "force_reduct",
         "force_reflect",
+        "force_strong",
     )
 
     def ai_unit_profile_default():

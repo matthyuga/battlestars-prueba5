@@ -28,7 +28,7 @@ init -988 python:
     def ai_defense_ensure_defaults():
         # modos:
         #   "normal", "stats",
-        #   "force_extra", "force_reduct", "force_reflect"
+        #   "force_extra", "force_reduct", "force_reflect", "force_strong"
         if not hasattr(S, "ai_defense_test_mode"):
             S.ai_defense_test_mode = "normal"
 
@@ -147,6 +147,8 @@ init -988 python:
             return "def_reduct"
         if mode == "force_reflect":
             return "def_reflect"
+        if mode == "force_strong":
+            return "defense_strong_block"
 
         if mode == "stats":
             w = getattr(S, "ai_defense_weights", {}) or {}
