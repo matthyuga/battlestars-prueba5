@@ -265,7 +265,13 @@ init -18 python:
         mode = str(prof.get("defense_mode", "inherit") or "inherit") if isinstance(prof, dict) else "inherit"
         if mode == "inherit":
             try:
-                return str(getattr(S, "ai_defense_test_mode", "normal") or "normal")
+                mode = str(getattr(S, "ai_defense_test_mode", "normal") or "normal")
+            except:
+                mode = "normal"
+        if mode == "force_extra":
+            try:
+                if bool(ai_effective_defense_concat(unit_key)):
+                    return "normal"
             except:
                 return "normal"
         return mode
@@ -519,10 +525,21 @@ init -18 python:
             return "⚔️ Concat (unidad): L1-B (ExtraTech)"
         return "⚔️ Concat (unidad): L2 (Atk+Tech)"
 
+    def _ai_ui_defense_force_extra_locked_for_unit(unit_key):
+        try:
+            fn = getattr(S, "ai_effective_defense_concat", None)
+            if callable(fn):
+                return bool(fn(unit_key))
+        except:
+            pass
+        return True
+
     def ai_ui_cycle_defense_mode():
         key = ai_ui_get_selected_enemy_unit_key()
         prof = ai_unit_profile_get(key, create=True)
         seq = list(_AI_DEFENSE_MODES)
+        if _ai_ui_defense_force_extra_locked_for_unit(key):
+            seq = [m for m in seq if m != "force_extra"]
         cur = str(prof.get("defense_mode", "inherit") or "inherit")
         try:
             i = seq.index(cur)
@@ -539,6 +556,8 @@ init -18 python:
         key = ai_ui_get_selected_enemy_unit_key()
         prof = ai_unit_profile_get(key, create=False)
         m = str(prof.get("defense_mode", "inherit") or "inherit") if isinstance(prof, dict) else "inherit"
+        if m == "force_extra" and _ai_ui_defense_force_extra_locked_for_unit(key):
+            m = "normal"
         return "🛡️ Defensa (unidad): {}".format(m)
 
     def ai_ui_cycle_concat_rule():

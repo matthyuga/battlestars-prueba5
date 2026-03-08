@@ -120,6 +120,9 @@ init -989 python:
 
         _ensure_ai_def_defaults()
         mode = _effective_defense_mode_for_unit(unit_key)
+        concat = _effective_defense_concat_for_unit(unit_key)
+        if mode == "force_extra" and concat:
+            mode = "normal"
 
         # ---- FORCE
         if mode == "force_extra":

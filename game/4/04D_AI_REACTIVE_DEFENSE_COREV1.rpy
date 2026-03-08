@@ -130,6 +130,17 @@ init -988 python:
         except:
             mode = "normal"
 
+        concat = bool(getattr(S, "ai_defense_concat", False))
+        try:
+            fn_concat = getattr(S, "ai_effective_defense_concat", None)
+            if callable(fn_concat):
+                concat = bool(fn_concat(unit_key))
+        except:
+            pass
+
+        if mode == "force_extra" and concat:
+            mode = "normal"
+
         if mode == "force_extra":
             return "def_extra"
         if mode == "force_reduct":
