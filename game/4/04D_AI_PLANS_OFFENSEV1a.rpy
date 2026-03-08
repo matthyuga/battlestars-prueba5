@@ -30,6 +30,13 @@ init -989 python:
         "force_noatk",
     )
 
+    _AI_OFFENSE_CONCAT_MODES = (
+        "off",
+        "level1_attack",
+        "level1_tech",
+        "level2_full",
+    )
+
     def _norm_finisher_mode(mode):
         if not mode:
             return "normal"
@@ -38,6 +45,15 @@ init -989 python:
         except:
             return "normal"
         return mode if mode in _AI_FIN_TEST_MODES else "normal"
+
+    def _norm_offense_concat_mode(mode):
+        if not mode:
+            return "level2_full"
+        try:
+            mode = str(mode)
+        except:
+            return "level2_full"
+        return mode if mode in _AI_OFFENSE_CONCAT_MODES else "level2_full"
 
     def _resolve_enemy_unit_key_for_plan():
         fn = getattr(S, "ai_get_current_enemy_unit_key", None)
@@ -57,6 +73,15 @@ init -989 python:
                 pass
         return _norm_finisher_mode(getattr(S, "ai_finisher_test_mode", "normal"))
 
+    def _effective_offense_concat_for_unit(unit_key):
+        fn = getattr(S, "ai_effective_offense_concat", None)
+        if callable(fn):
+            try:
+                return _norm_offense_concat_mode(fn(unit_key))
+            except:
+                pass
+        return _norm_offense_concat_mode(getattr(S, "ai_offense_concat_mode", "level2_full"))
+
     # ------------------------------------------------------------
     # Defaults SOLO store (HUD se encarga del persistent)
     # ------------------------------------------------------------
@@ -65,6 +90,11 @@ init -989 python:
             S.ai_finisher_test_mode = "normal"
         else:
             S.ai_finisher_test_mode = _norm_finisher_mode(getattr(S, "ai_finisher_test_mode", "normal"))
+
+        if not hasattr(S, "ai_offense_concat_mode"):
+            S.ai_offense_concat_mode = "level2_full"
+        else:
+            S.ai_offense_concat_mode = _norm_offense_concat_mode(getattr(S, "ai_offense_concat_mode", "level2_full"))
 
         if not hasattr(S, "ai_finisher_weights") or not isinstance(getattr(S, "ai_finisher_weights", None), dict):
             S.ai_finisher_weights = {
@@ -171,7 +201,16 @@ init -989 python:
         if _effective_finisher_mode_for_unit(unit_key) == "stats":
             _ai_finisher_stats_add(fin)
 
-        plan = ["extra_attack", "extra_tech"]
+        concat_mode = _effective_offense_concat_for_unit(unit_key)
+        plan = []
+
+        if concat_mode == "level1_attack":
+            plan.append("extra_attack")
+        elif concat_mode == "level1_tech":
+            plan.append("extra_tech")
+        elif concat_mode == "level2_full":
+            plan.append("extra_attack")
+            plan.append("extra_tech")
 
         try:
             if _ai_focus_allowed(unit_key):

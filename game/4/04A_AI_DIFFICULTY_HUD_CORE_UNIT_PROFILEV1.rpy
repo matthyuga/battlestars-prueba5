@@ -40,6 +40,7 @@ init -18 python:
             "target_mode": "auto",
             "target_slot": 0,
             "offense_mode": "inherit",
+            "offense_concat": "inherit",
             "defense_mode": "inherit",
             "defense_concat": "inherit",
             "allow_focus": "inherit",
@@ -59,6 +60,17 @@ init -18 python:
         except:
             s = str(default_value)
         return s if s in valid else str(default_value)
+
+    def _ai_unit_profile_norm_offense_concat(v):
+        if v == "inherit":
+            return "inherit"
+        try:
+            s = str(v)
+        except:
+            return "inherit"
+        if s in ("off", "level1_attack", "level1_tech", "level2_full"):
+            return s
+        return "inherit"
 
     def _ai_unit_profile_sanitize(raw):
         base = ai_unit_profile_default()
@@ -87,6 +99,10 @@ init -18 python:
             p.get("offense_mode", "inherit"),
             _AI_OFFENSE_MODES,
             "inherit"
+        )
+
+        p["offense_concat"] = _ai_unit_profile_norm_offense_concat(
+            p.get("offense_concat", "inherit")
         )
 
         p["defense_mode"] = _ai_unit_profile_norm_mode(
@@ -224,6 +240,16 @@ init -18 python:
                 return str(getattr(S, "ai_finisher_test_mode", "normal") or "normal")
             except:
                 return "normal"
+        return mode
+
+    def ai_effective_offense_concat(unit_key):
+        prof = ai_unit_profile_get(unit_key, create=False)
+        mode = str(prof.get("offense_concat", "inherit") or "inherit") if isinstance(prof, dict) else "inherit"
+        if mode == "inherit":
+            try:
+                return str(getattr(S, "ai_offense_concat_mode", "level2_full") or "level2_full")
+            except:
+                return "level2_full"
         return mode
 
     def ai_effective_defense_mode(unit_key):
@@ -441,6 +467,36 @@ init -18 python:
         prof = ai_unit_profile_get(key, create=False)
         m = str(prof.get("offense_mode", "inherit") or "inherit") if isinstance(prof, dict) else "inherit"
         return "⚔️ Ofensiva (unidad): {}".format(m)
+
+    def ai_ui_cycle_offense_concat_rule():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=True)
+        cur = str(prof.get("offense_concat", "inherit") or "inherit")
+        seq = ["inherit", "off", "level1_attack", "level1_tech", "level2_full"]
+        try:
+            i = seq.index(cur)
+        except:
+            i = 0
+        ai_unit_profile_set(key, {"offense_concat": seq[(i + 1) % len(seq)]})
+        try:
+            import renpy.exports as R
+            R.restart_interaction()
+        except:
+            pass
+
+    def ai_ui_offense_concat_rule_text():
+        key = ai_ui_get_selected_enemy_unit_key()
+        prof = ai_unit_profile_get(key, create=False)
+        cur = str(prof.get("offense_concat", "inherit") or "inherit") if isinstance(prof, dict) else "inherit"
+        if cur == "inherit":
+            return "⚔️ Concat (unidad): Heredar"
+        if cur == "off":
+            return "⚔️ Concat (unidad): OFF"
+        if cur == "level1_attack":
+            return "⚔️ Concat (unidad): L1-A (ExtraAtk)"
+        if cur == "level1_tech":
+            return "⚔️ Concat (unidad): L1-B (ExtraTech)"
+        return "⚔️ Concat (unidad): L2 (Atk+Tech)"
 
     def ai_ui_cycle_defense_mode():
         key = ai_ui_get_selected_enemy_unit_key()
