@@ -32,119 +32,6 @@ init -970 python:
     enemy_simulated_reiatsu = 0
     enemy_simulated_energy = 0
 
-    # === Tema visual HUD de unidades (cuadro + layout interno) ===
-    unit_hud_theme = "amber_slots"
-
-    _UNIT_HUD_THEME_ORDER = [
-        "amber_slots", "amber_panel",
-        "steel_slots", "steel_panel",
-        "obsidian_slots", "obsidian_panel",
-        "nature_slots", "nature_panel",
-    ]
-
-    UNIT_HUD_LAYOUTS = {
-        # a1
-        "amber_slots": {
-            "bg_image": "gui/hud_themes/a1.png",
-            "fallback_bg": "#1B120CDE",
-            "card_w": 250, "xpadding": 12, "ypadding": 7,
-            "name_size": 18, "stat_size": 12, "slot_spacing": 2,
-            "bar_w": 220, "bar_h": 11,
-        },
-        # a2
-        "amber_panel": {
-            "bg_image": "gui/hud_themes/a2.png",
-            "fallback_bg": "#1E1005DE",
-            "card_w": 250, "xpadding": 12, "ypadding": 7,
-            "name_size": 18, "stat_size": 12, "slot_spacing": 3,
-            "bar_w": 220, "bar_h": 11,
-        },
-        # b1
-        "steel_slots": {
-            "bg_image": "gui/hud_themes/b1.png",
-            "fallback_bg": "#0E1115DE",
-            "card_w": 250, "xpadding": 12, "ypadding": 7,
-            "name_size": 18, "stat_size": 12, "slot_spacing": 2,
-            "bar_w": 220, "bar_h": 11,
-        },
-        # b2
-        "steel_panel": {
-            "bg_image": "gui/hud_themes/b2.png",
-            "fallback_bg": "#111519DE",
-            "card_w": 250, "xpadding": 12, "ypadding": 8,
-            "name_size": 18, "stat_size": 12, "slot_spacing": 3,
-            "bar_w": 220, "bar_h": 12,
-        },
-        # c1
-        "obsidian_slots": {
-            "bg_image": "gui/hud_themes/c1.png",
-            "fallback_bg": "#1B1212DE",
-            "card_w": 250, "xpadding": 12, "ypadding": 7,
-            "name_size": 18, "stat_size": 12, "slot_spacing": 2,
-            "bar_w": 220, "bar_h": 11,
-        },
-        # c2
-        "obsidian_panel": {
-            "bg_image": "gui/hud_themes/c2.png",
-            "fallback_bg": "#17100FDE",
-            "card_w": 250, "xpadding": 12, "ypadding": 8,
-            "name_size": 18, "stat_size": 12, "slot_spacing": 3,
-            "bar_w": 220, "bar_h": 12,
-        },
-        # d1
-        "nature_slots": {
-            "bg_image": "gui/hud_themes/d1.png",
-            "fallback_bg": "#112018DE",
-            "card_w": 250, "xpadding": 12, "ypadding": 7,
-            "name_size": 18, "stat_size": 12, "slot_spacing": 2,
-            "bar_w": 220, "bar_h": 11,
-        },
-        # d2
-        "nature_panel": {
-            "bg_image": "gui/hud_themes/d2.png",
-            "fallback_bg": "#0E1D14DE",
-            "card_w": 250, "xpadding": 12, "ypadding": 8,
-            "name_size": 18, "stat_size": 12, "slot_spacing": 3,
-            "bar_w": 220, "bar_h": 12,
-        },
-    }
-
-    def hud_get_unit_layout(theme_id=None):
-        import renpy
-        key = str(theme_id or unit_hud_theme or "amber_slots")
-        ly = dict(UNIT_HUD_LAYOUTS.get(key, UNIT_HUD_LAYOUTS["amber_slots"]))
-        bg_img = str(ly.get("bg_image", "") or "")
-        ly["background"] = bg_img if (bg_img and renpy.loadable(bg_img)) else ly.get("fallback_bg", "#0008")
-        return ly
-
-    def battle_cycle_unit_hud_theme(step=1):
-        global unit_hud_theme
-        n = len(_UNIT_HUD_THEME_ORDER)
-        if n <= 0:
-            unit_hud_theme = "amber_slots"
-            return unit_hud_theme
-        try:
-            i = _UNIT_HUD_THEME_ORDER.index(str(unit_hud_theme or "amber_slots"))
-        except Exception:
-            i = 0
-        unit_hud_theme = _UNIT_HUD_THEME_ORDER[(i + int(step)) % n]
-        if renpy.get_screen("battle_hp_overlay"):
-            renpy.restart_interaction()
-        return unit_hud_theme
-
-    def battle_unit_hud_theme_text():
-        labels = {
-            "amber_slots": "Ámbar Slots",
-            "amber_panel": "Ámbar Panel",
-            "steel_slots": "Acero Slots",
-            "steel_panel": "Acero Panel",
-            "obsidian_slots": "Obsidiana Slots",
-            "obsidian_panel": "Obsidiana Panel",
-            "nature_slots": "Bosque Slots",
-            "nature_panel": "Bosque Panel",
-        }
-        return "🖼 HUD: {}".format(labels.get(str(unit_hud_theme or ""), "Ámbar Slots"))
-
 
     # ===========================================================
     # 🔸 MAPA GLOBAL (visual → TECH_ID)
@@ -370,32 +257,31 @@ screen battle_hp_overlay():
                                 $ _show_sim = bool(_team == "player" and _active and hasattr(store, "pending_tech_list") and store.pending_tech_list)
                                 $ _rei_diff = int((simulated_reiatsu - player_reiatsu) if _show_sim else 0)
                                 $ _ene_diff = int((simulated_energy - player_energy) if _show_sim else 0)
-                                $ _ly = store.hud_get_unit_layout(getattr(store, "unit_hud_theme", "amber_slots"))
                                 frame at hud_fade_in:
-                                    background _ly["background"]
-                                    xpadding int(_ly.get("xpadding", 10) or 10)
-                                    ypadding int(_ly.get("ypadding", 6) or 6)
-                                    xmaximum int(_ly.get("card_w", 250) or 250)
+                                    background "#0008"
+                                    xpadding 10
+                                    ypadding 6
+                                    xmaximum 250
                                     vbox:
-                                        spacing int(_ly.get("slot_spacing", 2) or 2)
-                                        text "{} {}".format("▣" if _active else "▫", _name) color ("#88CCFF" if _team=="player" else "#FF7777") size int(_ly.get("name_size", 18) or 18) bold True
+                                        spacing 2
+                                        text "{} {}".format("▣" if _active else "▫", _name) color ("#88CCFF" if _team=="player" else "#FF7777") size 18 bold True
                                         bar:
                                             value (float(_hp) / max(1.0, float(_mx)))
-                                            range 1.0 xmaximum int(_ly.get("bar_w", 220) or 220) ymaximum int(_ly.get("bar_h", 12) or 12)
+                                            range 1.0 xmaximum 220 ymaximum 12
                                             left_bar ("#00BFFF" if _team=="player" else "#FF3333") right_bar "#222222"
-                                        text "HP: {} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)) color "#FFFFFF" size int(_ly.get("stat_size", 12) or 12)
+                                        text "HP: {} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)) color "#FFFFFF" size 13
 
                                         hbox:
                                             spacing 5
-                                            text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))) size int(_ly.get("stat_size", 12) or 12) color "#55FFFF"
+                                            text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))) size 12 color "#55FFFF"
                                             if _rei_diff != 0:
-                                                text "-{}".format(battle_fmt_num(abs(_rei_diff))) size int(_ly.get("stat_size", 12) or 12) color "#66CCFFAA"
+                                                text "-{}".format(battle_fmt_num(abs(_rei_diff))) size 12 color "#66CCFFAA"
 
                                         hbox:
                                             spacing 5
-                                            text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))) size int(_ly.get("stat_size", 12) or 12) color "#FFA500"
+                                            text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))) size 12 color "#FFA500"
                                             if _ene_diff != 0:
-                                                text "-{}".format(battle_fmt_num(abs(_ene_diff))) size int(_ly.get("stat_size", 12) or 12) color "#FFBB66AA"
+                                                text "-{}".format(battle_fmt_num(abs(_ene_diff))) size 12 color "#FFBB66AA"
             else:
                 frame at hud_fade_in:
                     background "#0008"
