@@ -21,6 +21,7 @@ init -989 python:
         "force_extra",
         "force_reduct",
         "force_reflect",
+        "force_strong",
     )
 
     def _norm_def_mode(mode):
@@ -120,6 +121,9 @@ init -989 python:
 
         _ensure_ai_def_defaults()
         mode = _effective_defense_mode_for_unit(unit_key)
+        concat = _effective_defense_concat_for_unit(unit_key)
+        if mode == "force_extra" and concat:
+            mode = "normal"
 
         # ---- FORCE
         if mode == "force_extra":
@@ -128,6 +132,8 @@ init -989 python:
             return "def_reduct"
         if mode == "force_reflect":
             return "def_reflect"
+        if mode == "force_strong":
+            return "defense_strong_block"
 
         # ---- STATS (por pesos configurados en HUD_CORE_DEFENSE)
         if mode == "stats":
@@ -262,5 +268,5 @@ init -989 python:
         _safe_set_plan(
             ai,
             plan,
-            fallback_candidates=["def_extra", "def_reduct", "def_reflect"]
+            fallback_candidates=["def_extra", "def_reduct", "def_reflect", "defense_strong_block"]
         )

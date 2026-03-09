@@ -30,6 +30,7 @@ init -20 python:
         "force_extra",
         "force_reduct",
         "force_reflect",
+        "force_strong",
     ]
 
     _DEF_KEYS = ("def_extra", "def_reduct", "def_reflect")
@@ -53,6 +54,12 @@ init -20 python:
             return bool(v)
         except:
             return default
+
+    def _is_defense_force_extra_mode(mode):
+        try:
+            return str(mode or "") == "force_extra"
+        except:
+            return False
 
     def _clamp01(x, default=0.33):
         try:
@@ -183,11 +190,16 @@ init -20 python:
     # ------------------------------------------------------------
     def ai_defense_mode_get():
         _ensure_defense_store_defaults()
-        return _norm_defense_mode(getattr(S, "ai_defense_test_mode", "normal"))
+        mode = _norm_defense_mode(getattr(S, "ai_defense_test_mode", "normal"))
+        if _is_defense_force_extra_mode(mode) and ai_defense_concat_get():
+            return "normal"
+        return mode
 
     def ai_defense_mode_set(mode):
         _ensure_defense_store_defaults()
         mode = _norm_defense_mode(mode)
+        if _is_defense_force_extra_mode(mode) and ai_defense_concat_get():
+            mode = "normal"
         S.ai_defense_test_mode = mode
 
         if getattr(S, "ai_difficulty_save", False):
@@ -198,11 +210,14 @@ init -20 python:
 
     def ai_cycle_defense_mode():
         cur = ai_defense_mode_get()
+        seq = list(AI_DEF_TEST_MODES)
+        if ai_defense_concat_get():
+            seq = [m for m in seq if not _is_defense_force_extra_mode(m)]
         try:
-            i = AI_DEF_TEST_MODES.index(cur)
+            i = seq.index(cur)
         except:
             i = 0
-        ai_defense_mode_set(AI_DEF_TEST_MODES[(i + 1) % len(AI_DEF_TEST_MODES)])
+        ai_defense_mode_set(seq[(i + 1) % len(seq)])
         R.restart_interaction()
 
     # ------------------------------------------------------------
@@ -305,6 +320,7 @@ init -20 python:
         if m == "force_extra":   return "🛡️ Forzar: Extra%s" % tag
         if m == "force_reduct":  return "🛡️ Forzar: Reduct%s" % tag
         if m == "force_reflect": return "🛡️ Forzar: Reflect%s" % tag
+        if m == "force_strong":  return "🛡️ Forzar: Strong%s" % tag
         return "🛡️ Defensa: Normal%s" % tag
 
     def ai_defense_color():

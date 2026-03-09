@@ -102,6 +102,12 @@ screen ai_difficulty_hud():
                     text_color "#FFB74D"
                     action Function(ai_ui_cycle_offense_mode)
 
+                textbutton ai_ui_offense_concat_rule_text():
+                    style "ai_diff_btn"
+                    text_style "ai_diff_btn_text"
+                    text_color "#FFB74D"
+                    action Function(ai_ui_cycle_offense_concat_rule)
+
                 textbutton ai_ui_defense_mode_text():
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
@@ -176,6 +182,12 @@ screen ai_difficulty_hud():
                         text_style "ai_diff_btn_text"
                         text_color ai_test_color()
                         action Function(ai_cycle_finisher_mode)
+
+                textbutton ai_offense_concat_mode_text():
+                    style "ai_diff_btn"
+                    text_style "ai_diff_btn_text"
+                    text_color ai_offense_concat_mode_color()
+                    action Function(ai_cycle_offense_concat_mode)
 
                 textbutton "🔄 Reset Stats Ofensivos":
                     style "ai_diff_btn"

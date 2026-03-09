@@ -28,7 +28,7 @@ init -988 python:
     def ai_defense_ensure_defaults():
         # modos:
         #   "normal", "stats",
-        #   "force_extra", "force_reduct", "force_reflect"
+        #   "force_extra", "force_reduct", "force_reflect", "force_strong"
         if not hasattr(S, "ai_defense_test_mode"):
             S.ai_defense_test_mode = "normal"
 
@@ -130,12 +130,25 @@ init -988 python:
         except:
             mode = "normal"
 
+        concat = bool(getattr(S, "ai_defense_concat", False))
+        try:
+            fn_concat = getattr(S, "ai_effective_defense_concat", None)
+            if callable(fn_concat):
+                concat = bool(fn_concat(unit_key))
+        except:
+            pass
+
+        if mode == "force_extra" and concat:
+            mode = "normal"
+
         if mode == "force_extra":
             return "def_extra"
         if mode == "force_reduct":
             return "def_reduct"
         if mode == "force_reflect":
             return "def_reflect"
+        if mode == "force_strong":
+            return "defense_strong_block"
 
         if mode == "stats":
             w = getattr(S, "ai_defense_weights", {}) or {}

@@ -27,6 +27,15 @@ init -21 python:
         "force_stronger",
         "force_direct",
         "force_noatk",
+        "force_extra_attack",
+        "force_extra_tech",
+    ]
+
+    AI_OFFENSE_CONCAT_MODES = [
+        "off",
+        "level1_attack",
+        "level1_tech",
+        "level2_full",
     ]
 
     # ------------------------------------------------------------
@@ -56,6 +65,24 @@ init -21 python:
             return bool(v)
         except:
             return default
+
+    def _norm_offense_concat_mode(mode):
+        if not mode:
+            return "level2_full"
+        try:
+            s = str(mode)
+        except:
+            return "level2_full"
+        if s not in AI_OFFENSE_CONCAT_MODES:
+            return "level2_full"
+        return s
+
+    def _is_offense_force_extra_mode(mode):
+        try:
+            m = str(mode or "")
+        except:
+            m = ""
+        return m in ("force_extra_attack", "force_extra_tech")
 
     # ------------------------------------------------------------
     # Helpers: persistent dict-safe
@@ -91,6 +118,11 @@ init -21 python:
             S.ai_allow_focus = True
         else:
             S.ai_allow_focus = _norm_bool(getattr(S, "ai_allow_focus", True), True)
+
+        if not hasattr(S, "ai_offense_concat_mode"):
+            S.ai_offense_concat_mode = "level2_full"
+        else:
+            S.ai_offense_concat_mode = _norm_offense_concat_mode(getattr(S, "ai_offense_concat_mode", "level2_full"))
 
         if (not hasattr(S, "ai_finisher_weights")) or (not isinstance(getattr(S, "ai_finisher_weights", None), dict)):
             S.ai_finisher_weights = {
@@ -135,6 +167,11 @@ init -21 python:
             else:
                 p.ai_allow_focus = _norm_bool(getattr(p, "ai_allow_focus", True), True)
 
+            if not hasattr(p, "ai_offense_concat_mode"):
+                p.ai_offense_concat_mode = "level2_full"
+            else:
+                p.ai_offense_concat_mode = _norm_offense_concat_mode(getattr(p, "ai_offense_concat_mode", "level2_full"))
+
             if (not hasattr(p, "ai_finisher_weights")) or (not isinstance(getattr(p, "ai_finisher_weights", None), dict)):
                 p.ai_finisher_weights = {
                     "attack_reducer": 0.25,
@@ -172,6 +209,8 @@ init -21 python:
             "force_stronger": "🎯 Forzar: Stronger",
             "force_direct":   "🎯 Forzar: Directo",
             "force_noatk":    "🎯 Forzar: Negador",
+            "force_extra_attack": "🎯 Forzar: Ataque Extra (Concat OFF)",
+            "force_extra_tech":   "🎯 Forzar: Técnica Extra (Concat OFF)",
         }.get(_norm_finisher_mode(mode), "🎯 Probabilidad: Normal")
 
     # ------------------------------------------------------------
@@ -221,6 +260,11 @@ init -21 python:
                 S.ai_allow_focus = _norm_bool(getattr(S, "ai_allow_focus", True), True)
 
             try:
+                S.ai_offense_concat_mode = _norm_offense_concat_mode(getattr(S.persistent, "ai_offense_concat_mode", "level2_full"))
+            except:
+                S.ai_offense_concat_mode = _norm_offense_concat_mode(getattr(S, "ai_offense_concat_mode", "level2_full"))
+
+            try:
                 w = getattr(S.persistent, "ai_finisher_weights", None)
                 if isinstance(w, dict):
                     S.ai_finisher_weights = dict(w)
@@ -231,6 +275,7 @@ init -21 python:
             _ensure_store_defaults()
             S.ai_finisher_test_mode = _norm_finisher_mode(getattr(S, "ai_finisher_test_mode", "normal"))
             S.ai_allow_focus = _norm_bool(getattr(S, "ai_allow_focus", True), True)
+            S.ai_offense_concat_mode = _norm_offense_concat_mode(getattr(S, "ai_offense_concat_mode", "level2_full"))
 
             if (not hasattr(S, "ai_finisher_weights")) or (not isinstance(getattr(S, "ai_finisher_weights", None), dict)):
                 S.ai_finisher_weights = {
@@ -279,6 +324,11 @@ init -21 python:
                 pass
 
             try:
+                S.persistent.ai_offense_concat_mode = ai_offense_concat_mode_get()
+            except:
+                pass
+
+            try:
                 _ensure_persistent_finisher_weights_dict()
                 S.persistent.ai_finisher_weights = dict(getattr(S, "ai_finisher_weights", {}) or {})
             except:
@@ -298,11 +348,16 @@ init -21 python:
     # ------------------------------------------------------------
     def ai_finisher_mode_get():
         _ensure_store_defaults()
-        return _norm_finisher_mode(getattr(S, "ai_finisher_test_mode", "normal"))
+        mode = _norm_finisher_mode(getattr(S, "ai_finisher_test_mode", "normal"))
+        if _is_offense_force_extra_mode(mode) and ai_offense_concat_mode_get() != "off":
+            return "normal"
+        return mode
 
     def ai_finisher_mode_set(mode):
         _ensure_store_defaults()
         mode = _norm_finisher_mode(mode)
+        if _is_offense_force_extra_mode(mode) and ai_offense_concat_mode_get() != "off":
+            mode = "normal"
         S.ai_finisher_test_mode = mode
         if getattr(S, "ai_difficulty_save", False):
             try:
@@ -312,11 +367,14 @@ init -21 python:
 
     def ai_cycle_finisher_mode():
         cur = ai_finisher_mode_get()
+        seq = list(AI_FIN_TEST_MODES)
+        if ai_offense_concat_mode_get() != "off":
+            seq = [m for m in seq if not _is_offense_force_extra_mode(m)]
         try:
-            i = AI_FIN_TEST_MODES.index(cur)
+            i = seq.index(cur)
         except:
             i = 0
-        ai_finisher_mode_set(AI_FIN_TEST_MODES[(i + 1) % len(AI_FIN_TEST_MODES)])
+        ai_finisher_mode_set(seq[(i + 1) % len(seq)])
         R.restart_interaction()
 
     def ai_reset_finisher_stats():
@@ -330,6 +388,50 @@ init -21 python:
 
     def ai_finisher_mode_text():
         return _label_for_test_mode(ai_finisher_mode_get())
+
+    # ------------------------------------------------------------
+    # Offense concat mode (OFF / L1A / L1B / L2)
+    # ------------------------------------------------------------
+    def ai_offense_concat_mode_get():
+        _ensure_store_defaults()
+        return _norm_offense_concat_mode(getattr(S, "ai_offense_concat_mode", "level2_full"))
+
+    def ai_offense_concat_mode_set(mode):
+        _ensure_store_defaults()
+        mode = _norm_offense_concat_mode(mode)
+        S.ai_offense_concat_mode = mode
+        if getattr(S, "ai_difficulty_save", False):
+            try:
+                S.persistent.ai_offense_concat_mode = mode
+            except:
+                pass
+
+    def ai_cycle_offense_concat_mode():
+        cur = ai_offense_concat_mode_get()
+        try:
+            i = AI_OFFENSE_CONCAT_MODES.index(cur)
+        except:
+            i = 0
+        ai_offense_concat_mode_set(AI_OFFENSE_CONCAT_MODES[(i + 1) % len(AI_OFFENSE_CONCAT_MODES)])
+        R.restart_interaction()
+
+    def ai_offense_concat_mode_text():
+        m = ai_offense_concat_mode_get()
+        if m == "off":
+            return "⚔️ Concat Ataque: OFF"
+        if m == "level1_attack":
+            return "⚔️ Concat Ataque: L1-A (ExtraAtk)"
+        if m == "level1_tech":
+            return "⚔️ Concat Ataque: L1-B (ExtraTech)"
+        return "⚔️ Concat Ataque: L2 (Atk+Tech)"
+
+    def ai_offense_concat_mode_color():
+        m = ai_offense_concat_mode_get()
+        if m == "off":
+            return "#FF7777"
+        if m in ("level1_attack", "level1_tech"):
+            return "#FFD700"
+        return "#66FF99"
 
     # ------------------------------------------------------------
     # Offense weights (25 / 50 / 75 / 100)
