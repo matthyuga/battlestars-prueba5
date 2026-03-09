@@ -183,3 +183,67 @@ Antes de codificar el refactor:
 2. confirmar tamaño objetivo de cada frame (ancho/alto),
 3. confirmar si panel táctico y panel de estado van lado a lado o apilados,
 4. recién después implementar Fase A→E.
+
+---
+
+## 10) Aclaración clave de producto (jugador vs IA)
+
+Nueva regla funcional de visualización para evitar ruido:
+
+- **Unidad controlada por jugador humano**
+  - muestra **solo Cuadro 2 (estado)**,
+  - no muestra controles de target/focus/forzar/concat.
+
+- **Unidad controlada por IA** (enemigo IA o aliado IA)
+  - tiene acceso a **Cuadro 2 (estado)** y **Cuadro 1 (táctico)**,
+  - alterna entre ambos con un botón tipo "swap".
+
+Esto aplica especialmente a 2v2:
+- si ambos slots del equipo jugador son humanos: ambos solo estado,
+- si un slot es aliado IA: ese slot sí habilita alternancia estado/táctico.
+
+---
+
+## 11) Botón de alternancia de cuadro (swap)
+
+El botón circular de intercambio debe ser un control de capa visual local al panel IA.
+
+### Comportamiento esperado
+- Estado inicial recomendado para IA: abrir en **Cuadro 2 (estado)**.
+- Al pulsar botón: `estado -> táctico -> estado`.
+- Debe recordar estado por unidad (`enemy:0`, `enemy:1`, `player:1` si es aliado IA) para no mezclar paneles entre slots.
+
+### Ubicación sugerida
+- esquina superior derecha del marco,
+- o sobre una "pestaña" lateral fija del panel,
+- manteniendo área clickeable amplia (mínimo recomendado 44x44 px).
+
+### Asset sugerido
+- `game/gui/battle/hud_ai/icons/icon_panel_swap_blue.png`
+
+---
+
+## 12) Estado UI mínimo a definir en layout
+
+Para implementar la regla anterior sin tocar core táctico, el layout debería contemplar:
+
+- `show_tactical_for_unit[unit_key] : bool`
+- `unit_is_ai(unit_key) : bool` (resuelto desde estado de combate)
+- `ai_hud_default_view = "stats"`
+
+Con esto, la decisión de qué cuadro mostrar queda en la capa UI:
+- si `not unit_is_ai(unit_key)` -> render fijo de stats,
+- si `unit_is_ai(unit_key)` -> render condicional stats/táctico con botón swap.
+
+---
+
+## 13) Impacto sobre los componentes propuestos
+
+Se mantiene el plan modular previo, con ajuste:
+
+- `ai_hud_unit_stats_panel(...)` -> se usa en todas las unidades.
+- `ai_hud_unit_tactical_panel(...)` -> solo cuando la unidad es IA.
+- `ai_hud_swap_button(...)` -> se muestra solo en unidades IA.
+- `ai_hud_nameplate(...)` -> en ambos modos para continuidad visual.
+
+Resultado: misma estética para todos, pero diferente nivel de control según tipo de unidad.
