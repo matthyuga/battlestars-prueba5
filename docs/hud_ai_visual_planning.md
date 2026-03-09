@@ -83,13 +83,10 @@ Subcarpetas:
 - `portrait_hollow_head.png`
 - `portrait_hollow_full.png`
 
-#### Icons
-- `icon_target.png`
-- `icon_focus.png`
-- `icon_offense_force.png`
-- `icon_offense_concat.png`
-- `icon_defense_force.png`
-- `icon_defense_concat.png`
+#### Icons (fase posterior, opcional)
+- En la fase inicial **no se requieren iconos**.
+- Las opciones se mostrarán con texto (como en el HUD actual).
+- Si más adelante se agregan iconos, deben coexistir con labels de texto para mantener legibilidad.
 
 ---
 
@@ -219,7 +216,8 @@ El botón circular de intercambio debe ser un control de capa visual local al pa
 - manteniendo área clickeable amplia (mínimo recomendado 44x44 px).
 
 ### Asset sugerido
-- `game/gui/battle/hud_ai/icons/icon_panel_swap_blue.png`
+- Botón swap permitido desde fase inicial: `game/gui/battle/hud_ai/icons/icon_panel_swap_blue.png`.
+- Esto **no contradice** la regla de no usar iconos en opciones tácticas: el swap es control de navegación, no etiqueta de opción.
 
 ---
 
@@ -247,3 +245,47 @@ Se mantiene el plan modular previo, con ajuste:
 - `ai_hud_nameplate(...)` -> en ambos modos para continuidad visual.
 
 Resultado: misma estética para todos, pero diferente nivel de control según tipo de unidad.
+
+
+---
+
+## 14) Fase inicial sin iconos (texto primero)
+
+Se confirma enfoque por etapas:
+
+- Etapa 1 (actual):
+  - usar solo texto para controles tácticos (`target`, `focus`, `concat`, `forced`).
+  - usar barra HP existente + textos de `Reiatsu` y `Energía`.
+  - priorizar encaje de marcos, espaciado y alineación visual.
+
+- Etapa 2 (opcional):
+  - evaluar iconografía complementaria, sin reemplazar texto base.
+
+Criterio: primero validar claridad funcional con tipografía y layout; luego decorar.
+
+---
+
+## 15) Panel secundario global (IA)
+
+El cuadro secundario horizontal debe reservarse para controles globales de IA, como en tu ejemplo:
+
+1. `Dificultad IA`: Básico / Intermedio / Avanzado.
+2. `Guardar`: ON/OFF.
+3. `Reset Stats Ofensivos`.
+4. `Reset Stats Defensivos`.
+
+Este panel no compite con el panel táctico por unidad; cumple rol de configuración general.
+
+Regla de visibilidad recomendada:
+- visible cuando exista al menos una unidad IA activa en combate,
+- opcionalmente ocultable con hotkey para limpiar HUD durante combate.
+
+---
+
+## 16) Reparto final de responsabilidades UI
+
+- **Panel de estado por unidad (Cuadro 2):** siempre visible (jugador e IA).
+- **Panel táctico por unidad (Cuadro 1):** solo unidades IA, alternable con botón swap.
+- **Panel secundario global IA (cuadro horizontal):** ajustes globales de IA (dificultad/guardar/resets).
+
+Así se evita sobrecargar al jugador humano con opciones que no controla directamente.
