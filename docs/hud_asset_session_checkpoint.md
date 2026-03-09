@@ -47,3 +47,34 @@ Cuando se suban los PNG al repo, se recomienda esta estructura:
 2. Generar thumbnails (si no vienen listos).
 3. Conectar selector de estilo (flechita superior derecha) por unidad.
 4. Conectar swap `stat`/`option` (botón azul inferior derecha) por unidad.
+
+
+## Assets recibidos (preview) y mapeo confirmado
+
+Con base en los cuadros compartidos en esta sesión, el mapeo visual por estilo queda:
+
+- `carmesi`
+  - `stat`: variante de panel inferior liso/gradiente.
+  - `option`: variante de panel inferior con filas/botones.
+- `fantasy`
+  - `stat`: variante de panel inferior liso/ambiental.
+  - `option`: variante de panel inferior con filas/botones.
+- `grey`
+  - `stat`: variante de panel inferior liso/neblina.
+  - `option`: variante de panel inferior con filas/botones.
+- `virtual`
+  - `stat`: variante de panel inferior liso con grilla sutil.
+  - `option`: variante de panel inferior con filas/botones.
+
+### Convención final sugerida de archivos (lista operativa)
+
+- `game/gui/battle/hud_ai/frames/frame_carmesi_stat.png`
+- `game/gui/battle/hud_ai/frames/frame_carmesi_option.png`
+- `game/gui/battle/hud_ai/frames/frame_fantasy_stat.png`
+- `game/gui/battle/hud_ai/frames/frame_fantasy_option.png`
+- `game/gui/battle/hud_ai/frames/frame_grey_stat.png`
+- `game/gui/battle/hud_ai/frames/frame_grey_option.png`
+- `game/gui/battle/hud_ai/frames/frame_virtual_stat.png`
+- `game/gui/battle/hud_ai/frames/frame_virtual_option.png`
+
+> Nota: este checkpoint documenta el mapeo visual acordado; la integración en `screen` (selector por unidad + swap stat/option + iconos) se conecta en el siguiente paso de implementación.
