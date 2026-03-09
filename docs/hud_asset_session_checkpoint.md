@@ -78,3 +78,36 @@ Con base en los cuadros compartidos en esta sesión, el mapeo visual por estilo 
 - `game/gui/battle/hud_ai/frames/frame_virtual_option.png`
 
 > Nota: este checkpoint documenta el mapeo visual acordado; la integración en `screen` (selector por unidad + swap stat/option + iconos) se conecta en el siguiente paso de implementación.
+
+
+## Assets recibidos (personajes + controles) y nombres recomendados
+
+Se recibieron retratos **head** y **full-body** para personajes del HUD IA, más los dos iconos de control de panel.
+
+### Portraits por personaje (operativo)
+
+- Grimmjow
+  - `game/gui/battle/hud_ai/portraits/portrait_grimmjow_head.png`
+  - `game/gui/battle/hud_ai/portraits/portrait_grimmjow_full.png`
+- Harribel
+  - `game/gui/battle/hud_ai/portraits/portrait_harribel_head.png`
+  - `game/gui/battle/hud_ai/portraits/portrait_harribel_full.png`
+- Hollow
+  - `game/gui/battle/hud_ai/portraits/portrait_hollow_head.png`
+  - `game/gui/battle/hud_ai/portraits/portrait_hollow_full.png`
+- Nel
+  - `game/gui/battle/hud_ai/portraits/portrait_nel_head.png`
+  - `game/gui/battle/hud_ai/portraits/portrait_nel_full.png`
+
+### Iconos de navegación del HUD
+
+- Flecha para cambio de estilo de cuadro:
+  - `game/gui/battle/hud_ai/icons/icon_style_picker_arrow_gold.png`
+- Botón azul para swap `stat`/`option`:
+  - `game/gui/battle/hud_ai/icons/icon_panel_swap_blue.png`
+
+### Regla de uso en integración
+
+- `icon_style_picker_arrow_gold.png` se usa para ciclar estilo visual por unidad IA.
+- `icon_panel_swap_blue.png` se usa para alternar panel por unidad entre `stat` y `option`.
+- Retratos `*_head` priorizados para cuadro superior; `*_full` para variantes/expansión de cuadro de estado.
