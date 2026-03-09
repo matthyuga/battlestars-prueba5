@@ -126,6 +126,12 @@ screen ai_difficulty_hud():
                     text_color "#C586C0"
                     action Function(ai_ui_cycle_focus_rule)
 
+                textbutton battle_unit_hud_theme_text():
+                    style "ai_diff_btn"
+                    text_style "ai_diff_btn_text"
+                    text_color "#80CBC4"
+                    action Function(battle_cycle_unit_hud_theme, 1)
+
             # ====================================================
             # ⚔️ OFENSIVA – FINISHER MODE
             # ====================================================
