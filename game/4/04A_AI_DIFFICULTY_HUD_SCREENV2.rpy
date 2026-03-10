@@ -19,9 +19,9 @@ init -19:
 
     style ai_diff_btn is default
     style ai_diff_btn:
-        xpadding 12
-        ypadding 8
-        xminimum 240
+        xpadding 8
+        ypadding 5
+        xminimum 300
         background "#222C"
         hover_background "#444C"
         insensitive_background "#2226"
@@ -32,7 +32,7 @@ init -19:
         hover_color "#FFFFFF"
         insensitive_color "#AAAAAA"
         outlines [ (2, "#000C", 0, 0) ]
-        size 18
+        size 14
         bold True
 
     style ai_diff_mini_btn is ai_diff_btn
@@ -61,10 +61,10 @@ screen ai_difficulty_hud():
             yalign 0.985
             xanchor 1.0
             yanchor 1.0
-            xsize 360
-            ysize 360
+            xsize 420
+            ysize 420
 
-            add im.Scale("gui/battle/hud_ai/frames/frame_secondary_options.png", 360, 360) xalign 0.5 yalign 0.5
+            add im.Scale("gui/battle/hud_ai/frames/frame_secondary_options.png", 420, 420) xalign 0.5 yalign 0.5
 
             vbox:
                 xpos 22
@@ -75,7 +75,7 @@ screen ai_difficulty_hud():
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
                     text_color ai_level_color()
-                    xminimum 316
+                    xminimum 360
                     xalign 0.0
                     action Function(ai_cycle_level)
 
@@ -83,7 +83,7 @@ screen ai_difficulty_hud():
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
                     text_color ai_save_color()
-                    xminimum 316
+                    xminimum 360
                     xalign 0.0
                     action Function(ai_toggle_save)
 
@@ -91,7 +91,7 @@ screen ai_difficulty_hud():
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
                     text_color "#80DEEA"
-                    xminimum 316
+                    xminimum 360
                     xalign 0.0
                     action Function(ai_ui_cycle_enemy_slot)
 
@@ -99,20 +99,20 @@ screen ai_difficulty_hud():
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
                     text_color "#FFD700"
-                    xminimum 316
+                    xminimum 360
                     xalign 0.0
                     action Function(ai_ui_cycle_target_rule)
 
                 textbutton "🔄 Reset Stats Ofensivos":
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
-                    xminimum 316
+                    xminimum 360
                     xalign 0.0
                     action Function(ai_reset_finisher_stats)
 
                 textbutton "🔄 Reset Stats Defensivos":
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
-                    xminimum 316
+                    xminimum 360
                     xalign 0.0
                     action Function(ai_reset_defense_stats)
