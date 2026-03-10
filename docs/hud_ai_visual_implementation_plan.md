@@ -76,6 +76,12 @@ Objetivo: conectar imágenes al HUD sin tocar reglas IA.
 3. Escalado adaptativo para 1v1 y 2v2.
 4. Validación de overlap con overlays ya existentes.
 
+## Cobertura transversal de modos (aplica a todas las fases)
+
+- La implementación de HUD por unidades no debe quedar amarrada al string de modo (`1v1`/`2v2`), sino al runtime de unidades disponible.
+- Criterio de compatibilidad mínimo por fase: `1v1`, `2v2` y composiciones manuales asimétricas (`2v1`, `1v2`) usando la misma capa de unidades.
+- Las reglas de controles visuales (`style`, `swap`, `close`) deben operar por `unit_key` para no contaminar otras unidades ni otros lados.
+
 ## 6) QA mínimo por checklist
 
 1. Swap funciona por unidad y no cambia otras unidades.
