@@ -63,9 +63,12 @@ Objetivo: conectar imágenes al HUD sin tocar reglas IA.
 1. Definir map de personaje a archivos:
    - `portrait_<char>_head.png`
    - `portrait_<char>_full.png`
+   - `portrait_<char>_token.png` (ficha compacta, opcional)
 2. Fallback cuando falte portrait:
-   - usar placeholder o text-only block.
+   - `token -> head -> full -> placeholder` en colapsado.
+   - `head -> full -> token -> placeholder` en expandido.
 3. Regla recomendada:
+   - `token` en ficha compacta.
    - `head` en ventana superior.
    - `full` reservado para expansiones/variantes del panel de estado.
 
@@ -110,3 +113,8 @@ No es bloqueante, pero ayuda mucho tener definido:
 - Decisión de persistencia: sesión actual vs `persistent`.
 
 Con eso, ya se puede entrar directamente a implementación.
+
+
+### Nota de compatibilidad de nombres (Fase 3)
+
+- Soportar aliases de `char_id` para portraits (ej: `neliel -> nel`, `tier_harribel -> harribel`) evita roturas entre datasets y assets.

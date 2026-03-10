@@ -88,6 +88,8 @@ Se recibieron retratos **head** y **full-body** para personajes del HUD IA, más
 
 ### Portraits por personaje (operativo)
 
+> Variante opcional para ficha compacta: `portrait_<char_id>_token.png`.
+
 - Grimmjow
   - `game/gui/battle/hud_ai/portraits/portrait_grimmjow_head.png`
   - `game/gui/battle/hud_ai/portraits/portrait_grimmjow_full.png`
@@ -122,3 +124,8 @@ Se recibieron retratos **head** y **full-body** para personajes del HUD IA, más
 - `icon_style_picker_arrow_gold.png` -> esquina **abajo izquierda** del panel.
 - `icon_panel_swap_blue.png` -> esquina **abajo derecha** del panel.
 - `icon_panel_close_red.png` -> esquina **arriba derecha** del panel.
+
+
+### Compatibilidad de naming en runtime
+
+- El routing de portraits contempla aliases para `char_id` cuando difieren del nombre de archivo (por ejemplo: `neliel -> nel`, `tier_harribel -> harribel`).

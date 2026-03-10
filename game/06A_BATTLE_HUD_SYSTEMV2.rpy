@@ -226,6 +226,28 @@ init -970 python:
         return raw.replace(" ", "_").replace("-", "_")
 
 
+    HUD_AI_CHAR_ALIASES = {
+        "neliel": "nel",
+        "tier_harribel": "harribel",
+        "tia_harribel": "harribel",
+    }
+
+
+    def hud_ai_char_candidates(char_id):
+        base = hud_ai_normalize_char_id(char_id)
+        if not base:
+            return []
+        out = [base]
+        alias = HUD_AI_CHAR_ALIASES.get(base)
+        if alias and alias not in out:
+            out.append(alias)
+        if "_" in base:
+            short = base.split("_")[0]
+            if short and short not in out:
+                out.append(short)
+        return out
+
+
     def hud_ai_get_style(unit_key):
         k = str(unit_key or "")
         if not k:
@@ -255,12 +277,35 @@ init -970 python:
         return path if renpy.loadable(path) else None
 
 
-    def hud_ai_resolve_head_portrait(char_id):
-        cid = hud_ai_normalize_char_id(char_id)
-        if not cid:
-            return None
-        path = "game/gui/battle/hud_ai/portraits/portrait_{}_head.png".format(cid)
-        return path if renpy.loadable(path) else None
+    def hud_ai_resolve_portrait(char_id, variant="head"):
+        var = str(variant or "head").strip().lower()
+        if var not in ("head", "full", "token"):
+            var = "head"
+        for cid in hud_ai_char_candidates(char_id):
+            path = "game/gui/battle/hud_ai/portraits/portrait_{}_{}.png".format(cid, var)
+            if renpy.loadable(path):
+                return path
+        return None
+
+
+    def hud_ai_resolve_portrait_for_state(char_id, collapsed=False, mode="stat"):
+        if collapsed:
+            return (
+                hud_ai_resolve_portrait(char_id, "token")
+                or hud_ai_resolve_portrait(char_id, "head")
+                or hud_ai_resolve_portrait(char_id, "full")
+            )
+        if str(mode or "stat").strip().lower() == "option":
+            return (
+                hud_ai_resolve_portrait(char_id, "head")
+                or hud_ai_resolve_portrait(char_id, "full")
+                or hud_ai_resolve_portrait(char_id, "token")
+            )
+        return (
+            hud_ai_resolve_portrait(char_id, "head")
+            or hud_ai_resolve_portrait(char_id, "full")
+            or hud_ai_resolve_portrait(char_id, "token")
+        )
 
 
     def hud_ai_is_autonomous_unit(team_name, unit_data):
@@ -374,7 +419,7 @@ screen battle_hp_overlay():
                                 $ _hud_mode = hud_ai_get_panel_mode(_uk) if _is_ai_unit else "stat"
                                 $ _hud_collapsed = hud_ai_get_collapsed(_uk) if _is_ai_unit else False
                                 $ _frame_path = hud_ai_resolve_frame(_hud_style, _hud_mode) if _is_ai_unit else None
-                                $ _portrait_path = hud_ai_resolve_head_portrait(_name) if _is_ai_unit else None
+                                $ _portrait_path = hud_ai_resolve_portrait_for_state(_name, _hud_collapsed, _hud_mode) if _is_ai_unit else None
                                 $ _icon_style = hud_ai_resolve_icon("icon_style_picker_arrow_gold") if _is_ai_unit else None
                                 $ _icon_swap = hud_ai_resolve_icon("icon_panel_swap_blue") if _is_ai_unit else None
                                 $ _icon_close = hud_ai_resolve_icon("icon_panel_close_red") if _is_ai_unit else None
