@@ -508,6 +508,34 @@ init -970 python:
             return "label_target: auto"
 
 
+    def hud_ai_option_cycle(unit_key, team_name, slot_idx, field_name):
+        if str(team_name or "").strip().lower() != "enemy":
+            return
+        try:
+            import renpy.store as S
+            S.ai_ui_selected_enemy_slot = int(slot_idx or 0)
+        except:
+            return
+
+        fn_name = {
+            "offense_force": "ai_ui_cycle_offense_mode",
+            "offense_concat": "ai_ui_cycle_offense_concat_rule",
+            "defense_force": "ai_ui_cycle_defense_mode",
+            "defense_concat": "ai_ui_cycle_concat_rule",
+            "focus": "ai_ui_cycle_focus_rule",
+            "target": "ai_ui_cycle_target_rule",
+        }.get(str(field_name or "").strip().lower(), "")
+        if not fn_name:
+            return
+
+        try:
+            fn = getattr(S, fn_name, None)
+            if callable(fn):
+                fn()
+        except:
+            pass
+
+
     def hud_ai_finalize_phase5_status():
         """Checklist técnico mínimo de cierre Fase 5 (sin ejecutar combate)."""
         return {
@@ -605,27 +633,27 @@ screen battle_hp_overlay():
                                             else:
                                                 add Solid("#0008") xsize int(_hud_layout.get("panel_w", 150) or 150) ysize int(_hud_layout.get("panel_h", 312) or 312)
 
-                                            if _portrait_path:
-                                                add _portrait_path xpos 16 ypos 18 xsize int(max(90, int(_hud_layout.get("panel_w", 150) or 150) - 32)) ysize int(max(120, int(_hud_layout.get("panel_h", 312) or 312) - 164))
-
-                                            text "{}".format(_name):
-                                                xpos 18
-                                                ypos 173
-                                                color "#88CCFF"
-                                                size int(_hud_layout.get("name_size", 20) or 20)
-                                                bold True
-
-                                            bar:
-                                                xpos 18
-                                                ypos 203
-                                                value (float(_hp) / max(1.0, float(_mx)))
-                                                range 1.0
-                                                xmaximum 112
-                                                ymaximum 14
-                                                left_bar "#00BFFF"
-                                                right_bar "#222222"
-
                                             if _hud_mode == "stat":
+                                                if _portrait_path:
+                                                    add _portrait_path xpos 16 ypos 18 xsize int(max(90, int(_hud_layout.get("panel_w", 150) or 150) - 32)) ysize int(max(120, int(_hud_layout.get("panel_h", 312) or 312) - 164))
+
+                                                text "{}".format(_name):
+                                                    xpos 18
+                                                    ypos 173
+                                                    color "#88CCFF"
+                                                    size int(_hud_layout.get("name_size", 20) or 20)
+                                                    bold True
+
+                                                bar:
+                                                    xpos 18
+                                                    ypos 203
+                                                    value (float(_hp) / max(1.0, float(_mx)))
+                                                    range 1.0
+                                                    xmaximum 112
+                                                    ymaximum 14
+                                                    left_bar "#00BFFF"
+                                                    right_bar "#222222"
+
                                                 text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                                     xpos 18
                                                     ypos 222
@@ -644,50 +672,50 @@ screen battle_hp_overlay():
                                                     color "#FFA500"
                                                     size int(_hud_layout.get("stat_size", 11) or 11)
                                             else:
-                                                if _safe_mode:
-                                                    text hud_safe_label_offense_force(_uk, _team):
-                                                        xpos 10
-                                                        ypos 206
-                                                        color "#F7C24D"
-                                                        size 10
-                                                    text hud_safe_label_offense_concat(_uk, _team):
-                                                        xpos 10
-                                                        ypos 222
-                                                        color "#66FF99"
-                                                        size 10
-                                                    text hud_safe_label_defense_force(_uk, _team):
-                                                        xpos 10
-                                                        ypos 238
-                                                        color "#6DBBFF"
-                                                        size 10
-                                                    text hud_safe_label_defense_concat(_uk, _team):
-                                                        xpos 10
-                                                        ypos 254
-                                                        color "#6DF0FF"
-                                                        size 10
-                                                    text hud_safe_label_focus(_uk, _team):
-                                                        xpos 10
-                                                        ypos 270
-                                                        color "#D68CFF"
-                                                        size 10
-                                                    text hud_safe_label_target(_uk, _team):
-                                                        xpos 10
-                                                        ypos 286
-                                                        color "#FFE15C"
-                                                        size 10
-                                                else:
-                                                    text "OPTION":
-                                                        xpos 18
-                                                        ypos 232
-                                                        color "#FFFFFF"
-                                                        size 13
-                                                        bold True
+                                                text "{}".format(_name):
+                                                    xpos 12
+                                                    ypos 10
+                                                    color "#88CCFF"
+                                                    size int(max(13, int(_hud_layout.get("name_size", 20) or 20) - 3))
+                                                    bold True
 
-                                                    text "(Fase 2: acciones)":
-                                                        xpos 18
-                                                        ypos 252
-                                                        color "#A0A0A0"
-                                                        size 10
+                                                vbox:
+                                                    xpos 10
+                                                    ypos 40
+                                                    spacing 4
+
+                                                    if _team == "enemy":
+                                                        textbutton hud_safe_label_offense_force(_uk, _team):
+                                                            xminimum int(max(118, int(_hud_layout.get("panel_w", 150) or 150) - 20))
+                                                            text_size 10
+                                                            action Function(hud_ai_option_cycle, _uk, _team, i, "offense_force")
+                                                        textbutton hud_safe_label_offense_concat(_uk, _team):
+                                                            xminimum int(max(118, int(_hud_layout.get("panel_w", 150) or 150) - 20))
+                                                            text_size 10
+                                                            action Function(hud_ai_option_cycle, _uk, _team, i, "offense_concat")
+                                                        textbutton hud_safe_label_defense_force(_uk, _team):
+                                                            xminimum int(max(118, int(_hud_layout.get("panel_w", 150) or 150) - 20))
+                                                            text_size 10
+                                                            action Function(hud_ai_option_cycle, _uk, _team, i, "defense_force")
+                                                        textbutton hud_safe_label_defense_concat(_uk, _team):
+                                                            xminimum int(max(118, int(_hud_layout.get("panel_w", 150) or 150) - 20))
+                                                            text_size 10
+                                                            action Function(hud_ai_option_cycle, _uk, _team, i, "defense_concat")
+                                                        textbutton hud_safe_label_focus(_uk, _team):
+                                                            xminimum int(max(118, int(_hud_layout.get("panel_w", 150) or 150) - 20))
+                                                            text_size 10
+                                                            action Function(hud_ai_option_cycle, _uk, _team, i, "focus")
+                                                        textbutton hud_safe_label_target(_uk, _team):
+                                                            xminimum int(max(118, int(_hud_layout.get("panel_w", 150) or 150) - 20))
+                                                            text_size 10
+                                                            action Function(hud_ai_option_cycle, _uk, _team, i, "target")
+                                                    else:
+                                                        text hud_safe_label_offense_force(_uk, _team) size 10 color "#F7C24D"
+                                                        text hud_safe_label_offense_concat(_uk, _team) size 10 color "#66FF99"
+                                                        text hud_safe_label_defense_force(_uk, _team) size 10 color "#6DBBFF"
+                                                        text hud_safe_label_defense_concat(_uk, _team) size 10 color "#6DF0FF"
+                                                        text hud_safe_label_focus(_uk, _team) size 10 color "#D68CFF"
+                                                        text hud_safe_label_target(_uk, _team) size 10 color "#FFE15C"
 
                                             if _icon_style:
                                                 imagebutton:
