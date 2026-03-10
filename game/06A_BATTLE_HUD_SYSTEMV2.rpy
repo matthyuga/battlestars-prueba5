@@ -471,14 +471,18 @@ screen battle_hp_overlay():
                 $ _ecount_hud = hud_ai_team_count("enemy")
                 $ _mode_tag = str(getattr(store, "battle_team_mode", "1v1") or "1v1")
                 $ _hud_layout = hud_ai_layout_profile(_mode_tag, _pcount_hud, _ecount_hud)
-                hbox:
-                    xalign 0.5
-                    yalign 0.0
-                    spacing int(_hud_layout.get("root_spacing", 14) or 14)
+                fixed:
+                    xfill True
+                    yfit True
                     for _team in ["player", "enemy"]:
-                        vbox:
-                            spacing int(_hud_layout.get("col_spacing", 8) or 8)
-                            $ _team_count = _pcount_hud if _team == "player" else _ecount_hud
+                        $ _team_count = _pcount_hud if _team == "player" else _ecount_hud
+                        $ _side_align = 0.02 if _team == "player" else 0.98
+                        $ _side_anchor = 0.0 if _team == "player" else 1.0
+                        hbox:
+                            xalign _side_align
+                            xanchor _side_anchor
+                            yalign 0.0
+                            spacing int(_hud_layout.get("root_spacing", 14) or 14)
                             for i in range(_team_count):
                                 $ _uk = store.bs_unit_key(_team, i)
                                 $ _uu = store.bs_get_unit_by_key(_uk)
@@ -487,19 +491,20 @@ screen battle_hp_overlay():
                                 $ _hp = int((_uu.get("hp", 0) if isinstance(_uu, dict) else 0) or 0)
                                 $ _mx = int((_uu.get("max_hp", 1) if isinstance(_uu, dict) else 1) or 1)
                                 $ _active = bool(str(_ctx_u.get("owner_team", "")) == _team and int(_ctx_u.get("owner_slot", 0) or 0) == i)
-                                $ _is_ai_unit = hud_ai_is_autonomous_unit(_team, _uu)
-                                $ _hud_style = hud_ai_get_style(_uk) if _is_ai_unit else "grey"
-                                $ _hud_mode = hud_ai_get_panel_mode(_uk) if _is_ai_unit else "stat"
-                                $ _hud_collapsed = hud_ai_get_collapsed(_uk) if _is_ai_unit else False
+                                $ _is_autonomous_unit = hud_ai_is_autonomous_unit(_team, _uu)
+                                $ _is_framed_unit = bool(_is_autonomous_unit or _team == "player")
+                                $ _hud_style = hud_ai_get_style(_uk) if _is_framed_unit else "grey"
+                                $ _hud_mode = hud_ai_get_panel_mode(_uk) if _is_autonomous_unit else "stat"
+                                $ _hud_collapsed = hud_ai_get_collapsed(_uk) if _is_framed_unit else False
                                 $ _frame_path = hud_ai_resolve_frame(_hud_style, _hud_mode) or hud_ai_resolve_frame("grey", "stat")
                                 $ _portrait_path = hud_ai_resolve_portrait_for_state(_name, _hud_collapsed, _hud_mode)
-                                $ _icon_style = hud_ai_resolve_icon("icon_style_picker_arrow_gold") if _is_ai_unit else None
-                                $ _icon_swap = hud_ai_resolve_icon("icon_panel_swap_blue") if _is_ai_unit else None
-                                $ _icon_close = hud_ai_resolve_icon("icon_panel_close_red") if _is_ai_unit else None
+                                $ _icon_style = hud_ai_resolve_icon("icon_style_picker_arrow_gold") if _is_framed_unit else None
+                                $ _icon_swap = hud_ai_resolve_icon("icon_panel_swap_blue") if _is_autonomous_unit else None
+                                $ _icon_close = hud_ai_resolve_icon("icon_panel_close_red") if _is_framed_unit else None
                                 $ _show_sim = bool(_team == "player" and _active and hasattr(store, "pending_tech_list") and store.pending_tech_list)
                                 $ _rei_diff = int((simulated_reiatsu - player_reiatsu) if _show_sim else 0)
                                 $ _ene_diff = int((simulated_energy - player_energy) if _show_sim else 0)
-                                if _is_ai_unit:
+                                if _is_framed_unit:
                                     if _hud_collapsed:
                                         button at hud_fade_in:
                                             action Function(hud_ai_toggle_collapsed, _uk)
@@ -599,7 +604,7 @@ screen battle_hp_overlay():
                                                     xpos 112
                                                     ypos 277
                                                     action Function(hud_ai_toggle_panel_mode, _uk)
-                                            else:
+                                            elif _is_autonomous_unit:
                                                 textbutton "S":
                                                     xpos 116
                                                     ypos 280
