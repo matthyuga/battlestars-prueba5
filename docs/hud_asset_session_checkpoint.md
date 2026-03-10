@@ -34,6 +34,7 @@ Cuando se suban los PNG al repo, se recomienda esta estructura:
 - `game/gui/battle/hud_ai/icons/`
   - `icon_style_picker_arrow_gold.png`
   - `icon_panel_swap_blue.png`
+  - `icon_panel_close_red.png`
 
 - `game/gui/battle/hud_ai/thumbnails/`
   - `thumb_carmesi.png`
@@ -45,8 +46,9 @@ Cuando se suban los PNG al repo, se recomienda esta estructura:
 
 1. Subir assets a las rutas anteriores.
 2. Generar thumbnails (si no vienen listos).
-3. Conectar selector de estilo (flechita superior derecha) por unidad.
-4. Conectar swap `stat`/`option` (botón azul inferior derecha) por unidad.
+3. Conectar selector de estilo (flechita **inferior izquierda**) por unidad.
+4. Conectar swap `stat`/`option` (botón azul **inferior derecha**) por unidad.
+5. Conectar cierre de panel (cruz roja **superior derecha**) para volver a vista de fichas.
 
 
 ## Assets recibidos (preview) y mapeo confirmado
@@ -105,9 +107,18 @@ Se recibieron retratos **head** y **full-body** para personajes del HUD IA, más
   - `game/gui/battle/hud_ai/icons/icon_style_picker_arrow_gold.png`
 - Botón azul para swap `stat`/`option`:
   - `game/gui/battle/hud_ai/icons/icon_panel_swap_blue.png`
+- Botón rojo para cerrar cuadro expandido:
+  - `game/gui/battle/hud_ai/icons/icon_panel_close_red.png`
 
 ### Regla de uso en integración
 
 - `icon_style_picker_arrow_gold.png` se usa para ciclar estilo visual por unidad IA.
 - `icon_panel_swap_blue.png` se usa para alternar panel por unidad entre `stat` y `option`.
+- `icon_panel_close_red.png` se usa para cerrar panel expandido y dejar solo fichas.
 - Retratos `*_head` priorizados para cuadro superior; `*_full` para variantes/expansión de cuadro de estado.
+
+### Posicionamiento validado en preview
+
+- `icon_style_picker_arrow_gold.png` -> esquina **abajo izquierda** del panel.
+- `icon_panel_swap_blue.png` -> esquina **abajo derecha** del panel.
+- `icon_panel_close_red.png` -> esquina **arriba derecha** del panel.

@@ -11,7 +11,10 @@ Ya definido:
 - 4 estilos (`carmesi`, `fantasy`, `grey`, `virtual`).
 - 2 variantes por estilo (`stat`, `option`).
 - portraits por personaje (`*_head`, `*_full`).
-- iconos de control (flechita de estilo + swap azul).
+- iconos de control y posición por panel:
+  - flechita de estilo (`icon_style_picker_arrow_gold.png`) **abajo izquierda**.
+  - swap `stat/option` (`icon_panel_swap_blue.png`) **abajo derecha**.
+  - cerrar panel (`icon_panel_close_red.png`) **arriba derecha**.
 
 ## 1) Pre-flight de assets (bloqueante corto)
 
@@ -44,13 +47,15 @@ Objetivo: conectar imágenes al HUD sin tocar reglas IA.
      - `stat`: HP/Reiatsu/Energía.
      - `option`: 6 controles tácticos ya existentes.
 
-## 3) Fase 2 — Controles visuales (flechita y swap)
+## 3) Fase 2 — Controles visuales (flechita, swap y cerrar)
 
-1. Botón flecha (`icon_style_picker_arrow_gold.png`):
+1. Botón flecha (`icon_style_picker_arrow_gold.png`) en esquina **abajo izquierda**:
    - ciclo por estilos (orden fijo sugerido: carmesi → fantasy → grey → virtual).
-2. Botón swap azul (`icon_panel_swap_blue.png`):
+2. Botón swap azul (`icon_panel_swap_blue.png`) en esquina **abajo derecha**:
    - alterna `stat` ↔ `option` por unidad.
-3. Persistencia opcional:
+3. Botón cerrar (`icon_panel_close_red.png`) en esquina **arriba derecha**:
+   - colapsa el cuadro y deja solo fichas compactas.
+4. Persistencia opcional:
    - guardar elección visual por unidad en `persistent`.
 
 ## 4) Fase 3 — Portrait routing por personaje
@@ -75,9 +80,10 @@ Objetivo: conectar imágenes al HUD sin tocar reglas IA.
 
 1. Swap funciona por unidad y no cambia otras unidades.
 2. Cambio de estilo funciona por unidad y conserva modo (`stat`/`option`).
-3. `stat` muestra datos correctos del actor activo.
-4. `option` dispara acciones existentes sin romper lógica IA.
-5. Sin artefactos visuales al cambiar turno, KO, o replace de screen.
+3. Cierre (`X`) colapsa solo el panel seleccionado y no rompe focus.
+4. `stat` muestra datos correctos del actor activo.
+5. `option` dispara acciones existentes sin romper lógica IA.
+6. Sin artefactos visuales al cambiar turno, KO, o replace de screen.
 
 ## 7) Orden recomendado de implementación (rápido)
 
