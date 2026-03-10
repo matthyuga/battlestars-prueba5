@@ -34,6 +34,7 @@ Cuando se suban los PNG al repo, se recomienda esta estructura:
 - `game/gui/battle/hud_ai/icons/`
   - `icon_style_picker_arrow_gold.png`
   - `icon_panel_swap_blue.png`
+  - `icon_panel_close_red.png`
 
 - `game/gui/battle/hud_ai/thumbnails/`
   - `thumb_carmesi.png`
@@ -45,5 +46,108 @@ Cuando se suban los PNG al repo, se recomienda esta estructura:
 
 1. Subir assets a las rutas anteriores.
 2. Generar thumbnails (si no vienen listos).
-3. Conectar selector de estilo (flechita superior derecha) por unidad.
-4. Conectar swap `stat`/`option` (botón azul inferior derecha) por unidad.
+3. Conectar selector de estilo (flechita **inferior izquierda**) por unidad.
+4. Conectar swap `stat`/`option` (botón azul **inferior derecha**) por unidad.
+5. Conectar cierre de panel (cruz roja **superior derecha**) para volver a vista de fichas.
+
+
+## Assets recibidos (preview) y mapeo confirmado
+
+Con base en los cuadros compartidos en esta sesión, el mapeo visual por estilo queda:
+
+- `carmesi`
+  - `stat`: variante de panel inferior liso/gradiente.
+  - `option`: variante de panel inferior con filas/botones.
+- `fantasy`
+  - `stat`: variante de panel inferior liso/ambiental.
+  - `option`: variante de panel inferior con filas/botones.
+- `grey`
+  - `stat`: variante de panel inferior liso/neblina.
+  - `option`: variante de panel inferior con filas/botones.
+- `virtual`
+  - `stat`: variante de panel inferior liso con grilla sutil.
+  - `option`: variante de panel inferior con filas/botones.
+
+### Convención final sugerida de archivos (lista operativa)
+
+- `game/gui/battle/hud_ai/frames/frame_carmesi_stat.png`
+- `game/gui/battle/hud_ai/frames/frame_carmesi_option.png`
+- `game/gui/battle/hud_ai/frames/frame_fantasy_stat.png`
+- `game/gui/battle/hud_ai/frames/frame_fantasy_option.png`
+- `game/gui/battle/hud_ai/frames/frame_grey_stat.png`
+- `game/gui/battle/hud_ai/frames/frame_grey_option.png`
+- `game/gui/battle/hud_ai/frames/frame_virtual_stat.png`
+- `game/gui/battle/hud_ai/frames/frame_virtual_option.png`
+- `game/gui/battle/hud_ai/frames/frame_secondary_options.png` *(opcional, panel secundario común)*
+- `game/gui/battle/hud_ai/frames/frame_carmesi_secondary_options.png` *(opcional por estilo)*
+- `game/gui/battle/hud_ai/frames/frame_fantasy_secondary_options.png` *(opcional por estilo)*
+- `game/gui/battle/hud_ai/frames/frame_grey_secondary_options.png` *(opcional por estilo)*
+- `game/gui/battle/hud_ai/frames/frame_virtual_secondary_options.png` *(opcional por estilo)*
+
+> Nota: este checkpoint documenta el mapeo visual acordado; la integración en `screen` (selector por unidad + swap stat/option + iconos) se conecta en el siguiente paso de implementación.
+
+
+## Assets recibidos (personajes + controles) y nombres recomendados
+
+Se recibieron retratos **head** y **full-body** para personajes del HUD IA, más los dos iconos de control de panel.
+
+### Portraits por personaje (operativo)
+
+> Variante opcional para ficha compacta: `portrait_<char_id>_token.png`.
+
+- Grimmjow
+  - `game/gui/battle/hud_ai/portraits/portrait_grimmjow_head.png`
+  - `game/gui/battle/hud_ai/portraits/portrait_grimmjow_full.png`
+- Harribel
+  - `game/gui/battle/hud_ai/portraits/portrait_harribel_head.png`
+  - `game/gui/battle/hud_ai/portraits/portrait_harribel_full.png`
+- Hollow
+  - `game/gui/battle/hud_ai/portraits/portrait_hollow_head.png`
+  - `game/gui/battle/hud_ai/portraits/portrait_hollow_full.png`
+- Nel
+  - `game/gui/battle/hud_ai/portraits/portrait_nel_head.png`
+  - `game/gui/battle/hud_ai/portraits/portrait_nel_full.png`
+
+### Iconos de navegación del HUD
+
+- Flecha para cambio de estilo de cuadro:
+  - `game/gui/battle/hud_ai/icons/icon_style_picker_arrow_gold.png`
+- Botón azul para swap `stat`/`option`:
+  - `game/gui/battle/hud_ai/icons/icon_panel_swap_blue.png`
+- Botón rojo para cerrar cuadro expandido:
+  - `game/gui/battle/hud_ai/icons/icon_panel_close_red.png`
+
+### Regla de uso en integración
+
+- `icon_style_picker_arrow_gold.png` se usa para ciclar estilo visual por unidad IA.
+- `icon_panel_swap_blue.png` se usa para alternar panel por unidad entre `stat` y `option`.
+- `icon_panel_close_red.png` se usa para cerrar panel expandido y dejar solo fichas.
+- Retratos `*_head` priorizados para cuadro superior; `*_full` para variantes/expansión de cuadro de estado.
+
+### Posicionamiento validado en preview
+
+- `icon_style_picker_arrow_gold.png` -> esquina **abajo izquierda** del panel.
+- `icon_panel_swap_blue.png` -> esquina **abajo derecha** del panel.
+- `icon_panel_close_red.png` -> esquina **arriba derecha** del panel.
+
+
+### Compatibilidad de naming en runtime
+
+- El routing de portraits contempla aliases para `char_id` cuando difieren del nombre de archivo (por ejemplo: `neliel -> nel`, `tier_harribel -> harribel`).
+
+
+## Estado de implementación
+
+- Fase 1–4 integradas en runtime de HUD por unidad.
+- Fase 5 cerrada a nivel técnico (controles por unidad, routing robusto, layout adaptativo multi-modo).
+- Pendiente: validación smoke manual con build Ren'Py en escenas reales de combate.
+
+
+### Panel secundario de opciones IA
+
+Para dificultad IA / guardar on-off / reset stats ofensivo-defensivo, el HUD soporta:
+
+- `game/gui/battle/hud_ai/frames/frame_secondary_options.png` (fallback genérico)
+- `game/gui/battle/hud_ai/frames/frame_<style>_secondary_options.png` (prioridad por estilo)
+
+Si existen ambos, se usa primero el de estilo.

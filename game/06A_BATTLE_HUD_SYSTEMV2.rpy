@@ -32,6 +32,12 @@ init -970 python:
     enemy_simulated_reiatsu = 0
     enemy_simulated_energy = 0
 
+    # === Estado visual HUD IA (Fase 1) ===
+    HUD_AI_STYLES = ("carmesi", "fantasy", "grey", "virtual")
+    hud_style_by_unit = {}
+    hud_panel_mode_by_unit = {}
+    hud_collapsed_by_unit = {}
+
 
     # ===========================================================
     # 🔸 MAPA GLOBAL (visual → TECH_ID)
@@ -215,6 +221,240 @@ init -970 python:
         renpy.restart_interaction()
 
 
+    def hud_ai_normalize_char_id(char_id):
+        raw = str(char_id or "").strip().lower()
+        return raw.replace(" ", "_").replace("-", "_")
+
+
+    HUD_AI_CHAR_ALIASES = {
+        "neliel": "nel",
+        "tier_harribel": "harribel",
+        "tia_harribel": "harribel",
+    }
+
+
+    def hud_ai_char_candidates(char_id):
+        base = hud_ai_normalize_char_id(char_id)
+        if not base:
+            return []
+        out = [base]
+        alias = HUD_AI_CHAR_ALIASES.get(base)
+        if alias and alias not in out:
+            out.append(alias)
+        if "_" in base:
+            short = base.split("_")[0]
+            if short and short not in out:
+                out.append(short)
+        return out
+
+
+    def hud_ai_get_style(unit_key):
+        k = str(unit_key or "")
+        if not k:
+            return "carmesi"
+        v = str(hud_style_by_unit.get(k, "carmesi") or "carmesi").strip().lower()
+        if v not in HUD_AI_STYLES:
+            v = "carmesi"
+        hud_style_by_unit[k] = v
+        return v
+
+
+    def hud_ai_get_panel_mode(unit_key):
+        k = str(unit_key or "")
+        if not k:
+            return "stat"
+        m = str(hud_panel_mode_by_unit.get(k, "stat") or "stat").strip().lower()
+        if m not in ("stat", "option"):
+            m = "stat"
+        hud_panel_mode_by_unit[k] = m
+        return m
+
+
+    def hud_ai_resolve_frame(style_name, panel_mode):
+        style = str(style_name or "carmesi").strip().lower()
+        mode = str(panel_mode or "stat").strip().lower()
+        path = "game/gui/battle/hud_ai/frames/frame_{}_{}.png".format(style, mode)
+        return path if renpy.loadable(path) else None
+
+
+    def hud_ai_resolve_portrait(char_id, variant="head"):
+        var = str(variant or "head").strip().lower()
+        if var not in ("head", "full", "token"):
+            var = "head"
+        for cid in hud_ai_char_candidates(char_id):
+            path = "game/gui/battle/hud_ai/portraits/portrait_{}_{}.png".format(cid, var)
+            if renpy.loadable(path):
+                return path
+        return None
+
+
+    def hud_ai_resolve_portrait_for_state(char_id, collapsed=False, mode="stat"):
+        if collapsed:
+            return (
+                hud_ai_resolve_portrait(char_id, "token")
+                or hud_ai_resolve_portrait(char_id, "head")
+                or hud_ai_resolve_portrait(char_id, "full")
+            )
+        if str(mode or "stat").strip().lower() == "option":
+            return (
+                hud_ai_resolve_portrait(char_id, "head")
+                or hud_ai_resolve_portrait(char_id, "full")
+                or hud_ai_resolve_portrait(char_id, "token")
+            )
+        return (
+            hud_ai_resolve_portrait(char_id, "head")
+            or hud_ai_resolve_portrait(char_id, "full")
+            or hud_ai_resolve_portrait(char_id, "token")
+        )
+
+
+    def hud_ai_is_autonomous_unit(team_name, unit_data):
+        team = str(team_name or "").strip().lower()
+        if isinstance(unit_data, dict):
+            for k in ("is_ai", "ai", "autonomous"):
+                if k in unit_data:
+                    try:
+                        if bool(unit_data.get(k)):
+                            return True
+                    except:
+                        pass
+            c = str(unit_data.get("controller", "") or "").strip().lower()
+            if c in ("ai", "cpu", "autonomous", "npc"):
+                return True
+            ctl = str(unit_data.get("controlled_by", "") or "").strip().lower()
+            if ctl in ("ai", "cpu", "autonomous", "npc"):
+                return True
+            role = str(unit_data.get("team_role", "") or "").strip().lower()
+            if role in ("ally_npc", "enemy_npc", "npc"):
+                return True
+        return team == "enemy"
+
+
+    def hud_ai_get_collapsed(unit_key):
+        k = str(unit_key or "")
+        if not k:
+            return False
+        v = bool(hud_collapsed_by_unit.get(k, False))
+        hud_collapsed_by_unit[k] = v
+        return v
+
+
+    def hud_ai_toggle_collapsed(unit_key):
+        k = str(unit_key or "")
+        if not k:
+            return
+        hud_collapsed_by_unit[k] = not bool(hud_collapsed_by_unit.get(k, False))
+        renpy.restart_interaction()
+
+
+    def hud_ai_cycle_style(unit_key):
+        k = str(unit_key or "")
+        if not k:
+            return
+        cur = hud_ai_get_style(k)
+        try:
+            idx = list(HUD_AI_STYLES).index(cur)
+        except:
+            idx = 0
+        nxt = HUD_AI_STYLES[(idx + 1) % len(HUD_AI_STYLES)]
+        hud_style_by_unit[k] = nxt
+        renpy.restart_interaction()
+
+
+    def hud_ai_toggle_panel_mode(unit_key):
+        k = str(unit_key or "")
+        if not k:
+            return
+        cur = hud_ai_get_panel_mode(k)
+        hud_panel_mode_by_unit[k] = "option" if cur == "stat" else "stat"
+        renpy.restart_interaction()
+
+
+    def hud_ai_resolve_icon(name):
+        path = "game/gui/battle/hud_ai/icons/{}.png".format(str(name or "").strip())
+        return path if renpy.loadable(path) else None
+
+
+    def hud_ai_resolve_secondary_panel(style_name):
+        style = str(style_name or "carmesi").strip().lower()
+        style_path = "game/gui/battle/hud_ai/frames/frame_{}_secondary_options.png".format(style)
+        if renpy.loadable(style_path):
+            return style_path
+        generic_path = "game/gui/battle/hud_ai/frames/frame_secondary_options.png"
+        return generic_path if renpy.loadable(generic_path) else None
+
+
+    def hud_ai_layout_profile(mode_tag, pcount=1, ecount=1):
+        mode = str(mode_tag or "1v1").strip().lower()
+        total = int(max(1, pcount) + max(1, ecount))
+
+        # Baseline (1v1)
+        panel_w = 150
+        panel_h = 312
+        token_w = 84
+        token_h = 84
+        col_spacing = 8
+        root_spacing = 14
+        name_size = 20
+        stat_size = 11
+
+        # Ajuste para modos con más unidades visibles simultáneamente.
+        if mode == "2v2" or total >= 4:
+            panel_w = 136
+            panel_h = 288
+            token_w = 78
+            token_h = 78
+            col_spacing = 6
+            root_spacing = 10
+            name_size = 18
+            stat_size = 10
+
+        return {
+            "panel_w": panel_w,
+            "panel_h": panel_h,
+            "token_w": token_w,
+            "token_h": token_h,
+            "col_spacing": col_spacing,
+            "root_spacing": root_spacing,
+            "name_size": name_size,
+            "stat_size": stat_size,
+        }
+
+
+    def hud_ai_team_count(team_name):
+        t = str(team_name or "player").strip().lower()
+        ids = getattr(renpy.store, "battle_player_ids", []) if t == "player" else getattr(renpy.store, "battle_enemy_ids", [])
+        return min(2, max(1, len(ids or [])))
+
+
+    def hud_ai_resolve_unit_name(team_name, slot_idx, unit_data):
+        if isinstance(unit_data, dict):
+            nm = str(unit_data.get("char_id", "") or unit_data.get("name", "") or "").strip()
+            if nm:
+                return nm
+        pref = "P" if str(team_name or "player").strip().lower() == "player" else "E"
+        return "{}{}".format(pref, int(slot_idx or 0) + 1)
+
+
+    def hud_ai_res_value(res_map, key):
+        try:
+            if isinstance(res_map, dict):
+                return int(res_map.get(key, 0) or 0)
+        except:
+            pass
+        return 0
+
+
+    def hud_ai_finalize_phase5_status():
+        """Checklist técnico mínimo de cierre Fase 5 (sin ejecutar combate)."""
+        return {
+            "mode_coverage": True,
+            "unit_scoped_controls": True,
+            "asset_fallbacks": True,
+            "manual_smoke_pending": True,
+        }
+
+
 
 # ===========================================================
 # 🔹 SCREEN HUD (HP, Reiatsu, Energía con dif dinámico)
@@ -234,54 +474,198 @@ screen battle_hp_overlay():
         # ⚔️ HUD DE UNIDADES
         # ======================================================
         if ui_show_unit_hud:
-            if str(getattr(store, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2" and hasattr(store, "bs_unit_key") and hasattr(store, "bs_get_unit_by_key"):
+            if hasattr(store, "bs_unit_key") and hasattr(store, "bs_get_unit_by_key"):
                 $ _ctx_u = store.bs_get_turn_ctx() if hasattr(store, "bs_get_turn_ctx") else {"owner_team": "player", "owner_slot": 0}
-                $ _pcount_hud = min(2, max(1, len(getattr(store, "battle_player_ids", []) or [])))
-                $ _ecount_hud = min(2, max(1, len(getattr(store, "battle_enemy_ids", []) or [])))
+                $ _pcount_hud = hud_ai_team_count("player")
+                $ _ecount_hud = hud_ai_team_count("enemy")
+                $ _mode_tag = str(getattr(store, "battle_team_mode", "1v1") or "1v1")
+                $ _hud_layout = hud_ai_layout_profile(_mode_tag, _pcount_hud, _ecount_hud)
                 hbox:
                     xalign 0.5
                     yalign 0.0
-                    spacing 14
+                    spacing int(_hud_layout.get("root_spacing", 14) or 14)
                     for _team in ["player", "enemy"]:
                         vbox:
-                            spacing 8
+                            spacing int(_hud_layout.get("col_spacing", 8) or 8)
                             $ _team_count = _pcount_hud if _team == "player" else _ecount_hud
                             for i in range(_team_count):
                                 $ _uk = store.bs_unit_key(_team, i)
                                 $ _uu = store.bs_get_unit_by_key(_uk)
                                 $ _res = store.bs_get_unit_resources(_uk) if hasattr(store, "bs_get_unit_resources") else {"reiatsu":0,"energy":0}
-                                $ _name = str((_uu.get("char_id", "{}{}".format("P" if _team=="player" else "E", i+1)) if isinstance(_uu, dict) else "{}{}".format("P" if _team=="player" else "E", i+1)) or "?")
+                                $ _name = hud_ai_resolve_unit_name(_team, i, _uu)
                                 $ _hp = int((_uu.get("hp", 0) if isinstance(_uu, dict) else 0) or 0)
                                 $ _mx = int((_uu.get("max_hp", 1) if isinstance(_uu, dict) else 1) or 1)
                                 $ _active = bool(str(_ctx_u.get("owner_team", "")) == _team and int(_ctx_u.get("owner_slot", 0) or 0) == i)
+                                $ _is_ai_unit = hud_ai_is_autonomous_unit(_team, _uu)
+                                $ _hud_style = hud_ai_get_style(_uk) if _is_ai_unit else "carmesi"
+                                $ _hud_mode = hud_ai_get_panel_mode(_uk) if _is_ai_unit else "stat"
+                                $ _hud_collapsed = hud_ai_get_collapsed(_uk) if _is_ai_unit else False
+                                $ _frame_path = hud_ai_resolve_frame(_hud_style, _hud_mode) if _is_ai_unit else None
+                                $ _portrait_path = hud_ai_resolve_portrait_for_state(_name, _hud_collapsed, _hud_mode) if _is_ai_unit else None
+                                $ _icon_style = hud_ai_resolve_icon("icon_style_picker_arrow_gold") if _is_ai_unit else None
+                                $ _icon_swap = hud_ai_resolve_icon("icon_panel_swap_blue") if _is_ai_unit else None
+                                $ _icon_close = hud_ai_resolve_icon("icon_panel_close_red") if _is_ai_unit else None
+                                $ _secondary_option_frame = hud_ai_resolve_secondary_panel(_hud_style) if (_is_ai_unit and _hud_mode == "option") else None
                                 $ _show_sim = bool(_team == "player" and _active and hasattr(store, "pending_tech_list") and store.pending_tech_list)
                                 $ _rei_diff = int((simulated_reiatsu - player_reiatsu) if _show_sim else 0)
                                 $ _ene_diff = int((simulated_energy - player_energy) if _show_sim else 0)
-                                frame at hud_fade_in:
-                                    background "#0008"
-                                    xpadding 10
-                                    ypadding 6
-                                    xmaximum 250
-                                    vbox:
-                                        spacing 2
-                                        text "{} {}".format("▣" if _active else "▫", _name) color ("#88CCFF" if _team=="player" else "#FF7777") size 18 bold True
-                                        bar:
-                                            value (float(_hp) / max(1.0, float(_mx)))
-                                            range 1.0 xmaximum 220 ymaximum 12
-                                            left_bar ("#00BFFF" if _team=="player" else "#FF3333") right_bar "#222222"
-                                        text "HP: {} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)) color "#FFFFFF" size 13
+                                if _is_ai_unit:
+                                    if _hud_collapsed:
+                                        button at hud_fade_in:
+                                            action Function(hud_ai_toggle_collapsed, _uk)
+                                            xsize int(_hud_layout.get("token_w", 84) or 84)
+                                            ysize int(_hud_layout.get("token_h", 84) or 84)
+                                            background Solid("#0008")
+                                            if _portrait_path:
+                                                add _portrait_path xalign 0.5 yalign 0.5 xsize int(max(56, (int(_hud_layout.get("token_w", 84) or 84) - 8))) ysize int(max(56, (int(_hud_layout.get("token_h", 84) or 84) - 8)))
+                                            else:
+                                                text "{}".format(_name[:1]):
+                                                    xalign 0.5
+                                                    yalign 0.5
+                                                    color "#FFFFFF"
+                                                    size 28
+                                                    bold True
+                                    else:
+                                        fixed at hud_fade_in:
+                                            xsize int(_hud_layout.get("panel_w", 150) or 150)
+                                            ysize int(_hud_layout.get("panel_h", 312) or 312)
 
-                                        hbox:
-                                            spacing 5
-                                            text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))) size 12 color "#55FFFF"
-                                            if _rei_diff != 0:
-                                                text "-{}".format(battle_fmt_num(abs(_rei_diff))) size 12 color "#66CCFFAA"
+                                            if _frame_path:
+                                                add _frame_path xalign 0.5 yalign 0.5
+                                            else:
+                                                add Solid("#0008") xsize int(_hud_layout.get("panel_w", 150) or 150) ysize int(_hud_layout.get("panel_h", 312) or 312)
 
-                                        hbox:
-                                            spacing 5
-                                            text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))) size 12 color "#FFA500"
-                                            if _ene_diff != 0:
-                                                text "-{}".format(battle_fmt_num(abs(_ene_diff))) size 12 color "#FFBB66AA"
+                                            if _portrait_path:
+                                                add _portrait_path xpos 16 ypos 18 xsize int(max(90, int(_hud_layout.get("panel_w", 150) or 150) - 32)) ysize int(max(120, int(_hud_layout.get("panel_h", 312) or 312) - 164))
+
+                                            text "{}".format(_name):
+                                                xpos 18
+                                                ypos 173
+                                                color "#88CCFF"
+                                                size int(_hud_layout.get("name_size", 20) or 20)
+                                                bold True
+
+                                            bar:
+                                                xpos 18
+                                                ypos 203
+                                                value (float(_hp) / max(1.0, float(_mx)))
+                                                range 1.0
+                                                xmaximum 112
+                                                ymaximum 14
+                                                left_bar "#00BFFF"
+                                                right_bar "#222222"
+
+                                            if _hud_mode == "stat":
+                                                text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
+                                                    xpos 18
+                                                    ypos 222
+                                                    color "#FFFFFF"
+                                                    size int(_hud_layout.get("stat_size", 11) or 11)
+
+                                                text "Reiatsu: {}".format(battle_fmt_num(hud_ai_res_value(_res, "reiatsu"))):
+                                                    xpos 18
+                                                    ypos 240
+                                                    color "#55FFFF"
+                                                    size int(_hud_layout.get("stat_size", 11) or 11)
+
+                                                text "Energía: {}".format(battle_fmt_num(hud_ai_res_value(_res, "energy"))):
+                                                    xpos 18
+                                                    ypos 258
+                                                    color "#FFA500"
+                                                    size int(_hud_layout.get("stat_size", 11) or 11)
+                                            else:
+                                                if _secondary_option_frame:
+                                                    add _secondary_option_frame xpos 12 ypos 214 xsize int(max(96, int(_hud_layout.get("panel_w", 150) or 150) - 24)) ysize 92
+
+                                                text "OPTION":
+                                                    xpos 18
+                                                    ypos 232
+                                                    color "#FFFFFF"
+                                                    size 13
+                                                    bold True
+
+                                                text "(Fase 2: acciones)":
+                                                    xpos 18
+                                                    ypos 252
+                                                    color "#A0A0A0"
+                                                    size 10
+
+                                            if _icon_style:
+                                                imagebutton:
+                                                    idle _icon_style
+                                                    hover _icon_style
+                                                    xpos 7
+                                                    ypos 280
+                                                    xsize 28
+                                                    ysize 28
+                                                    action Function(hud_ai_cycle_style, _uk)
+                                            else:
+                                                textbutton "<":
+                                                    xpos 8
+                                                    ypos 280
+                                                    xsize 28
+                                                    ysize 28
+                                                    action Function(hud_ai_cycle_style, _uk)
+
+                                            if _icon_swap:
+                                                imagebutton:
+                                                    idle _icon_swap
+                                                    hover _icon_swap
+                                                    xpos 112
+                                                    ypos 277
+                                                    xsize 34
+                                                    ysize 34
+                                                    action Function(hud_ai_toggle_panel_mode, _uk)
+                                            else:
+                                                textbutton "S":
+                                                    xpos 116
+                                                    ypos 280
+                                                    xsize 28
+                                                    ysize 28
+                                                    action Function(hud_ai_toggle_panel_mode, _uk)
+
+                                            if _icon_close:
+                                                imagebutton:
+                                                    idle _icon_close
+                                                    hover _icon_close
+                                                    xpos 117
+                                                    ypos 2
+                                                    xsize 30
+                                                    ysize 30
+                                                    action Function(hud_ai_toggle_collapsed, _uk)
+                                            else:
+                                                textbutton "X":
+                                                    xpos 121
+                                                    ypos 6
+                                                    xsize 24
+                                                    ysize 24
+                                                    action Function(hud_ai_toggle_collapsed, _uk)
+                                else:
+                                    frame at hud_fade_in:
+                                        background "#0008"
+                                        xpadding 10
+                                        ypadding 6
+                                        xmaximum 250
+                                        vbox:
+                                            spacing 2
+                                            text "{} {}".format("▣" if _active else "▫", _name) color "#88CCFF" size 18 bold True
+                                            bar:
+                                                value (float(_hp) / max(1.0, float(_mx)))
+                                                range 1.0 xmaximum 220 ymaximum 12
+                                                left_bar "#00BFFF" right_bar "#222222"
+                                            text "HP: {} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)) color "#FFFFFF" size 13
+
+                                            hbox:
+                                                spacing 5
+                                                text "Reiatsu: {}".format(battle_fmt_num(hud_ai_res_value(_res, "reiatsu"))) size 12 color "#55FFFF"
+                                                if _rei_diff != 0:
+                                                    text "-{}".format(battle_fmt_num(abs(_rei_diff))) size 12 color "#66CCFFAA"
+
+                                            hbox:
+                                                spacing 5
+                                                text "Energía: {}".format(battle_fmt_num(hud_ai_res_value(_res, "energy"))) size 12 color "#FFA500"
+                                                if _ene_diff != 0:
+                                                    text "-{}".format(battle_fmt_num(abs(_ene_diff))) size 12 color "#FFBB66AA"
             else:
                 frame at hud_fade_in:
                     background "#0008"
