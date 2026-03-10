@@ -521,7 +521,7 @@ screen battle_hp_overlay():
                                             ysize int(_hud_layout.get("panel_h", 312) or 312)
 
                                             if _frame_path:
-                                                add _frame_path xalign 0.5 yalign 0.5
+                                                add im.Scale(_frame_path, int(_hud_layout.get("panel_w", 150) or 150), int(_hud_layout.get("panel_h", 312) or 312)) xalign 0.5 yalign 0.5
                                             else:
                                                 add Solid("#0008") xsize int(_hud_layout.get("panel_w", 150) or 150) ysize int(_hud_layout.get("panel_h", 312) or 312)
 
@@ -579,12 +579,10 @@ screen battle_hp_overlay():
 
                                             if _icon_style:
                                                 imagebutton:
-                                                    idle _icon_style
-                                                    hover _icon_style
+                                                    idle im.Scale(_icon_style, 28, 28)
+                                                    hover im.Scale(_icon_style, 28, 28)
                                                     xpos 7
                                                     ypos 280
-                                                    xsize 28
-                                                    ysize 28
                                                     action Function(hud_ai_cycle_style, _uk)
                                             else:
                                                 textbutton "<":
@@ -596,12 +594,10 @@ screen battle_hp_overlay():
 
                                             if _icon_swap:
                                                 imagebutton:
-                                                    idle _icon_swap
-                                                    hover _icon_swap
+                                                    idle im.Scale(_icon_swap, 34, 34)
+                                                    hover im.Scale(_icon_swap, 34, 34)
                                                     xpos 112
                                                     ypos 277
-                                                    xsize 34
-                                                    ysize 34
                                                     action Function(hud_ai_toggle_panel_mode, _uk)
                                             else:
                                                 textbutton "S":
@@ -613,12 +609,10 @@ screen battle_hp_overlay():
 
                                             if _icon_close:
                                                 imagebutton:
-                                                    idle _icon_close
-                                                    hover _icon_close
+                                                    idle im.Scale(_icon_close, 30, 30)
+                                                    hover im.Scale(_icon_close, 30, 30)
                                                     xpos 117
                                                     ypos 2
-                                                    xsize 30
-                                                    ysize 30
                                                     action Function(hud_ai_toggle_collapsed, _uk)
                                             else:
                                                 textbutton "X":

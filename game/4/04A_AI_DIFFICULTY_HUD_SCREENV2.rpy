@@ -64,7 +64,7 @@ screen ai_difficulty_hud():
             xsize 360
             ysize 360
 
-            add "gui/battle/hud_ai/frames/frame_secondary_options.png" xalign 0.5 yalign 0.5
+            add im.Scale("gui/battle/hud_ai/frames/frame_secondary_options.png", 360, 360) xalign 0.5 yalign 0.5
 
             vbox:
                 xpos 22
