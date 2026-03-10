@@ -281,7 +281,7 @@ screen battle_hp_overlay():
         # ⚔️ HUD DE UNIDADES
         # ======================================================
         if ui_show_unit_hud:
-            if str(getattr(store, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2" and hasattr(store, "bs_unit_key") and hasattr(store, "bs_get_unit_by_key"):
+            if hasattr(store, "bs_unit_key") and hasattr(store, "bs_get_unit_by_key"):
                 $ _ctx_u = store.bs_get_turn_ctx() if hasattr(store, "bs_get_turn_ctx") else {"owner_team": "player", "owner_slot": 0}
                 $ _pcount_hud = min(2, max(1, len(getattr(store, "battle_player_ids", []) or [])))
                 $ _ecount_hud = min(2, max(1, len(getattr(store, "battle_enemy_ids", []) or [])))
