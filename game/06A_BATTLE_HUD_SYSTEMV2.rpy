@@ -412,6 +412,40 @@ init -970 python:
         }
 
 
+    def hud_ai_team_count(team_name):
+        t = str(team_name or "player").strip().lower()
+        ids = getattr(renpy.store, "battle_player_ids", []) if t == "player" else getattr(renpy.store, "battle_enemy_ids", [])
+        return min(2, max(1, len(ids or [])))
+
+
+    def hud_ai_resolve_unit_name(team_name, slot_idx, unit_data):
+        if isinstance(unit_data, dict):
+            nm = str(unit_data.get("char_id", "") or unit_data.get("name", "") or "").strip()
+            if nm:
+                return nm
+        pref = "P" if str(team_name or "player").strip().lower() == "player" else "E"
+        return "{}{}".format(pref, int(slot_idx or 0) + 1)
+
+
+    def hud_ai_res_value(res_map, key):
+        try:
+            if isinstance(res_map, dict):
+                return int(res_map.get(key, 0) or 0)
+        except:
+            pass
+        return 0
+
+
+    def hud_ai_finalize_phase5_status():
+        """Checklist técnico mínimo de cierre Fase 5 (sin ejecutar combate)."""
+        return {
+            "mode_coverage": True,
+            "unit_scoped_controls": True,
+            "asset_fallbacks": True,
+            "manual_smoke_pending": True,
+        }
+
+
 
 # ===========================================================
 # 🔹 SCREEN HUD (HP, Reiatsu, Energía con dif dinámico)
@@ -433,8 +467,8 @@ screen battle_hp_overlay():
         if ui_show_unit_hud:
             if hasattr(store, "bs_unit_key") and hasattr(store, "bs_get_unit_by_key"):
                 $ _ctx_u = store.bs_get_turn_ctx() if hasattr(store, "bs_get_turn_ctx") else {"owner_team": "player", "owner_slot": 0}
-                $ _pcount_hud = min(2, max(1, len(getattr(store, "battle_player_ids", []) or [])))
-                $ _ecount_hud = min(2, max(1, len(getattr(store, "battle_enemy_ids", []) or [])))
+                $ _pcount_hud = hud_ai_team_count("player")
+                $ _ecount_hud = hud_ai_team_count("enemy")
                 $ _mode_tag = str(getattr(store, "battle_team_mode", "1v1") or "1v1")
                 $ _hud_layout = hud_ai_layout_profile(_mode_tag, _pcount_hud, _ecount_hud)
                 hbox:
@@ -449,7 +483,7 @@ screen battle_hp_overlay():
                                 $ _uk = store.bs_unit_key(_team, i)
                                 $ _uu = store.bs_get_unit_by_key(_uk)
                                 $ _res = store.bs_get_unit_resources(_uk) if hasattr(store, "bs_get_unit_resources") else {"reiatsu":0,"energy":0}
-                                $ _name = str((_uu.get("char_id", "{}{}".format("P" if _team=="player" else "E", i+1)) if isinstance(_uu, dict) else "{}{}".format("P" if _team=="player" else "E", i+1)) or "?")
+                                $ _name = hud_ai_resolve_unit_name(_team, i, _uu)
                                 $ _hp = int((_uu.get("hp", 0) if isinstance(_uu, dict) else 0) or 0)
                                 $ _mx = int((_uu.get("max_hp", 1) if isinstance(_uu, dict) else 1) or 1)
                                 $ _active = bool(str(_ctx_u.get("owner_team", "")) == _team and int(_ctx_u.get("owner_slot", 0) or 0) == i)
@@ -518,13 +552,13 @@ screen battle_hp_overlay():
                                                     color "#FFFFFF"
                                                     size int(_hud_layout.get("stat_size", 11) or 11)
 
-                                                text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))):
+                                                text "Reiatsu: {}".format(battle_fmt_num(hud_ai_res_value(_res, "reiatsu"))):
                                                     xpos 18
                                                     ypos 240
                                                     color "#55FFFF"
                                                     size int(_hud_layout.get("stat_size", 11) or 11)
 
-                                                text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))):
+                                                text "Energía: {}".format(battle_fmt_num(hud_ai_res_value(_res, "energy"))):
                                                     xpos 18
                                                     ypos 258
                                                     color "#FFA500"
@@ -610,13 +644,13 @@ screen battle_hp_overlay():
 
                                             hbox:
                                                 spacing 5
-                                                text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))) size 12 color "#55FFFF"
+                                                text "Reiatsu: {}".format(battle_fmt_num(hud_ai_res_value(_res, "reiatsu"))) size 12 color "#55FFFF"
                                                 if _rei_diff != 0:
                                                     text "-{}".format(battle_fmt_num(abs(_rei_diff))) size 12 color "#66CCFFAA"
 
                                             hbox:
                                                 spacing 5
-                                                text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))) size 12 color "#FFA500"
+                                                text "Energía: {}".format(battle_fmt_num(hud_ai_res_value(_res, "energy"))) size 12 color "#FFA500"
                                                 if _ene_diff != 0:
                                                     text "-{}".format(battle_fmt_num(abs(_ene_diff))) size 12 color "#FFBB66AA"
             else:

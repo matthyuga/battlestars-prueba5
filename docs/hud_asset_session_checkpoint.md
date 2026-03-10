@@ -129,3 +129,10 @@ Se recibieron retratos **head** y **full-body** para personajes del HUD IA, más
 ### Compatibilidad de naming en runtime
 
 - El routing de portraits contempla aliases para `char_id` cuando difieren del nombre de archivo (por ejemplo: `neliel -> nel`, `tier_harribel -> harribel`).
+
+
+## Estado de implementación
+
+- Fase 1–4 integradas en runtime de HUD por unidad.
+- Fase 5 cerrada a nivel técnico (controles por unidad, routing robusto, layout adaptativo multi-modo).
+- Pendiente: validación smoke manual con build Ren'Py en escenas reales de combate.

@@ -119,3 +119,16 @@ Con eso, ya se puede entrar directamente a implementación.
 ### Nota de compatibilidad de nombres (Fase 3)
 
 - Soportar aliases de `char_id` para portraits (ej: `neliel -> nel`, `tier_harribel -> harribel`) evita roturas entre datasets y assets.
+
+
+## 9) Estado de cierre actual
+
+- Fase 1: completa (wiring base por unidad).
+- Fase 2: completa (controles style/swap/close por `unit_key`).
+- Fase 3: completa (portrait routing con aliases y fallback por estado).
+- Fase 4: completa (layout adaptativo por modo/cantidad de unidades).
+- Fase 5: completa a nivel técnico de UI/runtime.
+
+Pendiente para cierre absoluto de producción:
+- smoke manual en combate real por modo (`1v1`, `2v2`, `2v1`, `1v2`) con assets finales.
+- ajustes finos de offsets por estilo tras validar arte final en juego.
