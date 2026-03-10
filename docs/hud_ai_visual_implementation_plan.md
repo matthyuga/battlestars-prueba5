@@ -76,8 +76,9 @@ Objetivo: conectar imágenes al HUD sin tocar reglas IA.
 
 1. Anchors/offsets por estilo (porque los marcos no suelen tener idénticos márgenes internos).
 2. Tipografía y contraste por estilo (legibilidad).
-3. Escalado adaptativo para 1v1 y 2v2.
-4. Validación de overlap con overlays ya existentes.
+3. Escalado adaptativo para 1v1, 2v2 y composiciones manuales asimétricas (2v1/1v2) sobre runtime de unidades.
+4. Perfil de layout por modo/cantidad de unidades visibles (panel/token/espaciado/tamaño de texto).
+5. Validación de overlap con overlays ya existentes.
 
 ## Cobertura transversal de modos (aplica a todas las fases)
 

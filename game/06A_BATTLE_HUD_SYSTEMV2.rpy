@@ -375,6 +375,43 @@ init -970 python:
         return path if renpy.loadable(path) else None
 
 
+    def hud_ai_layout_profile(mode_tag, pcount=1, ecount=1):
+        mode = str(mode_tag or "1v1").strip().lower()
+        total = int(max(1, pcount) + max(1, ecount))
+
+        # Baseline (1v1)
+        panel_w = 150
+        panel_h = 312
+        token_w = 84
+        token_h = 84
+        col_spacing = 8
+        root_spacing = 14
+        name_size = 20
+        stat_size = 11
+
+        # Ajuste para modos con más unidades visibles simultáneamente.
+        if mode == "2v2" or total >= 4:
+            panel_w = 136
+            panel_h = 288
+            token_w = 78
+            token_h = 78
+            col_spacing = 6
+            root_spacing = 10
+            name_size = 18
+            stat_size = 10
+
+        return {
+            "panel_w": panel_w,
+            "panel_h": panel_h,
+            "token_w": token_w,
+            "token_h": token_h,
+            "col_spacing": col_spacing,
+            "root_spacing": root_spacing,
+            "name_size": name_size,
+            "stat_size": stat_size,
+        }
+
+
 
 # ===========================================================
 # 🔹 SCREEN HUD (HP, Reiatsu, Energía con dif dinámico)
@@ -398,13 +435,15 @@ screen battle_hp_overlay():
                 $ _ctx_u = store.bs_get_turn_ctx() if hasattr(store, "bs_get_turn_ctx") else {"owner_team": "player", "owner_slot": 0}
                 $ _pcount_hud = min(2, max(1, len(getattr(store, "battle_player_ids", []) or [])))
                 $ _ecount_hud = min(2, max(1, len(getattr(store, "battle_enemy_ids", []) or [])))
+                $ _mode_tag = str(getattr(store, "battle_team_mode", "1v1") or "1v1")
+                $ _hud_layout = hud_ai_layout_profile(_mode_tag, _pcount_hud, _ecount_hud)
                 hbox:
                     xalign 0.5
                     yalign 0.0
-                    spacing 14
+                    spacing int(_hud_layout.get("root_spacing", 14) or 14)
                     for _team in ["player", "enemy"]:
                         vbox:
-                            spacing 8
+                            spacing int(_hud_layout.get("col_spacing", 8) or 8)
                             $ _team_count = _pcount_hud if _team == "player" else _ecount_hud
                             for i in range(_team_count):
                                 $ _uk = store.bs_unit_key(_team, i)
@@ -430,11 +469,11 @@ screen battle_hp_overlay():
                                     if _hud_collapsed:
                                         button at hud_fade_in:
                                             action Function(hud_ai_toggle_collapsed, _uk)
-                                            xsize 84
-                                            ysize 84
+                                            xsize int(_hud_layout.get("token_w", 84) or 84)
+                                            ysize int(_hud_layout.get("token_h", 84) or 84)
                                             background Solid("#0008")
                                             if _portrait_path:
-                                                add _portrait_path xalign 0.5 yalign 0.5 xsize 76 ysize 76
+                                                add _portrait_path xalign 0.5 yalign 0.5 xsize int(max(56, (int(_hud_layout.get("token_w", 84) or 84) - 8))) ysize int(max(56, (int(_hud_layout.get("token_h", 84) or 84) - 8)))
                                             else:
                                                 text "{}".format(_name[:1]):
                                                     xalign 0.5
@@ -444,22 +483,22 @@ screen battle_hp_overlay():
                                                     bold True
                                     else:
                                         fixed at hud_fade_in:
-                                            xsize 150
-                                            ysize 312
+                                            xsize int(_hud_layout.get("panel_w", 150) or 150)
+                                            ysize int(_hud_layout.get("panel_h", 312) or 312)
 
                                             if _frame_path:
                                                 add _frame_path xalign 0.5 yalign 0.5
                                             else:
-                                                add Solid("#0008") xsize 150 ysize 312
+                                                add Solid("#0008") xsize int(_hud_layout.get("panel_w", 150) or 150) ysize int(_hud_layout.get("panel_h", 312) or 312)
 
                                             if _portrait_path:
-                                                add _portrait_path xpos 16 ypos 18 xsize 118 ysize 148
+                                                add _portrait_path xpos 16 ypos 18 xsize int(max(90, int(_hud_layout.get("panel_w", 150) or 150) - 32)) ysize int(max(120, int(_hud_layout.get("panel_h", 312) or 312) - 164))
 
                                             text "{}".format(_name):
                                                 xpos 18
                                                 ypos 173
                                                 color "#88CCFF"
-                                                size 20
+                                                size int(_hud_layout.get("name_size", 20) or 20)
                                                 bold True
 
                                             bar:
@@ -477,19 +516,19 @@ screen battle_hp_overlay():
                                                     xpos 18
                                                     ypos 222
                                                     color "#FFFFFF"
-                                                    size 11
+                                                    size int(_hud_layout.get("stat_size", 11) or 11)
 
                                                 text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))):
                                                     xpos 18
                                                     ypos 240
                                                     color "#55FFFF"
-                                                    size 11
+                                                    size int(_hud_layout.get("stat_size", 11) or 11)
 
                                                 text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))):
                                                     xpos 18
                                                     ypos 258
                                                     color "#FFA500"
-                                                    size 11
+                                                    size int(_hud_layout.get("stat_size", 11) or 11)
                                             else:
                                                 text "OPTION":
                                                     xpos 18
