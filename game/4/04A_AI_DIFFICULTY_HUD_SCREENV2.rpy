@@ -56,211 +56,63 @@ screen ai_difficulty_hud():
     on "replace" action [Function(ai_sync_from_persistent_if_needed), Function(ai_unit_profile_sync_from_persistent_if_needed)]
 
     if ui_show_options_panel:
-        frame style "ai_diff_frame":
-            xalign 0.98
-            yalign 0.06
+        fixed:
+            xalign 0.985
+            yalign 0.985
+            xanchor 1.0
+            yanchor 1.0
+            xsize 360
+            ysize 360
+
+            add "gui/battle/hud_ai/frames/frame_secondary_options.png" xalign 0.5 yalign 0.5
 
             vbox:
-                spacing 6
+                xpos 22
+                ypos 22
+                spacing 8
 
-            # ====================================================
-            # 🧠 DIFICULTAD
-            # ====================================================
                 textbutton ai_level_text():
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
                     text_color ai_level_color()
+                    xminimum 316
+                    xalign 0.0
                     action Function(ai_cycle_level)
 
-            # ====================================================
-            # 💾 GUARDAR
-            # ====================================================
                 textbutton ai_save_text():
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
                     text_color ai_save_color()
+                    xminimum 316
+                    xalign 0.0
                     action Function(ai_toggle_save)
 
-            # ====================================================
-            # 👥 PERFIL IA POR UNIDAD (E1/E2)
-            # ====================================================
                 textbutton ai_ui_enemy_slot_text():
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
                     text_color "#80DEEA"
+                    xminimum 316
+                    xalign 0.0
                     action Function(ai_ui_cycle_enemy_slot)
 
                 textbutton ai_ui_target_rule_text():
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
                     text_color "#FFD700"
+                    xminimum 316
+                    xalign 0.0
                     action Function(ai_ui_cycle_target_rule)
-
-                textbutton ai_ui_offense_mode_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#FFB74D"
-                    action Function(ai_ui_cycle_offense_mode)
-
-                textbutton ai_ui_offense_concat_rule_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#FFB74D"
-                    action Function(ai_ui_cycle_offense_concat_rule)
-
-                textbutton ai_ui_defense_mode_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#64B5F6"
-                    action Function(ai_ui_cycle_defense_mode)
-
-                textbutton ai_ui_concat_rule_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#66FF99"
-                    action Function(ai_ui_cycle_concat_rule)
-
-                textbutton ai_ui_focus_rule_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#C586C0"
-                    action Function(ai_ui_cycle_focus_rule)
-
-            # ====================================================
-            # ⚔️ OFENSIVA – FINISHER MODE
-            # ====================================================
-                if ai_finisher_mode_get() == "stats":
-
-                    hbox:
-                        spacing 6
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_weight_pct_text("attack_reducer", "R"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_weight, "attack_reducer")
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_weight_pct_text("stronger_attack", "S"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_weight, "stronger_attack")
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_weight_pct_text("direct_attack", "D"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_weight, "direct_attack")
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_weight_pct_text("noatk_attack", "N"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_weight, "noatk_attack")
-
-                    textbutton "🎯 Stats Ofensivos (R/S/D/N)":
-                        style "ai_diff_btn"
-                        text_style "ai_diff_btn_text"
-                        text_color ai_test_color()
-                        action Function(ai_cycle_finisher_mode)
-
-                else:
-                    textbutton ai_finisher_mode_text():
-                        style "ai_diff_btn"
-                        text_style "ai_diff_btn_text"
-                        text_color ai_test_color()
-                        action Function(ai_cycle_finisher_mode)
-
-                textbutton ai_offense_concat_mode_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_offense_concat_mode_color()
-                    action Function(ai_cycle_offense_concat_mode)
 
                 textbutton "🔄 Reset Stats Ofensivos":
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
+                    xminimum 316
+                    xalign 0.0
                     action Function(ai_reset_finisher_stats)
-
-            # ====================================================
-            # 🛡️ DEFENSA – MODE
-            # ====================================================
-                textbutton ai_defense_mode_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_defense_color()
-                    action Function(ai_cycle_defense_mode)
-
-            # 🔗 CONCAT
-                textbutton ai_defense_concat_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_defense_concat_color()
-                    action Function(ai_toggle_defense_concat)
-
-            # ====================================================
-            # 🛡️ DEFENSA – STATS
-            # ====================================================
-                if ai_defense_mode_get() == "stats":
-
-                    hbox:
-                        spacing 6
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_defense_weight_pct_text("def_extra", "E"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_defense_weight, "def_extra")
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_defense_weight_pct_text("def_reduct", "R"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_defense_weight, "def_reduct")
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_defense_weight_pct_text("def_reflect", "F"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_defense_weight, "def_reflect")
-
-                    textbutton "🛡️ Stats Defensivos (E/R/F)":
-                        style "ai_diff_btn"
-                        text_style "ai_diff_btn_text"
-                        text_color ai_defense_color()
-                        action NullAction()
 
                 textbutton "🔄 Reset Stats Defensivos":
                     style "ai_diff_btn"
                     text_style "ai_diff_btn_text"
+                    xminimum 316
+                    xalign 0.0
                     action Function(ai_reset_defense_stats)
-
-            # ====================================================
-            # 🧿 FOCUS
-            # ====================================================
-                textbutton ai_focus_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_focus_color()
-                    action Function(ai_toggle_focus)

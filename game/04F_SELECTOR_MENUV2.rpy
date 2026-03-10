@@ -374,7 +374,7 @@ screen battle_command_menu():
 
             vbox spacing 6 at tech_btn_scale:
 
-                text "[O] Ofensivas: {}  [D] Defensivas: {}".format("ON" if _show_off else "OFF", "ON" if _show_def else "OFF") size 18 color "#DCDCDC"
+                text "Tecla O Ofensivas: {}  |  Tecla D Defensivas: {}".format("ON" if _show_off else "OFF", "ON" if _show_def else "OFF") size 18 color "#DCDCDC"
 
                 for tech_key in current:
 
