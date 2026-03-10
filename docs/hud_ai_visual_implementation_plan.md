@@ -93,6 +93,7 @@ Objetivo: conectar imágenes al HUD sin tocar reglas IA.
 3. Cierre (`X`) colapsa solo el panel seleccionado y no rompe focus.
 4. `stat` muestra datos correctos del actor activo.
 5. `option` dispara acciones existentes sin romper lógica IA.
+6. Si existe `frame_secondary_options` (genérico o por estilo), se renderiza como panel interno para opciones secundarias IA.
 6. Sin artefactos visuales al cambiar turno, KO, o replace de screen.
 
 ## 7) Orden recomendado de implementación (rápido)

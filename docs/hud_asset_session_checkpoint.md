@@ -78,6 +78,11 @@ Con base en los cuadros compartidos en esta sesión, el mapeo visual por estilo 
 - `game/gui/battle/hud_ai/frames/frame_grey_option.png`
 - `game/gui/battle/hud_ai/frames/frame_virtual_stat.png`
 - `game/gui/battle/hud_ai/frames/frame_virtual_option.png`
+- `game/gui/battle/hud_ai/frames/frame_secondary_options.png` *(opcional, panel secundario común)*
+- `game/gui/battle/hud_ai/frames/frame_carmesi_secondary_options.png` *(opcional por estilo)*
+- `game/gui/battle/hud_ai/frames/frame_fantasy_secondary_options.png` *(opcional por estilo)*
+- `game/gui/battle/hud_ai/frames/frame_grey_secondary_options.png` *(opcional por estilo)*
+- `game/gui/battle/hud_ai/frames/frame_virtual_secondary_options.png` *(opcional por estilo)*
 
 > Nota: este checkpoint documenta el mapeo visual acordado; la integración en `screen` (selector por unidad + swap stat/option + iconos) se conecta en el siguiente paso de implementación.
 
@@ -136,3 +141,13 @@ Se recibieron retratos **head** y **full-body** para personajes del HUD IA, más
 - Fase 1–4 integradas en runtime de HUD por unidad.
 - Fase 5 cerrada a nivel técnico (controles por unidad, routing robusto, layout adaptativo multi-modo).
 - Pendiente: validación smoke manual con build Ren'Py en escenas reales de combate.
+
+
+### Panel secundario de opciones IA
+
+Para dificultad IA / guardar on-off / reset stats ofensivo-defensivo, el HUD soporta:
+
+- `game/gui/battle/hud_ai/frames/frame_secondary_options.png` (fallback genérico)
+- `game/gui/battle/hud_ai/frames/frame_<style>_secondary_options.png` (prioridad por estilo)
+
+Si existen ambos, se usa primero el de estilo.
