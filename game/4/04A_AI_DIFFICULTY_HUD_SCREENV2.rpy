@@ -56,63 +56,120 @@ screen ai_difficulty_hud():
     on "replace" action [Function(ai_sync_from_persistent_if_needed), Function(ai_unit_profile_sync_from_persistent_if_needed)]
 
     if ui_show_options_panel:
-        fixed:
-            xalign 0.985
-            yalign 0.985
-            xanchor 1.0
-            yanchor 1.0
-            xsize 420
-            ysize 420
+        if getattr(store, "ui_safe_mode", False):
+            frame:
+                xalign 0.985
+                yalign 0.985
+                xanchor 1.0
+                yanchor 1.0
+                xsize 420
+                ysize 300
+                background "#1B1E24CC"
+                xpadding 14
+                ypadding 12
 
-            add im.Scale("gui/battle/hud_ai/frames/frame_secondary_options.png", 420, 420) xalign 0.5 yalign 0.5
+                vbox:
+                    spacing 8
 
-            vbox:
-                xpos 22
-                ypos 22
-                spacing 8
+                    text "Nivel de dificultad IA" size 20 color "#CFE7FF" bold True
 
-                textbutton ai_level_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_level_color()
-                    xminimum 360
-                    xalign 0.0
-                    action Function(ai_cycle_level)
+                    hbox:
+                        spacing 8
+                        textbutton "Básica":
+                            style "ai_diff_btn"
+                            text_style "ai_diff_btn_text"
+                            xminimum 120
+                            action Function(ai_apply_level_to_store, "basic")
+                        textbutton "Intermedia":
+                            style "ai_diff_btn"
+                            text_style "ai_diff_btn_text"
+                            xminimum 120
+                            action Function(ai_apply_level_to_store, "intermediate")
+                        textbutton "Avanzada":
+                            style "ai_diff_btn"
+                            text_style "ai_diff_btn_text"
+                            xminimum 120
+                            action Function(ai_apply_level_to_store, "advanced")
 
-                textbutton ai_save_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_save_color()
-                    xminimum 360
-                    xalign 0.0
-                    action Function(ai_toggle_save)
+                    textbutton ai_save_text():
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        text_color ai_save_color()
+                        xminimum 392
+                        xalign 0.0
+                        action Function(ai_toggle_save)
 
-                textbutton ai_ui_enemy_slot_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#80DEEA"
-                    xminimum 360
-                    xalign 0.0
-                    action Function(ai_ui_cycle_enemy_slot)
+                    textbutton "Reset Stats Ofensivos":
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        xminimum 392
+                        xalign 0.0
+                        action Function(ai_reset_finisher_stats)
 
-                textbutton ai_ui_target_rule_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#FFD700"
-                    xminimum 360
-                    xalign 0.0
-                    action Function(ai_ui_cycle_target_rule)
+                    textbutton "Reset Stats Defensivos":
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        xminimum 392
+                        xalign 0.0
+                        action Function(ai_reset_defense_stats)
+        else:
+            fixed:
+                xalign 0.985
+                yalign 0.985
+                xanchor 1.0
+                yanchor 1.0
+                xsize 420
+                ysize 420
 
-                textbutton "🔄 Reset Stats Ofensivos":
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    xminimum 360
-                    xalign 0.0
-                    action Function(ai_reset_finisher_stats)
+                add im.Scale("gui/battle/hud_ai/frames/frame_secondary_options.png", 420, 420) xalign 0.5 yalign 0.5
 
-                textbutton "🔄 Reset Stats Defensivos":
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    xminimum 360
-                    xalign 0.0
-                    action Function(ai_reset_defense_stats)
+                vbox:
+                    xpos 22
+                    ypos 22
+                    spacing 8
+
+                    textbutton ai_level_text():
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        text_color ai_level_color()
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_cycle_level)
+
+                    textbutton ai_save_text():
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        text_color ai_save_color()
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_toggle_save)
+
+                    textbutton ai_ui_enemy_slot_text():
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        text_color "#80DEEA"
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_ui_cycle_enemy_slot)
+
+                    textbutton ai_ui_target_rule_text():
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        text_color "#FFD700"
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_ui_cycle_target_rule)
+
+                    textbutton "🔄 Reset Stats Ofensivos":
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_reset_finisher_stats)
+
+                    textbutton "🔄 Reset Stats Defensivos":
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_reset_defense_stats)

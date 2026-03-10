@@ -332,3 +332,5 @@ default ui_show_unit_hud = True
 default ui_show_2v2_summary = True
 default ui_show_offensive_techniques = True
 default ui_show_defensive_techniques = True
+default ui_safe_mode = False
+default ui_safe_mode_prompted = False

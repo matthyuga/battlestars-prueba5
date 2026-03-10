@@ -436,6 +436,78 @@ init -970 python:
         return 0
 
 
+    def hud_safe_panel_color(style_name):
+        style = str(style_name or "grey").strip().lower()
+        return {
+            "grey": "#1F2328CC",
+            "carmesi": "#4B0D1BCC",
+            "virtual": "#0F2F3CCC",
+            "fantasy": "#1D3A1CCC",
+        }.get(style, "#1F2328CC")
+
+
+    def hud_safe_label_offense_force(unit_key, team_name="enemy"):
+        if str(team_name or "enemy").strip().lower() != "enemy":
+            return "label_offense_force: n/a"
+        try:
+            mode = str(store.ai_effective_offense_mode(unit_key) or "normal") if hasattr(store, "ai_effective_offense_mode") else "normal"
+        except:
+            mode = "normal"
+        return "label_offense_force: {}".format(mode)
+
+
+    def hud_safe_label_offense_concat(unit_key, team_name="enemy"):
+        if str(team_name or "enemy").strip().lower() != "enemy":
+            return "label_offense_concat: n/a"
+        try:
+            mode = str(store.ai_effective_offense_concat(unit_key) or "inherit") if hasattr(store, "ai_effective_offense_concat") else "inherit"
+        except:
+            mode = "inherit"
+        return "label_offense_concat: {}".format(mode)
+
+
+    def hud_safe_label_defense_force(unit_key, team_name="enemy"):
+        if str(team_name or "enemy").strip().lower() != "enemy":
+            return "label_defense_force: n/a"
+        try:
+            mode = str(store.ai_effective_defense_mode(unit_key) or "normal") if hasattr(store, "ai_effective_defense_mode") else "normal"
+        except:
+            mode = "normal"
+        return "label_defense_force: {}".format(mode)
+
+
+    def hud_safe_label_defense_concat(unit_key, team_name="enemy"):
+        if str(team_name or "enemy").strip().lower() != "enemy":
+            return "label_defense_concat: n/a"
+        try:
+            v = bool(store.ai_effective_defense_concat(unit_key)) if hasattr(store, "ai_effective_defense_concat") else False
+        except:
+            v = False
+        return "label_defense_concat: {}".format("on" if v else "off")
+
+
+    def hud_safe_label_focus(unit_key, team_name="enemy"):
+        if str(team_name or "enemy").strip().lower() != "enemy":
+            return "label_focus: n/a"
+        try:
+            v = bool(store.ai_effective_allow_focus(unit_key)) if hasattr(store, "ai_effective_allow_focus") else False
+        except:
+            v = False
+        return "label_focus: {}".format("on" if v else "off")
+
+
+    def hud_safe_label_target(unit_key, team_name="enemy"):
+        if str(team_name or "enemy").strip().lower() != "enemy":
+            return "label_target: n/a"
+        try:
+            r = store.ai_effective_target_rule(unit_key) if hasattr(store, "ai_effective_target_rule") else {"mode":"auto","slot":0}
+            m = str(r.get("mode", "auto") or "auto")
+            s = int(r.get("slot", 0) or 0)
+            return "label_target: forzar_p{}".format(s + 1) if m == "force_slot" else "label_target: auto"
+        except:
+            return "label_target: auto"
+
+
     def hud_ai_finalize_phase5_status():
         """Checklist técnico mínimo de cierre Fase 5 (sin ejecutar combate)."""
         return {
@@ -504,6 +576,7 @@ screen battle_hp_overlay():
                                 $ _show_sim = bool(_team == "player" and _active and hasattr(store, "pending_tech_list") and store.pending_tech_list)
                                 $ _rei_diff = int((simulated_reiatsu - player_reiatsu) if _show_sim else 0)
                                 $ _ene_diff = int((simulated_energy - player_energy) if _show_sim else 0)
+                                $ _safe_mode = bool(getattr(store, "ui_safe_mode", False))
                                 if _is_framed_unit:
                                     if _hud_collapsed:
                                         button at hud_fade_in:
@@ -525,7 +598,9 @@ screen battle_hp_overlay():
                                             xsize int(_hud_layout.get("panel_w", 150) or 150)
                                             ysize int(_hud_layout.get("panel_h", 312) or 312)
 
-                                            if _frame_path:
+                                            if _safe_mode:
+                                                add Solid(hud_safe_panel_color(_hud_style)) xsize int(_hud_layout.get("panel_w", 150) or 150) ysize int(_hud_layout.get("panel_h", 312) or 312)
+                                            elif _frame_path:
                                                 add im.Scale(_frame_path, int(_hud_layout.get("panel_w", 150) or 150), int(_hud_layout.get("panel_h", 312) or 312)) xalign 0.5 yalign 0.5
                                             else:
                                                 add Solid("#0008") xsize int(_hud_layout.get("panel_w", 150) or 150) ysize int(_hud_layout.get("panel_h", 312) or 312)
@@ -569,18 +644,50 @@ screen battle_hp_overlay():
                                                     color "#FFA500"
                                                     size int(_hud_layout.get("stat_size", 11) or 11)
                                             else:
-                                                text "OPTION":
-                                                    xpos 18
-                                                    ypos 232
-                                                    color "#FFFFFF"
-                                                    size 13
-                                                    bold True
+                                                if _safe_mode:
+                                                    text hud_safe_label_offense_force(_uk, _team):
+                                                        xpos 10
+                                                        ypos 206
+                                                        color "#F7C24D"
+                                                        size 10
+                                                    text hud_safe_label_offense_concat(_uk, _team):
+                                                        xpos 10
+                                                        ypos 222
+                                                        color "#66FF99"
+                                                        size 10
+                                                    text hud_safe_label_defense_force(_uk, _team):
+                                                        xpos 10
+                                                        ypos 238
+                                                        color "#6DBBFF"
+                                                        size 10
+                                                    text hud_safe_label_defense_concat(_uk, _team):
+                                                        xpos 10
+                                                        ypos 254
+                                                        color "#6DF0FF"
+                                                        size 10
+                                                    text hud_safe_label_focus(_uk, _team):
+                                                        xpos 10
+                                                        ypos 270
+                                                        color "#D68CFF"
+                                                        size 10
+                                                    text hud_safe_label_target(_uk, _team):
+                                                        xpos 10
+                                                        ypos 286
+                                                        color "#FFE15C"
+                                                        size 10
+                                                else:
+                                                    text "OPTION":
+                                                        xpos 18
+                                                        ypos 232
+                                                        color "#FFFFFF"
+                                                        size 13
+                                                        bold True
 
-                                                text "(Fase 2: acciones)":
-                                                    xpos 18
-                                                    ypos 252
-                                                    color "#A0A0A0"
-                                                    size 10
+                                                    text "(Fase 2: acciones)":
+                                                        xpos 18
+                                                        ypos 252
+                                                        color "#A0A0A0"
+                                                        size 10
 
                                             if _icon_style:
                                                 imagebutton:
