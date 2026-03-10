@@ -32,6 +32,11 @@ init -970 python:
     enemy_simulated_reiatsu = 0
     enemy_simulated_energy = 0
 
+    # === Estado visual HUD IA (Fase 1) ===
+    HUD_AI_STYLES = ("carmesi", "fantasy", "grey", "virtual")
+    hud_style_by_unit = {}
+    hud_panel_mode_by_unit = {}
+
 
     # ===========================================================
     # 🔸 MAPA GLOBAL (visual → TECH_ID)
@@ -215,6 +220,48 @@ init -970 python:
         renpy.restart_interaction()
 
 
+    def hud_ai_normalize_char_id(char_id):
+        raw = str(char_id or "").strip().lower()
+        return raw.replace(" ", "_").replace("-", "_")
+
+
+    def hud_ai_get_style(unit_key):
+        k = str(unit_key or "")
+        if not k:
+            return "carmesi"
+        v = str(hud_style_by_unit.get(k, "carmesi") or "carmesi").strip().lower()
+        if v not in HUD_AI_STYLES:
+            v = "carmesi"
+        hud_style_by_unit[k] = v
+        return v
+
+
+    def hud_ai_get_panel_mode(unit_key):
+        k = str(unit_key or "")
+        if not k:
+            return "stat"
+        m = str(hud_panel_mode_by_unit.get(k, "stat") or "stat").strip().lower()
+        if m not in ("stat", "option"):
+            m = "stat"
+        hud_panel_mode_by_unit[k] = m
+        return m
+
+
+    def hud_ai_resolve_frame(style_name, panel_mode):
+        style = str(style_name or "carmesi").strip().lower()
+        mode = str(panel_mode or "stat").strip().lower()
+        path = "game/gui/battle/hud_ai/frames/frame_{}_{}.png".format(style, mode)
+        return path if renpy.loadable(path) else None
+
+
+    def hud_ai_resolve_head_portrait(char_id):
+        cid = hud_ai_normalize_char_id(char_id)
+        if not cid:
+            return None
+        path = "game/gui/battle/hud_ai/portraits/portrait_{}_head.png".format(cid)
+        return path if renpy.loadable(path) else None
+
+
 
 # ===========================================================
 # 🔹 SCREEN HUD (HP, Reiatsu, Energía con dif dinámico)
@@ -254,34 +301,101 @@ screen battle_hp_overlay():
                                 $ _hp = int((_uu.get("hp", 0) if isinstance(_uu, dict) else 0) or 0)
                                 $ _mx = int((_uu.get("max_hp", 1) if isinstance(_uu, dict) else 1) or 1)
                                 $ _active = bool(str(_ctx_u.get("owner_team", "")) == _team and int(_ctx_u.get("owner_slot", 0) or 0) == i)
+                                $ _is_ai_unit = bool(_team == "enemy")
+                                $ _hud_style = hud_ai_get_style(_uk) if _is_ai_unit else "carmesi"
+                                $ _hud_mode = hud_ai_get_panel_mode(_uk) if _is_ai_unit else "stat"
+                                $ _frame_path = hud_ai_resolve_frame(_hud_style, _hud_mode) if _is_ai_unit else None
+                                $ _portrait_path = hud_ai_resolve_head_portrait(_name) if _is_ai_unit else None
                                 $ _show_sim = bool(_team == "player" and _active and hasattr(store, "pending_tech_list") and store.pending_tech_list)
                                 $ _rei_diff = int((simulated_reiatsu - player_reiatsu) if _show_sim else 0)
                                 $ _ene_diff = int((simulated_energy - player_energy) if _show_sim else 0)
-                                frame at hud_fade_in:
-                                    background "#0008"
-                                    xpadding 10
-                                    ypadding 6
-                                    xmaximum 250
-                                    vbox:
-                                        spacing 2
-                                        text "{} {}".format("▣" if _active else "▫", _name) color ("#88CCFF" if _team=="player" else "#FF7777") size 18 bold True
+                                if _is_ai_unit:
+                                    fixed at hud_fade_in:
+                                        xsize 150
+                                        ysize 312
+
+                                        if _frame_path:
+                                            add _frame_path xalign 0.5 yalign 0.5
+                                        else:
+                                            add Solid("#0008") xsize 150 ysize 312
+
+                                        if _portrait_path:
+                                            add _portrait_path xpos 16 ypos 18 xsize 118 ysize 148
+
+                                        text "{}".format(_name):
+                                            xpos 18
+                                            ypos 173
+                                            color "#88CCFF"
+                                            size 20
+                                            bold True
+
                                         bar:
+                                            xpos 18
+                                            ypos 203
                                             value (float(_hp) / max(1.0, float(_mx)))
-                                            range 1.0 xmaximum 220 ymaximum 12
-                                            left_bar ("#00BFFF" if _team=="player" else "#FF3333") right_bar "#222222"
-                                        text "HP: {} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)) color "#FFFFFF" size 13
+                                            range 1.0
+                                            xmaximum 112
+                                            ymaximum 14
+                                            left_bar "#00BFFF"
+                                            right_bar "#222222"
 
-                                        hbox:
-                                            spacing 5
-                                            text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))) size 12 color "#55FFFF"
-                                            if _rei_diff != 0:
-                                                text "-{}".format(battle_fmt_num(abs(_rei_diff))) size 12 color "#66CCFFAA"
+                                        if _hud_mode == "stat":
+                                            text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
+                                                xpos 18
+                                                ypos 222
+                                                color "#FFFFFF"
+                                                size 11
 
-                                        hbox:
-                                            spacing 5
-                                            text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))) size 12 color "#FFA500"
-                                            if _ene_diff != 0:
-                                                text "-{}".format(battle_fmt_num(abs(_ene_diff))) size 12 color "#FFBB66AA"
+                                            text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))):
+                                                xpos 18
+                                                ypos 240
+                                                color "#55FFFF"
+                                                size 11
+
+                                            text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))):
+                                                xpos 18
+                                                ypos 258
+                                                color "#FFA500"
+                                                size 11
+                                        else:
+                                            text "OPTION":
+                                                xpos 18
+                                                ypos 232
+                                                color "#FFFFFF"
+                                                size 13
+                                                bold True
+
+                                            text "(Fase 2: acciones)":
+                                                xpos 18
+                                                ypos 252
+                                                color "#A0A0A0"
+                                                size 10
+                                else:
+                                    frame at hud_fade_in:
+                                        background "#0008"
+                                        xpadding 10
+                                        ypadding 6
+                                        xmaximum 250
+                                        vbox:
+                                            spacing 2
+                                            text "{} {}".format("▣" if _active else "▫", _name) color "#88CCFF" size 18 bold True
+                                            bar:
+                                                value (float(_hp) / max(1.0, float(_mx)))
+                                                range 1.0 xmaximum 220 ymaximum 12
+                                                left_bar "#00BFFF" right_bar "#222222"
+                                            text "HP: {} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)) color "#FFFFFF" size 13
+
+                                            hbox:
+                                                spacing 5
+                                                text "Reiatsu: {}".format(battle_fmt_num(int(_res.get("reiatsu", 0) or 0))) size 12 color "#55FFFF"
+                                                if _rei_diff != 0:
+                                                    text "-{}".format(battle_fmt_num(abs(_rei_diff))) size 12 color "#66CCFFAA"
+
+                                            hbox:
+                                                spacing 5
+                                                text "Energía: {}".format(battle_fmt_num(int(_res.get("energy", 0) or 0))) size 12 color "#FFA500"
+                                                if _ene_diff != 0:
+                                                    text "-{}".format(battle_fmt_num(abs(_ene_diff))) size 12 color "#FFBB66AA"
             else:
                 frame at hud_fade_in:
                     background "#0008"
