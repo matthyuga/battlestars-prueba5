@@ -273,7 +273,7 @@ init -970 python:
     def hud_ai_resolve_frame(style_name, panel_mode):
         style = str(style_name or "carmesi").strip().lower()
         mode = str(panel_mode or "stat").strip().lower()
-        path = "game/gui/battle/hud_ai/frames/frame_{}_{}.png".format(style, mode)
+        path = "gui/battle/hud_ai/frames/frame_{}_{}.png".format(style, mode)
         return path if renpy.loadable(path) else None
 
 
@@ -282,7 +282,7 @@ init -970 python:
         if var not in ("head", "full", "token"):
             var = "head"
         for cid in hud_ai_char_candidates(char_id):
-            path = "game/gui/battle/hud_ai/portraits/portrait_{}_{}.png".format(cid, var)
+            path = "gui/battle/hud_ai/portraits/portrait_{}_{}.png".format(cid, var)
             if renpy.loadable(path):
                 return path
         return None
@@ -371,7 +371,7 @@ init -970 python:
 
 
     def hud_ai_resolve_icon(name):
-        path = "game/gui/battle/hud_ai/icons/{}.png".format(str(name or "").strip())
+        path = "gui/battle/hud_ai/icons/{}.png".format(str(name or "").strip())
         return path if renpy.loadable(path) else None
 
 
@@ -783,6 +783,8 @@ screen battle_ui_hotkeys():
     key "K_p" action ToggleField(store, "ui_show_options_panel")
     key "K_j" action ToggleField(store, "ui_show_unit_hud")
     key "K_v" action ToggleField(store, "ui_show_2v2_summary")
+    key "K_o" action ToggleField(store, "ui_show_offensive_techniques")
+    key "K_d" action ToggleField(store, "ui_show_defensive_techniques")
 
 
 # ===========================================================

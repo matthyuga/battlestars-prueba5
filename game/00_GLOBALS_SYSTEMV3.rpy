@@ -330,3 +330,5 @@ default player_skip_attack = False
 default ui_show_options_panel = True
 default ui_show_unit_hud = True
 default ui_show_2v2_summary = True
+default ui_show_offensive_techniques = True
+default ui_show_defensive_techniques = True
