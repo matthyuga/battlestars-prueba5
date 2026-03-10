@@ -375,15 +375,6 @@ init -970 python:
         return path if renpy.loadable(path) else None
 
 
-    def hud_ai_resolve_secondary_panel(style_name):
-        style = str(style_name or "carmesi").strip().lower()
-        style_path = "game/gui/battle/hud_ai/frames/frame_{}_secondary_options.png".format(style)
-        if renpy.loadable(style_path):
-            return style_path
-        generic_path = "game/gui/battle/hud_ai/frames/frame_secondary_options.png"
-        return generic_path if renpy.loadable(generic_path) else None
-
-
     def hud_ai_layout_profile(mode_tag, pcount=1, ecount=1):
         mode = str(mode_tag or "1v1").strip().lower()
         total = int(max(1, pcount) + max(1, ecount))
@@ -505,7 +496,6 @@ screen battle_hp_overlay():
                                 $ _icon_style = hud_ai_resolve_icon("icon_style_picker_arrow_gold") if _is_ai_unit else None
                                 $ _icon_swap = hud_ai_resolve_icon("icon_panel_swap_blue") if _is_ai_unit else None
                                 $ _icon_close = hud_ai_resolve_icon("icon_panel_close_red") if _is_ai_unit else None
-                                $ _secondary_option_frame = hud_ai_resolve_secondary_panel(_hud_style) if (_is_ai_unit and _hud_mode == "option") else None
                                 $ _show_sim = bool(_team == "player" and _active and hasattr(store, "pending_tech_list") and store.pending_tech_list)
                                 $ _rei_diff = int((simulated_reiatsu - player_reiatsu) if _show_sim else 0)
                                 $ _ene_diff = int((simulated_energy - player_energy) if _show_sim else 0)
@@ -574,9 +564,6 @@ screen battle_hp_overlay():
                                                     color "#FFA500"
                                                     size int(_hud_layout.get("stat_size", 11) or 11)
                                             else:
-                                                if _secondary_option_frame:
-                                                    add _secondary_option_frame xpos 12 ypos 214 xsize int(max(96, int(_hud_layout.get("panel_w", 150) or 150) - 24)) ysize 92
-
                                                 text "OPTION":
                                                     xpos 18
                                                     ypos 232
