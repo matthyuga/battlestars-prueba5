@@ -285,11 +285,10 @@ init -950 python:
         if r < 0: r = 0
         if e < 0: e = 0
 
-        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
         consumed_r = r
         consumed_e = e
 
-        if mode == "2v2" and callable(getattr(S, "bs_consume_unit_resources", None)) and callable(getattr(S, "bs_get_turn_ctx", None)) and callable(getattr(S, "bs_unit_key", None)):
+        if callable(getattr(S, "bs_consume_unit_resources", None)) and callable(getattr(S, "bs_get_turn_ctx", None)) and callable(getattr(S, "bs_unit_key", None)):
             ctx = S.bs_get_turn_ctx()
             side = str(ctx.get("owner_team", actor) or actor)
             slot = int(ctx.get("owner_slot", 0) or 0)
@@ -300,7 +299,7 @@ init -950 python:
             consumed_r = int(info.get("reiatsu_spent", 0) or 0)
             consumed_e = int(info.get("energy_spent", 0) or 0)
 
-            # sincronizar aliases legacy de unidad activa
+            # sincronizar aliases legacy (1v1/2v2) desde la unidad activa consumidora
             if callable(getattr(S, "bs_get_active_unit_key", None)) and callable(getattr(S, "bs_get_unit_resources", None)):
                 try:
                     akt = str(S.bs_get_active_unit_key(side) or ukey)
