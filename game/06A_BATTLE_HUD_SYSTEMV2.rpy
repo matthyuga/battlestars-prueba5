@@ -626,14 +626,14 @@ screen battle_hp_overlay():
                                                 xpos 8
                                                 ypos 76
                                                 color "#88CCFF"
-                                                size 12
+                                                size 10
                                                 bold True
 
                                             text "HP: {}/{}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                                 xpos 8
                                                 ypos 96
                                                 color "#FFFFFF"
-                                                size 10
+                                                size 8
 
                                             text "Rei: {}{}".format(
                                                 battle_fmt_num(hud_ai_res_value(_res, "reiatsu")),
@@ -642,7 +642,7 @@ screen battle_hp_overlay():
                                                 xpos 8
                                                 ypos 112
                                                 color "#55FFFF"
-                                                size 10
+                                                size 8
 
                                             text "Ene: {}{}".format(
                                                 battle_fmt_num(hud_ai_res_value(_res, "energy")),
@@ -651,7 +651,7 @@ screen battle_hp_overlay():
                                                 xpos 8
                                                 ypos 128
                                                 color "#FFA500"
-                                                size 10
+                                                size 8
                                     else:
                                         fixed at hud_fade_in:
                                             xsize int(_hud_layout.get("panel_w", 150) or 150)
@@ -670,14 +670,14 @@ screen battle_hp_overlay():
 
                                                 text "{}".format(_name):
                                                     xpos 18
-                                                    ypos 176
+                                                    ypos 170
                                                     color "#88CCFF"
-                                                    size int(_hud_layout.get("name_size", 20) or 20)
+                                                    size int((_hud_layout.get("name_size", 20) or 20) + 2)
                                                     bold True
 
                                                 bar:
                                                     xpos 18
-                                                    ypos 208
+                                                    ypos 202
                                                     value (float(_hp) / max(1.0, float(_mx)))
                                                     range 1.0
                                                     xmaximum 112
@@ -689,7 +689,7 @@ screen battle_hp_overlay():
                                                     xpos 18
                                                     ypos 229
                                                     color "#FFFFFF"
-                                                    size int(_hud_layout.get("stat_size", 11) or 11)
+                                                    size int((_hud_layout.get("stat_size", 11) or 11) + 2)
 
                                                 text "Reiatsu: {}{}".format(
                                                     battle_fmt_num(hud_ai_res_value(_res, "reiatsu")),
@@ -698,7 +698,7 @@ screen battle_hp_overlay():
                                                     xpos 18
                                                     ypos 247
                                                     color "#55FFFF"
-                                                    size int(_hud_layout.get("stat_size", 11) or 11)
+                                                    size int((_hud_layout.get("stat_size", 11) or 11) + 2)
 
                                                 text "Energía: {}{}".format(
                                                     battle_fmt_num(hud_ai_res_value(_res, "energy")),
@@ -707,7 +707,7 @@ screen battle_hp_overlay():
                                                     xpos 18
                                                     ypos 265
                                                     color "#FFA500"
-                                                    size int(_hud_layout.get("stat_size", 11) or 11)
+                                                    size int((_hud_layout.get("stat_size", 11) or 11) + 2)
                                             else:
                                                 text "{}".format(_name):
                                                     xpos 12
