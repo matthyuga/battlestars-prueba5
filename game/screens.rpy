@@ -986,6 +986,7 @@ screen help():
 
                 textbutton _("Keyboard") action SetScreenVariable("device", "keyboard")
                 textbutton _("Mouse") action SetScreenVariable("device", "mouse")
+                textbutton _("Hotkeys") action SetScreenVariable("device", "hotkeys")
 
                 if GamepadExists():
                     textbutton _("Gamepad") action SetScreenVariable("device", "gamepad")
@@ -994,6 +995,8 @@ screen help():
                 use keyboard_help
             elif device == "mouse":
                 use mouse_help
+            elif device == "hotkeys":
+                use hotkeys_help
             elif device == "gamepad":
                 use gamepad_help
 
@@ -1070,6 +1073,45 @@ screen mouse_help():
     hbox:
         label _("Mouse Wheel Down")
         text _("Rolls forward to later dialogue.")
+
+
+screen hotkeys_help():
+
+    hbox:
+        label "O"
+        text _("En batalla: técnicas ofensivas.")
+
+    hbox:
+        label "D"
+        text _("En batalla: técnicas defensivas.")
+
+    hbox:
+        label "U"
+        text _("En batalla: panel de técnicas en cola.")
+
+    hbox:
+        label "Y"
+        text _("En batalla: aviso de daño entrante.")
+
+    hbox:
+        label "T"
+        text _("En batalla: panel debug Focus & Reflect.")
+
+    hbox:
+        label "K"
+        text _("En batalla: registro de combate.")
+
+    hbox:
+        label "P"
+        text _("En batalla: opciones secundarias.")
+
+    hbox:
+        label "V"
+        text _("En batalla: orden de turnos.")
+
+    hbox:
+        label "J"
+        text _("En batalla: cuadro(s) de personaje(s).")
 
 
 screen gamepad_help():
