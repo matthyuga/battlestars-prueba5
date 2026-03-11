@@ -19,9 +19,9 @@ init -19:
 
     style ai_diff_btn is default
     style ai_diff_btn:
-        xpadding 12
-        ypadding 8
-        xminimum 240
+        xpadding 8
+        ypadding 5
+        xminimum 300
         background "#222C"
         hover_background "#444C"
         insensitive_background "#2226"
@@ -32,7 +32,7 @@ init -19:
         hover_color "#FFFFFF"
         insensitive_color "#AAAAAA"
         outlines [ (2, "#000C", 0, 0) ]
-        size 18
+        size 14
         bold True
 
     style ai_diff_mini_btn is ai_diff_btn
@@ -56,211 +56,120 @@ screen ai_difficulty_hud():
     on "replace" action [Function(ai_sync_from_persistent_if_needed), Function(ai_unit_profile_sync_from_persistent_if_needed)]
 
     if ui_show_options_panel:
-        frame style "ai_diff_frame":
-            xalign 0.98
-            yalign 0.06
+        if getattr(store, "ui_safe_mode", False):
+            frame:
+                xalign 0.985
+                yalign 0.985
+                xanchor 1.0
+                yanchor 1.0
+                xsize 420
+                ysize 300
+                background "#1B1E24CC"
+                xpadding 14
+                ypadding 12
 
-            vbox:
-                spacing 6
+                vbox:
+                    spacing 8
 
-            # ====================================================
-            # 🧠 DIFICULTAD
-            # ====================================================
-                textbutton ai_level_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_level_color()
-                    action Function(ai_cycle_level)
-
-            # ====================================================
-            # 💾 GUARDAR
-            # ====================================================
-                textbutton ai_save_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_save_color()
-                    action Function(ai_toggle_save)
-
-            # ====================================================
-            # 👥 PERFIL IA POR UNIDAD (E1/E2)
-            # ====================================================
-                textbutton ai_ui_enemy_slot_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#80DEEA"
-                    action Function(ai_ui_cycle_enemy_slot)
-
-                textbutton ai_ui_target_rule_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#FFD700"
-                    action Function(ai_ui_cycle_target_rule)
-
-                textbutton ai_ui_offense_mode_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#FFB74D"
-                    action Function(ai_ui_cycle_offense_mode)
-
-                textbutton ai_ui_offense_concat_rule_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#FFB74D"
-                    action Function(ai_ui_cycle_offense_concat_rule)
-
-                textbutton ai_ui_defense_mode_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#64B5F6"
-                    action Function(ai_ui_cycle_defense_mode)
-
-                textbutton ai_ui_concat_rule_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#66FF99"
-                    action Function(ai_ui_cycle_concat_rule)
-
-                textbutton ai_ui_focus_rule_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color "#C586C0"
-                    action Function(ai_ui_cycle_focus_rule)
-
-            # ====================================================
-            # ⚔️ OFENSIVA – FINISHER MODE
-            # ====================================================
-                if ai_finisher_mode_get() == "stats":
+                    text "Nivel de dificultad IA" size 20 color "#CFE7FF" bold True
 
                     hbox:
-                        spacing 6
+                        spacing 8
+                        textbutton "Básica":
+                            style "ai_diff_btn"
+                            text_style "ai_diff_btn_text"
+                            xminimum 120
+                            action Function(ai_apply_level_to_store, "basic")
+                        textbutton "Intermedia":
+                            style "ai_diff_btn"
+                            text_style "ai_diff_btn_text"
+                            xminimum 120
+                            action Function(ai_apply_level_to_store, "intermediate")
+                        textbutton "Avanzada":
+                            style "ai_diff_btn"
+                            text_style "ai_diff_btn_text"
+                            xminimum 120
+                            action Function(ai_apply_level_to_store, "advanced")
 
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_weight_pct_text("attack_reducer", "R"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_weight, "attack_reducer")
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_weight_pct_text("stronger_attack", "S"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_weight, "stronger_attack")
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_weight_pct_text("direct_attack", "D"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_weight, "direct_attack")
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_weight_pct_text("noatk_attack", "N"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_weight, "noatk_attack")
-
-                    textbutton "🎯 Stats Ofensivos (R/S/D/N)":
+                    textbutton ai_save_text():
                         style "ai_diff_btn"
                         text_style "ai_diff_btn_text"
-                        text_color ai_test_color()
-                        action Function(ai_cycle_finisher_mode)
+                        text_color ai_save_color()
+                        xminimum 392
+                        xalign 0.0
+                        action Function(ai_toggle_save)
 
-                else:
-                    textbutton ai_finisher_mode_text():
+                    textbutton "Reset Stats Ofensivos":
                         style "ai_diff_btn"
                         text_style "ai_diff_btn_text"
-                        text_color ai_test_color()
-                        action Function(ai_cycle_finisher_mode)
+                        xminimum 392
+                        xalign 0.0
+                        action Function(ai_reset_finisher_stats)
 
-                textbutton ai_offense_concat_mode_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_offense_concat_mode_color()
-                    action Function(ai_cycle_offense_concat_mode)
-
-                textbutton "🔄 Reset Stats Ofensivos":
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    action Function(ai_reset_finisher_stats)
-
-            # ====================================================
-            # 🛡️ DEFENSA – MODE
-            # ====================================================
-                textbutton ai_defense_mode_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_defense_color()
-                    action Function(ai_cycle_defense_mode)
-
-            # 🔗 CONCAT
-                textbutton ai_defense_concat_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_defense_concat_color()
-                    action Function(ai_toggle_defense_concat)
-
-            # ====================================================
-            # 🛡️ DEFENSA – STATS
-            # ====================================================
-                if ai_defense_mode_get() == "stats":
-
-                    hbox:
-                        spacing 6
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_defense_weight_pct_text("def_extra", "E"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_defense_weight, "def_extra")
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_defense_weight_pct_text("def_reduct", "R"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_defense_weight, "def_reduct")
-
-                        frame:
-                            background "#0006"
-                            xpadding 4
-                            ypadding 4
-                            textbutton ai_defense_weight_pct_text("def_reflect", "F"):
-                                style "ai_diff_mini_btn"
-                                text_style "ai_diff_mini_btn_text"
-                                action Function(ai_cycle_defense_weight, "def_reflect")
-
-                    textbutton "🛡️ Stats Defensivos (E/R/F)":
+                    textbutton "Reset Stats Defensivos":
                         style "ai_diff_btn"
                         text_style "ai_diff_btn_text"
-                        text_color ai_defense_color()
-                        action NullAction()
+                        xminimum 392
+                        xalign 0.0
+                        action Function(ai_reset_defense_stats)
+        else:
+            fixed:
+                xalign 0.985
+                yalign 0.985
+                xanchor 1.0
+                yanchor 1.0
+                xsize 420
+                ysize 420
 
-                textbutton "🔄 Reset Stats Defensivos":
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    action Function(ai_reset_defense_stats)
+                add im.Scale("gui/battle/hud_ai/frames/frame_secondary_options.png", 420, 420) xalign 0.5 yalign 0.5
 
-            # ====================================================
-            # 🧿 FOCUS
-            # ====================================================
-                textbutton ai_focus_text():
-                    style "ai_diff_btn"
-                    text_style "ai_diff_btn_text"
-                    text_color ai_focus_color()
-                    action Function(ai_toggle_focus)
+                vbox:
+                    xpos 22
+                    ypos 22
+                    spacing 8
+
+                    textbutton ai_level_text():
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        text_color ai_level_color()
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_cycle_level)
+
+                    textbutton ai_save_text():
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        text_color ai_save_color()
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_toggle_save)
+
+                    textbutton ai_ui_enemy_slot_text():
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        text_color "#80DEEA"
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_ui_cycle_enemy_slot)
+
+                    textbutton ai_ui_target_rule_text():
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        text_color "#FFD700"
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_ui_cycle_target_rule)
+
+                    textbutton "🔄 Reset Stats Ofensivos":
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_reset_finisher_stats)
+
+                    textbutton "🔄 Reset Stats Defensivos":
+                        style "ai_diff_btn"
+                        text_style "ai_diff_btn_text"
+                        xminimum 360
+                        xalign 0.0
+                        action Function(ai_reset_defense_stats)
