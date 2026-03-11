@@ -382,8 +382,8 @@ init -970 python:
         # Baseline (1v1)
         panel_w = 150
         panel_h = 312
-        token_w = 84
-        token_h = 84
+        token_w = 118
+        token_h = 162
         col_spacing = 8
         root_spacing = 14
         name_size = 17
@@ -393,8 +393,8 @@ init -970 python:
         if mode == "2v2" or total >= 4:
             panel_w = 136
             panel_h = 288
-            token_w = 78
-            token_h = 78
+            token_w = 110
+            token_h = 154
             col_spacing = 6
             root_spacing = 10
             name_size = 15
@@ -609,18 +609,49 @@ screen battle_hp_overlay():
                                     if _hud_collapsed:
                                         button at hud_fade_in:
                                             action Function(hud_ai_toggle_collapsed, _uk)
-                                            xsize int(_hud_layout.get("token_w", 84) or 84)
-                                            ysize int(_hud_layout.get("token_h", 84) or 84)
+                                            xsize int(_hud_layout.get("token_w", 118) or 118)
+                                            ysize int(_hud_layout.get("token_h", 162) or 162)
                                             background Solid("#0008")
                                             if _portrait_path:
-                                                add _portrait_path xalign 0.5 yalign 0.5 xsize int(max(56, (int(_hud_layout.get("token_w", 84) or 84) - 8))) ysize int(max(56, (int(_hud_layout.get("token_h", 84) or 84) - 8)))
+                                                add _portrait_path xpos 8 ypos 8 xsize int(max(52, int(_hud_layout.get("token_w", 118) or 118) - 16)) ysize 64
                                             else:
                                                 text "{}".format(_name[:1]):
                                                     xalign 0.5
-                                                    yalign 0.5
+                                                    ypos 30
                                                     color "#FFFFFF"
                                                     size 28
                                                     bold True
+
+                                            text "{}".format(_name):
+                                                xpos 8
+                                                ypos 76
+                                                color "#88CCFF"
+                                                size 12
+                                                bold True
+
+                                            text "HP: {}/{}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
+                                                xpos 8
+                                                ypos 96
+                                                color "#FFFFFF"
+                                                size 10
+
+                                            text "Rei: {}{}".format(
+                                                battle_fmt_num(hud_ai_res_value(_res, "reiatsu")),
+                                                " (-{})".format(battle_fmt_num(abs(_rei_diff))) if _rei_diff != 0 else ""
+                                            ):
+                                                xpos 8
+                                                ypos 112
+                                                color "#55FFFF"
+                                                size 10
+
+                                            text "Ene: {}{}".format(
+                                                battle_fmt_num(hud_ai_res_value(_res, "energy")),
+                                                " (-{})".format(battle_fmt_num(abs(_ene_diff))) if _ene_diff != 0 else ""
+                                            ):
+                                                xpos 8
+                                                ypos 128
+                                                color "#FFA500"
+                                                size 10
                                     else:
                                         fixed at hud_fade_in:
                                             xsize int(_hud_layout.get("panel_w", 150) or 150)
@@ -639,14 +670,14 @@ screen battle_hp_overlay():
 
                                                 text "{}".format(_name):
                                                     xpos 18
-                                                    ypos 173
+                                                    ypos 176
                                                     color "#88CCFF"
                                                     size int(_hud_layout.get("name_size", 20) or 20)
                                                     bold True
 
                                                 bar:
                                                     xpos 18
-                                                    ypos 203
+                                                    ypos 208
                                                     value (float(_hp) / max(1.0, float(_mx)))
                                                     range 1.0
                                                     xmaximum 112
@@ -656,19 +687,25 @@ screen battle_hp_overlay():
 
                                                 text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                                     xpos 18
-                                                    ypos 222
+                                                    ypos 229
                                                     color "#FFFFFF"
                                                     size int(_hud_layout.get("stat_size", 11) or 11)
 
-                                                text "Reiatsu: {}".format(battle_fmt_num(hud_ai_res_value(_res, "reiatsu"))):
+                                                text "Reiatsu: {}{}".format(
+                                                    battle_fmt_num(hud_ai_res_value(_res, "reiatsu")),
+                                                    " (-{})".format(battle_fmt_num(abs(_rei_diff))) if _rei_diff != 0 else ""
+                                                ):
                                                     xpos 18
-                                                    ypos 240
+                                                    ypos 247
                                                     color "#55FFFF"
                                                     size int(_hud_layout.get("stat_size", 11) or 11)
 
-                                                text "Energía: {}".format(battle_fmt_num(hud_ai_res_value(_res, "energy"))):
+                                                text "Energía: {}{}".format(
+                                                    battle_fmt_num(hud_ai_res_value(_res, "energy")),
+                                                    " (-{})".format(battle_fmt_num(abs(_ene_diff))) if _ene_diff != 0 else ""
+                                                ):
                                                     xpos 18
-                                                    ypos 258
+                                                    ypos 265
                                                     color "#FFA500"
                                                     size int(_hud_layout.get("stat_size", 11) or 11)
                                             else:
