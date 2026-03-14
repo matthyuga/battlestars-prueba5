@@ -139,7 +139,7 @@ init -950 python:
     # -----------------------------------------------------------
     # 📌 2) Valor final real (base + bonus futuros)
     # -----------------------------------------------------------
-    def final_value_factory(tech_id, user):
+    def final_value_factory(tech_id, user, unit_key=None):
         base_info = reiatsu_energy_base(tech_id)
         try:
             base_value = int(base_info.get("value", 0) or 0)
@@ -149,6 +149,28 @@ init -950 python:
         if base_value <= 0:
             return 0
 
+        # -------------------------------------------------------
+        # Overlay por slot (Fase B): usa allocator si está activo
+        # -------------------------------------------------------
+        if unit_key is not None:
+            fn_enabled = getattr(S, "spa_is_enabled", None)
+            fn_final = getattr(S, "spa_get_final_value", None)
+            if callable(fn_final):
+                enabled = True
+                if callable(fn_enabled):
+                    try:
+                        enabled = bool(fn_enabled())
+                    except:
+                        enabled = True
+                if enabled:
+                    try:
+                        vv = int(fn_final(unit_key, tech_id))
+                        if vv >= 0:
+                            return vv
+                    except:
+                        pass
+
+        # Fallback actual (sin bonus externos)
         bonus = 0  # placeholder
 
         try:
@@ -171,12 +193,14 @@ init -950 python:
           queue       : cola de acciones (strings)
           mode        : "offensive" | "defensive"
           force_focus_mult : override manual
+          unit_key    : clave de unidad (team:slot), opcional
         """
 
         action_name = kwargs.get("action_name", None)
         queue       = kwargs.get("queue", None)
         mode        = kwargs.get("mode", None)
         force_focus_mult = kwargs.get("force_focus_mult", None)
+        unit_key = kwargs.get("unit_key", None)
 
         if tech_id is None or _is_special_zero_cost(tech_id):
             return {
@@ -186,7 +210,7 @@ init -950 python:
                 "mult_reiatsu": 1
             }
 
-        value_final = final_value_factory(tech_id, user)
+        value_final = final_value_factory(tech_id, user, unit_key=unit_key)
 
         try:
             reiatsu_cost = int(value_final)
@@ -195,9 +219,21 @@ init -950 python:
 
         base = reiatsu_energy_base(tech_id)
         try:
-            energy_cost = int(base.get("energy", 0) or 0)
+            scale = int(base.get("scale", 1) or 1)
         except:
-            energy_cost = 0
+            scale = 1
+        if scale < 1:
+            scale = 1
+
+        # Energía escala por valor final (base + bonus por slot)
+        # y mantiene independencia del multiplicador de focus.
+        try:
+            energy_cost = int(_calc_energy(value_final, scale))
+        except:
+            try:
+                energy_cost = int(base.get("energy", 0) or 0)
+            except:
+                energy_cost = 0
 
         mult = 1
 
