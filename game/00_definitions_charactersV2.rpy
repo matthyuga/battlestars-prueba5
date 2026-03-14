@@ -147,5 +147,5 @@ init -995 python:
 # -----------------------------------------------------------
 # 📘 IMÁGENES DE ESCENARIOS
 # -----------------------------------------------------------
-image bg_battle_base   = "fondo3.png"
-image bg_battle_desert = "hollow1.png"
+image bg_battle_base   = "images/fondo3.png"
+image bg_battle_desert = "images/hollow1.png"

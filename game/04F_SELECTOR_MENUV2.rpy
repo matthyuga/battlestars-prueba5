@@ -298,6 +298,9 @@ screen battle_command_menu():
     zorder 50
     modal False
 
+    key "K_o" action ToggleField(store, "ui_show_offensive_techniques")
+    key "K_d" action ToggleField(store, "ui_show_defensive_techniques")
+
     $ OFF = [
         "extra_attack",
         "extra_tech",
@@ -316,7 +319,10 @@ screen battle_command_menu():
         "focus_defense",
     ]
 
+    $ _show_off = bool(getattr(store, "ui_show_offensive_techniques", True))
+    $ _show_def = bool(getattr(store, "ui_show_defensive_techniques", True))
     $ current = OFF if battle_mode == "offensive" else DEF
+    $ current = current if ((battle_mode == "offensive" and _show_off) or (battle_mode == "defensive" and _show_def)) else []
     $ _off_cancel = bool(getattr(store, "offense_cancelled", False))
     $ _only_defense = _off_cancel and battle_mode == "offensive"
 
@@ -367,6 +373,8 @@ screen battle_command_menu():
             align (0.08, 0.55)
 
             vbox spacing 6 at tech_btn_scale:
+
+                text "Tecla O Ofensivas: {}  |  Tecla D Defensivas: {}".format("ON" if _show_off else "OFF", "ON" if _show_def else "OFF") size 14 color "#C8C8C8"
 
                 for tech_key in current:
 

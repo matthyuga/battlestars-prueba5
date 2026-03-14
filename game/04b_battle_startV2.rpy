@@ -55,6 +55,16 @@ label start:
     show screen battle_log_screen
 
     "Sistema cargado correctamente."
+
+    if not ui_safe_mode_prompted:
+        menu:
+            "¿Activar modo seguro del HUD?"
+            "Sí (panel simple sin PNG)":
+                $ ui_safe_mode = True
+            "No (HUD visual con PNG)":
+                $ ui_safe_mode = False
+        $ ui_safe_mode_prompted = True
+
     call battle_select_player
 
 
