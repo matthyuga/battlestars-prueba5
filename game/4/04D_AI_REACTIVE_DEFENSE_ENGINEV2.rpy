@@ -185,7 +185,7 @@ init -988 python:
                 except:
                     pass
                 try:
-                    S.battle_log_add("{color=#999}(R %s / E %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    S.battle_log_add("{color=#999}(Reiatsu %s / Energía %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -208,7 +208,23 @@ init -988 python:
                     pass
 
                 try:
-                    S.battle_log_add("{color=#999}(R %s / E %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    S.battle_log_add("{color=#999}(Reiatsu %s / Energía %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                except:
+                    pass
+                continue
+
+            if key == "defense_strong_block":
+                try:
+                    fn_strong = getattr(S, "log_defense_strong", None)
+                    if callable(fn_strong):
+                        summary_lines.append(fn_strong(S.battle_fmt_num(base_blk), S.battle_fmt_num(blk)))
+                    else:
+                        summary_lines.append("Defensa Fuerte → Bloquea %s" % S.battle_fmt_num(blk))
+                except:
+                    pass
+
+                try:
+                    S.battle_log_add("{color=#999}(Reiatsu %s / Energía %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -234,7 +250,7 @@ init -988 python:
                     pass
 
                 try:
-                    S.battle_log_add("{color=#999}(R %s / E %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    S.battle_log_add("{color=#999}(Reiatsu %s / Energía %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue

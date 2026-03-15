@@ -247,10 +247,17 @@ init -970 python:
     # 🔥 LOGS UNIFICADOS – CONCENTRAR / POTENCIAR
     ###########################################################
     def log_focus_unified(mode=None):
+        target_txt = "Próximo ataque"
+        try:
+            if str(mode or "").strip().lower() == "defense":
+                target_txt = "Próxima defensa"
+        except:
+            pass
+
         return "{} {} → {} {}".format(
             fmt_purple("Concentrar"),
             fmt_white("Activado"),
-            fmt_white("Próximo ataque"),
+            fmt_white(target_txt),
             fmt_purple("×2")
         )
 
@@ -293,7 +300,9 @@ init -970 python:
             fmt_blue(battle_fmt_num(reflected))
         )
 
-    def log_defense_strong(base, final):
+    def log_defense_strong(base, final=None):
+        if final is None:
+            final = base
         if base != final:
             v = "{}×2({})".format(battle_fmt_num(base), battle_fmt_num(final))
         else:
@@ -347,15 +356,15 @@ init -970 python:
 
     def log_attack_direct(dmg_text):
         return (
-            fmt_gold("Ataque Directo") + " " +
-            fmt_white("→ ") + fmt_gold(dmg_text) + fmt_white(" de daño directo (ignora defensas).")
+            fmt_red("Ataque Directo") + " " +
+            fmt_white("→ Inflige ") + fmt_red(dmg_text) + fmt_white(" de daño.")
         )
 
     def log_attack_noatk(dmg_text):
         return (
-            fmt_pink("Ataque Negador") + " " +
-            fmt_white("→ ") + fmt_red(dmg_text) +
-            fmt_white(" e impide el ataque enemigo.")
+            fmt_red("Ataque Negador") + " " +
+            fmt_white("→ Inflige ") + fmt_red(dmg_text) +
+            fmt_white(" de daño.")
         )
 
 
@@ -470,6 +479,7 @@ init -970 python:
     S.log_total = log_total
     S.log_focus_unified = log_focus_unified
     S.log_potenciar_unified = log_potenciar_unified
+    S.log_defense_strong = log_defense_strong
     S.log_dice_slots = log_dice_slots
     S.colorize_numbers = colorize_numbers
     S.highlight_x2 = highlight_x2

@@ -284,12 +284,12 @@ init -988 python:
 
                     S.enemy_direct_base_damage = int(base)
 
-                    log_text = "%s usa %s → %s daño {color=#FF66CC}%d/3 éxitos = DIRECTO{/color}" % (
+                    log_text = "%s usa %s → Inflige %s de daño. {color=#FF66CC}Si saca 2/3 dados de éxito, este ataque es indefendible. (%d/3){/color}" % (
                         ai.name, tech.get("name", key), S.battle_fmt_num(dmg), successes
                     )
                     if focus_cost_applied:
                         log_text += " {color=#C586C0}(Focus: costo R×2){/color}"
-                    log_text += " {color=#999}(R %s / E %s){/color}" % (
+                    log_text += " {color=#999}(Reiatsu %s / Energía %s){/color}" % (
                         S.battle_fmt_num(rei_cost),
                         S.battle_fmt_num(ene_cost)
                     )
@@ -311,21 +311,21 @@ init -988 python:
                     else:
                         S.player_skip_attack = True
                     S.offense_cancelled = True
-                    status = "NO ATK"
+                    status = "el enemigo no puede atacar en su siguiente turno"
                     try:
                         if callable(getattr(S, "battle_log_add", None)):
                             S.battle_log_add("{color=#80DEEA}[DEBUG] OFFENSE_CANCELLED actor_id=%s reason=noatk_attack{/color}" % str(getattr(S, "current_actor_unit_key", "") or ""))
                     except:
                         pass
                 else:
-                    status = "FALLÓ"
+                    status = "no activa negación"
 
-                log_text = "%s usa %s → %s daño {color=#FF66CC}%d/3 éxitos = %s{/color}" % (
-                    ai.name, tech.get("name", key), S.battle_fmt_num(dmg), successes, status
+                log_text = "%s usa %s → Inflige %s de daño. {color=#FF66CC}Si saca 2/3 dados de éxito, %s. (%d/3){/color}" % (
+                    ai.name, tech.get("name", key), S.battle_fmt_num(dmg), status, successes
                 )
                 if focus_cost_applied:
                     log_text += " {color=#C586C0}(Focus: costo R×2){/color}"
-                log_text += " {color=#999}(R %s / E %s){/color}" % (
+                log_text += " {color=#999}(Reiatsu %s / Energía %s){/color}" % (
                     S.battle_fmt_num(rei_cost),
                     S.battle_fmt_num(ene_cost)
                 )
@@ -351,7 +351,7 @@ init -988 python:
         log_text  = S.log_attack_simple(tech.get("name", key), S.battle_fmt_num(dmg))
         if focus_cost_applied:
             log_text += " {color=#C586C0}(Focus: costo R×2){/color}"
-        log_text += " {color=#999}(R %s / E %s){/color}" % (
+        log_text += " {color=#999}(Reiatsu %s / Energía %s){/color}" % (
             S.battle_fmt_num(rei_cost),
             S.battle_fmt_num(ene_cost)
         )
@@ -430,7 +430,7 @@ init -988 python:
         # --------------------------------------------------------
         # Log
         # --------------------------------------------------------
-        log_text = "%s usa %s → bloquea %s daño {color=#999}(R %s / E %s){/color}" % (
+        log_text = "%s usa %s → bloquea %s daño {color=#999}(Reiatsu %s / Energía %s){/color}" % (
             ai.name,
             tech.get("name", key),
             S.battle_fmt_num(blk),
