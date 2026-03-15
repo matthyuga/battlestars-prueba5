@@ -209,7 +209,7 @@ screen slot_points_editor():
             if not allocator_ok:
                 text _("Allocator no disponible. Verifica que 04Y_SLOT_POINT_ALLOCATOR_V1.rpy esté cargado.") color "#FF8888"
             else:
-                $ _ = store.spa_ensure_state()
+                $ _spa_state = store.spa_ensure_state()
                 $ selected = getattr(store, "spa_editor_selected_unit_key", "player:0") or "player:0"
 
                 hbox:
