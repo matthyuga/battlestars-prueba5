@@ -313,6 +313,9 @@ screen navigation():
 
         textbutton _("Preferences") action ShowMenu("preferences")
 
+        if main_menu:
+            textbutton _("Editor de puntos") action ShowMenu("slot_points_editor")
+
         if _in_replay:
 
             textbutton _("End Replay") action EndReplay(confirm=True)
