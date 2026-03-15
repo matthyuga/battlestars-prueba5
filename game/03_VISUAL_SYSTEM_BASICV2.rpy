@@ -55,6 +55,12 @@ init -978 python:
 
     if not hasattr(S, "ui_show_battle_debug_log"):
         S.ui_show_battle_debug_log = False
+    if not hasattr(S, "ui_show_offensive_operation_details"):
+        S.ui_show_offensive_operation_details = False
+    if not hasattr(S, "ui_show_target_assignment_details"):
+        S.ui_show_target_assignment_details = False
+    if not hasattr(S, "ui_show_queue_2v2_details"):
+        S.ui_show_queue_2v2_details = False
 
     MAX_LOG_LINES = 250
 
@@ -141,12 +147,29 @@ init -978 python:
         if renpy.get_screen("battle_log_screen"):
             renpy.restart_interaction()
 
-    def _is_debug_line_text(raw_text):
+    def _to_line_text(raw_text):
         try:
-            txt = str(raw_text or "")
+            return str(raw_text or "")
         except:
-            txt = ""
+            return ""
+
+    def _is_debug_line_text(raw_text):
+        txt = _to_line_text(raw_text)
         return "[DEBUG]" in txt
+
+    def _row_group_for_text(raw_text):
+        txt = _to_line_text(raw_text)
+        low = txt.lower()
+
+        # C2: colapsables
+        if ("operación:" in low) and ("defensiva" not in low):
+            return "offensive_operation"
+        if ("target asignado" in low) or ("ai target policy" in low):
+            return "target_assignment"
+        if ("daño en cola 2v2" in low) or ("daño entrante en cola 2v2" in low):
+            return "queue_2v2"
+
+        return None
 
     def battle_log_add(text, color=None, tech_key=None, is_debug=None):
         techniques = getattr(S, "battle_techniques", {}) or {}
@@ -154,6 +177,8 @@ init -978 python:
 
         if is_debug is None:
             is_debug = _is_debug_line_text(text)
+
+        row_group = _row_group_for_text(text)
 
         if not color:
             if tech.get("reflective"):
@@ -176,7 +201,8 @@ init -978 python:
         battle_log.append({
             "text": safe_text,
             "color": color,
-            "debug": bool(is_debug)
+            "debug": bool(is_debug),
+            "group": row_group
         })
 
         _trim_log_if_needed()
@@ -267,6 +293,9 @@ screen battle_log_screen():
     zorder 120
 
     key "K_g" action ToggleField(store, "ui_show_battle_debug_log")
+    key "K_o" action ToggleField(store, "ui_show_offensive_operation_details")
+    key "K_y" action ToggleField(store, "ui_show_target_assignment_details")
+    key "K_q" action ToggleField(store, "ui_show_queue_2v2_details")
 
     $ start_pos = get_battle_log_position()
 
@@ -293,6 +322,25 @@ screen battle_log_screen():
                     text_color "#80DEEA"
                     background "#0000"
                     xalign 1.0
+
+                hbox:
+                    spacing 10
+                    textbutton ("▸ Operación ofensiva" if not ui_show_offensive_operation_details else "▾ Operación ofensiva"):
+                        action ToggleField(store, "ui_show_offensive_operation_details")
+                        text_size 13
+                        text_color "#E0E0E0"
+                        background "#0000"
+                    textbutton ("▸ Target" if not ui_show_target_assignment_details else "▾ Target"):
+                        action ToggleField(store, "ui_show_target_assignment_details")
+                        text_size 13
+                        text_color "#B0E0E6"
+                        background "#0000"
+                    textbutton ("▸ Cola 2v2" if not ui_show_queue_2v2_details else "▾ Cola 2v2"):
+                        action ToggleField(store, "ui_show_queue_2v2_details")
+                        text_size 13
+                        text_color "#B39DDB"
+                        background "#0000"
+
                 null height 6
 
                 viewport:
@@ -304,7 +352,15 @@ screen battle_log_screen():
 
                     vbox:
                         for row in battle_log:
-                            if (not row.get("debug", False)) or ui_show_battle_debug_log:
+                            $ _show_debug = (not row.get("debug", False)) or ui_show_battle_debug_log
+                            $ _grp = row.get("group", None)
+                            $ _show_grp = (
+                                (_grp is None) or
+                                (_grp == "offensive_operation" and ui_show_offensive_operation_details) or
+                                (_grp == "target_assignment" and ui_show_target_assignment_details) or
+                                (_grp == "queue_2v2" and ui_show_queue_2v2_details)
+                            )
+                            if _show_debug and _show_grp:
                                 if "bg" in row:
                                     frame:
                                         background row["bg"]
