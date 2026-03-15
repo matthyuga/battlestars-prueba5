@@ -145,13 +145,17 @@ init -970 python:
 
         import renpy.store as S
 
+        # robustez: al inicio del combate battle_mode puede no existir todavía.
+        mode = str(getattr(S, "battle_mode", "offensive") or "offensive")
+        queue = list(pending_tech_list or [])
+
         # detectar técnica afectada por focus
-        focus_target = hud_find_focus_target_index(pending_tech_list, S.battle_mode)
+        focus_target = hud_find_focus_target_index(queue, mode)
 
         total_rei = 0
         total_ene = 0
 
-        for i, tech_name in enumerate(pending_tech_list):
+        for i, tech_name in enumerate(queue):
 
             tech_id = TECH_MAP_GLOBAL.get(tech_name, None)
             if tech_id is None:
