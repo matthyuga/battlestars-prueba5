@@ -537,7 +537,7 @@ label battle_enemy_turn_legacy_entry:
                             _policy_log = "force_slot(P{})".format(_forced_slot + 1)
                         except:
                             _policy_log = "force_slot"
-                    S.battle_log_add("{color=#B0E0E6}AI target policy: %s → target asignado: %s{/color}" % (_policy_log, target_txt))
+                    S.battle_log_add("{color=#B0E0E6}AI target policy: %s → target asignado: %s{/color}" % (_policy_log, target_txt), group="target_assignment")
             except:
                 pass
 
@@ -547,7 +547,8 @@ label battle_enemy_turn_legacy_entry:
                     formula_text,
                     enemy_reflect_bonus if enemy_attack_executed else 0,
                     total_damage
-                )
+                ),
+                group="offensive_operation"
             )
         except:
             pass
@@ -642,7 +643,7 @@ label battle_enemy_turn_legacy_entry:
                                 parts.append("{}:+{}".format(fn_desc(_k, default_side="player", default_slot=0), int(_v or 0)))
                             else:
                                 parts.append("{}:+{}".format(_k, int(_v or 0)))
-                        S.battle_log_add("{color=#B39DDB}Daño entrante en cola 2v2 → %s{/color}" % (" | ".join(parts)))
+                        S.battle_log_add("{color=#B39DDB}Daño entrante en cola 2v2 → %s{/color}" % (" | ".join(parts)), group="queue_2v2")
                 except:
                     pass
 

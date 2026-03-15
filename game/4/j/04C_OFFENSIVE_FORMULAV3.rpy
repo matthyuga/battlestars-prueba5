@@ -207,11 +207,17 @@ label offensive_formula(dmg, attack_records):
 
             # seguimos llamando con reflect=0 para no romper formato
             if callable(op_fn):
-                _blog(op_fn(formula_text, extra_reflect, _fmt(total_with_reflect)))
+                _op_line = op_fn(formula_text, extra_reflect, _fmt(total_with_reflect))
             else:
-                _blog("Operación: {} (+Reflect {}) = {}".format(
+                _op_line = "Operación: {} (+Reflect {}) = {}".format(
                     formula_text, _fmt(extra_reflect), _fmt(total_with_reflect)
-                ))
+                )
+
+            _fn_bla = getattr(S, "battle_log_add", None)
+            if callable(_fn_bla):
+                _fn_bla(_op_line, group="offensive_operation")
+            else:
+                _blog(_op_line)
         except:
             pass
 

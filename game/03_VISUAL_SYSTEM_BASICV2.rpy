@@ -171,14 +171,14 @@ init -978 python:
 
         return None
 
-    def battle_log_add(text, color=None, tech_key=None, is_debug=None):
+    def battle_log_add(text, color=None, tech_key=None, is_debug=None, group=None):
         techniques = getattr(S, "battle_techniques", {}) or {}
         tech = techniques.get(tech_key, {}) if tech_key else {}
 
         if is_debug is None:
             is_debug = _is_debug_line_text(text)
 
-        row_group = _row_group_for_text(text)
+        row_group = group if group is not None else _row_group_for_text(text)
 
         if not color:
             if tech.get("reflective"):
