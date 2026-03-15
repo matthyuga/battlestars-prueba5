@@ -139,7 +139,7 @@ init -950 python:
     # -----------------------------------------------------------
     # 📌 2) Valor final real (base + bonus futuros)
     # -----------------------------------------------------------
-    def final_value_factory(tech_id, user):
+    def final_value_factory(tech_id, user, unit_key=None):
         base_info = reiatsu_energy_base(tech_id)
         try:
             base_value = int(base_info.get("value", 0) or 0)
@@ -149,6 +149,28 @@ init -950 python:
         if base_value <= 0:
             return 0
 
+        # -------------------------------------------------------
+        # Overlay por slot (Fase B): usa allocator si está activo
+        # -------------------------------------------------------
+        if unit_key is not None:
+            fn_enabled = getattr(S, "spa_is_enabled", None)
+            fn_final = getattr(S, "spa_get_final_value", None)
+            if callable(fn_final):
+                enabled = True
+                if callable(fn_enabled):
+                    try:
+                        enabled = bool(fn_enabled())
+                    except:
+                        enabled = True
+                if enabled:
+                    try:
+                        vv = int(fn_final(unit_key, tech_id))
+                        if vv >= 0:
+                            return vv
+                    except:
+                        pass
+
+        # Fallback actual (sin bonus externos)
         bonus = 0  # placeholder
 
         try:
@@ -171,12 +193,14 @@ init -950 python:
           queue       : cola de acciones (strings)
           mode        : "offensive" | "defensive"
           force_focus_mult : override manual
+          unit_key    : clave de unidad (team:slot), opcional
         """
 
         action_name = kwargs.get("action_name", None)
         queue       = kwargs.get("queue", None)
         mode        = kwargs.get("mode", None)
         force_focus_mult = kwargs.get("force_focus_mult", None)
+        unit_key = kwargs.get("unit_key", None)
 
         if tech_id is None or _is_special_zero_cost(tech_id):
             return {
@@ -186,7 +210,7 @@ init -950 python:
                 "mult_reiatsu": 1
             }
 
-        value_final = final_value_factory(tech_id, user)
+        value_final = final_value_factory(tech_id, user, unit_key=unit_key)
 
         try:
             reiatsu_cost = int(value_final)
@@ -195,9 +219,21 @@ init -950 python:
 
         base = reiatsu_energy_base(tech_id)
         try:
-            energy_cost = int(base.get("energy", 0) or 0)
+            scale = int(base.get("scale", 1) or 1)
         except:
-            energy_cost = 0
+            scale = 1
+        if scale < 1:
+            scale = 1
+
+        # Energía escala por valor final (base + bonus por slot)
+        # y mantiene independencia del multiplicador de focus.
+        try:
+            energy_cost = int(_calc_energy(value_final, scale))
+        except:
+            try:
+                energy_cost = int(base.get("energy", 0) or 0)
+            except:
+                energy_cost = 0
 
         mult = 1
 
@@ -289,18 +325,26 @@ init -950 python:
         consumed_r = r
         consumed_e = e
 
-        if mode == "2v2" and callable(getattr(S, "bs_consume_unit_resources", None)) and callable(getattr(S, "bs_get_turn_ctx", None)) and callable(getattr(S, "bs_unit_key", None)):
-            ctx = S.bs_get_turn_ctx()
-            side = str(ctx.get("owner_team", actor) or actor)
-            slot = int(ctx.get("owner_slot", 0) or 0)
-            if actor in ("player", "enemy"):
-                side = actor
+        can_consume_by_unit = callable(getattr(S, "bs_consume_unit_resources", None)) and callable(getattr(S, "bs_unit_key", None))
+
+        if can_consume_by_unit:
+            side = actor if actor in ("player", "enemy") else "player"
+            slot = 0
+
+            # En 2v2 respetamos owner_team/owner_slot del turno; en 1v1 usamos slot 0.
+            if mode == "2v2" and callable(getattr(S, "bs_get_turn_ctx", None)):
+                ctx = S.bs_get_turn_ctx() or {}
+                side = str(ctx.get("owner_team", side) or side)
+                slot = int(ctx.get("owner_slot", 0) or 0)
+                if actor in ("player", "enemy"):
+                    side = actor
+
             ukey = str(S.bs_unit_key(side, slot) or "")
             info = S.bs_consume_unit_resources(ukey, r, e)
             consumed_r = int(info.get("reiatsu_spent", 0) or 0)
             consumed_e = int(info.get("energy_spent", 0) or 0)
 
-            # sincronizar aliases legacy de unidad activa
+            # sincronizar aliases legacy para HUD/flujos 1v1 que leen player_* y enemy_*
             if callable(getattr(S, "bs_get_active_unit_key", None)) and callable(getattr(S, "bs_get_unit_resources", None)):
                 try:
                     akt = str(S.bs_get_active_unit_key(side) or ukey)

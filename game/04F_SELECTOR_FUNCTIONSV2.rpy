@@ -87,6 +87,40 @@ init -959 python:
     def get_action_cost(name):
         return TECH_ACTION_RULES.get(name, {"cost": 1, "bonus": 0})
 
+    def _selector_player_unit_key():
+        """
+        Resuelve unit_key del jugador para preview/simulación.
+        - 2v2: usa slot del turno si está disponible.
+        - fallback: unidad activa player o player:0.
+        """
+        try:
+            mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        except:
+            mode = "1v1"
+
+        # 2v2: preferir contexto de turno
+        if mode == "2v2":
+            try:
+                fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+                fn_key = getattr(S, "bs_unit_key", None)
+                if callable(fn_ctx) and callable(fn_key):
+                    ctx = fn_ctx() or {}
+                    team = str(ctx.get("owner_team", "player") or "player").strip().lower()
+                    slot = int(ctx.get("owner_slot", 0) or 0)
+                    if team == "player":
+                        return str(fn_key("player", slot) or "player:0")
+            except:
+                pass
+
+        try:
+            fn_akt = getattr(S, "bs_get_active_unit_key", None)
+            if callable(fn_akt):
+                return str(fn_akt("player") or "player:0")
+        except:
+            pass
+
+        return "player:0"
+
     # ============================================================
     # COSTO REAL dinámico (04X) – RAW
     # ============================================================
@@ -98,7 +132,7 @@ init -959 python:
         if tech_id is None:
             return 0, 0, 0
 
-        data = S.reiatsu_energy_dynamic_cost(tech_id, S)
+        data = S.reiatsu_energy_dynamic_cost(tech_id, S, unit_key=_selector_player_unit_key())
         return (
             int(data.get("reiatsu_cost", 0) or 0),
             int(data.get("energy_cost", 0) or 0),

@@ -17,11 +17,11 @@ init -995 python:
     DEFAULT_CHARACTER = {
         "id": "Unknown",               # ID interno del sistema (clave estable)
         "name": "Unknown",             # Nombre visible para el jugador
-        "HP": 5000,
+        "HP": 100,
         "Strength": 10,
         "Defense": 8,
-        "Reiatsu": 300,
-        "Energy": 60,
+        "Reiatsu": 100,
+        "Energy": 100,
         "background": "bg_battle_base",  # tag de imagen Ren'Py (string)
         "color": "#FFFFFF"
     }
@@ -36,13 +36,13 @@ init -995 python:
         "Harribel": {
             "id": "Harribel",
             "name": "Harribel",
-            "HP": 11000,
+            "HP": 100,
             "Strength": 12,
             "Defense": 9,
 
             # ⭐ RECURSOS
-            "Reiatsu": 2000,
-            "Energy": 1000,
+            "Reiatsu": 100,
+            "Energy": 100,
 
             # HUD
             "background": "bg_battle_desert",
@@ -52,12 +52,12 @@ init -995 python:
         "Hollow": {
             "id": "Hollow",
             "name": "Hollow",
-            "HP": 10000,
+            "HP": 100,
             "Strength": 10,
             "Defense": 8,
 
-            "Reiatsu": 3000,
-            "Energy": 600,
+            "Reiatsu": 100,
+            "Energy": 100,
 
             "background": "bg_battle_base",
             "color": "#FF5555"
@@ -66,12 +66,12 @@ init -995 python:
         "Grimmjow": {
             "id": "Grimmjow",
             "name": "Grimmjow",
-            "HP": 10000,
+            "HP": 100,
             "Strength": 14,
             "Defense": 9,
 
-            "Reiatsu": 10000,
-            "Energy": 900,
+            "Reiatsu": 100,
+            "Energy": 100,
 
             "background": "bg_battle_desert",
             "color": "#3CC3FF"
@@ -80,12 +80,12 @@ init -995 python:
         "Nel": {
             "id": "Nel",
             "name": "Neliel",
-            "HP": 9500,
+            "HP": 100,
             "Strength": 11,
             "Defense": 11,
 
-            "Reiatsu": 5000,
-            "Energy": 700,
+            "Reiatsu": 100,
+            "Energy": 100,
 
             "background": "bg_battle_desert",
             "color": "#77FF77"

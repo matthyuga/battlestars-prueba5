@@ -31,6 +31,35 @@ init python:
             return "{}×({})".format(_fmt_num(base), _fmt_num(final))
         return _fmt_num(final)
 
+    def _def_player_unit_key():
+        """Unit key del jugador para costos/valor final en defensa."""
+        try:
+            mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        except:
+            mode = "1v1"
+
+        if mode == "2v2":
+            try:
+                fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+                fn_key = getattr(S, "bs_unit_key", None)
+                if callable(fn_ctx) and callable(fn_key):
+                    ctx = fn_ctx() or {}
+                    team = str(ctx.get("owner_team", "player") or "player").strip().lower()
+                    slot = int(ctx.get("owner_slot", 0) or 0)
+                    if team == "player":
+                        return str(fn_key("player", slot) or "player:0")
+            except:
+                pass
+
+        try:
+            fn_akt = getattr(S, "bs_get_active_unit_key", None)
+            if callable(fn_akt):
+                return str(fn_akt("player") or "player:0")
+        except:
+            pass
+
+        return "player:0"
+
     # --------------------------------------------------------
     # CLASE ACTION DEFENSIVA
     # --------------------------------------------------------
@@ -185,9 +214,13 @@ label defensive_process_actions(selected, base_damage):
             # ----------------------------
             # COSTOS BASE (Single Source: get_tech_costs)
             # ----------------------------
-            costs = S.get_tech_costs(action.tech_id) if hasattr(S, "get_tech_costs") else get_tech_costs(action.tech_id)
-            rei_cost = int(costs.get("reiatsu", 0))
-            ene_cost = int(costs.get("energy", 0))
+            # SSOT dinámico (Fase C): usa unit_key para overlay por slot
+            try:
+                costs = S.reiatsu_energy_dynamic_cost(action.tech_id, S, unit_key=_def_player_unit_key())
+            except:
+                costs = {}
+            rei_cost = int(costs.get("reiatsu_cost", 0) or 0)
+            ene_cost = int(costs.get("energy_cost", 0) or 0)
 
             # ✅ Potenciar duplica SOLO REIATSU (y solo 1 defensa)
             if action.after_focus and S.def_boost_pending:
@@ -207,7 +240,7 @@ label defensive_process_actions(selected, base_damage):
             # ----------------------------
             # BLOQUE (Single Source: final_value_factory) + Potenciar ONE-SHOT
             # ----------------------------
-            action.base_block = S.final_value_factory(action.tech_id, S)
+            action.base_block = S.final_value_factory(action.tech_id, S, unit_key=_def_player_unit_key())
 
             # ✅ Potenciar duplica BLOQUE solo en la próxima defensa real aplicada
             if action.after_focus and S.def_boost_pending:

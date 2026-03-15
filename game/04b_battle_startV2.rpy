@@ -155,10 +155,23 @@ label battle_start:
     $ player_name = battle_player.get("name", player_id)
 
     # =======================================================
-    # ⚙️ Variables base (HP inicial) desde CHARACTER_DATA
+    # ⚙️ Variables base (HP inicial) desde CHARACTER_DATA + editor de slots
     # =======================================================
     $ player_hp = get_character_hp(player_id)
     $ enemy_hp  = get_character_hp(enemy_id)
+
+    python:
+        import renpy.store as S
+        fn_pool = getattr(S, "spa_get_pool_final", None)
+        if callable(fn_pool):
+            player_hp = int(fn_pool("player:0", "hp", player_hp) or player_hp)
+            enemy_hp = int(fn_pool("enemy:0", "hp", enemy_hp) or enemy_hp)
+
+        try:
+            battle_player["HP"] = int(player_hp)
+            battle_enemy["HP"] = int(enemy_hp)
+        except:
+            pass
 
     # Sincronizar máximos globales para HUD, FX y overlays
     $ battle_hp_player_max = player_hp
@@ -181,12 +194,27 @@ label battle_start:
 
             p_units = []
             e_units = []
-            for cid in p_ids[:2]:
+            fn_pool = getattr(S, "spa_get_pool_final", None)
+            for idx, cid in enumerate(p_ids[:2]):
                 hp = get_character_hp(cid)
-                p_units.append({"char_id": cid, "hp": hp, "max_hp": hp})
-            for cid in e_ids[:2]:
+                rei = int(get_character(cid).get("Reiatsu", 0) or 0)
+                ene = int(get_character(cid).get("Energy", 0) or 0)
+                if callable(fn_pool):
+                    ukey = "player:{}".format(idx)
+                    hp = int(fn_pool(ukey, "hp", hp) or hp)
+                    rei = int(fn_pool(ukey, "reiatsu", rei) or rei)
+                    ene = int(fn_pool(ukey, "energy", ene) or ene)
+                p_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene})
+            for idx, cid in enumerate(e_ids[:2]):
                 hp = get_character_hp(cid)
-                e_units.append({"char_id": cid, "hp": hp, "max_hp": hp})
+                rei = int(get_character(cid).get("Reiatsu", 0) or 0)
+                ene = int(get_character(cid).get("Energy", 0) or 0)
+                if callable(fn_pool):
+                    ukey = "enemy:{}".format(idx)
+                    hp = int(fn_pool(ukey, "hp", hp) or hp)
+                    rei = int(fn_pool(ukey, "reiatsu", rei) or rei)
+                    ene = int(fn_pool(ukey, "energy", ene) or ene)
+                e_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene})
 
             S.bs_init_teams(player_units=p_units, enemy_units=e_units)
 
@@ -223,13 +251,36 @@ label battle_start:
     $ battle_show_hud(True)
 
     # =======================================================
-    # 🔋 Inicializar Recursos — Reiatsu/Energía
+    # 🔋 Inicializar Recursos — Reiatsu/Energía (+ editor por slot)
     # =======================================================
     $ player_reiatsu = battle_player.get("Reiatsu", 0)
     $ player_energy  = battle_player.get("Energy", 0)
 
     $ enemy_reiatsu  = battle_enemy.get("Reiatsu", 0)
     $ enemy_energy   = battle_enemy.get("Energy", 0)
+
+    python:
+        import renpy.store as S
+        fn_pool = getattr(S, "spa_get_pool_final", None)
+        if callable(fn_pool):
+            player_reiatsu = int(fn_pool("player:0", "reiatsu", player_reiatsu) or player_reiatsu)
+            player_energy = int(fn_pool("player:0", "energy", player_energy) or player_energy)
+            enemy_reiatsu = int(fn_pool("enemy:0", "reiatsu", enemy_reiatsu) or enemy_reiatsu)
+            enemy_energy = int(fn_pool("enemy:0", "energy", enemy_energy) or enemy_energy)
+
+        try:
+            battle_player["Reiatsu"] = int(player_reiatsu)
+            battle_player["Energy"] = int(player_energy)
+            battle_enemy["Reiatsu"] = int(enemy_reiatsu)
+            battle_enemy["Energy"] = int(enemy_energy)
+        except:
+            pass
+
+        # Mantener battle_state sincronizado (fuente SSOT de consumo).
+        fn_set_res = getattr(S, "bs_set_unit_resources", None)
+        if callable(fn_set_res):
+            fn_set_res("player:0", player_reiatsu, player_energy)
+            fn_set_res("enemy:0", enemy_reiatsu, enemy_energy)
 
     # ⭐ Sincronizar simulación del enemigo
     $ simulated_enemy_reiatsu = enemy_reiatsu

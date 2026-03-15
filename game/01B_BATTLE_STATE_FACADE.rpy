@@ -1,4 +1,4 @@
-# ===========================================================
+﻿# ===========================================================
 # 01B_BATTLE_STATE_FACADE.RPY – HP Facade (Phase 1)
 # ===========================================================
 # Alcance:
@@ -436,6 +436,33 @@ init -989 python:
             "energy": max(0, _bs_to_int(u.get("energy", 0), 0)),
         }
 
+    def bs_set_unit_resources(unit_key, reiatsu=None, energy=None):
+        bs = bs_ensure_unit_resources()
+        info = bs_parse_unit_key(unit_key)
+        side = info.get("team", "player")
+        slot = max(0, _bs_to_int(info.get("slot", 0), 0))
+        teams = bs.get("teams", {}) if isinstance(bs.get("teams", {}), dict) else {}
+        arr = list(teams.get(side, []) or [])
+        if slot >= len(arr) or not isinstance(arr[slot], dict):
+            return {"ok": False, "reason": "invalid_unit", "reiatsu": 0, "energy": 0}
+
+        u = dict(arr[slot])
+        if reiatsu is not None:
+            u["reiatsu"] = max(0, _bs_to_int(reiatsu, u.get("reiatsu", 0)))
+        if energy is not None:
+            u["energy"] = max(0, _bs_to_int(energy, u.get("energy", 0)))
+        arr[slot] = u
+        teams[side] = arr
+        bs["teams"] = teams
+        S.battle_state = bs
+
+        return {
+            "ok": True,
+            "reason": "ok",
+            "reiatsu": max(0, _bs_to_int(u.get("reiatsu", 0), 0)),
+            "energy": max(0, _bs_to_int(u.get("energy", 0), 0)),
+        }
+
     def bs_consume_unit_resources(unit_key, reiatsu_cost=0, energy_cost=0):
         bs = bs_ensure_unit_resources()
         info = bs_parse_unit_key(unit_key)
@@ -526,10 +553,14 @@ init -989 python:
                     cid = str(it.get("char_id", fallback_char) or fallback_char)
                     hp_i = _bs_to_int(it.get("hp", _bs_legacy_hp(side)), _bs_legacy_hp(side))
                     mx_i = _bs_to_int(it.get("max_hp", _bs_legacy_max_hp(side)), _bs_legacy_max_hp(side))
+                    rei_i = _bs_to_int(it.get("reiatsu", _bs_get_char_resource(cid, "Reiatsu", 0)), _bs_get_char_resource(cid, "Reiatsu", 0))
+                    ene_i = _bs_to_int(it.get("energy", _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0))), _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0)))
                 else:
                     cid = str(it or fallback_char)
                     hp_i = _bs_legacy_hp(side)
                     mx_i = _bs_legacy_max_hp(side)
+                    rei_i = _bs_get_char_resource(cid, "Reiatsu", 0)
+                    ene_i = _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0))
 
                 mx_i = max(1, mx_i)
                 hp_i = max(0, min(hp_i, mx_i))
@@ -540,8 +571,8 @@ init -989 python:
                     "hp": hp_i,
                     "max_hp": mx_i,
                     "alive": bool(hp_i > 0),
-                    "reiatsu": _bs_get_char_resource(cid, "Reiatsu", 0),
-                    "energy": _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0)),
+                    "reiatsu": max(0, _bs_to_int(rei_i, 0)),
+                    "energy": max(0, _bs_to_int(ene_i, 0)),
                 })
 
             while len(out) < 2:
@@ -1555,6 +1586,7 @@ init -989 python:
     S.bs_get_valid_target_keys = bs_get_valid_target_keys
     S.bs_ensure_unit_resources = bs_ensure_unit_resources
     S.bs_get_unit_resources = bs_get_unit_resources
+    S.bs_set_unit_resources = bs_set_unit_resources
     S.bs_consume_unit_resources = bs_consume_unit_resources
     S.bs_resolve_target_keys = bs_resolve_target_keys
     S.bs_apply_damage_to_unit_key = bs_apply_damage_to_unit_key
