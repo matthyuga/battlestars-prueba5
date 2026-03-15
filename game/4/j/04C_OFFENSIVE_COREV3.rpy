@@ -249,6 +249,57 @@ label battle_offensive_turn_legacy_entry:
                         S.extra_offensive_actions = int(getattr(S, "extra_offensive_actions", 0) or 0) + 1
                         S.deferred_defense_return_to_offense = False
                         S.deferred_defense_actor_key = ""
+                    elif msel == "counterattack":
+                        fn_ctr = getattr(S, "bs_counterattack_execute", None)
+                        ctr = fn_ctr(unit_key=str(akey), incoming_damage=int(pend_amt or 0)) if callable(fn_ctr) else {"executed": False, "success": False}
+                        ctr_ok = bool(isinstance(ctr, dict) and ctr.get("executed", False))
+                        ctr_success = bool(isinstance(ctr, dict) and ctr.get("success", False))
+
+                        if callable(getattr(S, "battle_log_add", None)):
+                            if ctr_success:
+                                S.battle_log_add("{color=#66FF99}Contraataque exitoso (4/4): no recibes daño y ganas acción ofensiva.{/color}")
+                            elif ctr_ok:
+                                _rp = int(ctr.get("reiatsu_penalty", 0) or 0)
+                                _ep = int(ctr.get("energy_penalty", 0) or 0)
+                                S.battle_log_add("{color=#FF8888}Contraataque fallado: -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_rp), str(_ep)))
+
+                        if ctr_success:
+                            S.extra_offensive_actions = int(getattr(S, "extra_offensive_actions", 0) or 0) + 1
+                        elif ctr_ok:
+                            fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
+                            if callable(fn_apply_key):
+                                fn_apply_key(str(akey), int(pend_amt or 0), source_key=_src_key, reason="combat")
+                            else:
+                                S.player_hp = max(0, int(getattr(S, "player_hp", 0) or 0) - int(pend_amt or 0))
+
+                        S.deferred_defense_return_to_offense = False
+                        S.deferred_defense_actor_key = ""
+                    elif msel == "sacrifice_request":
+                        fn_sac = getattr(S, "bs_sacrifice_execute", None)
+                        recv_pref = str(getattr(S, "sacrifice_receiver_key", "") or "")
+                        sac = fn_sac(defender_key=str(akey), incoming_damage=int(pend_amt or 0), receiver_key=recv_pref) if callable(fn_sac) else {"executed": False}
+                        sac_ok = bool(isinstance(sac, dict) and sac.get("executed", False))
+
+                        if callable(getattr(S, "battle_log_add", None)):
+                            if sac_ok:
+                                _rn = str(sac.get("receiver_name", sac.get("receiver_key", "Aliado")) or "Aliado")
+                                S.battle_log_add("{color=#80CBC4}Sacrificio: %s se interpone y recibe el daño por su aliado.{/color}" % _rn)
+                                if bool(sac.get("will_ko", False)):
+                                    S.battle_log_add("{color=#FF8888}Advertencia: el aliado sacrificado puede caer KO por este impacto.{/color}")
+                            else:
+                                S.battle_log_add("{color=#FF8888}Sacrificio no disponible. Continúa defensa normal.{/color}")
+
+                        if sac_ok:
+                            fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
+                            _rk = str(sac.get("receiver_key", "") or "")
+                            if callable(fn_apply_key) and _rk:
+                                fn_apply_key(_rk, int(pend_amt or 0), source_key=_src_key, reason="sacrifice")
+                            else:
+                                S.player_hp = max(0, int(getattr(S, "player_hp", 0) or 0) - int(pend_amt or 0))
+
+                        S.sacrifice_receiver_key = ""
+                        S.deferred_defense_return_to_offense = False
+                        S.deferred_defense_actor_key = ""
                     elif msel == "def_from_atk":
                         S.defense_for_attack_active = True
                         S.extra_offensive_actions = 0
