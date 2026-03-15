@@ -345,6 +345,107 @@ init -990 python:
             "incoming_damage": int(info.get("incoming_damage", 0) or 0),
         }
 
+    def bs_sacrifice_candidates(defender_key="player:0"):
+        out = []
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if mode == "1v1":
+            return out
+
+        fn_parse = getattr(S, "bs_parse_unit_key", None)
+        fn_key = getattr(S, "bs_unit_key", None)
+        fn_get = getattr(S, "bs_get_unit_by_key", None)
+        if not (callable(fn_parse) and callable(fn_key) and callable(fn_get)):
+            return out
+
+        info = fn_parse(str(defender_key or "player:0"), default_side="player", default_slot=0)
+        team = str(info.get("team", "player") or "player").strip().lower()
+        slot = int(info.get("slot", 0) or 0)
+
+        ids = getattr(S, "battle_player_ids", []) if team == "player" else getattr(S, "battle_enemy_ids", [])
+        cnt = len(ids or [])
+        if cnt <= 0:
+            cnt = 2 if mode == "2v2" else 1
+
+        for i in range(int(cnt)):
+            if int(i) == int(slot):
+                continue
+            k = str(fn_key(team, i) or "")
+            if not k:
+                continue
+            u = fn_get(k)
+            if not isinstance(u, dict):
+                continue
+            hp = max(0, int(u.get("hp", 0) or 0))
+            if hp <= 0:
+                continue
+            nm = str(u.get("char_id", "") or u.get("name", "") or k)
+            out.append({"key": k, "slot": int(i), "name": nm, "hp": hp})
+
+        return out
+
+    def bs_sacrifice_can_use(defender_key="player:0", incoming_damage=0):
+        candidates = bs_sacrifice_candidates(defender_key)
+        used = bool(getattr(S, "sacrifice_used_in_battle", False))
+        try:
+            dmg = max(0, int(incoming_damage or 0))
+        except:
+            dmg = 0
+
+        ok = True
+        reason = ""
+        if used:
+            ok = False
+            reason = "used"
+        elif not candidates:
+            ok = False
+            reason = "no_ally_available"
+
+        return {
+            "ok": bool(ok),
+            "reason": str(reason),
+            "incoming_damage": int(dmg),
+            "candidates": list(candidates),
+        }
+
+    def bs_sacrifice_execute(defender_key="player:0", incoming_damage=0, receiver_key=""):
+        chk = bs_sacrifice_can_use(defender_key=defender_key, incoming_damage=incoming_damage)
+        if not bool(chk.get("ok", False)):
+            out = dict(chk)
+            out["executed"] = False
+            return out
+
+        candidates = list(chk.get("candidates", []) or [])
+        preferred = str(receiver_key or "")
+        picked = None
+        for c in candidates:
+            if str(c.get("key", "") or "") == preferred:
+                picked = c
+                break
+        if picked is None and candidates:
+            picked = candidates[0]
+
+        if not isinstance(picked, dict):
+            out = dict(chk)
+            out["executed"] = False
+            out["reason"] = "no_receiver"
+            return out
+
+        rec_key = str(picked.get("key", "") or "")
+        rec_hp = max(0, int(picked.get("hp", 0) or 0))
+        dmg = int(chk.get("incoming_damage", 0) or 0)
+
+        S.sacrifice_used_in_battle = True
+
+        return {
+            "executed": True,
+            "receiver_key": rec_key,
+            "receiver_name": str(picked.get("name", rec_key) or rec_key),
+            "receiver_slot": int(picked.get("slot", 0) or 0),
+            "receiver_hp": int(rec_hp),
+            "incoming_damage": int(dmg),
+            "will_ko": bool(rec_hp <= dmg),
+        }
+
     def show_dice_result(roll_data, label_text=""):
         # Permite mostrar 1 tirada (dict) o varias tiradas simultáneas (list)
         # para que Directo+Negador puedan verse lado a lado en el centro.
@@ -367,6 +468,9 @@ init -990 python:
     store.roll_4d = roll_4d
     store.bs_counterattack_can_use = bs_counterattack_can_use
     store.bs_counterattack_execute = bs_counterattack_execute
+    store.bs_sacrifice_candidates = bs_sacrifice_candidates
+    store.bs_sacrifice_can_use = bs_sacrifice_can_use
+    store.bs_sacrifice_execute = bs_sacrifice_execute
     store.show_dice_result = show_dice_result
 
 
@@ -447,6 +551,8 @@ default enemy_noatk_success = False
 default maneuver_selected = "none"
 default counter_damage = 0
 default counterattack_used_in_battle = False
+default sacrifice_used_in_battle = False
+default sacrifice_receiver_key = ""
 
 # recursos base (para reglas de maniobras)
 default player_reiatsu_base = 0

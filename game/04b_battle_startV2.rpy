@@ -137,6 +137,8 @@ label battle_start:
     $ S.player_skip_attack_by_key = {}
     $ S.enemy_skip_attack_by_key = {}
     $ S.counterattack_used_in_battle = False
+    $ S.sacrifice_used_in_battle = False
+    $ S.sacrifice_receiver_key = ""
 
     # =======================================================
     # 🌆 Fondo de batalla aleatorio

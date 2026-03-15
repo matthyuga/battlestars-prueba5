@@ -274,6 +274,32 @@ label battle_offensive_turn_legacy_entry:
 
                         S.deferred_defense_return_to_offense = False
                         S.deferred_defense_actor_key = ""
+                    elif msel == "sacrifice_request":
+                        fn_sac = getattr(S, "bs_sacrifice_execute", None)
+                        recv_pref = str(getattr(S, "sacrifice_receiver_key", "") or "")
+                        sac = fn_sac(defender_key=str(akey), incoming_damage=int(pend_amt or 0), receiver_key=recv_pref) if callable(fn_sac) else {"executed": False}
+                        sac_ok = bool(isinstance(sac, dict) and sac.get("executed", False))
+
+                        if callable(getattr(S, "battle_log_add", None)):
+                            if sac_ok:
+                                _rn = str(sac.get("receiver_name", sac.get("receiver_key", "Aliado")) or "Aliado")
+                                S.battle_log_add("{color=#80CBC4}Sacrificio: %s se interpone y recibe el daño por su aliado.{/color}" % _rn)
+                                if bool(sac.get("will_ko", False)):
+                                    S.battle_log_add("{color=#FF8888}Advertencia: el aliado sacrificado puede caer KO por este impacto.{/color}")
+                            else:
+                                S.battle_log_add("{color=#FF8888}Sacrificio no disponible. Continúa defensa normal.{/color}")
+
+                        if sac_ok:
+                            fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
+                            _rk = str(sac.get("receiver_key", "") or "")
+                            if callable(fn_apply_key) and _rk:
+                                fn_apply_key(_rk, int(pend_amt or 0), source_key=_src_key, reason="sacrifice")
+                            else:
+                                S.player_hp = max(0, int(getattr(S, "player_hp", 0) or 0) - int(pend_amt or 0))
+
+                        S.sacrifice_receiver_key = ""
+                        S.deferred_defense_return_to_offense = False
+                        S.deferred_defense_actor_key = ""
                     elif msel == "def_from_atk":
                         S.defense_for_attack_active = True
                         S.extra_offensive_actions = 0

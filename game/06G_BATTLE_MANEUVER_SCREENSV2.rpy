@@ -86,6 +86,7 @@ screen battle_maneuver_choice(damage):
 
     default local_choice = "none"
     default show_submenu = False
+    default sac_receiver_key = ""
 
     $ import renpy.store as S
     $ will_die = S.player_hp - damage <= 0
@@ -101,6 +102,12 @@ screen battle_maneuver_choice(damage):
     $ _counter_ene_penalty = 0
     $ _counter_rei_cur = int(getattr(S, "player_reiatsu", 0) or 0)
     $ _counter_ene_cur = int(getattr(S, "player_energy", 0) or 0)
+    $ _sac_ok = False
+    $ _sac_reason = ""
+    $ _sac_candidates = []
+    $ _sac_receiver_hp = 0
+    $ _sac_receiver_name = ""
+    $ _sac_warn_ko = False
     $ _incoming_slot = 0
     $ _incoming_name = "-"
     $ _incoming_tag = "P1"
@@ -135,6 +142,24 @@ screen battle_maneuver_choice(damage):
                     _counter_ene_penalty = int(c.get("energy_penalty", 0) or 0)
                     _counter_rei_cur = int(c.get("reiatsu_current", _counter_rei_cur) or _counter_rei_cur)
                     _counter_ene_cur = int(c.get("energy_current", _counter_ene_cur) or _counter_ene_cur)
+
+            fn_sac = getattr(S, "bs_sacrifice_can_use", None)
+            if callable(fn_sac):
+                sc = fn_sac(defender_key=_incoming_key or "player:0", incoming_damage=damage)
+                if isinstance(sc, dict):
+                    _sac_ok = bool(sc.get("ok", False))
+                    _sac_reason = str(sc.get("reason", "") or "")
+                    _sac_candidates = list(sc.get("candidates", []) or [])
+                    if (not sac_receiver_key) and _sac_candidates:
+                        sac_receiver_key = str((_sac_candidates[0].get("key", "") if isinstance(_sac_candidates[0], dict) else "") or "")
+                    for _c in _sac_candidates:
+                        if not isinstance(_c, dict):
+                            continue
+                        if str(_c.get("key", "") or "") == str(sac_receiver_key or ""):
+                            _sac_receiver_hp = int(_c.get("hp", 0) or 0)
+                            _sac_receiver_name = str(_c.get("name", "") or str(_c.get("key", "") or ""))
+                            break
+                    _sac_warn_ko = bool(_sac_receiver_hp > 0 and int(damage or 0) >= _sac_receiver_hp)
         except:
             pass
 
@@ -224,6 +249,36 @@ screen battle_maneuver_choice(damage):
                         elif offense_locked:
                             text "{color=#FF66CC}Ataque negador activo: solo puedes defender normalmente.{/color}"
 
+                        if not _sac_ok:
+                            textbutton "Solicitar maniobra de sacrificio (no disponible)":
+                                action NullAction()
+                                text_size 24
+                                text_color "#666666"
+                        else:
+                            textbutton "Solicitar maniobra de sacrificio":
+                                action SetScreenVariable("local_choice", "sacrifice_request")
+                                text_size 24
+
+                        if _sac_reason == "used":
+                            text "{color=#FF8888}Sacrificio ya fue usado por tu equipo en esta batalla.{/color}"
+                        elif _sac_reason == "no_ally_available":
+                            text "{color=#FFCC66}No hay aliado disponible para recibir el daño.{/color}"
+
+                        if local_choice == "sacrifice_request" and _sac_ok and _sac_candidates:
+                            text "Aliado que se sacrifica:" size 20 color "#B3E5FC"
+                            hbox:
+                                spacing 8
+                                for _c in _sac_candidates:
+                                    $ _ck = str(_c.get("key", "") or "") if isinstance(_c, dict) else ""
+                                    $ _cn = str(_c.get("name", _ck) or _ck) if isinstance(_c, dict) else _ck
+                                    $ _ch = int(_c.get("hp", 0) or 0) if isinstance(_c, dict) else 0
+                                    textbutton "{} (HP {})".format(_cn, battle_fmt_num(_ch)):
+                                        action SetScreenVariable("sac_receiver_key", _ck)
+                                        text_color ("#66CCFF" if _ck == sac_receiver_key else "#FFFFFF")
+
+                            if _sac_warn_ko:
+                                text "{color=#FF8888}Advertencia: %s podría morir al recibir %s de daño.{/color}" % (str(_sac_receiver_name or "El aliado"), str(battle_fmt_num(damage)))
+
                         textbutton "Ver maniobras…":
                             action SetScreenVariable("show_submenu", True)
                             text_size 26
@@ -232,6 +287,7 @@ screen battle_maneuver_choice(damage):
                             textbutton "Confirmar decisión":
                                 action [
                                     SetVariable("maneuver_selected", local_choice),
+                                    SetVariable("sacrifice_receiver_key", sac_receiver_key),
                                     Hide("battle_maneuver_choice"),
                                     SetVariable("show_maneuver_choice", True)
                                 ]
@@ -282,6 +338,19 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("show_submenu", False)
                                 ]
                                 text_size 26
+
+                        if not _sac_ok:
+                            textbutton "Solicitar maniobra de sacrificio (no disponible)":
+                                action NullAction()
+                                text_size 24
+                                text_color "#666666"
+                        else:
+                            textbutton "Solicitar maniobra de sacrificio":
+                                action [
+                                    SetScreenVariable("local_choice", "sacrifice_request"),
+                                    SetScreenVariable("show_submenu", False)
+                                ]
+                                text_size 24
 
                         textbutton "Cancelar":
                             action SetScreenVariable("show_submenu", False)

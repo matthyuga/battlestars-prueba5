@@ -702,6 +702,66 @@ label battle_enemy_turn_legacy_entry:
             bs_ui_pause(0.1, hard=True)
 
     # ============================================================
+    # ⭐ SACRIFICIO (redirigir daño a aliado)
+    # ============================================================
+    if maneuver_selected == "sacrifice_request":
+
+        python:
+            import renpy.store as S
+
+            defender_key = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "player:0")
+            receiver_pref = str(getattr(S, "sacrifice_receiver_key", "") or "")
+            fn_sac = getattr(S, "bs_sacrifice_execute", None)
+            sac = fn_sac(defender_key=defender_key, incoming_damage=incoming_damage, receiver_key=receiver_pref) if callable(fn_sac) else {"executed": False}
+            sac_ok = bool(isinstance(sac, dict) and sac.get("executed", False))
+            recv_key = str(sac.get("receiver_key", "") or "") if isinstance(sac, dict) else ""
+            recv_name = str(sac.get("receiver_name", recv_key) or recv_key) if isinstance(sac, dict) else recv_key
+            will_ko = bool(isinstance(sac, dict) and sac.get("will_ko", False))
+
+            if sac_ok:
+                plan = getattr(S, "enemy_damage_plan", None)
+                fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
+                fn_sync = getattr(S, "bs_sync_hp_ui", None)
+
+                if recv_key and callable(fn_apply_key):
+                    fn_apply_key(recv_key, incoming_damage, source_key=getattr(S, "current_enemy_unit_key", None), reason="sacrifice")
+                elif isinstance(plan, dict) and callable(getattr(S, "bs_apply_damage_plan", None)):
+                    entries = [{"target_key": recv_key or defender_key, "amount": int(incoming_damage or 0), "source_key": str(getattr(S, "current_enemy_unit_key", "") or "")}]
+                    S.bs_apply_damage_plan({"entries": entries}, reason="sacrifice")
+
+                if callable(fn_sync):
+                    fn_sync()
+
+            if callable(getattr(S, "battle_log_add", None)):
+                if sac_ok:
+                    S.battle_log_add("{color=#80CBC4}Sacrificio: %s se interpone y recibe el daño por su aliado.{/color}" % str(recv_name or recv_key or "Aliado"))
+                    if will_ko:
+                        S.battle_log_add("{color=#FF8888}Advertencia: el aliado sacrificado puede caer KO por este impacto.{/color}")
+                else:
+                    S.battle_log_add("{color=#FF8888}Sacrificio no disponible. Se continúa con defensa normal.{/color}")
+
+            S._sac_done = bool(sac_ok)
+            S.sacrifice_receiver_key = ""
+            if sac_ok:
+                S.enemy_damage_plan = None
+                S.enemy_target_key = ""
+
+        if getattr(store, "_sac_done", False):
+            $ enemy_ai.reset_turn()
+            $ battle_turn_change("player")
+            python:
+                import renpy.store as S
+                _bp = getattr(S, "battle_player", None)
+                if isinstance(_bp, dict):
+                    _pname = str(_bp.get("name", "") or "")
+                else:
+                    _pname = ""
+                if not _pname:
+                    _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+            $ battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", delay=0.7)
+            jump battle_offensive_turn
+
+    # ============================================================
     # ⭐ CONTRAATAQUE (4/4 dados)
     # ============================================================
     if maneuver_selected == "counterattack":
