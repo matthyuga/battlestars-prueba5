@@ -93,6 +93,10 @@ init -988 python:
                 pass
             return bool(getattr(S, "ai_allow_focus", True))
 
+        fn_cost_meta = getattr(S, "log_cost_meta", None)
+        if not callable(fn_cost_meta):
+            fn_cost_meta = globals().get("log_cost_meta", None)
+
         # -------------------------------
         # ACUMULADORES
         # -------------------------------
@@ -185,7 +189,7 @@ init -988 python:
                 except:
                     pass
                 try:
-                    S.battle_log_add("{color=#999}(R %s / E %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    S.battle_log_add(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -208,7 +212,23 @@ init -988 python:
                     pass
 
                 try:
-                    S.battle_log_add("{color=#999}(R %s / E %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    S.battle_log_add(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                except:
+                    pass
+                continue
+
+            if key == "defense_strong_block":
+                try:
+                    fn_strong = getattr(S, "log_defense_strong", None)
+                    if callable(fn_strong):
+                        summary_lines.append(fn_strong(S.battle_fmt_num(base_blk), S.battle_fmt_num(blk)))
+                    else:
+                        summary_lines.append("Defensa Fuerte → Bloquea %s" % S.battle_fmt_num(blk))
+                except:
+                    pass
+
+                try:
+                    S.battle_log_add(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -234,7 +254,7 @@ init -988 python:
                     pass
 
                 try:
-                    S.battle_log_add("{color=#999}(R %s / E %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    S.battle_log_add(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue

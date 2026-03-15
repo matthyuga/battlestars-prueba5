@@ -207,11 +207,17 @@ label offensive_formula(dmg, attack_records):
 
             # seguimos llamando con reflect=0 para no romper formato
             if callable(op_fn):
-                _blog(op_fn(formula_text, extra_reflect, _fmt(total_with_reflect)))
+                _op_line = op_fn(formula_text, extra_reflect, _fmt(total_with_reflect))
             else:
-                _blog("Operación: {} (+Reflect {}) = {}".format(
+                _op_line = "Operación: {} (+Reflect {}) = {}".format(
                     formula_text, _fmt(extra_reflect), _fmt(total_with_reflect)
-                ))
+                )
+
+            _fn_bla = getattr(S, "battle_log_add", None)
+            if callable(_fn_bla):
+                _fn_bla(_op_line, group="offensive_operation")
+            else:
+                _blog(_op_line)
         except:
             pass
 
@@ -220,10 +226,28 @@ label offensive_formula(dmg, attack_records):
             if not callable(tot_fn):
                 tot_fn = globals().get("log_total", None)
 
+            dmg_directo = 0
+            try:
+                dmg_directo = int(getattr(S, "direct_pending_damage", 0) or 0)
+            except:
+                dmg_directo = 0
+            if dmg_directo < 0:
+                dmg_directo = 0
+
             if callable(tot_fn):
-                _blog(tot_fn(_fmt(total_with_reflect), reduction_pct_display))
+                _blog(tot_fn(
+                    total_with_reflect + dmg_directo,
+                    reduction_pct_display,
+                    defendible=total_with_reflect,
+                    directo=dmg_directo
+                ))
             else:
-                _blog("TOTAL: {} (Debuff DEF: {}%)".format(_fmt(total_with_reflect), reduction_pct_display))
+                if dmg_directo > 0:
+                    _blog("TOTAL: {} defendibles + {} directos = {}".format(
+                        _fmt(total_with_reflect), _fmt(dmg_directo), _fmt(total_with_reflect + dmg_directo)
+                    ))
+                else:
+                    _blog("TOTAL: {} defendibles".format(_fmt(total_with_reflect)))
         except:
             pass
 
