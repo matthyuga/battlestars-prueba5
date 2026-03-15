@@ -215,7 +215,7 @@ label offensive_formula(dmg, attack_records):
 
             _fn_bla = getattr(S, "battle_log_add", None)
             if callable(_fn_bla):
-                _fn_bla(_op_line, group="offensive_operation")
+                _fn_bla(_op_line, group="operation")
             else:
                 _blog(_op_line)
         except:

@@ -187,8 +187,8 @@ init -978 python:
         low = txt.lower()
 
         # C2: colapsables
-        if ("operación:" in low) and ("defensiva" not in low):
-            return "offensive_operation"
+        if ("operación" in low):
+            return "operation"
         if ("target asignado" in low) or ("ai target policy" in low):
             return "target_assignment"
         if ("daño en cola 2v2" in low) or ("daño entrante en cola 2v2" in low):
@@ -317,9 +317,9 @@ screen battle_log_screen():
     modal False
     zorder 120
 
-    key "K_g" action Function(battle_log_toggle_ui_flag, "ui_show_battle_debug_log")
-    key "K_o" action Function(battle_log_toggle_ui_flag, "ui_show_offensive_operation_details")
-    key "K_y" action Function(battle_log_toggle_ui_flag, "ui_show_target_assignment_details")
+    key "K_b" action Function(battle_log_toggle_ui_flag, "ui_show_battle_debug_log")
+    key "K_d" action Function(battle_log_toggle_ui_flag, "ui_show_offensive_operation_details")
+    key "K_g" action Function(battle_log_toggle_ui_flag, "ui_show_target_assignment_details")
     key "K_q" action Function(battle_log_toggle_ui_flag, "ui_show_queue_2v2_details")
 
     $ start_pos = get_battle_log_position()
@@ -341,7 +341,7 @@ screen battle_log_screen():
             vbox:
                 spacing 4
                 text "Registro de combate (narrativo)" size 22 color "#FFD700" bold True
-                textbutton ("[[G]] Debug: visible" if ui_show_battle_debug_log else "[[G]] Debug: oculto"):
+                textbutton ("[[B]] Debug: visible" if ui_show_battle_debug_log else "[[B]] Debug: oculto"):
                     action Function(battle_log_toggle_ui_flag, "ui_show_battle_debug_log")
                     text_size 14
                     text_color "#80DEEA"
@@ -350,12 +350,12 @@ screen battle_log_screen():
 
                 hbox:
                     spacing 10
-                    textbutton ("[[O]] ▸ Operación ofensiva" if not ui_show_offensive_operation_details else "[[O]] ▾ Operación ofensiva"):
+                    textbutton ("[[D]] ▸ Operación" if not ui_show_offensive_operation_details else "[[D]] ▾ Operación"):
                         action Function(battle_log_toggle_ui_flag, "ui_show_offensive_operation_details")
                         text_size 13
                         text_color "#E0E0E0"
                         background "#0000"
-                    textbutton ("[[Y]] ▸ Target" if not ui_show_target_assignment_details else "[[Y]] ▾ Target"):
+                    textbutton ("[[G]] ▸ Target" if not ui_show_target_assignment_details else "[[G]] ▾ Target"):
                         action Function(battle_log_toggle_ui_flag, "ui_show_target_assignment_details")
                         text_size 13
                         text_color "#B0E0E6"
@@ -381,7 +381,9 @@ screen battle_log_screen():
                             $ _grp = row.get("group", None)
                             $ _show_grp = (
                                 (_grp is None) or
+                                (_grp == "operation" and ui_show_offensive_operation_details) or
                                 (_grp == "offensive_operation" and ui_show_offensive_operation_details) or
+                                (_grp == "defensive_operation" and ui_show_offensive_operation_details) or
                                 (_grp == "target_assignment" and ui_show_target_assignment_details) or
                                 (_grp == "queue_2v2" and ui_show_queue_2v2_details)
                             )

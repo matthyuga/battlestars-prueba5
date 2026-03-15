@@ -514,6 +514,8 @@ label battle_enemy_turn_legacy_entry:
                     },
                 )
 
+            target_assignment_line = None
+
             try:
                 if callable(getattr(S, "battle_log_add", None)) and primary:
                     fn_desc = getattr(S, "bs_describe_unit_key", None)
@@ -537,7 +539,7 @@ label battle_enemy_turn_legacy_entry:
                             _policy_log = "force_slot(P{})".format(_forced_slot + 1)
                         except:
                             _policy_log = "force_slot"
-                    S.battle_log_add("{color=#B0E0E6}AI target policy: %s → target asignado: %s{/color}" % (_policy_log, target_txt), group="target_assignment")
+                    target_assignment_line = "{color=#B0E0E6}Target asignado: %s{/color}" % (target_txt)
             except:
                 pass
 
@@ -548,7 +550,7 @@ label battle_enemy_turn_legacy_entry:
                     enemy_reflect_bonus if enemy_attack_executed else 0,
                     total_damage
                 ),
-                group="offensive_operation"
+                group="operation"
             )
         except:
             pass
@@ -604,6 +606,12 @@ label battle_enemy_turn_legacy_entry:
                     ))
                 else:
                     S.battle_log_add("Daño total: {} defendibles".format(S.battle_fmt_num(dmg_defendible)))
+        except:
+            pass
+
+        try:
+            if target_assignment_line:
+                S.battle_log_add(target_assignment_line, group="target_assignment")
         except:
             pass
 

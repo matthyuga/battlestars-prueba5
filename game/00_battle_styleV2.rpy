@@ -379,13 +379,13 @@ init -970 python:
     ###########################################################
     def log_operation(parts, reflect, total):
         p = highlight_x2(colorize_numbers(parts))
-        txt = fmt_white("Operación: ") + p
+        line = p
 
         if reflect > 0:
-            txt += fmt_white(" + ") + fmt_blue(battle_fmt_num(reflect))
+            line += fmt_white(" + ") + fmt_blue(battle_fmt_num(reflect))
 
-        txt += fmt_white(" = ") + fmt_gold(battle_fmt_num(total))
-        return txt
+        line += fmt_white(" = ") + fmt_gold(battle_fmt_num(total))
+        return fmt_white("▸ Operación Ofensiva:") + "\n   " + line
 
 
     ###########################################################
