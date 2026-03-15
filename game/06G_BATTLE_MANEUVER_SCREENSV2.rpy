@@ -95,6 +95,12 @@ screen battle_maneuver_choice(damage):
     $ offense_locked = bool(getattr(S, "player_skip_attack", False) or (_actor_k and bool(_skip_map.get(_actor_k, False))))
     $ _incoming_key = str(getattr(S, "incoming_damage_target_key", "") or _actor_k or "")
     $ _incoming_team = "player"
+    $ _counter_ok = False
+    $ _counter_reason = ""
+    $ _counter_rei_penalty = 0
+    $ _counter_ene_penalty = 0
+    $ _counter_rei_cur = int(getattr(S, "player_reiatsu", 0) or 0)
+    $ _counter_ene_cur = int(getattr(S, "player_energy", 0) or 0)
     $ _incoming_slot = 0
     $ _incoming_name = "-"
     $ _incoming_tag = "P1"
@@ -118,6 +124,17 @@ screen battle_maneuver_choice(damage):
                 _incoming_tag = str(fn_tag(_incoming_team, _incoming_slot) or "P1")
             else:
                 _incoming_tag = ("P{}" if _incoming_team == "player" else "E{}").format(int(_incoming_slot or 0) + 1)
+
+            fn_ctr = getattr(S, "bs_counterattack_can_use", None)
+            if callable(fn_ctr):
+                c = fn_ctr(unit_key=_incoming_key or "player:0", incoming_damage=damage)
+                if isinstance(c, dict):
+                    _counter_ok = bool(c.get("ok", False))
+                    _counter_reason = str(c.get("reason", "") or "")
+                    _counter_rei_penalty = int(c.get("reiatsu_penalty", 0) or 0)
+                    _counter_ene_penalty = int(c.get("energy_penalty", 0) or 0)
+                    _counter_rei_cur = int(c.get("reiatsu_current", _counter_rei_cur) or _counter_rei_cur)
+                    _counter_ene_cur = int(c.get("energy_current", _counter_ene_cur) or _counter_ene_cur)
         except:
             pass
 
@@ -181,6 +198,25 @@ screen battle_maneuver_choice(damage):
                                 action SetScreenVariable("local_choice", "def_from_atk")
                                 text_size 26
 
+                        if not _counter_ok:
+                            textbutton "Contraataque (no disponible)":
+                                action NullAction()
+                                text_size 26
+                                text_color "#666666"
+                        else:
+                            textbutton "Contraataque":
+                                action SetScreenVariable("local_choice", "counterattack")
+                                text_size 26
+
+                        if _counter_reason == "used":
+                            text "{color=#FF8888}Contraataque ya fue usado en esta batalla.{/color}"
+                        elif _counter_reason == "would_die":
+                            text "{color=#FF4444}No puedes contraatacar: este daño te matará si fallas.{/color}"
+                        elif _counter_reason == "insufficient_current_for_base_half":
+                            text "{color=#FFCC66}Requiere >=50% de recurso actual vs base: R [_counter_rei_cur]/[_counter_rei_penalty] · E [_counter_ene_cur]/[_counter_ene_penalty].{/color}"
+                        elif _counter_reason == "dead":
+                            text "{color=#FF4444}Estás derrotada. No puedes contraatacar.{/color}"
+
                         if will_die:
                             text "{color=#FF4444}No puedes contraatacar: este daño te matará.{/color}"
                         elif is_dead:
@@ -230,6 +266,19 @@ screen battle_maneuver_choice(damage):
                             textbutton "Defensa por ataque":
                                 action [
                                     SetScreenVariable("local_choice", "def_from_atk"),
+                                    SetScreenVariable("show_submenu", False)
+                                ]
+                                text_size 26
+
+                        if not _counter_ok:
+                            textbutton "Contraataque (no disponible)":
+                                action NullAction()
+                                text_size 26
+                                text_color "#666666"
+                        else:
+                            textbutton "Contraataque":
+                                action [
+                                    SetScreenVariable("local_choice", "counterattack"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
                                 text_size 26

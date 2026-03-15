@@ -702,6 +702,97 @@ label battle_enemy_turn_legacy_entry:
             bs_ui_pause(0.1, hard=True)
 
     # ============================================================
+    # ⭐ CONTRAATAQUE (4/4 dados)
+    # ============================================================
+    if maneuver_selected == "counterattack":
+
+        python:
+            import renpy.store as S
+
+            target_key = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "player:0")
+            fn_ctr = getattr(S, "bs_counterattack_execute", None)
+            ctr = fn_ctr(unit_key=target_key, incoming_damage=incoming_damage) if callable(fn_ctr) else {"executed": False, "success": False}
+            ctr_ok = bool(isinstance(ctr, dict) and ctr.get("executed", False))
+            ctr_success = bool(isinstance(ctr, dict) and ctr.get("success", False))
+
+            if callable(getattr(S, "battle_log_add", None)):
+                if ctr_success:
+                    S.battle_log_add("{color=#66FF99}Contraataque exitoso (4/4): no recibes daño y ganas acción ofensiva.{/color}")
+                elif ctr_ok:
+                    _rp = int(ctr.get("reiatsu_penalty", 0) or 0)
+                    _ep = int(ctr.get("energy_penalty", 0) or 0)
+                    S.battle_log_add("{color=#FF8888}Contraataque fallado: -{} Reiatsu base y -{} Energía base. Recibes daño completo.{/color}".format(_rp, _ep))
+                else:
+                    S.battle_log_add("{color=#FF8888}Contraataque no disponible. Se aplica defensa normal.{/color}")
+
+            S._ctr_success = bool(ctr_success)
+            S._ctr_ok = bool(ctr_ok)
+
+        if _ctr_success:
+            $ extra_offensive_actions += 1
+            $ enemy_ai.reset_turn()
+
+            $ battle_turn_change("player")
+            python:
+                import renpy.store as S
+                _bp = getattr(S, "battle_player", None)
+                if isinstance(_bp, dict):
+                    _pname = str(_bp.get("name", "") or "")
+                else:
+                    _pname = ""
+                if not _pname:
+                    _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+            $ battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", delay=0.7)
+            python:
+                import renpy.store as S
+                S.enemy_damage_plan = None
+                S.enemy_target_key = ""
+            jump battle_offensive_turn
+        elif _ctr_ok:
+            python:
+                import renpy.store as S
+                plan = getattr(S, "enemy_damage_plan", None)
+                target_key = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "")
+
+                fn_apply_plan = getattr(S, "bs_apply_damage_plan", None)
+                fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
+                fn_apply = getattr(S, "bs_apply_damage", None)
+
+                if isinstance(plan, dict) and callable(fn_apply_plan):
+                    fn_apply_plan(plan, reason="combat")
+                elif target_key and callable(fn_apply_key):
+                    fn_apply_key(target_key, incoming_damage, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat")
+                elif callable(fn_apply):
+                    fn_apply("player", incoming_damage, source="enemy", reason="combat")
+                else:
+                    player_hp = max(0, player_hp - incoming_damage)
+                    battle_update_hp_bars(player_hp, enemy_hp)
+
+                fn_sync = getattr(S, "bs_sync_hp_ui", None)
+                if callable(fn_sync):
+                    fn_sync()
+                player_hp = int(getattr(S, "player_hp", 0) or 0)
+
+            $ enemy_ai.reset_turn()
+
+            $ battle_turn_change("player")
+            python:
+                import renpy.store as S
+                _bp = getattr(S, "battle_player", None)
+                if isinstance(_bp, dict):
+                    _pname = str(_bp.get("name", "") or "")
+                else:
+                    _pname = ""
+                if not _pname:
+                    _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
+            $ battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", delay=0.7)
+            python:
+                import renpy.store as S
+                S.enemy_damage_plan = None
+                S.enemy_target_key = ""
+            jump battle_offensive_turn
+
+    # ============================================================
     # ⭐ ATAQUE POR DEFENSA
     # ============================================================
     if maneuver_selected == "atk_from_def":

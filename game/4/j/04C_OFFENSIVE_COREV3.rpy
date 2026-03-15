@@ -249,6 +249,31 @@ label battle_offensive_turn_legacy_entry:
                         S.extra_offensive_actions = int(getattr(S, "extra_offensive_actions", 0) or 0) + 1
                         S.deferred_defense_return_to_offense = False
                         S.deferred_defense_actor_key = ""
+                    elif msel == "counterattack":
+                        fn_ctr = getattr(S, "bs_counterattack_execute", None)
+                        ctr = fn_ctr(unit_key=str(akey), incoming_damage=int(pend_amt or 0)) if callable(fn_ctr) else {"executed": False, "success": False}
+                        ctr_ok = bool(isinstance(ctr, dict) and ctr.get("executed", False))
+                        ctr_success = bool(isinstance(ctr, dict) and ctr.get("success", False))
+
+                        if callable(getattr(S, "battle_log_add", None)):
+                            if ctr_success:
+                                S.battle_log_add("{color=#66FF99}Contraataque exitoso (4/4): no recibes daño y ganas acción ofensiva.{/color}")
+                            elif ctr_ok:
+                                _rp = int(ctr.get("reiatsu_penalty", 0) or 0)
+                                _ep = int(ctr.get("energy_penalty", 0) or 0)
+                                S.battle_log_add("{color=#FF8888}Contraataque fallado: -{} Reiatsu base y -{} Energía base. Recibes daño completo.{/color}".format(_rp, _ep))
+
+                        if ctr_success:
+                            S.extra_offensive_actions = int(getattr(S, "extra_offensive_actions", 0) or 0) + 1
+                        elif ctr_ok:
+                            fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
+                            if callable(fn_apply_key):
+                                fn_apply_key(str(akey), int(pend_amt or 0), source_key=_src_key, reason="combat")
+                            else:
+                                S.player_hp = max(0, int(getattr(S, "player_hp", 0) or 0) - int(pend_amt or 0))
+
+                        S.deferred_defense_return_to_offense = False
+                        S.deferred_defense_actor_key = ""
                     elif msel == "def_from_atk":
                         S.defense_for_attack_active = True
                         S.extra_offensive_actions = 0

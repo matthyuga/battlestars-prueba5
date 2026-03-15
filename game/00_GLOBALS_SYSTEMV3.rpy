@@ -216,6 +216,135 @@ init -990 python:
             "success": successes >= 2
         }
 
+    def roll_4d():
+        import random
+        rolls = [random.choice([True, False]) for _ in range(4)]
+        successes = sum(1 for r in rolls if r)
+        return {
+            "rolls": rolls,
+            "successes": successes,
+            "success": (successes >= 4)
+        }
+
+    def bs_counterattack_can_use(unit_key="player:0", incoming_damage=0):
+        try:
+            in_dmg = max(0, int(incoming_damage or 0))
+        except:
+            in_dmg = 0
+
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        used = bool(getattr(S, "counterattack_used_in_battle", False))
+
+        hp_cur = int(getattr(S, "player_hp", 0) or 0)
+        rei_base = int(getattr(S, "player_reiatsu_base", getattr(S, "player_reiatsu", 0)) or 0)
+        ene_base = int(getattr(S, "player_energy_base", getattr(S, "player_energy", 0)) or 0)
+        rei_cur = int(getattr(S, "player_reiatsu", 0) or 0)
+        ene_cur = int(getattr(S, "player_energy", 0) or 0)
+
+        if mode == "2v2":
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            if callable(fn_get):
+                u = fn_get(str(unit_key or ""))
+                if isinstance(u, dict):
+                    hp_cur = int(u.get("hp", hp_cur) or hp_cur)
+                    rei_cur = int(u.get("reiatsu", rei_cur) or rei_cur)
+                    ene_cur = int(u.get("energy", ene_cur) or ene_cur)
+                    rei_base = int(u.get("base_reiatsu", u.get("max_reiatsu", rei_cur)) or rei_cur)
+                    ene_base = int(u.get("base_energy", u.get("max_energy", ene_cur)) or ene_cur)
+
+        rei_need = max(0, int(rei_base * 0.5))
+        ene_need = max(0, int(ene_base * 0.5))
+
+        ok = True
+        reason = ""
+        if used:
+            ok = False
+            reason = "used"
+        elif hp_cur <= 0:
+            ok = False
+            reason = "dead"
+        elif hp_cur <= in_dmg:
+            ok = False
+            reason = "would_die"
+        elif rei_cur < rei_need or ene_cur < ene_need:
+            ok = False
+            reason = "insufficient_current_for_base_half"
+
+        return {
+            "ok": bool(ok),
+            "reason": str(reason),
+            "incoming_damage": int(in_dmg),
+            "hp_current": int(hp_cur),
+            "reiatsu_base": int(rei_base),
+            "energy_base": int(ene_base),
+            "reiatsu_current": int(rei_cur),
+            "energy_current": int(ene_cur),
+            "reiatsu_penalty": int(rei_need),
+            "energy_penalty": int(ene_need),
+        }
+
+    def bs_counterattack_execute(unit_key="player:0", incoming_damage=0):
+        info = bs_counterattack_can_use(unit_key=unit_key, incoming_damage=incoming_damage)
+        if not bool(info.get("ok", False)):
+            out = dict(info)
+            out["executed"] = False
+            out["success"] = False
+            out["roll"] = None
+            return out
+
+        roll = roll_4d()
+        S.counterattack_used_in_battle = True
+
+        try:
+            fn_show = getattr(S, "show_dice_result", None)
+            if callable(fn_show):
+                fn_show(roll, label_text="Contraataque")
+        except:
+            pass
+
+        success = bool(isinstance(roll, dict) and roll.get("success", False))
+        if success:
+            return {
+                "executed": True,
+                "success": True,
+                "roll": roll,
+                "reiatsu_penalty": 0,
+                "energy_penalty": 0,
+                "incoming_damage": int(info.get("incoming_damage", 0) or 0),
+            }
+
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        pr = int(info.get("reiatsu_penalty", 0) or 0)
+        pe = int(info.get("energy_penalty", 0) or 0)
+
+        if mode == "2v2":
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            fn_set = getattr(S, "bs_set_unit_resources", None)
+            if callable(fn_get) and callable(fn_set):
+                u = fn_get(str(unit_key or ""))
+                if isinstance(u, dict):
+                    cur_r = int(u.get("reiatsu", 0) or 0)
+                    cur_e = int(u.get("energy", 0) or 0)
+                    fn_set(str(unit_key or ""), max(0, cur_r - pr), max(0, cur_e - pe))
+                try:
+                    fn_sync = getattr(S, "bs_sync_to_legacy", None)
+                    if callable(fn_sync):
+                        fn_sync()
+                except:
+                    pass
+        else:
+            S.player_reiatsu = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - pr)
+            S.player_energy = max(0, int(getattr(S, "player_energy", 0) or 0) - pe)
+
+        return {
+            "executed": True,
+            "success": False,
+            "roll": roll,
+            "reiatsu_penalty": int(pr),
+            "energy_penalty": int(pe),
+            "incoming_damage": int(info.get("incoming_damage", 0) or 0),
+        }
+
     def show_dice_result(roll_data, label_text=""):
         # Permite mostrar 1 tirada (dict) o varias tiradas simultáneas (list)
         # para que Directo+Negador puedan verse lado a lado en el centro.
@@ -235,6 +364,9 @@ init -990 python:
         renpy.show_screen("dice_roll_result", rolls=roll_data["rolls"], label_text=label_text)
 
     store.roll_3d = roll_3d
+    store.roll_4d = roll_4d
+    store.bs_counterattack_can_use = bs_counterattack_can_use
+    store.bs_counterattack_execute = bs_counterattack_execute
     store.show_dice_result = show_dice_result
 
 
@@ -314,6 +446,13 @@ default enemy_noatk_success = False
 
 default maneuver_selected = "none"
 default counter_damage = 0
+default counterattack_used_in_battle = False
+
+# recursos base (para reglas de maniobras)
+default player_reiatsu_base = 0
+default player_energy_base = 0
+default enemy_reiatsu_base = 0
+default enemy_energy_base = 0
 
 # reiatsu y energia
 default player_reiatsu = 0

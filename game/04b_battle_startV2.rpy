@@ -136,6 +136,7 @@ label battle_start:
     $ S.enemy_pending_def_reduction_by_key = {}
     $ S.player_skip_attack_by_key = {}
     $ S.enemy_skip_attack_by_key = {}
+    $ S.counterattack_used_in_battle = False
 
     # =======================================================
     # 🌆 Fondo de batalla aleatorio
@@ -204,7 +205,7 @@ label battle_start:
                     hp = int(fn_pool(ukey, "hp", hp) or hp)
                     rei = int(fn_pool(ukey, "reiatsu", rei) or rei)
                     ene = int(fn_pool(ukey, "energy", ene) or ene)
-                p_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene})
+                p_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene, "max_reiatsu": rei, "max_energy": ene, "base_reiatsu": rei, "base_energy": ene})
             for idx, cid in enumerate(e_ids[:2]):
                 hp = get_character_hp(cid)
                 rei = int(get_character(cid).get("Reiatsu", 0) or 0)
@@ -214,7 +215,7 @@ label battle_start:
                     hp = int(fn_pool(ukey, "hp", hp) or hp)
                     rei = int(fn_pool(ukey, "reiatsu", rei) or rei)
                     ene = int(fn_pool(ukey, "energy", ene) or ene)
-                e_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene})
+                e_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene, "max_reiatsu": rei, "max_energy": ene, "base_reiatsu": rei, "base_energy": ene})
 
             S.bs_init_teams(player_units=p_units, enemy_units=e_units)
 
@@ -259,6 +260,11 @@ label battle_start:
     $ enemy_reiatsu  = battle_enemy.get("Reiatsu", 0)
     $ enemy_energy   = battle_enemy.get("Energy", 0)
 
+    $ player_reiatsu_base = player_reiatsu
+    $ player_energy_base  = player_energy
+    $ enemy_reiatsu_base  = enemy_reiatsu
+    $ enemy_energy_base   = enemy_energy
+
     python:
         import renpy.store as S
         fn_pool = getattr(S, "spa_get_pool_final", None)
@@ -267,6 +273,11 @@ label battle_start:
             player_energy = int(fn_pool("player:0", "energy", player_energy) or player_energy)
             enemy_reiatsu = int(fn_pool("enemy:0", "reiatsu", enemy_reiatsu) or enemy_reiatsu)
             enemy_energy = int(fn_pool("enemy:0", "energy", enemy_energy) or enemy_energy)
+
+        S.player_reiatsu_base = int(player_reiatsu or 0)
+        S.player_energy_base = int(player_energy or 0)
+        S.enemy_reiatsu_base = int(enemy_reiatsu or 0)
+        S.enemy_energy_base = int(enemy_energy or 0)
 
         try:
             battle_player["Reiatsu"] = int(player_reiatsu)
