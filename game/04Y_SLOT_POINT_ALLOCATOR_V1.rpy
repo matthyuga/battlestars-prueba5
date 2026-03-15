@@ -23,7 +23,6 @@ default battle_point_alloc_autoload_done = False
 default slot_points_persistence_enabled = True
 
 init -940 python:
-    import renpy
     import renpy.store as S
 
     def _spa_to_int(v, default=0):
@@ -417,11 +416,15 @@ init -940 python:
         p.battle_point_alloc_v1 = st
 
         # opcional: forzar guardado inmediato si existe la API
-        if hasattr(renpy, "save_persistent"):
-            try:
-                renpy.save_persistent()
-            except:
-                pass
+        try:
+            import renpy.exports as R
+            if hasattr(R, "save_persistent"):
+                try:
+                    R.save_persistent()
+                except:
+                    pass
+        except:
+            pass
 
         return True
 
