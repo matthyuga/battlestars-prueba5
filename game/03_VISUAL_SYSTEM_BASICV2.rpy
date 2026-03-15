@@ -341,7 +341,7 @@ screen battle_log_screen():
             vbox:
                 spacing 4
                 text "Registro de combate (narrativo)" size 22 color "#FFD700" bold True
-                textbutton ("[G] Debug: visible" if ui_show_battle_debug_log else "[G] Debug: oculto"):
+                textbutton ("[[G]] Debug: visible" if ui_show_battle_debug_log else "[[G]] Debug: oculto"):
                     action Function(battle_log_toggle_ui_flag, "ui_show_battle_debug_log")
                     text_size 14
                     text_color "#80DEEA"
@@ -350,17 +350,17 @@ screen battle_log_screen():
 
                 hbox:
                     spacing 10
-                    textbutton ("[O] ▸ Operación ofensiva" if not ui_show_offensive_operation_details else "[O] ▾ Operación ofensiva"):
+                    textbutton ("[[O]] ▸ Operación ofensiva" if not ui_show_offensive_operation_details else "[[O]] ▾ Operación ofensiva"):
                         action Function(battle_log_toggle_ui_flag, "ui_show_offensive_operation_details")
                         text_size 13
                         text_color "#E0E0E0"
                         background "#0000"
-                    textbutton ("[Y] ▸ Target" if not ui_show_target_assignment_details else "[Y] ▾ Target"):
+                    textbutton ("[[Y]] ▸ Target" if not ui_show_target_assignment_details else "[[Y]] ▾ Target"):
                         action Function(battle_log_toggle_ui_flag, "ui_show_target_assignment_details")
                         text_size 13
                         text_color "#B0E0E6"
                         background "#0000"
-                    textbutton ("[Q] ▸ Cola 2v2" if not ui_show_queue_2v2_details else "[Q] ▾ Cola 2v2"):
+                    textbutton ("[[Q]] ▸ Cola 2v2" if not ui_show_queue_2v2_details else "[[Q]] ▾ Cola 2v2"):
                         action Function(battle_log_toggle_ui_flag, "ui_show_queue_2v2_details")
                         text_size 13
                         text_color "#B39DDB"
