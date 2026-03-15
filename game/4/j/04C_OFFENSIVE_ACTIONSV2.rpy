@@ -180,6 +180,14 @@ init python:
     log_focus_unified  = _get_style("log_focus_unified")
     log_attack_simple  = _get_style("log_attack_simple")
     log_attack_reducer = _get_style("log_attack_reducer")
+    log_cost_meta      = _get_style("log_cost_meta")
+
+    def _cost_line(rei, ene):
+        if callable(log_cost_meta):
+            return log_cost_meta(rei, ene)
+        if callable(fmt_white):
+            return fmt_white("(Reiatsu {} / Energía {})".format(_fmt_num(rei), _fmt_num(ene)))
+        return "(Reiatsu {} / Energía {})".format(_fmt_num(rei), _fmt_num(ene))
 
 
     # ------------------------------------------------------------
@@ -411,16 +419,16 @@ label offensive_process_actions(selected):
                     if callable(fmt_red) and callable(fmt_white) and callable(fmt_orange):
                         _blog(
                             fmt_red("Ataque Directo") +
-                            fmt_white(" → {} daño. ".format(make_dmg_text(action.base_value, dmg))) +
-                            fmt_orange("2/3 éxitos = INDEFENDIBLE. ") +
-                            fmt_white("(Reiatsu {} / Ene {})".format(_fmt_num(rei_cost), _fmt_num(ene_cost)))
+                            fmt_white(" → Inflige {} de daño. ".format(make_dmg_text(action.base_value, dmg))) +
+                            fmt_orange("Si saca 2/3 dados de éxito, este ataque es indefendible. ") +
+                            _cost_line(rei_cost, ene_cost)
                         )
                     else:
-                        _blog("Ataque Directo → {} daño. (Reiatsu {} / Ene {})".format(
+                        _blog("Ataque Directo → Inflige {} de daño. (Reiatsu {} / Energía {})".format(
                             make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                         ), "#FFDD44")
                 except:
-                    _blog("Ataque Directo → {} daño. (Reiatsu {} / Ene {})".format(
+                    _blog("Ataque Directo → Inflige {} de daño. (Reiatsu {} / Energía {})".format(
                         make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                     ), "#FFDD44")
 
@@ -465,19 +473,19 @@ label offensive_process_actions(selected):
                     pass
 
                 try:
-                    if callable(fmt_pink) and callable(fmt_white) and callable(fmt_orange):
+                    if callable(fmt_red) and callable(fmt_white) and callable(fmt_orange):
                         _blog(
-                            fmt_pink("Ataque Negador") +
-                            fmt_white(" → {} daño. ".format(make_dmg_text(action.base_value, dmg))) +
-                            fmt_white("(Reiatsu {} / Ene {}) ".format(_fmt_num(rei_cost), _fmt_num(ene_cost))) +
-                            fmt_orange("2/3 éxitos = NO ATK enemigo.")
+                            fmt_red("Ataque Negador") +
+                            fmt_white(" → Inflige {} de daño. ".format(make_dmg_text(action.base_value, dmg))) +
+                            _cost_line(rei_cost, ene_cost) + " " +
+                            fmt_orange("Si saca 2/3 dados de éxito, el enemigo no puede atacar en su siguiente turno.")
                         )
                     else:
-                        _blog("Ataque Negador → {} daño. (Reiatsu {} / Ene {})".format(
+                        _blog("Ataque Negador → Inflige {} de daño. (Reiatsu {} / Energía {})".format(
                             make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                         ), "#FF66CC")
                 except:
-                    _blog("Ataque Negador → {} daño. (Reiatsu {} / Ene {})".format(
+                    _blog("Ataque Negador → Inflige {} de daño. (Reiatsu {} / Energía {})".format(
                         make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                     ), "#FF66CC")
 
@@ -528,10 +536,10 @@ label offensive_process_actions(selected):
                                 make_dmg_text(action.base_value, dmg),
                                 int((getattr(S, "next_defense_reduction", 0.10) or 0.10) * 100)
                             ) +
-                            fmt_white(" (Reiatsu {} / Ene {})".format(_fmt_num(rei_cost), _fmt_num(ene_cost)))
+                            fmt_white(" ") + _cost_line(rei_cost, ene_cost)
                         )
                     else:
-                        _blog("{} → {} daño. (-{}% DEF) (Reiatsu {} / Ene {})".format(
+                        _blog("{} → {} daño. (-{}% DEF) (Reiatsu {} / Energía {})".format(
                             action.name,
                             make_dmg_text(action.base_value, dmg),
                             int((getattr(S, "next_defense_reduction", 0.10) or 0.10) * 100),
@@ -539,7 +547,7 @@ label offensive_process_actions(selected):
                             _fmt_num(ene_cost)
                         ), "#FF9966")
                 except:
-                    _blog("{} → {} daño. (-{}% DEF) (Reiatsu {} / Ene {})".format(
+                    _blog("{} → {} daño. (-{}% DEF) (Reiatsu {} / Energía {})".format(
                         action.name,
                         make_dmg_text(action.base_value, dmg),
                         int((getattr(S, "next_defense_reduction", 0.10) or 0.10) * 100),
@@ -581,14 +589,14 @@ label offensive_process_actions(selected):
                         _blog(
                             fmt_red("Ataque más fuerte") +
                             fmt_white(" → {} daño. ".format(make_dmg_text(action.base_value, dmg))) +
-                            fmt_white("(Reiatsu {} / Ene {})".format(_fmt_num(rei_cost), _fmt_num(ene_cost)))
+                            _cost_line(rei_cost, ene_cost)
                         )
                     else:
-                        _blog("Ataque más fuerte → {} daño. (Reiatsu {} / Ene {})".format(
+                        _blog("Ataque más fuerte → {} daño. (Reiatsu {} / Energía {})".format(
                             make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                         ), "#FF4444")
                 except:
-                    _blog("Ataque más fuerte → {} daño. (Reiatsu {} / Ene {})".format(
+                    _blog("Ataque más fuerte → {} daño. (Reiatsu {} / Energía {})".format(
                         make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                     ), "#FF4444")
 
@@ -629,17 +637,17 @@ label offensive_process_actions(selected):
                     if callable(log_attack_simple) and callable(fmt_white):
                         _blog(
                             log_attack_simple(action.name, make_dmg_text(action.base_value, dmg)) +
-                            fmt_white("(Reiatsu {} / Ene {})".format(_fmt_num(rei_cost), _fmt_num(ene_cost)))
+                            _cost_line(rei_cost, ene_cost)
                         )
                     else:
-                        _blog("{} → {} daño. (Reiatsu {} / Ene {})".format(
+                        _blog("{} → {} daño. (Reiatsu {} / Energía {})".format(
                             action.name,
                             make_dmg_text(action.base_value, dmg),
                             _fmt_num(rei_cost),
                             _fmt_num(ene_cost)
                         ), "#FF8888")
                 except:
-                    _blog("{} → {} daño. (Reiatsu {} / Ene {})".format(
+                    _blog("{} → {} daño. (Reiatsu {} / Energía {})".format(
                         action.name,
                         make_dmg_text(action.base_value, dmg),
                         _fmt_num(rei_cost),

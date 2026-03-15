@@ -200,7 +200,7 @@ label battle_offensive_resolve_enemy:
                                 parts.append("{}:+{}".format(fn_desc(tk, default_side="enemy", default_slot=0), int(amt or 0)))
                             else:
                                 parts.append("{}:+{}".format(tk, int(amt or 0)))
-                        S.battle_log_add("{color=#B39DDB}Daño en cola 2v2 → %s{/color}" % (" | ".join(parts)))
+                        S.battle_log_add("{color=#B39DDB}Daño en cola 2v2 → %s{/color}" % (" | ".join(parts)), group="queue_2v2")
                 except:
                     pass
 
