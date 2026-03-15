@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04H_SLOT_POINTS_EDITOR_SCREENV1.rpy
 # Fase D — Menú principal + editor v1 de puntos por slot
 # ============================================================
@@ -61,6 +61,16 @@ init -930 python:
             "defense_strong_block": "Defensa Fuerte",
         }
         return labels.get(str(tech_id or ""), str(tech_id or ""))
+
+    def spa_ui_pool_label(pool_key):
+        pk = str(pool_key or "").strip().lower()
+        if pk == "reiatsu":
+            return "Reiatsu"
+        if pk == "energy":
+            return "Energía"
+        if pk == "hp":
+            return "HP"
+        return str(pool_key or "")
 
     def spa_ui_tech_ids_v1():
         order = [
@@ -213,6 +223,31 @@ init -930 python:
         spa_ui_set_message("Disponible de {} reseteado a {}".format(spa_ui_unit_label(unit_key), base), "#66DD66")
         return None
 
+    def spa_ui_add_pool_feedback(unit_key, pool_key, amount):
+        fn = getattr(S, "spa_add_pool_bonus", None)
+        if not callable(fn):
+            spa_ui_set_message("No se pudo agregar {}.".format(spa_ui_pool_label(pool_key)), "#FF8888")
+            return None
+        r = fn(unit_key, pool_key, int(amount or 0), save=True)
+        if isinstance(r, dict) and r.get("ok", False):
+            val = int(getattr(S, "spa_get_pool_bonus", lambda a,b: 0)(unit_key, pool_key) or 0)
+            spa_ui_set_message("{} +{} para {} (bonus={})".format(spa_ui_pool_label(pool_key), int(amount or 0), spa_ui_unit_label(unit_key), val), "#66DD66")
+            return None
+        spa_ui_set_message("No se pudo agregar {}.".format(spa_ui_pool_label(pool_key)), "#FF8888")
+        return None
+
+    def spa_ui_reset_pool_feedback(unit_key, pool_key):
+        fn = getattr(S, "spa_reset_pool_bonus", None)
+        if not callable(fn):
+            spa_ui_set_message("No se pudo resetear {}.".format(spa_ui_pool_label(pool_key)), "#FF8888")
+            return None
+        r = fn(unit_key, pool_key, save=True)
+        if isinstance(r, dict) and r.get("ok", False):
+            spa_ui_set_message("{} reseteado para {}".format(spa_ui_pool_label(pool_key), spa_ui_unit_label(unit_key)), "#66DD66")
+            return None
+        spa_ui_set_message("No se pudo resetear {}.".format(spa_ui_pool_label(pool_key)), "#FF8888")
+        return None
+
     def spa_ui_save_profile_feedback(profile_id):
         fn = getattr(S, "spa_save_profile", None)
         if not callable(fn):
@@ -246,7 +281,7 @@ screen slot_points_editor():
             spacing 18
 
             label _("Configuración persistente de bonus por técnica")
-            text _("Base de técnica no se modifica; aquí editas BONUS por slot. Reiatsu/Energía se recalculan automáticamente.") size 18
+            text _("Editas bonus por slot para técnicas, recursos y HP. Todo queda persistente por perfil.") size 18
             text "[store.spa_editor_message]" size 16 color getattr(store, "spa_editor_message_color", "#AAAAAA")
 
             $ allocator_ok = callable(getattr(store, "spa_ensure_state", None))
@@ -299,6 +334,38 @@ screen slot_points_editor():
                     spacing 12
                     textbutton _("Reset slot") action Function(store.spa_ui_reset_slot_feedback, selected)
                     textbutton _("Reset TODO") action Confirm(_("¿Resetear TODOS los slots?"), yes=Function(store.spa_ui_reset_all_feedback))
+
+                frame:
+                    has vbox
+                    spacing 6
+
+                    text "Puntos de recursos" size 20 color "#C586C0"
+
+                    hbox:
+                        spacing 16
+                        $ rei_bonus = int(store.spa_get_pool_bonus(selected, "reiatsu") if hasattr(store, "spa_get_pool_bonus") else 0)
+                        $ ene_bonus = int(store.spa_get_pool_bonus(selected, "energy") if hasattr(store, "spa_get_pool_bonus") else 0)
+                        text "Reiatsu bonus: [rei_bonus]" size 17
+                        textbutton "+1000 Reiatsu" action Function(store.spa_ui_add_pool_feedback, selected, "reiatsu", 1000)
+                        textbutton "Reset Reiatsu" action Function(store.spa_ui_reset_pool_feedback, selected, "reiatsu")
+
+                    hbox:
+                        spacing 16
+                        text "Energía bonus: [ene_bonus]" size 17
+                        textbutton "+100 Energía" action Function(store.spa_ui_add_pool_feedback, selected, "energy", 100)
+                        textbutton "Reset Energía" action Function(store.spa_ui_reset_pool_feedback, selected, "energy")
+
+                frame:
+                    has vbox
+                    spacing 6
+
+                    text "Puntos de salud" size 20 color "#80CBC4"
+                    hbox:
+                        spacing 16
+                        $ hp_bonus_local = int(store.spa_get_pool_bonus(selected, "hp") if hasattr(store, "spa_get_pool_bonus") else 0)
+                        text "HP bonus: [hp_bonus_local]" size 17
+                        textbutton "+1000 HP" action Function(store.spa_ui_add_pool_feedback, selected, "hp", 1000)
+                        textbutton "Reset HP" action Function(store.spa_ui_reset_pool_feedback, selected, "hp")
 
                 null height 8
 

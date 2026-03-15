@@ -1,4 +1,4 @@
-# ===============================================================
+﻿# ===============================================================
 # 04Y_SLOT_POINT_ALLOCATOR_V1.rpy
 # Core allocator de puntos por slot (Fase A)
 # ===============================================================
@@ -41,6 +41,21 @@ init -940 python:
         if vv > hi:
             vv = hi
         return vv
+
+    SPA_POOL_KEYS = ("reiatsu", "energy", "hp")
+
+    def _spa_pool_key(pool_key):
+        raw = str(pool_key or "").strip().lower()
+        if raw in SPA_POOL_KEYS:
+            return raw
+        return ""
+
+    def _spa_clean_pool_bonus(raw_pool):
+        rp = raw_pool if isinstance(raw_pool, dict) else {}
+        out = {}
+        for kk in SPA_POOL_KEYS:
+            out[kk] = max(0, _spa_to_int(rp.get(kk, 0), 0))
+        return out
 
     def _spa_tech_exists(tech_id):
         tid = str(tech_id or "").strip()
@@ -153,6 +168,7 @@ init -940 python:
         sd["spent"] = int(spent)
         sd["remaining"] = int(remaining)
         sd["tech_bonus"] = dict(clean_bonus)
+        sd["resource_bonus"] = _spa_clean_pool_bonus(sd.get("resource_bonus", {}))
         return sd
 
     def _spa_compact_state(state):
@@ -226,7 +242,8 @@ init -940 python:
                 "available": int(d.get("available_points_per_slot", 2000)),
                 "spent": 0,
                 "remaining": int(d.get("available_points_per_slot", 2000)),
-                "tech_bonus": {}
+                "tech_bonus": {},
+                "resource_bonus": {"reiatsu": 0, "energy": 0, "hp": 0},
             }
         slots[uk] = _spa_recompute_slot_data(slots.get(uk, {}), d)
 
@@ -262,6 +279,58 @@ init -940 python:
         slot = spa_get_slot(unit_key)
         tb = slot.get("tech_bonus", {}) if isinstance(slot.get("tech_bonus", {}), dict) else {}
         return max(0, _spa_to_int(tb.get(tid, 0), 0))
+
+    def spa_get_pool_bonus(unit_key, pool_key):
+        pk = _spa_pool_key(pool_key)
+        if not pk:
+            return 0
+        slot = spa_get_slot(unit_key)
+        rb = _spa_clean_pool_bonus(slot.get("resource_bonus", {}))
+        return int(rb.get(pk, 0) or 0)
+
+    def spa_set_pool_bonus(unit_key, pool_key, new_bonus, save=True):
+        pk = _spa_pool_key(pool_key)
+        if not pk:
+            return {"ok": False, "reason": "invalid_pool", "before": spa_get_slot(unit_key), "after": spa_get_slot(unit_key)}
+
+        st = spa_ensure_state()
+        d = _spa_defaults_obj(st)
+        uk = _spa_normalize_unit_key(unit_key)
+        slot = spa_get_slot(uk)
+        before = dict(slot)
+
+        rb = _spa_clean_pool_bonus(slot.get("resource_bonus", {}))
+        rb[pk] = max(0, _spa_to_int(new_bonus, 0))
+
+        slot["resource_bonus"] = rb
+        slot = _spa_recompute_slot_data(slot, d)
+
+        slots = st.get("slots", {}) if isinstance(st.get("slots", {}), dict) else {}
+        slots[uk] = slot
+        st["slots"] = slots
+        S.battle_point_alloc = st
+
+        if save:
+            spa_save_persistent()
+
+        return {"ok": True, "reason": "ok", "before": before, "after": dict(slot)}
+
+    def spa_add_pool_bonus(unit_key, pool_key, delta, save=True):
+        cur = spa_get_pool_bonus(unit_key, pool_key)
+        dd = max(0, _spa_to_int(delta, 0))
+        return spa_set_pool_bonus(unit_key, pool_key, cur + dd, save=save)
+
+    def spa_sub_pool_bonus(unit_key, pool_key, delta, save=True):
+        cur = spa_get_pool_bonus(unit_key, pool_key)
+        dd = max(0, _spa_to_int(delta, 0))
+        return spa_set_pool_bonus(unit_key, pool_key, max(0, cur - dd), save=save)
+
+    def spa_reset_pool_bonus(unit_key, pool_key, save=True):
+        return spa_set_pool_bonus(unit_key, pool_key, 0, save=save)
+
+    def spa_get_pool_final(unit_key, pool_key, base_value):
+        base = max(0, _spa_to_int(base_value, 0))
+        return base + spa_get_pool_bonus(unit_key, pool_key)
 
     def spa_set_available(unit_key, new_available, save=True):
         st = spa_ensure_state()
@@ -353,7 +422,8 @@ init -940 python:
             "available": int(d.get("available_points_per_slot", 2000)),
             "spent": 0,
             "remaining": int(d.get("available_points_per_slot", 2000)),
-            "tech_bonus": {}
+            "tech_bonus": {},
+            "resource_bonus": {"reiatsu": 0, "energy": 0, "hp": 0},
         }
         slot = _spa_recompute_slot_data(slot, d)
 
@@ -541,6 +611,12 @@ init -940 python:
     S.spa_get_spent = spa_get_spent
     S.spa_get_remaining = spa_get_remaining
     S.spa_get_bonus = spa_get_bonus
+    S.spa_get_pool_bonus = spa_get_pool_bonus
+    S.spa_set_pool_bonus = spa_set_pool_bonus
+    S.spa_add_pool_bonus = spa_add_pool_bonus
+    S.spa_sub_pool_bonus = spa_sub_pool_bonus
+    S.spa_reset_pool_bonus = spa_reset_pool_bonus
+    S.spa_get_pool_final = spa_get_pool_final
     S.spa_set_available = spa_set_available
     S.spa_add_available = spa_add_available
     S.spa_reset_available_base = spa_reset_available_base
