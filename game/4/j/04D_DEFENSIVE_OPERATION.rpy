@@ -20,6 +20,9 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
         fmt_blue   = getattr(S, "fmt_blue",   lambda t: str(t))
         fmt_cyan   = getattr(S, "fmt_cyan",   lambda t: str(t))
         fmt_orange = getattr(S, "fmt_orange", lambda t: str(t))
+        fmt_white  = getattr(S, "fmt_white",  lambda t: str(t))
+        fmt_green  = (lambda t: "{color=%s}%s{/color}" % (pal.get("green", "#00FF00"), t))
+        fmt_red    = getattr(S, "fmt_red",    lambda t: str(t))
 
         # (0) LOG DE TÉCNICAS SELECCIONADAS
         summary = getattr(S, "summary_lines", [])
@@ -84,10 +87,11 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
 
             if mult:
                 parts.append(
-                    "{color=%s}%s×%s(%s){/color}" %
+                    "{color=%s}%s{/color} ×%s ({color=%s}%s{/color})" %
                     (pal["blue"],
                      S.battle_fmt_num(base_blk_i),
                      mult,
+                     pal["blue"],
                      S.battle_fmt_num(blk_i))
                 )
             else:
@@ -113,7 +117,7 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
                 fmt_cyan("Defensas"),
                 parts_str,
                 fmt_blue(S.battle_fmt_num(total_block)),
-                fmt_orange("{}%".format(int(deb_pct * 100))),
+                fmt_blue("{}%".format(int(deb_pct * 100))),
                 fmt_blue(S.battle_fmt_num(deb_val)),
                 fmt_blue(S.battle_fmt_num(eff_blk))
             )
@@ -175,16 +179,14 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
             direct_pending = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
         if direct_pending > 0:
             hp_after_total = max(0, int(hp_after) - int(direct_pending))
+            hp_after_fmt = fmt_green(S.battle_fmt_num(hp_after)) if hp_after > 0 else fmt_red("{} KO".format(S.battle_fmt_num(hp_after)))
+            hp_total_fmt = (fmt_green(S.battle_fmt_num(hp_after_total)) if hp_after_total > 0 else fmt_red("{} KO".format(S.battle_fmt_num(hp_after_total))))
             operation_add(
-                "Daño directo pendiente: {}".format(S.battle_fmt_num(direct_pending)),
+                fmt_white("Daño directo pendiente:") + " " + fmt_orange(S.battle_fmt_num(direct_pending)),
                 border
             )
             operation_add(
-                "HP total: {} - {} = {}".format(
-                    S.battle_fmt_num(hp_after),
-                    S.battle_fmt_num(direct_pending),
-                    S.battle_fmt_num(hp_after_total)
-                ),
+                fmt_white("HP total:") + " " + hp_after_fmt + fmt_white(" - ") + fmt_red(S.battle_fmt_num(direct_pending)) + fmt_white(" = ") + hp_total_fmt,
                 border
             )
 
@@ -197,7 +199,12 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
             pct_txt = getattr(S, "last_reflect_pct_txt", None)
             if not pct_txt:
                 pct_val = getattr(S, "last_reflect_pct", None)
-                pct_txt = "{}%".format(int(pct_val * 100)) if isinstance(pct_val, float) else "?"
+                if isinstance(pct_val, float):
+                    pct_txt = "{}%".format(int(pct_val * 100))
+                elif base_damage > 0:
+                    pct_txt = "{}%".format(int((int(reflected or 0) / float(base_damage)) * 100))
+                else:
+                    pct_txt = "0%"
 
             operation_add(
                 S.op_reflect_clean(pct_txt, S.battle_fmt_num(reflected)),

@@ -93,6 +93,10 @@ init -988 python:
                 pass
             return bool(getattr(S, "ai_allow_focus", True))
 
+        fn_cost_meta = getattr(S, "log_cost_meta", None)
+        if not callable(fn_cost_meta):
+            fn_cost_meta = globals().get("log_cost_meta", None)
+
         # -------------------------------
         # ACUMULADORES
         # -------------------------------
@@ -181,11 +185,11 @@ init -988 python:
             # Logs por tipo
             if key == "def_extra":
                 try:
-                    summary_lines.append(S.log_defense_extra(S.battle_fmt_num(base_blk), S.battle_fmt_num(blk)))
+                    summary_lines.append(S.log_defense_extra(base_blk, blk))
                 except:
                     pass
                 try:
-                    S.battle_log_add("{color=#999}(R %s / E %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    summary_lines.append(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -202,13 +206,29 @@ init -988 python:
 
                 try:
                     summary_lines.append(
-                        S.log_defense_reducer(S.battle_fmt_num(blk), int(atkred * 100), reduc_val_tmp)
+                        S.log_defense_reducer(base_blk, int(atkred * 100), reduc_val_tmp, final=blk)
                     )
                 except:
                     pass
 
                 try:
-                    S.battle_log_add("{color=#999}(R %s / E %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    summary_lines.append(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                except:
+                    pass
+                continue
+
+            if key == "defense_strong_block":
+                try:
+                    fn_strong = getattr(S, "log_defense_strong", None)
+                    if callable(fn_strong):
+                        summary_lines.append(fn_strong(base_blk, blk))
+                    else:
+                        summary_lines.append("Defensa Fuerte → Bloquea %s" % S.battle_fmt_num(blk))
+                except:
+                    pass
+
+                try:
+                    summary_lines.append(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -228,13 +248,13 @@ init -988 python:
 
                 try:
                     summary_lines.append(
-                        S.log_defense_reflect(S.battle_fmt_num(blk), int(ref_pct * 100), reflected_now)
+                        S.log_defense_reflect(base_blk, int(ref_pct * 100), reflected_now, final=blk)
                     )
                 except:
                     pass
 
                 try:
-                    S.battle_log_add("{color=#999}(R %s / E %s){/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    summary_lines.append(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -245,7 +265,11 @@ init -988 python:
         if focus_used:
             try:
                 if hasattr(S, "battle_log_add"):
-                    S.battle_log_add(S.log_focus_unified("defense"))
+                    fn_boost = getattr(S, "log_potenciar_unified", None)
+                    if callable(fn_boost):
+                        S.battle_log_add(fn_boost())
+                    else:
+                        S.battle_log_add(S.log_focus_unified("defense"))
             except:
                 pass
 
@@ -290,9 +314,10 @@ init -988 python:
             try:
                 if int(blk) != int(base):
                     block_parts.append(
-                        "{color=%s}%s×2(%s){/color}" % (
+                        "{color=%s}%s{/color} ×2 ({color=%s}%s{/color})" % (
                             _pal("blue", "#66CCFF"),
                             S.battle_fmt_num(base),
+                            _pal("blue", "#66CCFF"),
                             S.battle_fmt_num(blk)
                         )
                     )
@@ -308,7 +333,7 @@ init -988 python:
 
         try:
             fc = globals().get("fmt_cyan_text", lambda x: x)
-            fo = globals().get("fmt_orange", lambda x: x)
+            fo = globals().get("fmt_blue", lambda x: x)
             fb = globals().get("fmt_blue", lambda x: x)
         except:
             fc = fo = fb = (lambda x: x)
@@ -385,16 +410,25 @@ init -988 python:
         if direct_pending > 0:
             hp_after_total = max(0, int(hp_after) - int(direct_pending))
             try:
+                try:
+                    fw = globals().get("fmt_white", lambda x: x)
+                    fo = globals().get("fmt_orange", lambda x: x)
+                    fr = globals().get("fmt_red", lambda x: x)
+                    _green = _pal("green", "#00FF00")
+                    hp_after_fmt = ("{color=%s}%s{/color}" % (_green, S.battle_fmt_num(hp_after))) if hp_after > 0 else fr("{} KO".format(S.battle_fmt_num(hp_after)))
+                    hp_total_fmt = ("{color=%s}%s{/color}" % (_green, S.battle_fmt_num(hp_after_total))) if hp_after_total > 0 else fr("{} KO".format(S.battle_fmt_num(hp_after_total)))
+                except:
+                    fw = lambda x: x
+                    fo = lambda x: x
+                    fr = lambda x: x
+                    hp_after_fmt = S.battle_fmt_num(hp_after)
+                    hp_total_fmt = S.battle_fmt_num(hp_after_total)
                 S.operation_add(
-                    "Daño directo pendiente: {}".format(S.battle_fmt_num(direct_pending)),
+                    fw("Daño directo pendiente:") + " " + fo(S.battle_fmt_num(direct_pending)),
                     border
                 )
                 S.operation_add(
-                    "HP total: {} - {} = {}".format(
-                        S.battle_fmt_num(hp_after),
-                        S.battle_fmt_num(direct_pending),
-                        S.battle_fmt_num(hp_after_total)
-                    ),
+                    fw("HP total:") + " " + hp_after_fmt + fw(" - ") + fr(S.battle_fmt_num(direct_pending)) + fw(" = ") + hp_total_fmt,
                     border
                 )
             except:

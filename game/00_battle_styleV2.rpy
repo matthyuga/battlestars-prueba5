@@ -37,7 +37,8 @@ init -970 python:
             "cyan":    "#55FFFF",
 
             "green":   "#00FF00",
-            "hp_red":  "#FF6666"
+            "hp_red":  "#FF6666",
+            "meta":    "#999999"
         }
 
     PALETTE = S.PALETTE
@@ -54,6 +55,7 @@ init -970 python:
     fmt_pink    = lambda t: fmt("pink", t)
     fmt_effect  = lambda t: fmt("effect", t)
     fmt_cyan    = lambda t: fmt("cyan", t)
+    fmt_meta    = lambda t: fmt("meta", t)
 
     # ⭐ FIX: requerido por defensive_operation
     fmt_cyan_text = fmt_cyan
@@ -202,23 +204,39 @@ init -970 python:
     ###########################################################
     # 🛑 FALLBACK PARA OPERACIÓN DEFENSIVA (op_def_*) – store-safe
     ###########################################################
+    def _op_to_int(v):
+        try:
+            sv = str(v).replace('.', '').replace(',', '').replace(' ', '')
+            return int(sv)
+        except:
+            try:
+                return int(v)
+            except:
+                return 0
+
+    def _op_fmt_hp(v):
+        n = _op_to_int(v)
+        if n <= 0:
+            return fmt_red("{} KO".format(battle_fmt_num(0)))
+        return fmt("green", battle_fmt_num(n))
+
     if not hasattr(S, "op_def_enemy"):
         def op_def_enemy(base, pct, reduced, final, color_key="effect"):
             return "{} {} → {} - {} = {}".format(
-                fmt_white("Daño enemigo"),
-                fmt(color_key, battle_fmt_num(base)),
-                fmt_orange(str(pct)),
+                fmt_white("Daño enemigo:"),
+                fmt_red(battle_fmt_num(base)),
+                fmt_blue(str(pct)),
                 fmt_blue(battle_fmt_num(reduced)),
-                fmt_white(battle_fmt_num(final))
+                fmt_red(battle_fmt_num(final))
             )
         S.op_def_enemy = op_def_enemy
 
     if not hasattr(S, "op_def_damage"):
         def op_def_damage(base_eff, block, received):
             return "{} {} - {} = {}".format(
-                fmt_white("Daño neto"),
-                fmt_blue(battle_fmt_num(base_eff)),
-                fmt_blue(battle_fmt_num(block)),
+                fmt_red("Daño neto:"),
+                fmt_red(battle_fmt_num(base_eff)),
+                fmt_red(battle_fmt_num(block)),
                 fmt_red(battle_fmt_num(received))
             )
         S.op_def_damage = op_def_damage
@@ -226,19 +244,21 @@ init -970 python:
     if not hasattr(S, "op_def_hp"):
         def op_def_hp(before, dmg, after):
             return "{} {} - {} = {}".format(
-                fmt_white("HP"),
-                fmt_blue(battle_fmt_num(before)),
+                fmt_white("HP:"),
+                _op_fmt_hp(before),
                 fmt_red(battle_fmt_num(dmg)),
-                fmt_blue(battle_fmt_num(after))
+                _op_fmt_hp(after)
             )
         S.op_def_hp = op_def_hp
 
     if not hasattr(S, "op_reflect_clean"):
         def op_reflect_clean(pct, value):
-            return "{} {} ({})".format(
-                fmt_effect("Reflejo"),
-                fmt_blue(battle_fmt_num(value)),
-                fmt_orange(str(pct))
+            return "{} {} {}{}{}".format(
+                fmt_cyan("Reflejo:"),
+                fmt_cyan(battle_fmt_num(value)),
+                fmt_white("("),
+                fmt_cyan(str(pct)),
+                fmt_white(")")
             )
         S.op_reflect_clean = op_reflect_clean
 
@@ -247,16 +267,23 @@ init -970 python:
     # 🔥 LOGS UNIFICADOS – CONCENTRAR / POTENCIAR
     ###########################################################
     def log_focus_unified(mode=None):
+        target_txt = "Próximo ataque"
+        try:
+            if str(mode or "").strip().lower() == "defense":
+                target_txt = "Próxima defensa"
+        except:
+            pass
+
         return "{} {} → {} {}".format(
             fmt_purple("Concentrar"),
             fmt_white("Activado"),
-            fmt_white("Próximo ataque"),
+            fmt_white(target_txt),
             fmt_purple("×2")
         )
 
     def log_potenciar_unified():
         return "{} {} → {} {}".format(
-            fmt_effect("Potenciar"),
+            fmt_purple("Potenciar"),
             fmt_white("Activado"),
             fmt_white("Próxima defensa"),
             fmt_purple("×2")
@@ -266,42 +293,60 @@ init -970 python:
     ###########################################################
     # 🔵 DEFENSIVO – Logs dinámicos
     ###########################################################
+    def _defense_block_text(base, final):
+        b = battle_fmt_num(base)
+        f = battle_fmt_num(final)
+        if b != f:
+            return (
+                fmt_cyan(b) +
+                fmt_white(" ×2 ") +
+                fmt_white("(") + fmt_cyan(f) + fmt_white(")")
+            )
+        return fmt_cyan(f)
+
     def log_defense_extra(base, final):
-        if base != final:
-            txt = "{}×2({})".format(battle_fmt_num(base), battle_fmt_num(final))
-        else:
-            txt = battle_fmt_num(final)
-
-        return "{} → Bloquea {}".format(
+        return "{} → Bloquea {}{}".format(
             fmt_cyan("Defensa Extra"),
-            fmt_blue(txt)
+            _defense_block_text(base, final),
+            fmt_white(" de daño.")
         )
 
-    def log_defense_reducer(block, percent, reduced):
-        return "{} → Bloquea {} y reduce {}({})".format(
-            fmt_cyan("Defensa Reductora"),
-            fmt_blue(battle_fmt_num(block)),
-            fmt_effect("{}%".format(percent)),
-            fmt_blue(battle_fmt_num(reduced))
-        )
-
-    def log_defense_reflect(block, percent, reflected):
-        return "{} → Bloquea {} y refleja {}({})".format(
-            fmt_cyan("Defensa Reflectora"),
-            fmt_blue(battle_fmt_num(block)),
-            fmt_effect("{}%".format(percent)),
-            fmt_blue(battle_fmt_num(reflected))
-        )
-
-    def log_defense_strong(base, final):
-        if base != final:
-            v = "{}×2({})".format(battle_fmt_num(base), battle_fmt_num(final))
+    def log_defense_reducer(block, percent, reduced, final=None):
+        if final is not None:
+            block_txt = _defense_block_text(block, final)
         else:
-            v = battle_fmt_num(final)
+            block_txt = fmt_cyan(battle_fmt_num(block))
+        return "{} → Bloquea {}{} y reduce {}{}{}".format(
+            fmt_cyan("Defensa Reductora"),
+            block_txt,
+            fmt_white(" de daño"),
+            fmt_blue("{}%".format(percent)),
+            fmt_white("("),
+            fmt_blue(battle_fmt_num(reduced)) + fmt_white(")")
+        )
 
-        return "{} → Bloquea {}".format(
+    def log_defense_reflect(block, percent, reflected, final=None):
+        if final is not None:
+            block_txt = _defense_block_text(block, final)
+        else:
+            block_txt = fmt_cyan(battle_fmt_num(block))
+        return "{} → Bloquea {}{} y refleja {}{}{}".format(
+            fmt_cyan("Defensa Reflectora"),
+            block_txt,
+            fmt_white(" de daño"),
+            fmt_blue("{}%".format(percent)),
+            fmt_white("("),
+            fmt_blue(battle_fmt_num(reflected)) + fmt_white(")")
+        )
+
+    def log_defense_strong(base, final=None):
+        if final is None:
+            final = base
+
+        return "{} → Bloquea {}{}".format(
             fmt_cyan("Defensa Fuerte"),
-            fmt_blue(v)
+            _defense_block_text(base, final),
+            fmt_white(" de daño.")
         )
 
 
@@ -329,6 +374,10 @@ init -970 python:
             chunks[i] = ch
         return "".join(chunks)
 
+
+    def log_cost_meta(reiatsu_cost, energia_cost):
+        return fmt_meta("(Reiatsu {} / Energía {})".format(battle_fmt_num(reiatsu_cost), battle_fmt_num(energia_cost)))
+
     def log_attack_simple(tech, dmg_text):
         return "{} → {} {} {}".format(
             fmt_red(tech),
@@ -347,15 +396,15 @@ init -970 python:
 
     def log_attack_direct(dmg_text):
         return (
-            fmt_gold("Ataque Directo") + " " +
-            fmt_white("→ ") + fmt_gold(dmg_text) + fmt_white(" de daño directo (ignora defensas).")
+            fmt_red("Ataque Directo") + " " +
+            fmt_white("→ Inflige ") + fmt_red(dmg_text) + fmt_white(" de daño.")
         )
 
     def log_attack_noatk(dmg_text):
         return (
-            fmt_pink("Ataque Negador") + " " +
-            fmt_white("→ ") + fmt_red(dmg_text) +
-            fmt_white(" e impide el ataque enemigo.")
+            fmt_red("Ataque Negador") + " " +
+            fmt_white("→ Inflige ") + fmt_red(dmg_text) +
+            fmt_white(" de daño.")
         )
 
 
@@ -364,20 +413,53 @@ init -970 python:
     ###########################################################
     def log_operation(parts, reflect, total):
         p = highlight_x2(colorize_numbers(parts))
-        txt = fmt_white("Operación: ") + p
+        line = p
 
         if reflect > 0:
-            txt += fmt_white(" + ") + fmt_blue(battle_fmt_num(reflect))
+            line += fmt_white(" + ") + fmt_blue(battle_fmt_num(reflect))
 
-        txt += fmt_white(" = ") + fmt_gold(battle_fmt_num(total))
-        return txt
+        line += fmt_white(" = ") + fmt_gold(battle_fmt_num(total))
+        return fmt_white("▸ Operación Ofensiva:") + "\n   " + line
 
 
     ###########################################################
     # ⭐ DAÑO TOTAL
     ###########################################################
-    def log_total(total, reduction_pct=0):
-        txt = fmt_white("Daño total: ") + fmt_gold(battle_fmt_num(total))
+    def log_total(total, reduction_pct=0, defendible=None, directo=None):
+        try:
+            _def = None if defendible is None else int(defendible)
+        except:
+            _def = None
+        try:
+            _dir = None if directo is None else int(directo)
+        except:
+            _dir = None
+
+        if _def is None and _dir is None:
+            txt = fmt_white("Daño total: ") + fmt_gold(battle_fmt_num(total))
+        elif (_dir is None or _dir <= 0) and _def is not None:
+            txt = (
+                fmt_white("Daño total: ") +
+                fmt_gold(battle_fmt_num(_def)) +
+                fmt_white(" defendibles")
+            )
+        elif (_def is None or _def <= 0) and _dir is not None:
+            txt = (
+                fmt_white("Daño total: ") +
+                fmt_gold(battle_fmt_num(_dir)) +
+                fmt_white(" directos")
+            )
+        else:
+            _sum = int(_def) + int(_dir)
+            txt = (
+                fmt_white("Daño total: ") +
+                fmt_gold(battle_fmt_num(_def)) +
+                fmt_white(" defendibles + ") +
+                fmt_gold(battle_fmt_num(_dir)) +
+                fmt_white(" directos = ") +
+                fmt_gold(battle_fmt_num(_sum))
+            )
+
         if reduction_pct > 0:
             txt += fmt_white(" (") + fmt_orange("-{}% defensa general".format(reduction_pct)) + fmt_white(")")
         return txt
@@ -465,11 +547,14 @@ init -970 python:
     S.fmt_effect = fmt_effect
     S.fmt_cyan = fmt_cyan
     S.fmt_cyan_text = fmt_cyan_text
+    S.fmt_meta = fmt_meta
 
     S.log_operation = log_operation
     S.log_total = log_total
     S.log_focus_unified = log_focus_unified
     S.log_potenciar_unified = log_potenciar_unified
+    S.log_cost_meta = log_cost_meta
+    S.log_defense_strong = log_defense_strong
     S.log_dice_slots = log_dice_slots
     S.colorize_numbers = colorize_numbers
     S.highlight_x2 = highlight_x2

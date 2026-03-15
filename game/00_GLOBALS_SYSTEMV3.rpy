@@ -113,13 +113,13 @@ init -990 python:
         safe = str(text).replace("[", "[[").replace("]", "]]")
         debug_operation_log.append((safe, color or OP_COLOR_TEXT))
 
-    def operation_dump_to_battle_log(title="📘 Operación Defensiva:"):
+    def operation_dump_to_battle_log(title="▸ Operación Defensiva:"):
         if not debug_operation_log:
             return
         try:
-            battle_log_add(title, "#00FFFF")
+            battle_log_add(title, "#FFFFFF", group="operation")
             for txt, col in debug_operation_log:
-                battle_log_add("   " + txt, col or OP_COLOR_TEXT)
+                battle_log_add("   " + txt, col or OP_COLOR_TEXT, group="operation")
         except Exception as e:
             debug_log("operation_dump_to_battle_log error: {}".format(e))
 

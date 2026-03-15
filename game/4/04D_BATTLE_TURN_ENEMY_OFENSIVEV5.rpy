@@ -514,6 +514,8 @@ label battle_enemy_turn_legacy_entry:
                     },
                 )
 
+            target_assignment_line = None
+
             try:
                 if callable(getattr(S, "battle_log_add", None)) and primary:
                     fn_desc = getattr(S, "bs_describe_unit_key", None)
@@ -537,7 +539,7 @@ label battle_enemy_turn_legacy_entry:
                             _policy_log = "force_slot(P{})".format(_forced_slot + 1)
                         except:
                             _policy_log = "force_slot"
-                    S.battle_log_add("{color=#B0E0E6}AI target policy: %s → target asignado: %s{/color}" % (_policy_log, target_txt))
+                    target_assignment_line = "{color=#B0E0E6}Target asignado: %s{/color}" % (target_txt)
             except:
                 pass
 
@@ -547,7 +549,8 @@ label battle_enemy_turn_legacy_entry:
                     formula_text,
                     enemy_reflect_bonus if enemy_attack_executed else 0,
                     total_damage
-                )
+                ),
+                group="operation"
             )
         except:
             pass
@@ -583,46 +586,34 @@ label battle_enemy_turn_legacy_entry:
             dmg_directo = 0
 
         try:
-            fmt_gold   = getattr(S, "fmt_gold",   globals().get("fmt_gold", None))
-            fmt_red    = getattr(S, "fmt_red",    globals().get("fmt_red", None))
-            fmt_white  = getattr(S, "fmt_white",  globals().get("fmt_white", None))
-            fmt_orange = getattr(S, "fmt_orange", globals().get("fmt_orange", None))
-        except:
-            fmt_gold = fmt_red = fmt_white = fmt_orange = None
-
-        if dmg_directo == 0:
-            if debuff_pct > 0:
-                try:
-                    S.battle_log_add(
-                        fmt_gold("Daño total: ") +
-                        fmt_red(S.battle_fmt_num(dmg_defendible)) +
-                        fmt_white(" defendibles ") +
-                        fmt_orange("(-{}% defensa general)".format(int(debuff_pct * 100)))
-                    )
-                except:
-                    pass
-            else:
-                try:
-                    S.battle_log_add(
-                        fmt_gold("Daño total: ") +
-                        fmt_red(S.battle_fmt_num(dmg_defendible)) +
-                        fmt_white(" defendibles")
-                    )
-                except:
-                    pass
-        else:
-            total_final = dmg_defendible + dmg_directo
-            try:
+            tot_fn = getattr(S, "log_total", None) or globals().get("log_total", None)
+            if callable(tot_fn):
                 S.battle_log_add(
-                    fmt_gold("Daño total: ") +
-                    fmt_red(S.battle_fmt_num(dmg_defendible)) +
-                    fmt_white(" defendibles + ") +
-                    fmt_red(S.battle_fmt_num(dmg_directo)) +
-                    fmt_white(" directos = ") +
-                    fmt_red(S.battle_fmt_num(total_final))
+                    tot_fn(
+                        dmg_defendible + dmg_directo,
+                        int(debuff_pct * 100),
+                        defendible=dmg_defendible,
+                        directo=dmg_directo
+                    )
                 )
-            except:
-                pass
+            else:
+                total_final = dmg_defendible + dmg_directo
+                if dmg_directo > 0:
+                    S.battle_log_add("Daño total: {} defendibles + {} directos = {}".format(
+                        S.battle_fmt_num(dmg_defendible),
+                        S.battle_fmt_num(dmg_directo),
+                        S.battle_fmt_num(total_final)
+                    ))
+                else:
+                    S.battle_log_add("Daño total: {} defendibles".format(S.battle_fmt_num(dmg_defendible)))
+        except:
+            pass
+
+        try:
+            if target_assignment_line:
+                S.battle_log_add(target_assignment_line, group="target_assignment")
+        except:
+            pass
 
     # ============================================================
     # ⭐ 2v2: daño diferido al turno del defensor (sin maniobra inmediata)
@@ -660,7 +651,7 @@ label battle_enemy_turn_legacy_entry:
                                 parts.append("{}:+{}".format(fn_desc(_k, default_side="player", default_slot=0), int(_v or 0)))
                             else:
                                 parts.append("{}:+{}".format(_k, int(_v or 0)))
-                        S.battle_log_add("{color=#B39DDB}Daño entrante en cola 2v2 → %s{/color}" % (" | ".join(parts)))
+                        S.battle_log_add("{color=#B39DDB}Daño entrante en cola 2v2 → %s{/color}" % (" | ".join(parts)), group="queue_2v2")
                 except:
                     pass
 

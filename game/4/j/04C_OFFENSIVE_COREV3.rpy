@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04C_OFFENSIVE_CORE.rpy – Turno ofensivo del jugador (Núcleo)
 # ============================================================
 # v8.5 – SafeLogHub + UsedFlag Strict + StoreSafe Dice/Text
@@ -502,16 +502,6 @@ label battle_offensive_turn_legacy_entry:
                 except:
                     dmg_d = base_d
 
-                if dmg_d > 0:
-                    try:
-                        attack_records.append((base_d, dmg_d))
-                    except:
-                        pass
-                    try:
-                        total_damage += dmg_d
-                    except:
-                        total_damage = int(total_damage or 0) + int(dmg_d or 0)
-
                 try:
                     S.direct_pending_damage = 0
                 except:
@@ -562,7 +552,12 @@ label battle_offensive_turn_legacy_entry:
                     S.direct_success = bool(_ok)
                     if _ok:
                         try:
-                            _blog("Ataque Directo → ÉXITO", "#FFD700")
+                            _blog("Resultado: Éxito", "#FFD700")
+                        except:
+                            pass
+                    else:
+                        try:
+                            _blog("Resultado: Fracaso", "#C586C0")
                         except:
                             pass
 
@@ -602,41 +597,14 @@ label battle_offensive_turn_legacy_entry:
             except:
                 pass
 
-            # === ATAQUE DIRECTO FALLADO → daño defendible ===
+            # === ATAQUE DIRECTO FALLADO ===
+            # El daño ya está contabilizado como defendible en attack_records
+            # desde offensive_actions; aquí solo limpiamos pending legacy.
             if (not getattr(S, "direct_success", False)) and ("Ataque Directo" in getattr(S, "last_selected_actions", [])):
-
                 try:
-                    base_d = int(getattr(S, "direct_base_damage", 0) or 0)
-                except:
-                    base_d = 0
-                try:
-                    dmg_d  = int(getattr(S, "direct_pending_damage", 0) or base_d)
-                except:
-                    dmg_d = base_d
-
-                if dmg_d > 0:
-                    try:
-                        attack_records.append((base_d, dmg_d))
-                    except:
-                        pass
-                    try:
-                        total_damage += dmg_d
-                    except:
-                        total_damage = int(total_damage or 0) + int(dmg_d or 0)
-
-                    try:
-                        if callable(fmt_white) and callable(fmt_red) and callable(battle_fmt_num):
-                            _blog(
-                                fmt_white("Ataque Directo fallado → ") +
-                                fmt_red(battle_fmt_num(dmg_d)) +
-                                fmt_white(" daño defendible.")
-                            )
-                        else:
-                            _blog("Ataque Directo fallado → {} daño defendible.".format(dmg_d), "#FFFFFF")
-                    except:
-                        _blog("Ataque Directo fallado → {} daño defendible.".format(dmg_d), "#FFFFFF")
-
                     S.direct_pending_damage = 0
+                except:
+                    pass
 
             try:
                 bs_ui_pause(0.8, hard=True)
