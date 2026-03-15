@@ -469,6 +469,37 @@ init -970 python:
         return 0
 
 
+    def hud_ai_res_base_value(unit_data, key, team_name="player"):
+        k = str(key or "").strip().lower()
+        t = str(team_name or "player").strip().lower()
+        try:
+            if isinstance(unit_data, dict):
+                if k == "reiatsu":
+                    if "base_reiatsu" in unit_data:
+                        return max(0, int(unit_data.get("base_reiatsu", 0) or 0))
+                    if "max_reiatsu" in unit_data:
+                        return max(0, int(unit_data.get("max_reiatsu", 0) or 0))
+                if k == "energy":
+                    if "base_energy" in unit_data:
+                        return max(0, int(unit_data.get("base_energy", 0) or 0))
+                    if "max_energy" in unit_data:
+                        return max(0, int(unit_data.get("max_energy", 0) or 0))
+        except:
+            pass
+
+        if t == "enemy":
+            if k == "reiatsu":
+                return max(0, int(getattr(store, "enemy_reiatsu_base", getattr(store, "enemy_reiatsu", 0)) or 0))
+            if k == "energy":
+                return max(0, int(getattr(store, "enemy_energy_base", getattr(store, "enemy_energy", 0)) or 0))
+
+        if k == "reiatsu":
+            return max(0, int(getattr(store, "player_reiatsu_base", getattr(store, "player_reiatsu", 0)) or 0))
+        if k == "energy":
+            return max(0, int(getattr(store, "player_energy_base", getattr(store, "player_energy", 0)) or 0))
+        return 0
+
+
     def hud_safe_panel_color(style_name):
         style = str(style_name or "grey").strip().lower()
         return {
@@ -620,6 +651,8 @@ screen battle_hp_overlay():
                                 $ _uk = store.bs_unit_key(_team, i)
                                 $ _uu = store.bs_get_unit_by_key(_uk)
                                 $ _res = store.bs_get_unit_resources(_uk) if hasattr(store, "bs_get_unit_resources") else {"reiatsu":0,"energy":0}
+                                $ _rei_base = hud_ai_res_base_value(_uu, "reiatsu", _team)
+                                $ _ene_base = hud_ai_res_base_value(_uu, "energy", _team)
                                 $ _name = hud_ai_resolve_unit_name(_team, i, _uu)
                                 $ _hp = int((_uu.get("hp", 0) if isinstance(_uu, dict) else 0) or 0)
                                 $ _mx = int((_uu.get("max_hp", 1) if isinstance(_uu, dict) else 1) or 1)
@@ -668,8 +701,9 @@ screen battle_hp_overlay():
                                                 color "#FFFFFF"
                                                 size 8
 
-                                            text "Rei: {}{}".format(
+                                            text "Rei: {}/{}{}".format(
                                                 battle_fmt_num(hud_ai_res_value(_res, "reiatsu")),
+                                                battle_fmt_num(_rei_base),
                                                 " (-{})".format(battle_fmt_num(abs(_rei_diff))) if _rei_diff != 0 else ""
                                             ):
                                                 xpos 8
@@ -677,8 +711,9 @@ screen battle_hp_overlay():
                                                 color "#55FFFF"
                                                 size 8
 
-                                            text "Ene: {}{}".format(
+                                            text "Ene: {}/{}{}".format(
                                                 battle_fmt_num(hud_ai_res_value(_res, "energy")),
+                                                battle_fmt_num(_ene_base),
                                                 " (-{})".format(battle_fmt_num(abs(_ene_diff))) if _ene_diff != 0 else ""
                                             ):
                                                 xpos 8
@@ -724,8 +759,9 @@ screen battle_hp_overlay():
                                                     color "#FFFFFF"
                                                     size int((_hud_layout.get("stat_size", 11) or 11) + 2)
 
-                                                text "Reiatsu: {}{}".format(
+                                                text "Reiatsu: {}/{}{}".format(
                                                     battle_fmt_num(hud_ai_res_value(_res, "reiatsu")),
+                                                    battle_fmt_num(_rei_base),
                                                     " (-{})".format(battle_fmt_num(abs(_rei_diff))) if _rei_diff != 0 else ""
                                                 ):
                                                     xpos 18
@@ -733,8 +769,9 @@ screen battle_hp_overlay():
                                                     color "#55FFFF"
                                                     size int((_hud_layout.get("stat_size", 11) or 11) + 2)
 
-                                                text "Energía: {}{}".format(
+                                                text "Energía: {}/{}{}".format(
                                                     battle_fmt_num(hud_ai_res_value(_res, "energy")),
+                                                    battle_fmt_num(_ene_base),
                                                     " (-{})".format(battle_fmt_num(abs(_ene_diff))) if _ene_diff != 0 else ""
                                                 ):
                                                     xpos 18
@@ -867,13 +904,13 @@ screen battle_hp_overlay():
                                             color "#FFFFFF"
                                             size int(_hud_layout.get("stat_size", 9) or 9)
 
-                                        text "Reiatsu: {}".format(battle_fmt_num(hud_ai_res_value(_res, "reiatsu"))):
+                                        text "Reiatsu: {}/{}".format(battle_fmt_num(hud_ai_res_value(_res, "reiatsu")), battle_fmt_num(_rei_base)):
                                             xpos 18
                                             ypos 240
                                             color "#55FFFF"
                                             size int(_hud_layout.get("stat_size", 9) or 9)
 
-                                        text "Energía: {}".format(battle_fmt_num(hud_ai_res_value(_res, "energy"))):
+                                        text "Energía: {}/{}".format(battle_fmt_num(hud_ai_res_value(_res, "energy")), battle_fmt_num(_ene_base)):
                                             xpos 18
                                             ypos 258
                                             color "#FFA500"
@@ -908,14 +945,14 @@ screen battle_hp_overlay():
 
                         hbox:
                             spacing 6
-                            text "Reiatsu: {}".format(battle_fmt_num(player_reiatsu)) size 15 color "#55FFFF"
+                            text "Reiatsu: {}/{}".format(battle_fmt_num(player_reiatsu), battle_fmt_num(getattr(store, "player_reiatsu_base", player_reiatsu))) size 15 color "#55FFFF"
                             $ _rei_diff_1v1 = (simulated_reiatsu - player_reiatsu) if (hasattr(store, "pending_tech_list") and store.pending_tech_list) else 0
                             if _rei_diff_1v1 != 0:
                                 text "-{}".format(battle_fmt_num(abs(_rei_diff_1v1))) size 15 color "#66CCFFAA"
 
                         hbox:
                             spacing 6
-                            text "Energía: {}".format(battle_fmt_num(player_energy)) size 15 color "#FFA500"
+                            text "Energía: {}/{}".format(battle_fmt_num(player_energy), battle_fmt_num(getattr(store, "player_energy_base", player_energy))) size 15 color "#FFA500"
                             $ _ene_diff_1v1 = (simulated_energy - player_energy) if (hasattr(store, "pending_tech_list") and store.pending_tech_list) else 0
                             if _ene_diff_1v1 != 0:
                                 text "-{}".format(battle_fmt_num(abs(_ene_diff_1v1))) size 15 color "#FFBB66AA"
@@ -932,8 +969,8 @@ screen battle_hp_overlay():
                             range 1.0 xmaximum 280 ymaximum 16
                             left_bar "#FF3333" right_bar "#222222"
                         text "{} / {}".format(battle_fmt_num(battle_hp_enemy), battle_fmt_num(battle_hp_enemy_max)) color "#FFFFFF" size 16
-                        text "Reiatsu: {}".format(battle_fmt_num(enemy_reiatsu)) size 15 color "#55FFFF"
-                        text "Energía: {}".format(battle_fmt_num(enemy_energy)) size 15 color "#FFA500"
+                        text "Reiatsu: {}/{}".format(battle_fmt_num(enemy_reiatsu), battle_fmt_num(getattr(store, "enemy_reiatsu_base", enemy_reiatsu))) size 15 color "#55FFFF"
+                        text "Energía: {}/{}".format(battle_fmt_num(enemy_energy), battle_fmt_num(getattr(store, "enemy_energy_base", enemy_energy))) size 15 color "#FFA500"
 
 
         # ======================================================
