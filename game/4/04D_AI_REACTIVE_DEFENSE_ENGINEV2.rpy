@@ -314,9 +314,10 @@ init -988 python:
             try:
                 if int(blk) != int(base):
                     block_parts.append(
-                        "{color=%s}%s×2(%s){/color}" % (
+                        "{color=%s}%s{/color} ×2 ({color=%s}%s{/color})" % (
                             _pal("blue", "#66CCFF"),
                             S.battle_fmt_num(base),
+                            _pal("blue", "#66CCFF"),
                             S.battle_fmt_num(blk)
                         )
                     )
@@ -332,7 +333,7 @@ init -988 python:
 
         try:
             fc = globals().get("fmt_cyan_text", lambda x: x)
-            fo = globals().get("fmt_orange", lambda x: x)
+            fo = globals().get("fmt_blue", lambda x: x)
             fb = globals().get("fmt_blue", lambda x: x)
         except:
             fc = fo = fb = (lambda x: x)
@@ -409,16 +410,25 @@ init -988 python:
         if direct_pending > 0:
             hp_after_total = max(0, int(hp_after) - int(direct_pending))
             try:
+                try:
+                    fw = globals().get("fmt_white", lambda x: x)
+                    fo = globals().get("fmt_orange", lambda x: x)
+                    fr = globals().get("fmt_red", lambda x: x)
+                    _green = _pal("green", "#00FF00")
+                    hp_after_fmt = ("{color=%s}%s{/color}" % (_green, S.battle_fmt_num(hp_after))) if hp_after > 0 else fr("{} KO".format(S.battle_fmt_num(hp_after)))
+                    hp_total_fmt = ("{color=%s}%s{/color}" % (_green, S.battle_fmt_num(hp_after_total))) if hp_after_total > 0 else fr("{} KO".format(S.battle_fmt_num(hp_after_total)))
+                except:
+                    fw = lambda x: x
+                    fo = lambda x: x
+                    fr = lambda x: x
+                    hp_after_fmt = S.battle_fmt_num(hp_after)
+                    hp_total_fmt = S.battle_fmt_num(hp_after_total)
                 S.operation_add(
-                    "Daño directo pendiente: {}".format(S.battle_fmt_num(direct_pending)),
+                    fw("Daño directo pendiente:") + " " + fo(S.battle_fmt_num(direct_pending)),
                     border
                 )
                 S.operation_add(
-                    "HP total: {} - {} = {}".format(
-                        S.battle_fmt_num(hp_after),
-                        S.battle_fmt_num(direct_pending),
-                        S.battle_fmt_num(hp_after_total)
-                    ),
+                    fw("HP total:") + " " + hp_after_fmt + fw(" - ") + fr(S.battle_fmt_num(direct_pending)) + fw(" = ") + hp_total_fmt,
                     border
                 )
             except:

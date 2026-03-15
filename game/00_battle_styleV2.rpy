@@ -204,23 +204,39 @@ init -970 python:
     ###########################################################
     # 🛑 FALLBACK PARA OPERACIÓN DEFENSIVA (op_def_*) – store-safe
     ###########################################################
+    def _op_to_int(v):
+        try:
+            sv = str(v).replace('.', '').replace(',', '').replace(' ', '')
+            return int(sv)
+        except:
+            try:
+                return int(v)
+            except:
+                return 0
+
+    def _op_fmt_hp(v):
+        n = _op_to_int(v)
+        if n <= 0:
+            return fmt_red("{} KO".format(battle_fmt_num(0)))
+        return fmt("green", battle_fmt_num(n))
+
     if not hasattr(S, "op_def_enemy"):
         def op_def_enemy(base, pct, reduced, final, color_key="effect"):
             return "{} {} → {} - {} = {}".format(
-                fmt_white("Daño enemigo"),
-                fmt(color_key, battle_fmt_num(base)),
-                fmt_orange(str(pct)),
+                fmt_white("Daño enemigo:"),
+                fmt_red(battle_fmt_num(base)),
+                fmt_blue(str(pct)),
                 fmt_blue(battle_fmt_num(reduced)),
-                fmt_white(battle_fmt_num(final))
+                fmt_red(battle_fmt_num(final))
             )
         S.op_def_enemy = op_def_enemy
 
     if not hasattr(S, "op_def_damage"):
         def op_def_damage(base_eff, block, received):
             return "{} {} - {} = {}".format(
-                fmt_white("Daño neto"),
-                fmt_blue(battle_fmt_num(base_eff)),
-                fmt_blue(battle_fmt_num(block)),
+                fmt_red("Daño neto:"),
+                fmt_red(battle_fmt_num(base_eff)),
+                fmt_red(battle_fmt_num(block)),
                 fmt_red(battle_fmt_num(received))
             )
         S.op_def_damage = op_def_damage
@@ -228,19 +244,21 @@ init -970 python:
     if not hasattr(S, "op_def_hp"):
         def op_def_hp(before, dmg, after):
             return "{} {} - {} = {}".format(
-                fmt_white("HP"),
-                fmt_blue(battle_fmt_num(before)),
+                fmt_white("HP:"),
+                _op_fmt_hp(before),
                 fmt_red(battle_fmt_num(dmg)),
-                fmt_blue(battle_fmt_num(after))
+                _op_fmt_hp(after)
             )
         S.op_def_hp = op_def_hp
 
     if not hasattr(S, "op_reflect_clean"):
         def op_reflect_clean(pct, value):
-            return "{} {} ({})".format(
-                fmt_effect("Reflejo"),
-                fmt_blue(battle_fmt_num(value)),
-                fmt_orange(str(pct))
+            return "{} {} {}{}{}".format(
+                fmt_cyan("Reflejo:"),
+                fmt_cyan(battle_fmt_num(value)),
+                fmt_white("("),
+                fmt_cyan(str(pct)),
+                fmt_white(")")
             )
         S.op_reflect_clean = op_reflect_clean
 
