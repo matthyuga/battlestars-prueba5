@@ -325,18 +325,26 @@ init -950 python:
         consumed_r = r
         consumed_e = e
 
-        if mode == "2v2" and callable(getattr(S, "bs_consume_unit_resources", None)) and callable(getattr(S, "bs_get_turn_ctx", None)) and callable(getattr(S, "bs_unit_key", None)):
-            ctx = S.bs_get_turn_ctx()
-            side = str(ctx.get("owner_team", actor) or actor)
-            slot = int(ctx.get("owner_slot", 0) or 0)
-            if actor in ("player", "enemy"):
-                side = actor
+        can_consume_by_unit = callable(getattr(S, "bs_consume_unit_resources", None)) and callable(getattr(S, "bs_unit_key", None))
+
+        if can_consume_by_unit:
+            side = actor if actor in ("player", "enemy") else "player"
+            slot = 0
+
+            # En 2v2 respetamos owner_team/owner_slot del turno; en 1v1 usamos slot 0.
+            if mode == "2v2" and callable(getattr(S, "bs_get_turn_ctx", None)):
+                ctx = S.bs_get_turn_ctx() or {}
+                side = str(ctx.get("owner_team", side) or side)
+                slot = int(ctx.get("owner_slot", 0) or 0)
+                if actor in ("player", "enemy"):
+                    side = actor
+
             ukey = str(S.bs_unit_key(side, slot) or "")
             info = S.bs_consume_unit_resources(ukey, r, e)
             consumed_r = int(info.get("reiatsu_spent", 0) or 0)
             consumed_e = int(info.get("energy_spent", 0) or 0)
 
-            # sincronizar aliases legacy de unidad activa
+            # sincronizar aliases legacy para HUD/flujos 1v1 que leen player_* y enemy_*
             if callable(getattr(S, "bs_get_active_unit_key", None)) and callable(getattr(S, "bs_get_unit_resources", None)):
                 try:
                     akt = str(S.bs_get_active_unit_key(side) or ukey)
