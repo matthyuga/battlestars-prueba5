@@ -75,14 +75,17 @@ Este diagnóstico consolida:
 
 ---
 
-## 4) Direct attack (ataque indefendible)
+## 4) Técnicas con dados: Ataque Directo + Ataque Negador
 
 ### Ajustes recomendados
+- Unificar ambas técnicas bajo el mismo patrón visual (solo cambia el efecto de la condición).
 - Reutilizar verbo `Inflige` para consistencia con ofensivas estándar.
 - Corregir expresión de daño: incluir `×2` cuando aplique y finalizar como `de daño.`
-- Texto de condición:
-  - `Si saca 2/3 dados de éxito, este ataque es indefendible.`
-- Agrupar `Tirada` + `Resultado` en bloque visual separado del resto del log (separador/sangría).
+- Color del nombre de técnica: rojo para ambas (`Ataque Directo` y `Ataque Negador`).
+- Texto de condición canónico:
+  - `Ataque Directo`: `Si saca 2/3 dados de éxito, este ataque es indefendible.`
+  - `Ataque Negador`: `Si saca 2/3 dados de éxito, el enemigo no puede atacar en su siguiente turno.`
+- Agrupar `Tirada` + `Resultados de tirada` en bloque visual separado del resto del log (separador/sangría), compartiendo formato entre Directo/Negador.
 
 ---
 
@@ -115,7 +118,7 @@ Este diagnóstico consolida:
 
 ## Backlog implementable (orden sugerido)
 
-1. **Canon de plantillas A1**: ofensiva/defensiva + costos + focus + direct attack.
+1. **Canon de plantillas A1**: ofensiva/defensiva + costos + focus + técnicas con dados (Directo/Negador).
 2. **Fix A2 crítico**: soporte visible para `defense_strong_block` en log defensivo IA.
 3. **Canon de resumen A3**: `Daño total` con desglose defendible/directo consistente.
 4. **Tokens B1**: unificación de color semántico (sin nuevos hex en gameplay).
@@ -126,9 +129,10 @@ Este diagnóstico consolida:
 
 ## Criterios de aceptación (QA rápido)
 
-- Toda técnica ejecutada (player/enemy) imprime una línea canónica de técnica.
+- Toda técnica ejecutada (player/enemy) imprime una línea canónica de técnica, incluyendo `Ataque Directo` y `Ataque Negador`.
 - `force_strong` muestra línea defensiva explícita, no solo operación resultante.
 - No aparece `Ene` ni `E`; solo `Energía`.
+- `Ataque Negador` usa color rojo (no color alterno) y comparte el mismo patrón de tirada/resultado que `Ataque Directo`.
 - `Daño total` siempre explicita tipo de daño cuando exista mezcla (directo + defendible).
 - Debug técnico no aparece en log narrativo por defecto.
 - Operación/target/cola pueden ocultarse y expandirse bajo demanda.
