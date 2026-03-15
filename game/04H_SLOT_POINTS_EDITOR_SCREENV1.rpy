@@ -93,7 +93,7 @@ init -930 python:
         if vv not in (10, 50, 100):
             vv = 100
         S.spa_editor_step = vv
-        return vv
+        return None
 
     def spa_ui_apply_delta(unit_key, tech_id, delta):
         fn = getattr(S, "spa_add_bonus", None)
@@ -145,7 +145,7 @@ init -930 python:
             except:
                 b = 0
             spa_ui_set_message("{}: bonus = {}".format(spa_ui_tech_label(tech_id), b), "#66DD66")
-            return r
+            return None
 
         reason = "error"
         if isinstance(r, dict):
@@ -159,38 +159,38 @@ init -930 python:
             spa_ui_set_message("Allocator no disponible.", "#FF8888")
         else:
             spa_ui_set_message("No se pudo aplicar el cambio ({}).".format(reason), "#FF8888")
-        return r
+        return None
 
     def spa_ui_reset_tech_feedback(unit_key, tech_id):
         fn = getattr(S, "spa_set_bonus", None)
         if not callable(fn):
             spa_ui_set_message("Allocator no disponible.", "#FF8888")
-            return False
+            return None
         r = fn(unit_key, tech_id, 0, True)
         if isinstance(r, dict) and r.get("ok", False):
             spa_ui_set_message("{}: bonus reseteado".format(spa_ui_tech_label(tech_id)), "#66DD66")
-            return True
+            return None
         spa_ui_set_message("No se pudo resetear técnica.", "#FF8888")
-        return False
+        return None
 
     def spa_ui_reset_slot_feedback(unit_key):
         fn = getattr(S, "spa_reset_slot", None)
         if not callable(fn):
             spa_ui_set_message("Allocator no disponible.", "#FF8888")
-            return False
+            return None
         fn(unit_key, True)
         spa_ui_set_message("Slot {} reseteado.".format(spa_ui_unit_label(unit_key)), "#66DD66")
-        return True
+        return None
 
     def spa_ui_reset_all_feedback():
         fn = getattr(S, "spa_reset_all", None)
         if not callable(fn):
             spa_ui_set_message("Allocator no disponible.", "#FF8888")
-            return False
+            return None
         fn(True)
         S.spa_editor_selected_unit_key = "player:0"
         spa_ui_set_message("Todos los slots fueron reseteados.", "#66DD66")
-        return True
+        return None
 
 screen slot_points_editor():
     tag menu
