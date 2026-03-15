@@ -8,6 +8,7 @@ default spa_editor_selected_unit_key = "player:0"
 default spa_editor_step = 100
 default spa_editor_message = ""
 default spa_editor_message_color = "#AAAAAA"
+default spa_editor_profile_id = "A"
 
 init -930 python:
     import renpy.store as S
@@ -192,6 +193,50 @@ init -930 python:
         spa_ui_set_message("Todos los slots fueron reseteados.", "#66DD66")
         return None
 
+
+    def spa_ui_add_available_feedback(unit_key, amount=1000):
+        fn = getattr(S, "spa_add_available", None)
+        if not callable(fn):
+            spa_ui_set_message("No se pudo agregar disponible.", "#FF8888")
+            return None
+        fn(unit_key, int(amount or 0), save=True)
+        spa_ui_set_message("Disponible +{} para {}".format(int(amount or 0), spa_ui_unit_label(unit_key)), "#66DD66")
+        return None
+
+    def spa_ui_reset_available_feedback(unit_key):
+        fn = getattr(S, "spa_reset_available_base", None)
+        if not callable(fn):
+            spa_ui_set_message("No se pudo resetear disponible.", "#FF8888")
+            return None
+        slot = fn(unit_key, save=True)
+        base = int(slot.get("available", 2000) if isinstance(slot, dict) else 2000)
+        spa_ui_set_message("Disponible de {} reseteado a {}".format(spa_ui_unit_label(unit_key), base), "#66DD66")
+        return None
+
+    def spa_ui_save_profile_feedback(profile_id):
+        fn = getattr(S, "spa_save_profile", None)
+        if not callable(fn):
+            spa_ui_set_message("Guardado de perfil no disponible.", "#FF8888")
+            return None
+        ok = bool(fn(profile_id))
+        if ok:
+            spa_ui_set_message("Configuración guardada en perfil {}".format(str(profile_id)), "#66DD66")
+        else:
+            spa_ui_set_message("No se pudo guardar perfil {}".format(str(profile_id)), "#FF8888")
+        return None
+
+    def spa_ui_load_profile_feedback(profile_id):
+        fn = getattr(S, "spa_load_profile", None)
+        if not callable(fn):
+            spa_ui_set_message("Carga de perfil no disponible.", "#FF8888")
+            return None
+        ok = bool(fn(profile_id))
+        if ok:
+            spa_ui_set_message("Perfil {} cargado".format(str(profile_id)), "#66DD66")
+        else:
+            spa_ui_set_message("No existe perfil {} guardado".format(str(profile_id)), "#FF8888")
+        return None
+
 screen slot_points_editor():
     tag menu
 
@@ -214,6 +259,16 @@ screen slot_points_editor():
 
                 hbox:
                     spacing 10
+                    text _("Perfil:") size 18
+                    for pid in ("A", "B", "C"):
+                        textbutton "[pid]":
+                            action SetVariable("spa_editor_profile_id", pid)
+                            text_color ("#66CCFF" if pid == getattr(store, "spa_editor_profile_id", "A") else "#FFFFFF")
+                    textbutton _("Guardar configuración") action Function(store.spa_ui_save_profile_feedback, getattr(store, "spa_editor_profile_id", "A"))
+                    textbutton _("Cargar configuración") action Function(store.spa_ui_load_profile_feedback, getattr(store, "spa_editor_profile_id", "A"))
+
+                hbox:
+                    spacing 10
                     text _("Slot:") size 20
                     for uk in store.spa_ui_unit_keys_v1():
                         $ uk_label = store.spa_ui_unit_label(uk)
@@ -229,6 +284,8 @@ screen slot_points_editor():
                     text "Disponible: [av]" size 19
                     text "Gastado: [sp]" size 19
                     text "Restante: [rm]" size 19 color ("#66DD66" if rm >= 0 else "#FF6666")
+                    textbutton "+1000 disp" action Function(store.spa_ui_add_available_feedback, selected, 1000)
+                    textbutton "Reset disp" action Function(store.spa_ui_reset_available_feedback, selected)
 
                 hbox:
                     spacing 10

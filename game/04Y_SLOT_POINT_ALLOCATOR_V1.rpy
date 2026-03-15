@@ -403,13 +403,88 @@ init -940 python:
         st = spa_ensure_state()
         return _spa_compact_state(st)
 
+    def _spa_get_persistent_obj():
+        # 1) store.persistent (si existe)
+        p = getattr(S, "persistent", None)
+        if p is not None:
+            return p
+
+        # 2) variable global `persistent` de Ren'Py
+        try:
+            p = globals().get("persistent", None)
+            if p is not None:
+                return p
+        except:
+            pass
+
+        # 3) renpy.game.persistent
+        try:
+            import renpy.game as RG
+            p = getattr(RG, "persistent", None)
+            if p is not None:
+                return p
+        except:
+            pass
+
+        return None
+
+    def spa_add_available(unit_key, delta, save=True):
+        cur = spa_get_available(unit_key)
+        dd = _spa_to_int(delta, 0)
+        return spa_set_available(unit_key, max(0, cur + dd), save=save)
+
+    def spa_reset_available_base(unit_key, save=True):
+        st = spa_ensure_state()
+        d = _spa_defaults_obj(st)
+        base = max(0, _spa_to_int(d.get("available_points_per_slot", 2000), 2000))
+        return spa_set_available(unit_key, base, save=save)
+
+    def spa_save_profile(profile_id="A"):
+        tag = str(profile_id or "A").strip() or "A"
+        p = _spa_get_persistent_obj()
+        if p is None:
+            return False
+
+        profs = getattr(p, "battle_point_alloc_profiles_v1", None)
+        if not isinstance(profs, dict):
+            profs = {}
+
+        profs[tag] = spa_snapshot()
+        p.battle_point_alloc_profiles_v1 = profs
+
+        try:
+            import renpy.exports as R
+            if hasattr(R, "save_persistent"):
+                R.save_persistent()
+        except:
+            pass
+
+        return True
+
+    def spa_load_profile(profile_id="A"):
+        tag = str(profile_id or "A").strip() or "A"
+        p = _spa_get_persistent_obj()
+        if p is None:
+            return False
+
+        profs = getattr(p, "battle_point_alloc_profiles_v1", None)
+        if not isinstance(profs, dict):
+            return False
+
+        data = profs.get(tag, None)
+        if not isinstance(data, dict):
+            return False
+
+        S.battle_point_alloc = _spa_compact_state(data)
+        return True
+
     def spa_save_persistent():
         if not bool(getattr(S, "slot_points_persistence_enabled", True)):
             return False
 
         st = spa_snapshot()
 
-        p = getattr(S, "persistent", None)
+        p = _spa_get_persistent_obj()
         if p is None:
             return False
 
@@ -432,7 +507,7 @@ init -940 python:
         if not bool(getattr(S, "slot_points_persistence_enabled", True)):
             return False
 
-        p = getattr(S, "persistent", None)
+        p = _spa_get_persistent_obj()
         if p is None:
             return False
 
@@ -467,6 +542,8 @@ init -940 python:
     S.spa_get_remaining = spa_get_remaining
     S.spa_get_bonus = spa_get_bonus
     S.spa_set_available = spa_set_available
+    S.spa_add_available = spa_add_available
+    S.spa_reset_available_base = spa_reset_available_base
     S.spa_set_bonus = spa_set_bonus
     S.spa_add_bonus = spa_add_bonus
     S.spa_sub_bonus = spa_sub_bonus
@@ -478,3 +555,5 @@ init -940 python:
     S.spa_save_persistent = spa_save_persistent
     S.spa_load_persistent = spa_load_persistent
     S.spa_load_or_init = spa_load_or_init
+    S.spa_save_profile = spa_save_profile
+    S.spa_load_profile = spa_load_profile
