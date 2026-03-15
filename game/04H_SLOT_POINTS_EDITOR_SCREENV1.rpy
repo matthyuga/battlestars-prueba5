@@ -216,7 +216,8 @@ screen slot_points_editor():
                     spacing 10
                     text _("Slot:") size 20
                     for uk in store.spa_ui_unit_keys_v1():
-                        textbutton "[store.spa_ui_unit_label(uk)]":
+                        $ uk_label = store.spa_ui_unit_label(uk)
+                        textbutton "[uk_label]":
                             action SetVariable("spa_editor_selected_unit_key", uk)
                             text_color ("#66CCFF" if uk == selected else "#FFFFFF")
 
