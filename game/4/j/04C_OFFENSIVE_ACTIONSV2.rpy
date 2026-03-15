@@ -74,6 +74,35 @@ init python:
             m = 1
         return m
 
+    def _off_player_unit_key():
+        """Unit key del jugador para costos/valor final en ejecución."""
+        try:
+            mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        except:
+            mode = "1v1"
+
+        if mode == "2v2":
+            try:
+                fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+                fn_key = getattr(S, "bs_unit_key", None)
+                if callable(fn_ctx) and callable(fn_key):
+                    ctx = fn_ctx() or {}
+                    team = str(ctx.get("owner_team", "player") or "player").strip().lower()
+                    slot = int(ctx.get("owner_slot", 0) or 0)
+                    if team == "player":
+                        return str(fn_key("player", slot) or "player:0")
+            except:
+                pass
+
+        try:
+            fn_akt = getattr(S, "bs_get_active_unit_key", None)
+            if callable(fn_akt):
+                return str(fn_akt("player") or "player:0")
+        except:
+            pass
+
+        return "player:0"
+
     def _blog(text, color=None, border=None):
         """
         Wrapper universal:
@@ -286,7 +315,7 @@ label offensive_process_actions(selected):
             try:
                 fn_val = getattr(S, "final_value_factory", None)
                 if callable(fn_val):
-                    action.base_value = int(fn_val(action.tech_id, S) or 0)
+                    action.base_value = int(fn_val(action.tech_id, S, unit_key=_off_player_unit_key()) or 0)
             except:
                 action.base_value = 0
 
@@ -298,7 +327,7 @@ label offensive_process_actions(selected):
             try:
                 cost_fn = getattr(S, "reiatsu_energy_dynamic_cost", None)
                 if callable(cost_fn):
-                    cost = cost_fn(action.tech_id, S, force_focus_mult=focus_mult)
+                    cost = cost_fn(action.tech_id, S, force_focus_mult=focus_mult, unit_key=_off_player_unit_key())
                     try:
                         rei_cost = int(cost.get("reiatsu_cost", 0) or 0)
                     except:

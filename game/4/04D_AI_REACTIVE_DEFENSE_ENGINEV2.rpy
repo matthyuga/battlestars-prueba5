@@ -35,13 +35,30 @@ init -988 python:
         if not callable(can_pay_fn):
             can_pay_fn = globals().get("ai_can_pay", None)
 
+        def _enemy_unit_key():
+            try:
+                fnk = getattr(S, "ai_get_current_enemy_unit_key", None)
+                if callable(fnk):
+                    k = str(fnk() or "")
+                    if k:
+                        return k
+            except:
+                pass
+            try:
+                k = str(getattr(S, "current_enemy_unit_key", "") or "")
+                if k:
+                    return k
+            except:
+                pass
+            return "enemy:0"
+
         def _consume_for(real_id):
             """
             Consume recursos para real_id y devuelve (rei_cost, ene_cost).
             NO aplica enemy_focus_cost_pending (solo ofensivo).
             """
             try:
-                cost = S.reiatsu_energy_dynamic_cost(real_id, S)
+                cost = S.reiatsu_energy_dynamic_cost(real_id, S, unit_key=_enemy_unit_key())
             except:
                 cost = {}
 

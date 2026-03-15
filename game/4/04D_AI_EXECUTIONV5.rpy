@@ -32,7 +32,7 @@ init -988 python:
         if tech_id == "focus":
             return True, 0, 0
 
-        cost = S.reiatsu_energy_dynamic_cost(tech_id, S)
+        cost = S.reiatsu_energy_dynamic_cost(tech_id, S, unit_key=_ai_enemy_unit_key())
 
         rei = int(cost.get("reiatsu_cost", 0) or 0)
         ene = int(cost.get("energy_cost", 0) or 0)
@@ -61,6 +61,39 @@ init -988 python:
         pass
 
 
+    def _ai_enemy_unit_key():
+        import renpy.store as S
+
+        try:
+            fnk = getattr(S, "ai_get_current_enemy_unit_key", None)
+            if callable(fnk):
+                k = str(fnk() or "")
+                if k:
+                    return k
+        except:
+            pass
+
+        try:
+            fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+            fn_key = getattr(S, "bs_unit_key", None)
+            if callable(fn_ctx) and callable(fn_key):
+                ctx = fn_ctx() or {}
+                team = str(ctx.get("owner_team", "enemy") or "enemy").strip().lower()
+                slot = int(ctx.get("owner_slot", 0) or 0)
+                if team == "enemy":
+                    return str(fn_key("enemy", slot) or "enemy:0")
+        except:
+            pass
+
+        try:
+            fn_akt = getattr(S, "bs_get_active_unit_key", None)
+            if callable(fn_akt):
+                return str(fn_akt("enemy") or "enemy:0")
+        except:
+            pass
+
+        return "enemy:0"
+
     # ------------------------------------------------------------
     # ⭐ FUNCIÓN — Valor REAL de técnica (base + escala + bonus)
     # ------------------------------------------------------------
@@ -68,7 +101,7 @@ init -988 python:
         import renpy.store as S
 
         base  = S.reiatsu_energy_base(tech_id)["value"]
-        final = S.final_value_factory(tech_id, S)
+        final = S.final_value_factory(tech_id, S, unit_key=_ai_enemy_unit_key())
 
         return base, final
 
@@ -172,7 +205,7 @@ init -988 python:
         # --------------------------------------------------------
         # Consumir recursos (aplicando FocusCost si está pendiente)
         # --------------------------------------------------------
-        cost = S.reiatsu_energy_dynamic_cost(key, S)
+        cost = S.reiatsu_energy_dynamic_cost(key, S, unit_key=_ai_enemy_unit_key())
 
         rei_cost = int(cost.get("reiatsu_cost", 0) or 0)
         ene_cost = int(cost.get("energy_cost", 0) or 0)
@@ -381,7 +414,7 @@ init -988 python:
             return "nopay"
 
         # Consumir recursos
-        cost = S.reiatsu_energy_dynamic_cost(key, S)
+        cost = S.reiatsu_energy_dynamic_cost(key, S, unit_key=_ai_enemy_unit_key())
         rei_cost = int(cost.get("reiatsu_cost", 0) or 0)
         ene_cost = int(cost.get("energy_cost", 0) or 0)
         S.consume_resources(rei_cost, ene_cost, "enemy")
