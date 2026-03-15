@@ -220,10 +220,28 @@ label offensive_formula(dmg, attack_records):
             if not callable(tot_fn):
                 tot_fn = globals().get("log_total", None)
 
+            dmg_directo = 0
+            try:
+                dmg_directo = int(getattr(S, "direct_pending_damage", 0) or 0)
+            except:
+                dmg_directo = 0
+            if dmg_directo < 0:
+                dmg_directo = 0
+
             if callable(tot_fn):
-                _blog(tot_fn(_fmt(total_with_reflect), reduction_pct_display))
+                _blog(tot_fn(
+                    total_with_reflect + dmg_directo,
+                    reduction_pct_display,
+                    defendible=total_with_reflect,
+                    directo=dmg_directo
+                ))
             else:
-                _blog("TOTAL: {} (Debuff DEF: {}%)".format(_fmt(total_with_reflect), reduction_pct_display))
+                if dmg_directo > 0:
+                    _blog("TOTAL: {} defendibles + {} directos = {}".format(
+                        _fmt(total_with_reflect), _fmt(dmg_directo), _fmt(total_with_reflect + dmg_directo)
+                    ))
+                else:
+                    _blog("TOTAL: {} defendibles".format(_fmt(total_with_reflect)))
         except:
             pass
 

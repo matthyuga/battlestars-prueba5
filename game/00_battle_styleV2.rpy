@@ -385,8 +385,41 @@ init -970 python:
     ###########################################################
     # ⭐ DAÑO TOTAL
     ###########################################################
-    def log_total(total, reduction_pct=0):
-        txt = fmt_white("Daño total: ") + fmt_gold(battle_fmt_num(total))
+    def log_total(total, reduction_pct=0, defendible=None, directo=None):
+        try:
+            _def = None if defendible is None else int(defendible)
+        except:
+            _def = None
+        try:
+            _dir = None if directo is None else int(directo)
+        except:
+            _dir = None
+
+        if _def is None and _dir is None:
+            txt = fmt_white("Daño total: ") + fmt_gold(battle_fmt_num(total))
+        elif (_dir is None or _dir <= 0) and _def is not None:
+            txt = (
+                fmt_white("Daño total: ") +
+                fmt_gold(battle_fmt_num(_def)) +
+                fmt_white(" defendibles")
+            )
+        elif (_def is None or _def <= 0) and _dir is not None:
+            txt = (
+                fmt_white("Daño total: ") +
+                fmt_gold(battle_fmt_num(_dir)) +
+                fmt_white(" directos")
+            )
+        else:
+            _sum = int(_def) + int(_dir)
+            txt = (
+                fmt_white("Daño total: ") +
+                fmt_gold(battle_fmt_num(_def)) +
+                fmt_white(" defendibles + ") +
+                fmt_gold(battle_fmt_num(_dir)) +
+                fmt_white(" directos = ") +
+                fmt_gold(battle_fmt_num(_sum))
+            )
+
         if reduction_pct > 0:
             txt += fmt_white(" (") + fmt_orange("-{}% defensa general".format(reduction_pct)) + fmt_white(")")
         return txt
