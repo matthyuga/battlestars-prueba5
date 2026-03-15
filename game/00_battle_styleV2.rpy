@@ -37,7 +37,8 @@ init -970 python:
             "cyan":    "#55FFFF",
 
             "green":   "#00FF00",
-            "hp_red":  "#FF6666"
+            "hp_red":  "#FF6666",
+            "meta":    "#999999"
         }
 
     PALETTE = S.PALETTE
@@ -54,6 +55,7 @@ init -970 python:
     fmt_pink    = lambda t: fmt("pink", t)
     fmt_effect  = lambda t: fmt("effect", t)
     fmt_cyan    = lambda t: fmt("cyan", t)
+    fmt_meta    = lambda t: fmt("meta", t)
 
     # ⭐ FIX: requerido por defensive_operation
     fmt_cyan_text = fmt_cyan
@@ -338,6 +340,10 @@ init -970 python:
             chunks[i] = ch
         return "".join(chunks)
 
+
+    def log_cost_meta(reiatsu_cost, energia_cost):
+        return fmt_meta("(Reiatsu {} / Energía {})".format(battle_fmt_num(reiatsu_cost), battle_fmt_num(energia_cost)))
+
     def log_attack_simple(tech, dmg_text):
         return "{} → {} {} {}".format(
             fmt_red(tech),
@@ -507,11 +513,13 @@ init -970 python:
     S.fmt_effect = fmt_effect
     S.fmt_cyan = fmt_cyan
     S.fmt_cyan_text = fmt_cyan_text
+    S.fmt_meta = fmt_meta
 
     S.log_operation = log_operation
     S.log_total = log_total
     S.log_focus_unified = log_focus_unified
     S.log_potenciar_unified = log_potenciar_unified
+    S.log_cost_meta = log_cost_meta
     S.log_defense_strong = log_defense_strong
     S.log_dice_slots = log_dice_slots
     S.colorize_numbers = colorize_numbers

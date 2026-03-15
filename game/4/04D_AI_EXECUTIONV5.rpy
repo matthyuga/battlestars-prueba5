@@ -175,6 +175,13 @@ init -988 python:
             S.battle_popup_turn("%s activa Concentrar" % ai.name, "#C586C0", 0.6)
             return "focus"
 
+        fn_cost_meta = getattr(S, "log_cost_meta", None)
+        if not callable(fn_cost_meta):
+            fn_cost_meta = globals().get("log_cost_meta", None)
+
+        fn_fmt_orange = getattr(S, "fmt_orange", None) or globals().get("fmt_orange", None)
+        fn_fmt_purple = getattr(S, "fmt_purple", None) or globals().get("fmt_purple", None)
+
         # --------------------------------------------------------
         # Obtener técnica (store-safe) + debug si falta
         # --------------------------------------------------------
@@ -284,15 +291,21 @@ init -988 python:
 
                     S.enemy_direct_base_damage = int(base)
 
-                    log_text = "%s usa %s → Inflige %s de daño. {color=#FF66CC}Si saca 2/3 dados de éxito, este ataque es indefendible. (%d/3){/color}" % (
-                        ai.name, tech.get("name", key), S.battle_fmt_num(dmg), successes
-                    )
+                    log_text = "%s usa %s → Inflige %s de daño." % (ai.name, tech.get("name", key), S.battle_fmt_num(dmg))
+                    _rule_txt = "Si saca 2/3 dados de éxito, este ataque es indefendible. (%d/3)" % successes
+                    if callable(fn_fmt_orange):
+                        log_text += " " + fn_fmt_orange(_rule_txt)
+                    else:
+                        log_text += " " + _rule_txt
                     if focus_cost_applied:
-                        log_text += " {color=#C586C0}(Focus: costo R×2){/color}"
-                    log_text += " {color=#999}(Reiatsu %s / Energía %s){/color}" % (
-                        S.battle_fmt_num(rei_cost),
-                        S.battle_fmt_num(ene_cost)
-                    )
+                        if callable(fn_fmt_purple):
+                            log_text += " " + fn_fmt_purple("(Focus: costo R×2)")
+                        else:
+                            log_text += " (Focus: costo R×2)"
+                    if callable(fn_cost_meta):
+                        log_text += " " + fn_cost_meta(rei_cost, ene_cost)
+                    else:
+                        log_text += " (Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost))
                     S.battle_log_add(log_text)
 
                     # ⚠️ No se suma a incoming_damage (no defendible)
@@ -320,15 +333,21 @@ init -988 python:
                 else:
                     status = "no activa negación"
 
-                log_text = "%s usa %s → Inflige %s de daño. {color=#FF66CC}Si saca 2/3 dados de éxito, %s. (%d/3){/color}" % (
-                    ai.name, tech.get("name", key), S.battle_fmt_num(dmg), status, successes
-                )
+                log_text = "%s usa %s → Inflige %s de daño." % (ai.name, tech.get("name", key), S.battle_fmt_num(dmg))
+                _rule_txt = "Si saca 2/3 dados de éxito, %s. (%d/3)" % (status, successes)
+                if callable(fn_fmt_orange):
+                    log_text += " " + fn_fmt_orange(_rule_txt)
+                else:
+                    log_text += " " + _rule_txt
                 if focus_cost_applied:
-                    log_text += " {color=#C586C0}(Focus: costo R×2){/color}"
-                log_text += " {color=#999}(Reiatsu %s / Energía %s){/color}" % (
-                    S.battle_fmt_num(rei_cost),
-                    S.battle_fmt_num(ene_cost)
-                )
+                    if callable(fn_fmt_purple):
+                        log_text += " " + fn_fmt_purple("(Focus: costo R×2)")
+                    else:
+                        log_text += " (Focus: costo R×2)"
+                if callable(fn_cost_meta):
+                    log_text += " " + fn_cost_meta(rei_cost, ene_cost)
+                else:
+                    log_text += " (Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost))
                 S.battle_log_add(log_text)
                 # el daño sigue siendo defendible (flujo normal)
 
@@ -350,11 +369,14 @@ init -988 python:
         # --------------------------------------------------------
         log_text  = S.log_attack_simple(tech.get("name", key), S.battle_fmt_num(dmg))
         if focus_cost_applied:
-            log_text += " {color=#C586C0}(Focus: costo R×2){/color}"
-        log_text += " {color=#999}(Reiatsu %s / Energía %s){/color}" % (
-            S.battle_fmt_num(rei_cost),
-            S.battle_fmt_num(ene_cost)
-        )
+            if callable(fn_fmt_purple):
+                log_text += " " + fn_fmt_purple("(Focus: costo R×2)")
+            else:
+                log_text += " (Focus: costo R×2)"
+        if callable(fn_cost_meta):
+            log_text += " " + fn_cost_meta(rei_cost, ene_cost)
+        else:
+            log_text += " (Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost))
 
         S.battle_log_add(log_text)
 
@@ -430,13 +452,11 @@ init -988 python:
         # --------------------------------------------------------
         # Log
         # --------------------------------------------------------
-        log_text = "%s usa %s → bloquea %s daño {color=#999}(Reiatsu %s / Energía %s){/color}" % (
-            ai.name,
-            tech.get("name", key),
-            S.battle_fmt_num(blk),
-            S.battle_fmt_num(rei_cost),
-            S.battle_fmt_num(ene_cost)
-        )
+        log_text = "%s usa %s → bloquea %s daño" % (ai.name, tech.get("name", key), S.battle_fmt_num(blk))
+        if callable(fn_cost_meta):
+            log_text += " " + fn_cost_meta(rei_cost, ene_cost)
+        else:
+            log_text += " (Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost))
 
         S.battle_log_add(log_text, "#55FFFF")
 
