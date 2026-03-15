@@ -261,7 +261,7 @@ label battle_offensive_turn_legacy_entry:
                             elif ctr_ok:
                                 _rp = int(ctr.get("reiatsu_penalty", 0) or 0)
                                 _ep = int(ctr.get("energy_penalty", 0) or 0)
-                                S.battle_log_add("{color=#FF8888}Contraataque fallado: -{} Reiatsu base y -{} Energía base. Recibes daño completo.{/color}".format(_rp, _ep))
+                                S.battle_log_add("{color=#FF8888}Contraataque fallado: -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_rp), str(_ep)))
 
                         if ctr_success:
                             S.extra_offensive_actions = int(getattr(S, "extra_offensive_actions", 0) or 0) + 1
