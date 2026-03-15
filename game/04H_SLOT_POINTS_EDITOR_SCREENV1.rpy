@@ -6,6 +6,8 @@
 # selección UI (persistente por sesión)
 default spa_editor_selected_unit_key = "player:0"
 default spa_editor_step = 100
+default spa_editor_message = ""
+default spa_editor_message_color = "#AAAAAA"
 
 init -930 python:
     import renpy.store as S
@@ -119,6 +121,77 @@ init -930 python:
         return {"ok": False, "reason": "allocator_missing"}
 
 
+    def spa_ui_set_message(msg, color="#AAAAAA"):
+        S.spa_editor_message = str(msg or "")
+        S.spa_editor_message_color = str(color or "#AAAAAA")
+        try:
+            import renpy
+            renpy.notify(S.spa_editor_message)
+        except:
+            pass
+        try:
+            fn = getattr(S, "debug_log", None)
+            if callable(fn):
+                fn("[SPA_UI] " + S.spa_editor_message)
+        except:
+            pass
+
+    def spa_ui_apply_delta_feedback(unit_key, tech_id, delta):
+        r = spa_ui_apply_delta(unit_key, tech_id, delta)
+        ok = bool(isinstance(r, dict) and r.get("ok", False))
+        if ok:
+            try:
+                b = int(getattr(S, "spa_get_bonus", lambda a,b: 0)(unit_key, tech_id) or 0)
+            except:
+                b = 0
+            spa_ui_set_message("{}: bonus = {}".format(spa_ui_tech_label(tech_id), b), "#66DD66")
+            return r
+
+        reason = "error"
+        if isinstance(r, dict):
+            reason = str(r.get("reason", "error") or "error")
+
+        if reason == "over_budget":
+            spa_ui_set_message("No alcanza presupuesto del slot.", "#FF8888")
+        elif reason == "invalid_tech":
+            spa_ui_set_message("Técnica inválida o no editable.", "#FF8888")
+        elif reason == "allocator_missing":
+            spa_ui_set_message("Allocator no disponible.", "#FF8888")
+        else:
+            spa_ui_set_message("No se pudo aplicar el cambio ({}).".format(reason), "#FF8888")
+        return r
+
+    def spa_ui_reset_tech_feedback(unit_key, tech_id):
+        fn = getattr(S, "spa_set_bonus", None)
+        if not callable(fn):
+            spa_ui_set_message("Allocator no disponible.", "#FF8888")
+            return False
+        r = fn(unit_key, tech_id, 0, True)
+        if isinstance(r, dict) and r.get("ok", False):
+            spa_ui_set_message("{}: bonus reseteado".format(spa_ui_tech_label(tech_id)), "#66DD66")
+            return True
+        spa_ui_set_message("No se pudo resetear técnica.", "#FF8888")
+        return False
+
+    def spa_ui_reset_slot_feedback(unit_key):
+        fn = getattr(S, "spa_reset_slot", None)
+        if not callable(fn):
+            spa_ui_set_message("Allocator no disponible.", "#FF8888")
+            return False
+        fn(unit_key, True)
+        spa_ui_set_message("Slot {} reseteado.".format(spa_ui_unit_label(unit_key)), "#66DD66")
+        return True
+
+    def spa_ui_reset_all_feedback():
+        fn = getattr(S, "spa_reset_all", None)
+        if not callable(fn):
+            spa_ui_set_message("Allocator no disponible.", "#FF8888")
+            return False
+        fn(True)
+        S.spa_editor_selected_unit_key = "player:0"
+        spa_ui_set_message("Todos los slots fueron reseteados.", "#66DD66")
+        return True
+
 screen slot_points_editor():
     tag menu
 
@@ -129,6 +202,7 @@ screen slot_points_editor():
 
             label _("Configuración persistente de bonus por técnica")
             text _("Base de técnica no se modifica; aquí editas BONUS por slot. Reiatsu/Energía se recalculan automáticamente.") size 18
+            text "[store.spa_editor_message]" size 16 color getattr(store, "spa_editor_message_color", "#AAAAAA")
 
             $ allocator_ok = callable(getattr(store, "spa_ensure_state", None))
 
@@ -144,6 +218,7 @@ screen slot_points_editor():
                     for uk in store.spa_ui_unit_keys_v1():
                         textbutton "[store.spa_ui_unit_label(uk)]":
                             action SetVariable("spa_editor_selected_unit_key", uk)
+                            text_color ("#66CCFF" if uk == selected else "#FFFFFF")
 
                 hbox:
                     spacing 20
@@ -164,11 +239,8 @@ screen slot_points_editor():
 
                 hbox:
                     spacing 12
-                    textbutton _("Reset slot") action Function(store.spa_reset_slot, selected, True)
-                    textbutton _("Reset TODO") action [
-                        Function(store.spa_reset_all, True),
-                        SetVariable("spa_editor_selected_unit_key", "player:0")
-                    ]
+                    textbutton _("Reset slot") action Function(store.spa_ui_reset_slot_feedback, selected)
+                    textbutton _("Reset TODO") action Confirm(_("¿Resetear TODOS los slots?"), yes=Function(store.spa_ui_reset_all_feedback))
 
                 null height 8
 
@@ -196,11 +268,11 @@ screen slot_points_editor():
 
                         hbox:
                             spacing 8
-                            textbutton "-100" action Function(store.spa_ui_apply_delta, selected, tech_id, -100)
-                            textbutton "-50" action Function(store.spa_ui_apply_delta, selected, tech_id, -50)
-                            textbutton "-10" action Function(store.spa_ui_apply_delta, selected, tech_id, -10)
-                            textbutton "+10" action Function(store.spa_ui_apply_delta, selected, tech_id, 10)
-                            textbutton "+50" action Function(store.spa_ui_apply_delta, selected, tech_id, 50)
-                            textbutton "+100" action Function(store.spa_ui_apply_delta, selected, tech_id, 100)
-                            textbutton "+Paso" action Function(store.spa_ui_apply_delta, selected, tech_id, int(getattr(store, "spa_editor_step", 100) or 100))
-                            textbutton "Reset técnica" action Function(store.spa_set_bonus, selected, tech_id, 0, True)
+                            textbutton "-100" action Function(store.spa_ui_apply_delta_feedback, selected, tech_id, -100)
+                            textbutton "-50" action Function(store.spa_ui_apply_delta_feedback, selected, tech_id, -50)
+                            textbutton "-10" action Function(store.spa_ui_apply_delta_feedback, selected, tech_id, -10)
+                            textbutton "+10" action Function(store.spa_ui_apply_delta_feedback, selected, tech_id, 10)
+                            textbutton "+50" action Function(store.spa_ui_apply_delta_feedback, selected, tech_id, 50)
+                            textbutton "+100" action Function(store.spa_ui_apply_delta_feedback, selected, tech_id, 100)
+                            textbutton "+Paso" action Function(store.spa_ui_apply_delta_feedback, selected, tech_id, int(getattr(store, "spa_editor_step", 100) or 100))
+                            textbutton "Reset técnica" action Function(store.spa_ui_reset_tech_feedback, selected, tech_id)
