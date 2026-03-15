@@ -185,11 +185,11 @@ init -988 python:
             # Logs por tipo
             if key == "def_extra":
                 try:
-                    summary_lines.append(S.log_defense_extra(S.battle_fmt_num(base_blk), S.battle_fmt_num(blk)))
+                    summary_lines.append(S.log_defense_extra(base_blk, blk))
                 except:
                     pass
                 try:
-                    S.battle_log_add(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    summary_lines.append(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -206,13 +206,13 @@ init -988 python:
 
                 try:
                     summary_lines.append(
-                        S.log_defense_reducer(S.battle_fmt_num(blk), int(atkred * 100), reduc_val_tmp)
+                        S.log_defense_reducer(base_blk, int(atkred * 100), reduc_val_tmp, final=blk)
                     )
                 except:
                     pass
 
                 try:
-                    S.battle_log_add(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    summary_lines.append(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -221,14 +221,14 @@ init -988 python:
                 try:
                     fn_strong = getattr(S, "log_defense_strong", None)
                     if callable(fn_strong):
-                        summary_lines.append(fn_strong(S.battle_fmt_num(base_blk), S.battle_fmt_num(blk)))
+                        summary_lines.append(fn_strong(base_blk, blk))
                     else:
                         summary_lines.append("Defensa Fuerte → Bloquea %s" % S.battle_fmt_num(blk))
                 except:
                     pass
 
                 try:
-                    S.battle_log_add(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    summary_lines.append(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -248,13 +248,13 @@ init -988 python:
 
                 try:
                     summary_lines.append(
-                        S.log_defense_reflect(S.battle_fmt_num(blk), int(ref_pct * 100), reflected_now)
+                        S.log_defense_reflect(base_blk, int(ref_pct * 100), reflected_now, final=blk)
                     )
                 except:
                     pass
 
                 try:
-                    S.battle_log_add(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+                    summary_lines.append(fn_cost_meta(rei_cost, ene_cost) if callable(fn_cost_meta) else "(Reiatsu %s / Energía %s)" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
                 except:
                     pass
                 continue
@@ -265,7 +265,11 @@ init -988 python:
         if focus_used:
             try:
                 if hasattr(S, "battle_log_add"):
-                    S.battle_log_add(S.log_focus_unified("defense"))
+                    fn_boost = getattr(S, "log_potenciar_unified", None)
+                    if callable(fn_boost):
+                        S.battle_log_add(fn_boost())
+                    else:
+                        S.battle_log_add(S.log_focus_unified("defense"))
             except:
                 pass
 

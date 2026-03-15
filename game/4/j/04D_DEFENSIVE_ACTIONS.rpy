@@ -112,17 +112,20 @@ init python:
         if final_blk is None:
             final_blk = base_blk
 
-        fmt_blue  = getattr(S, "fmt_blue",  lambda t: str(t))
+        fmt_cyan  = getattr(S, "fmt_cyan",  lambda t: str(t))
         fmt_white = getattr(S, "fmt_white", lambda t: str(t))
 
-        return (
-            fmt_blue("Defensa fuerte ") +
-            fmt_white("→ Bloquea {} ({} → {}).".format(
-                _fmt_num(final_blk),
-                _fmt_num(base_blk),
-                _fmt_num(final_blk)
-            ))
-        )
+        if int(base_blk or 0) != int(final_blk or 0):
+            block_txt = (
+                fmt_cyan(_fmt_num(base_blk)) +
+                fmt_white(" ×2 (") +
+                fmt_cyan(_fmt_num(final_blk)) +
+                fmt_white(")")
+            )
+        else:
+            block_txt = fmt_cyan(_fmt_num(final_blk))
+
+        return fmt_cyan("Defensa Fuerte") + fmt_white(" → Bloquea ") + block_txt + fmt_white(" de daño.")
 
 
 # ============================================================
@@ -157,7 +160,7 @@ label defensive_process_actions(selected, base_damage):
 
         # Helpers de formato
         fmt_pink  = getattr(S, "fmt_pink",  lambda t: str(t))
-        fmt_blue  = getattr(S, "fmt_blue",  lambda t: str(t))
+        fmt_cyan  = getattr(S, "fmt_cyan",  lambda t: str(t))
         fmt_white = getattr(S, "fmt_white", lambda t: str(t))
 
         # Logs existentes (deben estar en tu proyecto)
@@ -204,7 +207,7 @@ label defensive_process_actions(selected, base_damage):
                 if callable(log_potenciar_unified):
                     summary_lines.append(log_potenciar_unified())
                 else:
-                    summary_lines.append(fmt_blue("Potenciar ") + fmt_white("→ Próxima defensa ×2."))
+                    summary_lines.append(fmt_cyan("Potenciar") + fmt_white(" Activado → Próxima defensa ") + fmt_cyan("×2"))
 
                 continue
 
@@ -261,12 +264,12 @@ label defensive_process_actions(selected, base_damage):
                 if callable(log_defense_extra):
                     summary_lines.append(
                         log_defense_extra(
-                            blk_text(action.base_block, action.final_block),
+                            action.base_block,
                             action.final_block
                         )
                     )
                 else:
-                    summary_lines.append(fmt_blue("Defensa extra ") + fmt_white("→ Bloque {}.".format(_fmt_num(action.final_block))))
+                    summary_lines.append(fmt_cyan("Defensa Extra") + fmt_white(" → Bloquea {} de daño.".format(_fmt_num(action.final_block))))
 
             elif action.tech_id == "defense_reflect":
 
@@ -275,13 +278,14 @@ label defensive_process_actions(selected, base_damage):
                 if callable(log_defense_reflect):
                     summary_lines.append(
                         log_defense_reflect(
-                            blk_text(action.base_block, action.final_block),
+                            action.base_block,
                             int(ref_pct * 100),
-                            S.reflected
+                            S.reflected,
+                            final=action.final_block
                         )
                     )
                 else:
-                    summary_lines.append(fmt_blue("Defensa reflectora ") + fmt_white("→ Refleja {}.".format(_fmt_num(S.reflected))))
+                    summary_lines.append(fmt_cyan("Defensa Reflectora") + fmt_white(" → Refleja {} de daño.".format(_fmt_num(S.reflected))))
 
             elif action.tech_id == "defense_reducer":
 
@@ -290,19 +294,21 @@ label defensive_process_actions(selected, base_damage):
                 if callable(log_defense_reducer):
                     summary_lines.append(
                         log_defense_reducer(
-                            blk_text(action.base_block, action.final_block),
+                            action.base_block,
                             int(atk_red * 100),
-                            S.reduc_val
+                            S.reduc_val,
+                            final=action.final_block
                         )
                     )
                 else:
-                    summary_lines.append(fmt_blue("Defensa reductora ") + fmt_white("→ Reduce {}.".format(_fmt_num(S.reduc_val))))
+                    summary_lines.append(fmt_cyan("Defensa Reductora") + fmt_white(" → Reduce {} de daño.".format(_fmt_num(S.reduc_val))))
 
             elif action.tech_id == "defense_strong_block":
 
                 summary_lines.append(
                     log_defense_strong(
-                        blk_text(action.base_block, action.final_block)
+                        action.base_block,
+                        action.final_block
                     )
                 )
 

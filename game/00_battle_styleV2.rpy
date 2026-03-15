@@ -265,7 +265,7 @@ init -970 python:
 
     def log_potenciar_unified():
         return "{} {} → {} {}".format(
-            fmt_effect("Potenciar"),
+            fmt_purple("Potenciar"),
             fmt_white("Activado"),
             fmt_white("Próxima defensa"),
             fmt_purple("×2")
@@ -275,44 +275,60 @@ init -970 python:
     ###########################################################
     # 🔵 DEFENSIVO – Logs dinámicos
     ###########################################################
+    def _defense_block_text(base, final):
+        b = battle_fmt_num(base)
+        f = battle_fmt_num(final)
+        if b != f:
+            return (
+                fmt_cyan(b) +
+                fmt_white(" ×2 ") +
+                fmt_white("(") + fmt_cyan(f) + fmt_white(")")
+            )
+        return fmt_cyan(f)
+
     def log_defense_extra(base, final):
-        if base != final:
-            txt = "{}×2({})".format(battle_fmt_num(base), battle_fmt_num(final))
-        else:
-            txt = battle_fmt_num(final)
-
-        return "{} → Bloquea {}".format(
+        return "{} → Bloquea {}{}".format(
             fmt_cyan("Defensa Extra"),
-            fmt_blue(txt)
+            _defense_block_text(base, final),
+            fmt_white(" de daño.")
         )
 
-    def log_defense_reducer(block, percent, reduced):
-        return "{} → Bloquea {} y reduce {}({})".format(
+    def log_defense_reducer(block, percent, reduced, final=None):
+        if final is not None:
+            block_txt = _defense_block_text(block, final)
+        else:
+            block_txt = fmt_cyan(battle_fmt_num(block))
+        return "{} → Bloquea {}{} y reduce {}{}{}".format(
             fmt_cyan("Defensa Reductora"),
-            fmt_blue(battle_fmt_num(block)),
-            fmt_effect("{}%".format(percent)),
-            fmt_blue(battle_fmt_num(reduced))
+            block_txt,
+            fmt_white(" de daño"),
+            fmt_blue("{}%".format(percent)),
+            fmt_white("("),
+            fmt_blue(battle_fmt_num(reduced)) + fmt_white(")")
         )
 
-    def log_defense_reflect(block, percent, reflected):
-        return "{} → Bloquea {} y refleja {}({})".format(
+    def log_defense_reflect(block, percent, reflected, final=None):
+        if final is not None:
+            block_txt = _defense_block_text(block, final)
+        else:
+            block_txt = fmt_cyan(battle_fmt_num(block))
+        return "{} → Bloquea {}{} y refleja {}{}{}".format(
             fmt_cyan("Defensa Reflectora"),
-            fmt_blue(battle_fmt_num(block)),
-            fmt_effect("{}%".format(percent)),
-            fmt_blue(battle_fmt_num(reflected))
+            block_txt,
+            fmt_white(" de daño"),
+            fmt_blue("{}%".format(percent)),
+            fmt_white("("),
+            fmt_blue(battle_fmt_num(reflected)) + fmt_white(")")
         )
 
     def log_defense_strong(base, final=None):
         if final is None:
             final = base
-        if base != final:
-            v = "{}×2({})".format(battle_fmt_num(base), battle_fmt_num(final))
-        else:
-            v = battle_fmt_num(final)
 
-        return "{} → Bloquea {}".format(
+        return "{} → Bloquea {}{}".format(
             fmt_cyan("Defensa Fuerte"),
-            fmt_blue(v)
+            _defense_block_text(base, final),
+            fmt_white(" de daño.")
         )
 
 

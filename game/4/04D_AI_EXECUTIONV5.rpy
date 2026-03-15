@@ -414,7 +414,11 @@ init -988 python:
                 return "none"
 
             S.activate_defensive_focus()
-            S.battle_log_add(S.log_focus_unified("defense"))
+            fn_boost = getattr(S, "log_potenciar_unified", None)
+            if callable(fn_boost):
+                S.battle_log_add(fn_boost())
+            else:
+                S.battle_log_add(S.log_focus_unified("defense"))
             S.battle_popup_turn("%s potencia defensa" % ai.name, "#C586C0", 0.4)
             return "focus"
 
