@@ -116,6 +116,9 @@ style maneuver_confirm_button_text is button_text:
     hover_color "#E3F2FD"
     insensitive_color "#777777"
 
+transform maneuver_choice_panel_zoom:
+    zoom 0.7
+
 screen battle_maneuver_choice(damage):
 
     modal False
@@ -226,7 +229,7 @@ screen battle_maneuver_choice(damage):
                 background "#1119"
                 padding (18, 18)
                 xmaximum 560
-                zoom 0.7
+                at maneuver_choice_panel_zoom
 
                 vbox spacing 14:
 
