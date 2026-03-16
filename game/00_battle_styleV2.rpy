@@ -1,4 +1,4 @@
-#============================================================
+﻿#============================================================
 #00_BATTLE_STYLE.RPY – Estilos, Formato y Logs del Sistema
 #Versión v4.3 – Store-Safe + Markup-Safe + Wrapper-Aware + SafeLogHub
 #------------------------------------------------------------
@@ -222,21 +222,26 @@ init -970 python:
 
     if not hasattr(S, "op_def_enemy"):
         def op_def_enemy(base, pct, reduced, final, color_key="effect"):
-            return "{} {} → {} - {} = {}".format(
+            return "{} {} {} {}{}{} {} {}".format(
                 fmt_white("Daño enemigo:"),
                 fmt_red(battle_fmt_num(base)),
+                fmt_white("-"),
                 fmt_blue(str(pct)),
+                fmt_white("("),
                 fmt_blue(battle_fmt_num(reduced)),
+                fmt_white(") ="),
                 fmt_red(battle_fmt_num(final))
             )
         S.op_def_enemy = op_def_enemy
 
     if not hasattr(S, "op_def_damage"):
         def op_def_damage(base_eff, block, received):
-            return "{} {} - {} = {}".format(
-                fmt_red("Daño neto:"),
+            return "{} {} {} {} {} {}".format(
+                fmt_white("Daño neto:"),
                 fmt_red(battle_fmt_num(base_eff)),
-                fmt_red(battle_fmt_num(block)),
+                fmt_white("-"),
+                fmt_cyan(battle_fmt_num(block)),
+                fmt_white("="),
                 fmt_red(battle_fmt_num(received))
             )
         S.op_def_damage = op_def_damage

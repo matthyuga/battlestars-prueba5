@@ -217,6 +217,11 @@ init -988 python:
         rei_cost = int(cost.get("reiatsu_cost", 0) or 0)
         ene_cost = int(cost.get("energy_cost", 0) or 0)
 
+        if not hasattr(S, "turn_enemy_off_rei_tech_sum"):
+            S.turn_enemy_off_rei_tech_sum = 0
+        if not hasattr(S, "turn_enemy_off_ene_tech_sum"):
+            S.turn_enemy_off_ene_tech_sum = 0
+
         focus_cost_applied = False
         if getattr(S, "enemy_focus_cost_pending", False):
             rei_cost *= 2
@@ -224,6 +229,8 @@ init -988 python:
             focus_cost_applied = True
 
         S.consume_resources(rei_cost, ene_cost, "enemy")
+        S.turn_enemy_off_rei_tech_sum = int(getattr(S, "turn_enemy_off_rei_tech_sum", 0) or 0) + int(rei_cost or 0)
+        S.turn_enemy_off_ene_tech_sum = int(getattr(S, "turn_enemy_off_ene_tech_sum", 0) or 0) + int(ene_cost or 0)
 
         # --------------------------------------------------------
         # Calcular daño REAL (con Focus de daño)
@@ -297,11 +304,6 @@ init -988 python:
                         log_text += " " + fn_fmt_orange(_rule_txt)
                     else:
                         log_text += " " + _rule_txt
-                    if focus_cost_applied:
-                        if callable(fn_fmt_purple):
-                            log_text += " " + fn_fmt_purple("(Focus: costo R×2)")
-                        else:
-                            log_text += " (Focus: costo R×2)"
                     if callable(fn_cost_meta):
                         log_text += " " + fn_cost_meta(rei_cost, ene_cost)
                     else:
@@ -339,11 +341,6 @@ init -988 python:
                     log_text += " " + fn_fmt_orange(_rule_txt)
                 else:
                     log_text += " " + _rule_txt
-                if focus_cost_applied:
-                    if callable(fn_fmt_purple):
-                        log_text += " " + fn_fmt_purple("(Focus: costo R×2)")
-                    else:
-                        log_text += " (Focus: costo R×2)"
                 if callable(fn_cost_meta):
                     log_text += " " + fn_cost_meta(rei_cost, ene_cost)
                 else:
@@ -355,7 +352,7 @@ init -988 python:
         # Registrar daño defendible (normal)
         # --------------------------------------------------------
         S.incoming_damage += dmg
-        S.enemy_attack_records.append((base, dmg))
+        S.enemy_attack_records.append((final, dmg))
 
         # Marcar flag si fue el golpe más fuerte (para forzar reductor next turn)
         if key == "stronger_attack":
@@ -368,11 +365,6 @@ init -988 python:
         # Log normal
         # --------------------------------------------------------
         log_text  = S.log_attack_simple(tech.get("name", key), S.battle_fmt_num(dmg))
-        if focus_cost_applied:
-            if callable(fn_fmt_purple):
-                log_text += " " + fn_fmt_purple("(Focus: costo R×2)")
-            else:
-                log_text += " (Focus: costo R×2)"
         if callable(fn_cost_meta):
             log_text += " " + fn_cost_meta(rei_cost, ene_cost)
         else:
@@ -439,8 +431,18 @@ init -988 python:
             S.battle_log_add(msg, "#999999")
             return "nopay"
 
-        # Consumir recursos
-        cost = S.reiatsu_energy_dynamic_cost(key, S, unit_key=_ai_enemy_unit_key())
+        # Consumir recursos (si hay Potenciar defensivo activo, duplica solo Reiatsu)
+        def_mult = 1
+        try:
+            fn_def_mult = getattr(S, "defensive_boost_multiplier_peek", None)
+            if callable(fn_def_mult):
+                def_mult = int(fn_def_mult() or 1)
+                if def_mult < 1:
+                    def_mult = 1
+        except:
+            def_mult = 1
+
+        cost = S.reiatsu_energy_dynamic_cost(key, S, force_focus_mult=def_mult, unit_key=_ai_enemy_unit_key())
         rei_cost = int(cost.get("reiatsu_cost", 0) or 0)
         ene_cost = int(cost.get("energy_cost", 0) or 0)
         S.consume_resources(rei_cost, ene_cost, "enemy")

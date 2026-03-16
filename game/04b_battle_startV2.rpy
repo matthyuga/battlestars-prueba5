@@ -355,8 +355,67 @@ label battle_start:
     $ simulated_reiatsu = player_reiatsu
     $ simulated_energy  = player_energy
 
-    $ battle_log_add("Reiatsu Inicial: {}".format(player_reiatsu), "#88CCFF")
-    $ battle_log_add("Energía Inicial: {}".format(player_energy),  "#FF8844")
+    python:
+        import renpy.store as S
+
+        fn_log = getattr(S, "battle_log_add", None)
+        fn_fmt = getattr(S, "battle_fmt_num", None)
+        fn_get_unit = getattr(S, "bs_get_unit_by_key", None)
+        fn_desc = getattr(S, "bs_describe_unit_key", None)
+        fn_slot = getattr(S, "bs_slot_tag", None)
+
+        if not callable(fn_log):
+            fn_log = globals().get("battle_log_add", None)
+
+        if not callable(fn_fmt):
+            fn_fmt = lambda n: str(int(n or 0))
+
+        def _fmt_res(n):
+            try:
+                return fn_fmt(int(n or 0))
+            except:
+                return str(n)
+
+        def _unit_line(unit_key, side, default_name):
+            name_txt = str(default_name or unit_key)
+            slot_txt = ""
+            rei = 0
+            ene = 0
+
+            try:
+                if callable(fn_desc):
+                    name_txt = str(fn_desc(unit_key, default_side=side, default_slot=0) or name_txt)
+            except:
+                pass
+
+            try:
+                if callable(fn_get_unit):
+                    u = fn_get_unit(unit_key)
+                    if isinstance(u, dict):
+                        nm = str(u.get("char_id", "") or "")
+                        if nm:
+                            name_txt = nm
+                        rei = int(u.get("reiatsu", 0) or 0)
+                        ene = int(u.get("energy", 0) or 0)
+                        if callable(fn_slot):
+                            slot_txt = " ({})".format(fn_slot(side, int(u.get("slot", 0) or 0)))
+            except:
+                pass
+
+            side_lbl = "Equipo Jugador" if str(side) == "player" else "Equipo Enemigo"
+            return "{}{} [{}]  Reiatsu {} / Energía {}".format(name_txt, slot_txt, side_lbl, _fmt_res(rei), _fmt_res(ene))
+
+        if callable(fn_log):
+            mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+            fn_log("{color=#FFFFFF}▸ Recursos iniciales:{/color}", "#FFFFFF")
+
+            if mode == "2v2":
+                for key in ("player:0", "player:1", "enemy:0", "enemy:1"):
+                    side = "player" if key.startswith("player") else "enemy"
+                    fn_log("   {}".format(_unit_line(key, side, key)), "#DDDDDD")
+            else:
+                fn_log("   {}".format(_unit_line("player:0", "player", str(getattr(S, "battle_player_id", "Jugador") or "Jugador"))), "#DDDDDD")
+                fn_log("   {}".format(_unit_line("enemy:0", "enemy", str(getattr(S, "battle_enemy_id", "Enemigo") or "Enemigo"))), "#DDDDDD")
 
     # =======================================================
     # 🧩 Asignar identidades dinámicas (usar ID, no display)

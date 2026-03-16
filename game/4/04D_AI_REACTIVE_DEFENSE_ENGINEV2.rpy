@@ -57,8 +57,18 @@ init -988 python:
             Consume recursos para real_id y devuelve (rei_cost, ene_cost).
             NO aplica enemy_focus_cost_pending (solo ofensivo).
             """
+            def_mult = 1
             try:
-                cost = S.reiatsu_energy_dynamic_cost(real_id, S, unit_key=_enemy_unit_key())
+                fn_def_mult = getattr(S, "defensive_boost_multiplier_peek", None)
+                if callable(fn_def_mult):
+                    def_mult = int(fn_def_mult() or 1)
+                    if def_mult < 1:
+                        def_mult = 1
+            except:
+                def_mult = 1
+
+            try:
+                cost = S.reiatsu_energy_dynamic_cost(real_id, S, force_focus_mult=def_mult, unit_key=_enemy_unit_key())
             except:
                 cost = {}
 

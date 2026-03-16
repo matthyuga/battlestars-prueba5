@@ -158,6 +158,12 @@ label defensive_process_actions(selected, base_damage):
         if not hasattr(S, "def_boost_pending"):
             S.def_boost_pending = False
 
+        # Telemetría de consumo defensivo por turno (para registro detallado)
+        S.turn_def_rei_before = int(getattr(S, "player_reiatsu", 0) or 0)
+        S.turn_def_ene_before = int(getattr(S, "player_energy", 0) or 0)
+        S.turn_def_rei_tech_sum = 0
+        S.turn_def_ene_tech_sum = 0
+
         # Helpers de formato
         fmt_pink  = getattr(S, "fmt_pink",  lambda t: str(t))
         fmt_cyan  = getattr(S, "fmt_cyan",  lambda t: str(t))
@@ -316,10 +322,14 @@ label defensive_process_actions(selected, base_damage):
             # CONSUMO REAL (UNA VEZ)
             # ----------------------------
             S.consume_resources(action.rei_cost, action.ene_cost, actor="player")
+            S.turn_def_rei_tech_sum += int(action.rei_cost or 0)
+            S.turn_def_ene_tech_sum += int(action.ene_cost or 0)
             action.used = True
 
 
         # Export para el Operation (y logs)
         S.summary_lines = summary_lines
+        S.turn_def_rei_after = int(getattr(S, "player_reiatsu", 0) or 0)
+        S.turn_def_ene_after = int(getattr(S, "player_energy", 0) or 0)
 
     return
