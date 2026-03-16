@@ -79,21 +79,6 @@ init -990 python:
 
 
 
-init -989 python:
-    import renpy.store as S
-    import renpy.exports as R
-
-    def bs_pick_maneuver_choice(choice, mode=None, close_submenu=False):
-        try:
-            if mode is not None:
-                S.counterattack_resolution_mode = str(mode or "dice")
-            S._battle_maneuver_pick = str(choice or "none")
-            if close_submenu:
-                S._battle_maneuver_close_submenu = True
-            R.restart_interaction()
-        except Exception:
-            pass
-
 style maneuver_option_button is button:
     xfill True
     yminimum 46
@@ -122,18 +107,6 @@ screen battle_maneuver_choice(damage):
     default local_choice = "none"
     default show_submenu = False
     default sac_receiver_key = ""
-    default local_counter_mode = str(getattr(store, "counterattack_resolution_mode", "dice") or "dice")
-
-    python:
-        import renpy.store as S
-        _picked = str(getattr(S, "_battle_maneuver_pick", "") or "")
-        if _picked:
-            local_choice = _picked
-            S._battle_maneuver_pick = ""
-
-        if bool(getattr(S, "_battle_maneuver_close_submenu", False)):
-            show_submenu = False
-            S._battle_maneuver_close_submenu = False
 
     $ import renpy.store as S
     $ will_die = S.player_hp - damage <= 0
@@ -301,7 +274,10 @@ screen battle_maneuver_choice(damage):
                                 text_color "#666666"
                         else:
                             textbutton "Contraataque (dados 4/4)":
-                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "counterattack", "dice", False)
+                                action [
+                                    SetScreenVariable("local_choice", "counterattack"),
+                                    SetVariable("counterattack_resolution_mode", "dice")
+                                ]
                                 style "maneuver_option_button"
                                 text_style "maneuver_option_button_text"
                                 selected local_choice == "counterattack"
@@ -318,7 +294,10 @@ screen battle_maneuver_choice(damage):
                                 text_color "#666666"
                         else:
                             textbutton "Parry por teclas":
-                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "parry_typing", None, False)
+                                action [
+                                    SetScreenVariable("local_choice", "parry_typing"),
+                                    SetVariable("counterattack_resolution_mode", "typing")
+                                ]
                                 style "maneuver_option_button"
                                 text_style "maneuver_option_button_text"
                                 selected local_choice == "parry_typing"
@@ -448,7 +427,11 @@ screen battle_maneuver_choice(damage):
                                 text_color "#666666"
                         else:
                             textbutton "Contraataque (dados 4/4)":
-                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "counterattack", "dice", True)
+                                action [
+                                    SetScreenVariable("local_choice", "counterattack"),
+                                    SetVariable("counterattack_resolution_mode", "dice"),
+                                    SetScreenVariable("show_submenu", False)
+                                ]
                                 style "maneuver_option_button"
                                 text_style "maneuver_option_button_text"
                                 selected local_choice == "counterattack"
@@ -465,7 +448,11 @@ screen battle_maneuver_choice(damage):
                                 text_color "#666666"
                         else:
                             textbutton "Parry por teclas":
-                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "parry_typing", None, True)
+                                action [
+                                    SetScreenVariable("local_choice", "parry_typing"),
+                                    SetVariable("counterattack_resolution_mode", "typing"),
+                                    SetScreenVariable("show_submenu", False)
+                                ]
                                 style "maneuver_option_button"
                                 text_style "maneuver_option_button_text"
                                 selected local_choice == "parry_typing"
