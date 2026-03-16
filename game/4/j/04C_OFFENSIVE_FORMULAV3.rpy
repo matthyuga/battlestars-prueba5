@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04C_OFFENSIVE_FORMULA.rpy – Fórmula final (SIN reflect)
 # ============================================================
 # v5.1 – SafeLogHub + StoreSafe log_* + PctDisplay Fix
@@ -241,11 +241,9 @@ label offensive_formula(dmg, attack_records):
                 rei_tech_sum = max(0, int(getattr(S, "turn_off_rei_tech_sum", rei_turn_use) or 0))
                 ene_tech_sum = max(0, int(getattr(S, "turn_off_ene_tech_sum", ene_turn_use) or 0))
 
-                _bla("▸ |> Recursos ofensivos:", "#FFFFFF", group="resource_detail")
+                _bla("▸ Recursos ofensivos:", "#FFFFFF", group="resource_detail")
                 _bla("   {color=#88CCFF}Reiatsu: {} - {} = {}{/color}".format(_fmt(rei_base), _fmt(rei_turn_use), _fmt(rei_after)), group="resource_detail")
-                _bla("   {color=#88CCFF}Reiatsu técnicas ofensivas: {}{/color}".format(_fmt(rei_tech_sum)), group="resource_detail")
                 _bla("   {color=#FFAA66}Energía: {} - {} = {}{/color}".format(_fmt(ene_base), _fmt(ene_turn_use), _fmt(ene_after)), group="resource_detail")
-                _bla("   {color=#FFAA66}Energía técnicas ofensivas: {}{/color}".format(_fmt(ene_tech_sum)), group="resource_detail")
         except:
             pass
 

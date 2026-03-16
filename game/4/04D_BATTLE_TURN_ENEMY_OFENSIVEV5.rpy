@@ -650,11 +650,9 @@ label battle_enemy_turn_legacy_entry:
                 rei_tech_sum = max(0, int(getattr(S, "turn_enemy_off_rei_tech_sum", rei_turn_use) or 0))
                 ene_tech_sum = max(0, int(getattr(S, "turn_enemy_off_ene_tech_sum", ene_turn_use) or 0))
 
-                _bla("▸ |> Recursos ofensivos (enemigo):", "#FFFFFF", group="resource_detail")
+                _bla("▸ Recursos ofensivos (enemigo):", "#FFFFFF", group="resource_detail")
                 _bla("   {color=#88CCFF}Reiatsu: {} - {} = {}{/color}".format(S.battle_fmt_num(rei_base), S.battle_fmt_num(rei_turn_use), S.battle_fmt_num(rei_after)), group="resource_detail")
-                _bla("   {color=#88CCFF}Reiatsu técnicas ofensivas: {}{/color}".format(S.battle_fmt_num(rei_tech_sum)), group="resource_detail")
                 _bla("   {color=#FFAA66}Energía: {} - {} = {}{/color}".format(S.battle_fmt_num(ene_base), S.battle_fmt_num(ene_turn_use), S.battle_fmt_num(ene_after)), group="resource_detail")
-                _bla("   {color=#FFAA66}Energía técnicas ofensivas: {}{/color}".format(S.battle_fmt_num(ene_tech_sum)), group="resource_detail")
         except:
             pass
 

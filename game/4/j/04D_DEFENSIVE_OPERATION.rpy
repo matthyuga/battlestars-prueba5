@@ -245,11 +245,9 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
                 rei_tech_sum = max(0, int(getattr(S, "turn_def_rei_tech_sum", rei_turn_use) or 0))
                 ene_tech_sum = max(0, int(getattr(S, "turn_def_ene_tech_sum", ene_turn_use) or 0))
 
-                _bla("▸ |> Recursos defensivos:", "#FFFFFF", group="resource_detail")
+                _bla("▸ Recursos defensivos:", "#FFFFFF", group="resource_detail")
                 _bla("   {color=#88CCFF}Reiatsu: {} - {} = {}{/color}".format(S.battle_fmt_num(rei_base), S.battle_fmt_num(rei_turn_use), S.battle_fmt_num(rei_after)), group="resource_detail")
-                _bla("   {color=#88CCFF}Reiatsu técnicas defensivas: {}{/color}".format(S.battle_fmt_num(rei_tech_sum)), group="resource_detail")
                 _bla("   {color=#FFAA66}Energía: {} - {} = {}{/color}".format(S.battle_fmt_num(ene_base), S.battle_fmt_num(ene_turn_use), S.battle_fmt_num(ene_after)), group="resource_detail")
-                _bla("   {color=#FFAA66}Energía técnicas defensivas: {}{/color}".format(S.battle_fmt_num(ene_tech_sum)), group="resource_detail")
         except:
             pass
 

@@ -407,7 +407,7 @@ label battle_start:
 
         if callable(fn_log):
             mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
-            fn_log("{color=#FFFFFF}▸ |> Recursos iniciales:{/color}", "#FFFFFF")
+            fn_log("{color=#FFFFFF}▸ Recursos iniciales:{/color}", "#FFFFFF")
 
             if mode == "2v2":
                 for key in ("player:0", "player:1", "enemy:0", "enemy:1"):
