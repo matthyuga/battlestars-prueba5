@@ -1084,39 +1084,39 @@ screen mouse_help():
 screen hotkeys_help():
 
     hbox:
-        label "O"
+        label "Ctrl+O"
         text _("En batalla: técnicas ofensivas.")
 
     hbox:
-        label "D"
+        label "Ctrl+D"
         text _("En batalla: técnicas defensivas.")
 
     hbox:
-        label "U"
+        label "Ctrl+U"
         text _("En batalla: panel de técnicas en cola.")
 
     hbox:
-        label "Y"
+        label "Ctrl+Y"
         text _("En batalla: aviso de daño entrante.")
 
     hbox:
-        label "T"
+        label "Ctrl+T"
         text _("En batalla: panel debug Focus & Reflect.")
 
     hbox:
-        label "K"
+        label "Ctrl+K"
         text _("En batalla: registro de combate.")
 
     hbox:
-        label "P"
+        label "Ctrl+P"
         text _("En batalla: opciones secundarias.")
 
     hbox:
-        label "V"
+        label "Ctrl+V"
         text _("En batalla: orden de turnos.")
 
     hbox:
-        label "J"
+        label "Ctrl+J"
         text _("En batalla: cuadro(s) de personaje(s).")
 
 

@@ -1056,11 +1056,11 @@ screen battle_ui_hotkeys():
     zorder 999
     modal False
 
-    key "K_p" action ToggleField(store, "ui_show_options_panel")
-    key "K_j" action ToggleField(store, "ui_show_unit_hud")
-    key "K_v" action ToggleField(store, "ui_show_2v2_summary")
-    key "K_o" action ToggleField(store, "ui_show_offensive_techniques")
-    key "K_d" action ToggleField(store, "ui_show_defensive_techniques")
+    key "ctrl_K_p" action ToggleField(store, "ui_show_options_panel")
+    key "ctrl_K_j" action ToggleField(store, "ui_show_unit_hud")
+    key "ctrl_K_v" action ToggleField(store, "ui_show_2v2_summary")
+    key "ctrl_K_o" action ToggleField(store, "ui_show_offensive_techniques")
+    key "ctrl_K_d" action ToggleField(store, "ui_show_defensive_techniques")
 
 
 # ===========================================================

@@ -276,7 +276,7 @@ init -990 python:
             spl = float(seconds_per_letter if seconds_per_letter is not None else getattr(S, "counterattack_typing_seconds_per_letter", 2.0))
         except:
             spl = 2.0
-        spl = max(0.1, spl)
+        spl = max(2.0, spl)
 
         state = {
             "active": True,
@@ -343,7 +343,7 @@ init -990 python:
                     }
                     st["close_in"] = 0.15
                 elif next_idx >= 0 and next_idx < len(seq):
-                    spl = max(0.1, float(st.get("seconds_per_letter", 2.0) or 2.0))
+                    spl = max(2.0, float(st.get("seconds_per_letter", 2.0) or 2.0))
                     st["index"] = int(next_idx)
                     st["current_letter"] = str(seq[next_idx])
                     st["time_left"] = float(spl)

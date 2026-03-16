@@ -21,7 +21,7 @@ init -990 python:
     import renpy.exports as R
 
     # Keymap para alternar esta ventanita
-    config.keymap["toggle_maneuver_choice"] = ["K_y"]
+    config.keymap["toggle_maneuver_choice"] = ["ctrl_K_y"]
 
     # Tamaño aproximado de la ventana (para clamp)
     MANEUVER_WIN_W = 640
@@ -314,7 +314,7 @@ screen battle_maneuver_choice(damage):
                                 text_size 30
                                 xalign 0.5
 
-                        text "Arrastrá para mover • Tecla Y: ocultar/mostrar" size 16 color "#BBBBBB" xalign 0.5
+                        text "Arrastrá para mover • Ctrl+Y: ocultar/mostrar" size 16 color "#BBBBBB" xalign 0.5
 
                     else:
 
@@ -394,7 +394,7 @@ screen battle_maneuver_choice(damage):
                             action SetScreenVariable("show_submenu", False)
                             text_size 26
 
-                        text "Arrastrá para mover • Tecla Y: ocultar/mostrar" size 16 color "#BBBBBB" xalign 0.5
+                        text "Arrastrá para mover • Ctrl+Y: ocultar/mostrar" size 16 color "#BBBBBB" xalign 0.5
 
 # -----------------------------------------------------------
 # Contraataque por mecanografía (QTE)
@@ -416,7 +416,7 @@ screen counterattack_typing_qte():
         _idx = int(_st.get("index", 0) or 0)
         _tot = int(_st.get("total", 0) or 0)
         _left = float(_st.get("time_left", 0.0) or 0.0)
-        _spl = max(0.1, float(_st.get("seconds_per_letter", 2.0) or 2.0))
+        _spl = max(2.0, float(_st.get("seconds_per_letter", 2.0) or 2.0))
         _status = str(_st.get("last_status", "active") or "active").strip().lower()
         _progress = 0.0 if _spl <= 0.0 else max(0.0, min(1.0, (_spl - _left) / _spl))
 

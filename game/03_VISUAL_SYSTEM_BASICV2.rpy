@@ -317,10 +317,10 @@ screen battle_log_screen():
     modal False
     zorder 120
 
-    key "K_b" action Function(battle_log_toggle_ui_flag, "ui_show_battle_debug_log")
-    key "K_d" action Function(battle_log_toggle_ui_flag, "ui_show_offensive_operation_details")
-    key "K_g" action Function(battle_log_toggle_ui_flag, "ui_show_target_assignment_details")
-    key "K_q" action Function(battle_log_toggle_ui_flag, "ui_show_queue_2v2_details")
+    key "ctrl_K_b" action Function(battle_log_toggle_ui_flag, "ui_show_battle_debug_log")
+    key "ctrl_K_d" action Function(battle_log_toggle_ui_flag, "ui_show_offensive_operation_details")
+    key "ctrl_K_g" action Function(battle_log_toggle_ui_flag, "ui_show_target_assignment_details")
+    key "ctrl_K_q" action Function(battle_log_toggle_ui_flag, "ui_show_queue_2v2_details")
 
     $ start_pos = get_battle_log_position()
 
@@ -448,10 +448,8 @@ init python:
             renpy.show_screen("battle_log_screen")
 
 screen battle_keymap_layer():
-    key "k" action Function(toggle_battle_log)
-    key "K" action Function(toggle_battle_log)
-    key "c" action Function(battle_log_clear)
-    key "C" action Function(battle_log_clear)
+    key "ctrl_K_k" action Function(toggle_battle_log)
+    key "ctrl_K_c" action Function(battle_log_clear)
 
 init python:
     if "battle_keymap_layer" not in config.overlay_screens:
