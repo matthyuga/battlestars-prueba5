@@ -1336,6 +1336,7 @@ screen battle_ui_hotkeys():
     key "ctrl_K_v" action ToggleField(store, "ui_show_2v2_summary")
     key "ctrl_K_o" action ToggleField(store, "ui_show_offensive_techniques")
     key "ctrl_K_d" action ToggleField(store, "ui_show_defensive_techniques")
+    key "K_F10" action Function(getattr(store, "perf_monitor_toggle", None))
 
 
 # ===========================================================
