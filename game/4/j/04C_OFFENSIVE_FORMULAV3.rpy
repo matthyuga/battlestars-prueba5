@@ -221,42 +221,6 @@ label offensive_formula(dmg, attack_records):
         except:
             pass
 
-        # ----------------------------------------------------
-        # 4.1) Desglose de recursos ofensivos (spoiler [I])
-        # ----------------------------------------------------
-        try:
-            _bla = getattr(S, "battle_log_add", None)
-            if callable(_bla):
-                def _safe_int(v, d=0):
-                    try:
-                        return int(v)
-                    except:
-                        try:
-                            return int(str(v or "0").replace(".", "").replace(",", "").strip() or d)
-                        except:
-                            return int(d)
-
-                rei_before = _safe_int(getattr(S, "turn_off_rei_before", getattr(S, "player_reiatsu", 0)), 0)
-                rei_after = _safe_int(getattr(S, "turn_off_rei_after", getattr(S, "player_reiatsu", 0)), 0)
-                ene_before = _safe_int(getattr(S, "turn_off_ene_before", getattr(S, "player_energy", 0)), 0)
-                ene_after = _safe_int(getattr(S, "turn_off_ene_after", getattr(S, "player_energy", 0)), 0)
-
-                rei_base = _safe_int(getattr(S, "player_reiatsu_base", rei_before), rei_before)
-                ene_base = _safe_int(getattr(S, "player_energy_base", ene_before), ene_before)
-
-                rei_turn_use = max(0, int(rei_before - rei_after))
-                ene_turn_use = max(0, int(ene_before - ene_after))
-
-                # Fallback robusto: si no hubo acumulador válido, usar consumo del turno.
-                rei_tech_sum = max(0, _safe_int(getattr(S, "turn_off_rei_tech_sum", rei_turn_use), rei_turn_use))
-                ene_tech_sum = max(0, _safe_int(getattr(S, "turn_off_ene_tech_sum", ene_turn_use), ene_turn_use))
-
-                _bla("▸ Recursos ofensivos:", "#FFFFFF", group="resource_detail")
-                _bla("   {color=#88CCFF}Reiatsu: {} - {} = {}{/color}".format(_fmt(rei_base), _fmt(rei_turn_use), _fmt(rei_after)), group="resource_detail")
-                _bla("   {color=#FFAA66}Energía: {} - {} = {}{/color}".format(_fmt(ene_base), _fmt(ene_turn_use), _fmt(ene_after)), group="resource_detail")
-        except:
-            pass
-
         try:
             tot_fn = getattr(S, "log_total", None)
             if not callable(tot_fn):
