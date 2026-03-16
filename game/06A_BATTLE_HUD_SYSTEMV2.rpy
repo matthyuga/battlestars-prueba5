@@ -17,8 +17,11 @@ init -970 python:
     battle_hp_player = battle_hp_player_max
     battle_hp_enemy = battle_hp_enemy_max
     hud_hp_visual_state = {}
-    hud_hp_trail_hold_sec = 0.80
-    hud_hp_trail_follow_rate_per_sec = 0.05
+    hud_hp_trail_hold_sec = 0.26
+    hud_hp_trail_follow_rate_min_per_sec = 0.28
+    hud_hp_trail_follow_rate_max_per_sec = 1.55
+    hud_hp_trail_accel_start_progress = 0.50
+    hud_hp_trail_accel_mult = 1.75
 
     hp_flash_timer = 0
     hp_flash_color = None
@@ -227,7 +230,7 @@ init -970 python:
 
         st = hud_hp_visual_state.get(key)
         if not isinstance(st, dict):
-            st = {"front": target, "lag": target, "hold": 0.0}
+            st = {"front": target, "lag": target, "hold": 0.0, "gap_start": 0.0, "progress": 0.0}
         else:
             front_prev = float(st.get("front", target) or target)
             lag_prev = float(st.get("lag", front_prev) or front_prev)
@@ -237,6 +240,8 @@ init -970 python:
                 st["front"] = target
                 st["lag"] = target
                 st["hold"] = 0.0
+                st["gap_start"] = 0.0
+                st["progress"] = 1.0
             else:
                 # Daño: front cae al instante; lag queda arriba y baja con tick.
                 st["front"] = target
@@ -244,7 +249,11 @@ init -970 python:
                 try:
                     st["hold"] = max(float(st.get("hold", 0.0) or 0.0), float(hud_hp_trail_hold_sec))
                 except:
-                    st["hold"] = max(float(st.get("hold", 0.0) or 0.0), 0.80)
+                    st["hold"] = max(float(st.get("hold", 0.0) or 0.0), 0.26)
+
+                _gap0 = max(0.0, float(st.get("lag", 0.0) or 0.0) - float(st.get("front", 0.0) or 0.0))
+                st["gap_start"] = max(_gap0, 0.0001)
+                st["progress"] = 0.0
 
         hud_hp_visual_state[key] = st
         return (float(st.get("front", target) or target), float(st.get("lag", target) or target))
@@ -281,11 +290,27 @@ init -970 python:
 
                 try:
                     import math
-                    follow_rate = max(0.01, float(hud_hp_trail_follow_rate_per_sec))
+                    follow_min = max(0.05, float(hud_hp_trail_follow_rate_min_per_sec))
+                    follow_max = max(follow_min, float(hud_hp_trail_follow_rate_max_per_sec))
+                    accel_start = max(0.0, min(1.0, float(hud_hp_trail_accel_start_progress)))
+                    accel_mult = max(1.0, float(hud_hp_trail_accel_mult))
                 except:
-                    follow_rate = 0.05
-                # Ease-out exponencial: rápido al inicio, suave al final (más natural).
-                alpha = 1.0 - math.exp(-follow_rate * delta)
+                    follow_min, follow_max, accel_start, accel_mult = 0.28, 1.55, 0.50, 1.75
+
+                gap = max(0.0, lag - front)
+                gap0 = max(0.0001, float(st.get("gap_start", gap) or gap or 0.0001))
+                progress = max(0.0, min(1.0, 1.0 - (gap / gap0)))
+                st["progress"] = progress
+
+                # Inicio lento -> medio normal -> final rápido (flow líquido perceptible).
+                dyn_follow = follow_min + (follow_max - follow_min) * (progress ** 1.2)
+
+                # Acelerón cuando se supera 50% del recorrido hacia el frente.
+                if progress >= accel_start:
+                    tail = (progress - accel_start) / max(0.0001, 1.0 - accel_start)
+                    dyn_follow *= (1.0 + (accel_mult - 1.0) * tail)
+
+                alpha = 1.0 - math.exp(-max(0.05, dyn_follow) * delta)
                 lag2 = lag + (front - lag) * alpha
                 lag2 = max(front, min(lag, lag2))
 
