@@ -635,6 +635,72 @@ init -990 python:
             "incoming_damage": int(info.get("incoming_damage", 0) or 0),
         }
 
+    def bs_parry_typing_can_use(unit_key="player:0", incoming_damage=0):
+        info = bs_counterattack_can_use(unit_key=unit_key, incoming_damage=incoming_damage)
+        used = bool(getattr(S, "parry_typing_used_in_battle", False))
+        if used:
+            info = dict(info)
+            info["ok"] = False
+            info["reason"] = "used"
+        return info
+
+    def bs_parry_typing_execute(unit_key="player:0", incoming_damage=0):
+        info = bs_parry_typing_can_use(unit_key=unit_key, incoming_damage=incoming_damage)
+        if not bool(info.get("ok", False)):
+            out = dict(info)
+            out["executed"] = False
+            out["success"] = False
+            out["roll"] = None
+            return out
+
+        fn_typ = getattr(S, "bs_counterattack_typing_resolve", None)
+        roll = fn_typ() if callable(fn_typ) else {"executed": True, "success": False, "roll": None, "method": "typing", "reason": "resolver_missing"}
+
+        S.parry_typing_used_in_battle = True
+
+        success = bool(isinstance(roll, dict) and roll.get("success", False))
+        if success:
+            return {
+                "executed": True,
+                "success": True,
+                "roll": roll,
+                "reiatsu_penalty": 0,
+                "energy_penalty": 0,
+                "incoming_damage": int(info.get("incoming_damage", 0) or 0),
+            }
+
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        pr = int(info.get("reiatsu_penalty", 0) or 0)
+        pe = int(info.get("energy_penalty", 0) or 0)
+
+        if mode == "2v2":
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            fn_set = getattr(S, "bs_set_unit_resources", None)
+            if callable(fn_get) and callable(fn_set):
+                u = fn_get(str(unit_key or ""))
+                if isinstance(u, dict):
+                    cur_r = int(u.get("reiatsu", 0) or 0)
+                    cur_e = int(u.get("energy", 0) or 0)
+                    fn_set(str(unit_key or ""), max(0, cur_r - pr), max(0, cur_e - pe))
+                try:
+                    fn_sync = getattr(S, "bs_sync_to_legacy", None)
+                    if callable(fn_sync):
+                        fn_sync()
+                except:
+                    pass
+        else:
+            S.player_reiatsu = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - pr)
+            S.player_energy = max(0, int(getattr(S, "player_energy", 0) or 0) - pe)
+
+        return {
+            "executed": True,
+            "success": False,
+            "roll": roll,
+            "reiatsu_penalty": int(pr),
+            "energy_penalty": int(pe),
+            "incoming_damage": int(info.get("incoming_damage", 0) or 0),
+        }
+
     def bs_sacrifice_candidates(defender_key="player:0"):
         out = []
         mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
@@ -767,6 +833,8 @@ init -990 python:
     store.bs_counterattack_typing_ui_quiet_restore = bs_counterattack_typing_ui_quiet_restore
     store.bs_counterattack_can_use = bs_counterattack_can_use
     store.bs_counterattack_execute = bs_counterattack_execute
+    store.bs_parry_typing_can_use = bs_parry_typing_can_use
+    store.bs_parry_typing_execute = bs_parry_typing_execute
     store.bs_sacrifice_candidates = bs_sacrifice_candidates
     store.bs_sacrifice_can_use = bs_sacrifice_can_use
     store.bs_sacrifice_execute = bs_sacrifice_execute
@@ -850,6 +918,7 @@ default enemy_noatk_success = False
 default maneuver_selected = "none"
 default counter_damage = 0
 default counterattack_used_in_battle = False
+default parry_typing_used_in_battle = False
 default sacrifice_used_in_battle = False
 default sacrifice_receiver_key = ""
 default counterattack_resolution_mode = "dice"

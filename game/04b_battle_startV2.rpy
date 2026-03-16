@@ -137,6 +137,7 @@ label battle_start:
     $ S.player_skip_attack_by_key = {}
     $ S.enemy_skip_attack_by_key = {}
     $ S.counterattack_used_in_battle = False
+    $ S.parry_typing_used_in_battle = False
     $ S.sacrifice_used_in_battle = False
     $ S.sacrifice_receiver_key = ""
     $ S.counterattack_resolution_mode = ("typing" if bool(getattr(S, "counterattack_typing_enabled", False)) else "dice")

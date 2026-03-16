@@ -144,6 +144,15 @@ screen battle_maneuver_choice(damage):
                     _counter_rei_cur = int(c.get("reiatsu_current", _counter_rei_cur) or _counter_rei_cur)
                     _counter_ene_cur = int(c.get("energy_current", _counter_ene_cur) or _counter_ene_cur)
 
+            _parry_ok = bool(_counter_ok)
+            _parry_reason = str(_counter_reason)
+            fn_parry = getattr(S, "bs_parry_typing_can_use", None)
+            if callable(fn_parry):
+                pp = fn_parry(unit_key=_incoming_key or "player:0", incoming_damage=damage)
+                if isinstance(pp, dict):
+                    _parry_ok = bool(pp.get("ok", _parry_ok))
+                    _parry_reason = str(pp.get("reason", _parry_reason) or _parry_reason)
+
             fn_sac = getattr(S, "bs_sacrifice_can_use", None)
             if callable(fn_sac):
                 sc = fn_sac(defender_key=_incoming_key or "player:0", incoming_damage=damage)
@@ -252,6 +261,18 @@ screen battle_maneuver_choice(damage):
                                 text_size 24
                                 text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "typing" and local_choice == "counterattack" else "#BBBBBB")
                                 text_hover_color "#FFFFFF"
+
+                            if not _parry_ok:
+                                textbutton "Parry por teclas (no disponible)":
+                                    action NullAction()
+                                    text_size 24
+                                    text_color "#666666"
+                            else:
+                                textbutton "Parry por teclas":
+                                    action SetScreenVariable("local_choice", "parry_typing")
+                                    text_size 24
+                                    text_color ("#FFFFFF" if local_choice == "parry_typing" else "#BBBBBB")
+                                    text_hover_color "#FFFFFF"
 
                         if _counter_reason == "used":
                             text "{color=#FF8888}Contraataque ya fue usado en esta batalla.{/color}"
@@ -376,6 +397,21 @@ screen battle_maneuver_choice(damage):
                                 text_size 24
                                 text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "typing" and local_choice == "counterattack" else "#BBBBBB")
                                 text_hover_color "#FFFFFF"
+
+                            if not _parry_ok:
+                                textbutton "Parry por teclas (no disponible)":
+                                    action NullAction()
+                                    text_size 24
+                                    text_color "#666666"
+                            else:
+                                textbutton "Parry por teclas":
+                                    action [
+                                        SetScreenVariable("local_choice", "parry_typing"),
+                                        SetScreenVariable("show_submenu", False)
+                                    ]
+                                    text_size 24
+                                    text_color ("#FFFFFF" if local_choice == "parry_typing" else "#BBBBBB")
+                                    text_hover_color "#FFFFFF"
 
                         if not _sac_ok:
                             textbutton "Solicitar maniobra de sacrificio (no disponible)":
