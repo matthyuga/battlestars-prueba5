@@ -16,6 +16,24 @@ init -970 python:
     battle_hp_enemy_max = 1
     battle_hp_player = battle_hp_player_max
     battle_hp_enemy = battle_hp_enemy_max
+    hud_hp_visual_state = {}
+
+    # === Tuning trail HP (flow visual) ===
+    # PRESET base "flow": inicio lento, medio estable y cierre más rápido.
+    # Puedes tocar solo estos valores para iterar sin cambiar lógica.
+    # - hold_sec: pausa inicial antes de que caiga la barra trail.
+    # - follow_min/max: velocidad mínima/máxima de seguimiento de la trail.
+    # - accel_start_progress: desde qué progreso (0..1) empieza el acelerón.
+    # - accel_mult: multiplicador del acelerón en la recta final.
+    # - curve_pow: >1.0 hace la salida más lenta (más "líquida").
+    # - tick_sec: frecuencia del timer (0.02 recomendado; 0.03 más segmentado).
+    hud_hp_trail_hold_sec = 0.32
+    hud_hp_trail_follow_rate_min_per_sec = 0.22
+    hud_hp_trail_follow_rate_max_per_sec = 1.42
+    hud_hp_trail_accel_start_progress = 0.50
+    hud_hp_trail_accel_mult = 1.85
+    hud_hp_trail_curve_pow = 1.55
+    hud_hp_trail_tick_sec = 0.02
 
     hp_flash_timer = 0
     hp_flash_color = None
@@ -199,6 +217,166 @@ init -970 python:
             pass
 
 
+    def battle_sync_hp_visuals_from_store(sync_hp_ui=True):
+        """Sincroniza HP lógico -> HUD trail en cualquier modo (1v1/2v2)."""
+        import renpy.store as S
+
+        try:
+            if bool(sync_hp_ui):
+                fn_sync = getattr(S, "bs_sync_hp_ui", None)
+                if callable(fn_sync):
+                    fn_sync()
+        except:
+            pass
+
+        try:
+            p_hp = int(getattr(S, "player_hp", 0) or 0)
+        except:
+            p_hp = 0
+        try:
+            e_hp = int(getattr(S, "enemy_hp", 0) or 0)
+        except:
+            e_hp = 0
+
+        fn_bars = getattr(S, "battle_update_hp_bars", None)
+        if callable(fn_bars):
+            try:
+                fn_bars(p_hp, e_hp)
+            except:
+                pass
+
+
+    def hud_hp_trail_get(unit_key, hp_cur, hp_max):
+        """Retorna (front_ratio, lag_ratio).
+        front sigue al HP real inmediatamente; lag desciende gradualmente.
+        """
+        global hud_hp_visual_state
+
+        try:
+            key = str(unit_key or "")
+        except:
+            key = ""
+
+        try:
+            mx = max(float(hp_max), 1.0)
+        except:
+            mx = 1.0
+
+        try:
+            target = float(hp_cur) / mx
+        except:
+            target = 0.0
+
+        target = max(0.0, min(1.0, target))
+
+        st = hud_hp_visual_state.get(key)
+        if not isinstance(st, dict):
+            st = {"front": target, "lag": target, "hold": 0.0, "gap_start": 0.0, "progress": 0.0}
+        else:
+            front_prev = float(st.get("front", target) or target)
+            lag_prev = float(st.get("lag", front_prev) or front_prev)
+
+            if target >= front_prev:
+                # Curación / reset: sincroniza ambas barras.
+                st["front"] = target
+                st["lag"] = target
+                st["hold"] = 0.0
+                st["gap_start"] = 0.0
+                st["progress"] = 1.0
+            else:
+                # Daño: front cae al instante; lag queda arriba y baja con tick.
+                st["front"] = target
+                st["lag"] = max(lag_prev, front_prev)
+                try:
+                    st["hold"] = max(float(st.get("hold", 0.0) or 0.0), float(hud_hp_trail_hold_sec))
+                except:
+                    st["hold"] = max(float(st.get("hold", 0.0) or 0.0), 0.26)
+
+                _gap0 = max(0.0, float(st.get("lag", 0.0) or 0.0) - float(st.get("front", 0.0) or 0.0))
+                st["gap_start"] = max(_gap0, 0.0001)
+                st["progress"] = 0.0
+
+        hud_hp_visual_state[key] = st
+        return (float(st.get("front", target) or target), float(st.get("lag", target) or target))
+
+
+    def hud_hp_trail_tick(dt=None):
+        global hud_hp_visual_state
+
+        if dt is None:
+            try:
+                delta = float(hud_hp_trail_tick_sec)
+            except:
+                delta = 0.02
+        else:
+            try:
+                delta = float(dt)
+            except:
+                delta = 0.02
+        if delta <= 0.0:
+            delta = 0.02
+
+        changed = False
+        for k in list(hud_hp_visual_state.keys()):
+            st = hud_hp_visual_state.get(k)
+            if not isinstance(st, dict):
+                continue
+
+            front = max(0.0, min(1.0, float(st.get("front", 0.0) or 0.0)))
+            lag = max(0.0, min(1.0, float(st.get("lag", front) or front)))
+
+            if lag > front:
+                hold = max(0.0, float(st.get("hold", 0.0) or 0.0))
+                if hold > 0.0:
+                    hold2 = max(0.0, hold - delta)
+                    if abs(hold2 - hold) > 0.0001:
+                        st["hold"] = hold2
+                        hud_hp_visual_state[k] = st
+                        changed = True
+                    continue
+
+                try:
+                    import math
+                    follow_min = max(0.05, float(hud_hp_trail_follow_rate_min_per_sec))
+                    follow_max = max(follow_min, float(hud_hp_trail_follow_rate_max_per_sec))
+                    accel_start = max(0.0, min(1.0, float(hud_hp_trail_accel_start_progress)))
+                    accel_mult = max(1.0, float(hud_hp_trail_accel_mult))
+                    curve_pow = max(1.0, float(hud_hp_trail_curve_pow))
+                except:
+                    follow_min, follow_max, accel_start, accel_mult, curve_pow = 0.22, 1.42, 0.50, 1.85, 1.55
+
+                gap = max(0.0, lag - front)
+                gap0 = max(0.0001, float(st.get("gap_start", gap) or gap or 0.0001))
+                progress = max(0.0, min(1.0, 1.0 - (gap / gap0)))
+                st["progress"] = progress
+
+                # Curva no lineal: arranque lento, tramo medio estable y cola acelerada.
+                p_curve = progress ** curve_pow
+                p_smooth = progress * progress * (3.0 - 2.0 * progress)
+                blend = (p_curve * 0.70) + (p_smooth * 0.30)
+                dyn_follow = follow_min + (follow_max - follow_min) * blend
+
+                # Acelerón progresivo tras el umbral (mitad por defecto).
+                if progress >= accel_start:
+                    tail = (progress - accel_start) / max(0.0001, 1.0 - accel_start)
+                    dyn_follow *= (1.0 + (accel_mult - 1.0) * (tail ** 1.35))
+
+                alpha = 1.0 - math.exp(-max(0.05, dyn_follow) * delta)
+                lag2 = lag + (front - lag) * alpha
+                lag2 = max(front, min(lag, lag2))
+
+                if abs(lag2 - lag) > 0.0001:
+                    st["lag"] = lag2
+                    hud_hp_visual_state[k] = st
+                    changed = True
+
+        if changed and renpy.get_screen("battle_hp_overlay"):
+            try:
+                renpy.restart_interaction()
+            except:
+                pass
+
+
     # ===========================================================
     # 🔸 Mostrar HUD
     # ===========================================================
@@ -206,10 +384,18 @@ init -970 python:
         global hud_visible, simulated_reiatsu, simulated_energy
         global enemy_simulated_reiatsu, enemy_simulated_energy
         global hud_player_name, hud_enemy_name
+        global hud_hp_visual_state
 
         import renpy.store as S
 
         hud_visible = True
+        hud_hp_visual_state = {}
+
+        # Seed inicial del trail al abrir HUD para evitar saltos visuales por estado viejo.
+        try:
+            battle_sync_hp_visuals_from_store(sync_hp_ui=False)
+        except:
+            pass
 
         # ✅ Nombres dinámicos (display) con fallback seguro
         try:
@@ -242,8 +428,9 @@ init -970 python:
     # 🔸 Ocultar HUD
     # ===========================================================
     def battle_hide_hud():
-        global hud_visible
+        global hud_visible, hud_hp_visual_state
         hud_visible = False
+        hud_hp_visual_state = {}
 
         renpy.with_statement(Dissolve(0.25))
 
@@ -625,6 +812,8 @@ screen battle_hp_overlay():
         if hp_flash_timer > 0:
             $ hp_flash_timer -= 1
 
+        timer hud_hp_trail_tick_sec repeat True action Function(hud_hp_trail_tick, hud_hp_trail_tick_sec)
+
         # ======================================================
         # ⚔️ HUD DE UNIDADES
         # ======================================================
@@ -656,6 +845,8 @@ screen battle_hp_overlay():
                                 $ _name = hud_ai_resolve_unit_name(_team, i, _uu)
                                 $ _hp = int((_uu.get("hp", 0) if isinstance(_uu, dict) else 0) or 0)
                                 $ _mx = int((_uu.get("max_hp", 1) if isinstance(_uu, dict) else 1) or 1)
+                                $ _hp_front, _hp_lag = hud_hp_trail_get(_uk, _hp, _mx)
+                                $ _hp_front_color = ("#00BFFF" if _team == "player" else "#FF3333")
                                 $ _active = bool(str(_ctx_u.get("owner_team", "")) == _team and int(_ctx_u.get("owner_slot", 0) or 0) == i)
                                 $ _is_autonomous_unit = hud_ai_is_autonomous_unit(_team, _uu)
                                 $ _is_framed_unit = bool(_is_autonomous_unit or _team == "player")
@@ -695,9 +886,19 @@ screen battle_hp_overlay():
                                                 size 10
                                                 bold True
 
+                                            fixed:
+                                                xpos 8
+                                                ypos 92
+                                                xsize int(max(60, int(_hud_layout.get("token_w", 118) or 118) - 16))
+                                                ysize 10
+                                                $ _token_w = int(max(60, int(_hud_layout.get("token_w", 118) or 118) - 16))
+                                                add Solid("#222222") xsize _token_w ysize 10
+                                                add Solid("#FFD400") xsize int(max(0, min(_token_w, int(_token_w * _hp_lag)))) ysize 10
+                                                add Solid(_hp_front_color) xsize int(max(0, min(_token_w, int(_token_w * _hp_front)))) ysize 10
+
                                             text "HP: {}/{}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                                 xpos 8
-                                                ypos 96
+                                                ypos 104
                                                 color "#FFFFFF"
                                                 size 8
 
@@ -707,7 +908,7 @@ screen battle_hp_overlay():
                                                 " (-{})".format(battle_fmt_num(abs(_rei_diff))) if _rei_diff != 0 else ""
                                             ):
                                                 xpos 8
-                                                ypos 112
+                                                ypos 120
                                                 color "#55FFFF"
                                                 size 8
 
@@ -717,7 +918,7 @@ screen battle_hp_overlay():
                                                 " (-{})".format(battle_fmt_num(abs(_ene_diff))) if _ene_diff != 0 else ""
                                             ):
                                                 xpos 8
-                                                ypos 128
+                                                ypos 136
                                                 color "#FFA500"
                                                 size 8
                                     else:
@@ -743,15 +944,15 @@ screen battle_hp_overlay():
                                                     size int((_hud_layout.get("name_size", 20) or 20) + 2)
                                                     bold True
 
-                                                bar:
+                                                fixed:
                                                     xpos 18
                                                     ypos 202
-                                                    value (float(_hp) / max(1.0, float(_mx)))
-                                                    range 1.0
-                                                    xmaximum 112
-                                                    ymaximum 14
-                                                    left_bar "#00BFFF"
-                                                    right_bar "#222222"
+                                                    xsize 112
+                                                    ysize 14
+
+                                                    add Solid("#222222") xsize 112 ysize 14
+                                                    add Solid("#FFD400") xsize int(max(0, min(112, int(112 * _hp_lag)))) ysize 14
+                                                    add Solid(_hp_front_color) xsize int(max(0, min(112, int(112 * _hp_front)))) ysize 14
 
                                                 text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                                     xpos 18
@@ -888,15 +1089,15 @@ screen battle_hp_overlay():
                                             size int(_hud_layout.get("name_size", 17) or 17)
                                             bold True
 
-                                        bar:
+                                        fixed:
                                             xpos 18
                                             ypos 203
-                                            value (float(_hp) / max(1.0, float(_mx)))
-                                            range 1.0
-                                            xmaximum 112
-                                            ymaximum 14
-                                            left_bar "#00BFFF"
-                                            right_bar "#222222"
+                                            xsize 112
+                                            ysize 14
+
+                                            add Solid("#222222") xsize 112 ysize 14
+                                            add Solid("#FFD400") xsize int(max(0, min(112, int(112 * _hp_lag)))) ysize 14
+                                            add Solid(_hp_front_color) xsize int(max(0, min(112, int(112 * _hp_front)))) ysize 14
 
                                         text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                             xpos 18
@@ -937,10 +1138,13 @@ screen battle_hp_overlay():
                     vbox at hp_pulse_player:
                         spacing 2
                         text hud_player_name color "#88CCFF" size 22 bold True
-                        bar:
-                            value (float(battle_hp_player) / battle_hp_player_max)
-                            range 1.0 xmaximum 280 ymaximum 16
-                            left_bar "#00BFFF" right_bar "#222222"
+                        $ _p_front, _p_lag = hud_hp_trail_get("player:0", battle_hp_player, battle_hp_player_max)
+                        fixed:
+                            xsize 280
+                            ysize 16
+                            add Solid("#222222") xsize 280 ysize 16
+                            add Solid("#FFD400") xsize int(max(0, min(280, int(280 * _p_lag)))) ysize 16
+                            add Solid("#00BFFF") xsize int(max(0, min(280, int(280 * _p_front)))) ysize 16
                         text "{} / {}".format(battle_fmt_num(battle_hp_player), battle_fmt_num(battle_hp_player_max)) color "#FFFFFF" size 16
 
                         hbox:
@@ -964,10 +1168,13 @@ screen battle_hp_overlay():
                     vbox at hp_pulse_enemy:
                         spacing 2
                         text hud_enemy_name color "#FF7777" size 22 bold True
-                        bar:
-                            value (float(battle_hp_enemy) / battle_hp_enemy_max)
-                            range 1.0 xmaximum 280 ymaximum 16
-                            left_bar "#FF3333" right_bar "#222222"
+                        $ _e_front, _e_lag = hud_hp_trail_get("enemy:0", battle_hp_enemy, battle_hp_enemy_max)
+                        fixed:
+                            xsize 280
+                            ysize 16
+                            add Solid("#222222") xsize 280 ysize 16
+                            add Solid("#FFD400") xsize int(max(0, min(280, int(280 * _e_lag)))) ysize 16
+                            add Solid("#FF3333") xsize int(max(0, min(280, int(280 * _e_front)))) ysize 16
                         text "{} / {}".format(battle_fmt_num(battle_hp_enemy), battle_fmt_num(battle_hp_enemy_max)) color "#FFFFFF" size 16
                         text "Reiatsu: {}/{}".format(battle_fmt_num(enemy_reiatsu), battle_fmt_num(getattr(store, "enemy_reiatsu_base", enemy_reiatsu))) size 15 color "#55FFFF"
                         text "Energía: {}/{}".format(battle_fmt_num(enemy_energy), battle_fmt_num(getattr(store, "enemy_energy_base", enemy_energy))) size 15 color "#FFA500"

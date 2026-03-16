@@ -306,6 +306,7 @@ screen navigation():
             textbutton _("Start 1v1 random [[{}]]").format(_quick_pid) action [Function(store.bs_prepare_quick_random_1v1, _quick_pid), Start()]
 
             textbutton _("Start") action Start()
+            textbutton _("Start Tipeo") action Start("typing_lab_start")
 
         else:
 

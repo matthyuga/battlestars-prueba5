@@ -1,0 +1,408 @@
+# Typing Lab aislado:
+# - Fondo negro
+# - Secuencia de 10 letras (a-z)
+# - 2s por letra
+# - Sin pantalla de perder
+# - Si aciertas: verde y avanza
+# - Si se acaba el tiempo: rojo y avanza
+
+init -850 python:
+    import random
+    import math
+    import renpy.store as S
+
+    TYPING_LAB_BAR_FOLLOW_RATE = 0.975
+    TYPING_LAB_BAR_HOLD_ON_RESET = 0.15
+    TYPING_LAB_BAR_TIME_CURVE_GAMMA = 0.88
+    TYPING_LAB_BAR_OSC_START_AMP = 0.045
+    TYPING_LAB_BAR_OSC_FREQ_HZ = 7.0
+    TYPING_LAB_BAR_OSC_DAMP = 7.5
+    TYPING_LAB_BAR_FOLLOW_MIN = 0.45
+    TYPING_LAB_BAR_FOLLOW_MAX = 2.25
+    TYPING_LAB_BAR_ACCEL_START_RATIO = 0.50
+    TYPING_LAB_BAR_ACCEL_MULT = 1.85
+
+    def _typing_lab_color_lerp(c1, c2, t):
+        t = max(0.0, min(1.0, float(t or 0.0)))
+        r = int(round(c1[0] + (c2[0] - c1[0]) * t))
+        g = int(round(c1[1] + (c2[1] - c1[1]) * t))
+        b = int(round(c1[2] + (c2[2] - c1[2]) * t))
+        return "#{:02X}{:02X}{:02X}".format(r, g, b)
+
+    def typing_lab_bar_color_from_ratio(ratio):
+        """Gradiente suave por tiempo restante.
+        100-71 verde, 70-40 amarillo, 39-15 naranja, <=14 rojo (sin cortes bruscos).
+        """
+        r = max(0.0, min(1.0, float(ratio or 0.0)))
+        # colores ancla
+        c_green  = (67, 233, 123)   # #43E97B
+        c_yellow = (255, 212, 0)    # #FFD400
+        c_orange = (255, 154, 61)   # #FF9A3D
+        c_red    = (255, 77, 77)    # #FF4D4D
+
+        if r >= 0.71:
+            # 0.71 -> 1.00 : amarillo a verde
+            t = (r - 0.71) / max(0.0001, 1.00 - 0.71)
+            return _typing_lab_color_lerp(c_yellow, c_green, t)
+        elif r >= 0.40:
+            # 0.40 -> 0.70 : naranja a amarillo
+            t = (r - 0.40) / max(0.0001, 0.70 - 0.40)
+            return _typing_lab_color_lerp(c_orange, c_yellow, t)
+        elif r >= 0.15:
+            # 0.15 -> 0.39 : rojo a naranja
+            t = (r - 0.15) / max(0.0001, 0.39 - 0.15)
+            return _typing_lab_color_lerp(c_red, c_orange, t)
+        else:
+            return "#FF4D4D"
+
+    def typing_lab_default_state():
+        return {
+            "phase": "idle",         # idle | hit | timeout | done
+            "sequence": [],
+            "total": 10,
+            "index": 0,
+            "current_letter": "",
+            "hits": 0,
+            "seconds_per_letter": 2.0,
+            "time_left": 2.0,
+            "feedback_time_left": 0.0,
+            "bar_visual_ratio": 1.0,
+            "bar_hold_left": float(TYPING_LAB_BAR_HOLD_ON_RESET),
+            "bar_osc_amp": float(TYPING_LAB_BAR_OSC_START_AMP),
+            "bar_osc_t": 0.0,
+        }
+
+    def typing_lab_prepare(total_letters=10, seconds_per_letter=2.0):
+        letters = list("abcdefghijklmnopqrstuvwxyz")
+        try:
+            n = int(total_letters)
+        except:
+            n = 10
+        n = max(1, n)
+
+        try:
+            spl = float(seconds_per_letter)
+        except:
+            spl = 2.0
+        spl = max(0.2, spl)
+
+        seq = [random.choice(letters) for _ in range(n)]
+
+        st = {
+            "phase": "idle",
+            "sequence": list(seq),
+            "total": int(len(seq)),
+            "index": 0,
+            "current_letter": str(seq[0] if seq else "a"),
+            "hits": 0,
+            "seconds_per_letter": float(spl),
+            "time_left": float(spl),
+            "feedback_time_left": 0.0,
+            "bar_visual_ratio": 1.0,
+            "bar_hold_left": float(TYPING_LAB_BAR_HOLD_ON_RESET),
+            "bar_osc_amp": float(TYPING_LAB_BAR_OSC_START_AMP),
+            "bar_osc_t": 0.0,
+        }
+        S.typing_lab_state = st
+        return dict(st)
+
+    def typing_lab_press_key(key_text=""):
+        st = getattr(S, "typing_lab_state", None)
+        if not isinstance(st, dict):
+            st = typing_lab_default_state()
+
+        phase = str(st.get("phase", "idle") or "idle")
+        if phase != "idle":
+            return dict(st)
+
+        got = str(key_text or "").strip().lower()[:1]
+        if not ("a" <= got <= "z"):
+            return dict(st)
+
+        expected = str(st.get("current_letter", "") or "").lower()
+        if got != expected:
+            return dict(st)
+
+        st["phase"] = "hit"
+        st["hits"] = int(st.get("hits", 0) or 0) + 1
+        st["feedback_time_left"] = 0.18
+        S.typing_lab_state = st
+        return dict(st)
+
+    def typing_lab_tick(dt=0.02):
+        st = getattr(S, "typing_lab_state", None)
+        if not isinstance(st, dict):
+            st = typing_lab_default_state()
+
+        try:
+            delta = float(dt)
+        except:
+            delta = 0.02
+        if delta <= 0.0:
+            delta = 0.02
+
+        phase = str(st.get("phase", "idle") or "idle")
+
+        if phase in ("hit", "timeout"):
+            fb = float(st.get("feedback_time_left", 0.0) or 0.0)
+            fb = max(0.0, fb - delta)
+            st["feedback_time_left"] = fb
+            S.typing_lab_state = st
+            if fb <= 0.0:
+                return typing_lab_advance()
+            return dict(st)
+
+        if phase != "idle":
+            return dict(st)
+
+        left = float(st.get("time_left", 0.0) or 0.0)
+        left = max(0.0, left - delta)
+        st["time_left"] = left
+
+        spl = max(0.0001, float(st.get("seconds_per_letter", 2.0) or 2.0))
+        target_ratio_raw = max(0.0, min(1.0, left / spl))
+        # Curva no lineal visual (sin alterar el timing real): sensación más orgánica.
+        target_ratio = math.pow(target_ratio_raw, max(0.10, float(TYPING_LAB_BAR_TIME_CURVE_GAMMA)))
+
+        vis_ratio = max(0.0, min(1.0, float(st.get("bar_visual_ratio", target_ratio) or target_ratio)))
+        hold_left = max(0.0, float(st.get("bar_hold_left", 0.0) or 0.0))
+
+        # Oscilación amortiguada breve al reset de letra (jelly feel).
+        osc_amp = max(0.0, float(st.get("bar_osc_amp", 0.0) or 0.0))
+        osc_t = max(0.0, float(st.get("bar_osc_t", 0.0) or 0.0))
+        osc_t += delta
+        osc_amp *= math.exp(-max(0.1, float(TYPING_LAB_BAR_OSC_DAMP)) * delta)
+        st["bar_osc_t"] = osc_t
+        st["bar_osc_amp"] = osc_amp
+
+        if hold_left > 0.0:
+            hold_left = max(0.0, hold_left - delta)
+            st["bar_hold_left"] = hold_left
+        else:
+            # Velocidad dinámica: inicio lento, medio normal, final rápido.
+            progress = max(0.0, min(1.0, 1.0 - target_ratio_raw))
+            dyn_follow = float(TYPING_LAB_BAR_FOLLOW_MIN) + (float(TYPING_LAB_BAR_FOLLOW_MAX) - float(TYPING_LAB_BAR_FOLLOW_MIN)) * (progress ** 1.25)
+
+            # Acelerón desde el 50% de barra hacia abajo para que trail alcance al front.
+            accel_start = max(0.0, min(1.0, float(TYPING_LAB_BAR_ACCEL_START_RATIO)))
+            if target_ratio_raw <= accel_start:
+                tail_progress = (accel_start - target_ratio_raw) / max(0.0001, accel_start)
+                dyn_follow *= (1.0 + (max(0.0, float(TYPING_LAB_BAR_ACCEL_MULT) - 1.0) * tail_progress))
+
+            alpha = 1.0 - math.exp(-max(0.05, dyn_follow) * delta)
+            vis_ratio = vis_ratio + (target_ratio - vis_ratio) * alpha
+            st["bar_visual_ratio"] = max(0.0, min(1.0, vis_ratio))
+
+        if left <= 0.0:
+            st["phase"] = "timeout"
+            st["feedback_time_left"] = 0.20
+
+        S.typing_lab_state = st
+        return dict(st)
+
+    def typing_lab_advance():
+        st = getattr(S, "typing_lab_state", None)
+        if not isinstance(st, dict):
+            st = typing_lab_default_state()
+
+        idx = int(st.get("index", 0) or 0) + 1
+        seq = list(st.get("sequence", []) or [])
+        total = int(st.get("total", len(seq)) or len(seq) or 0)
+        spl = float(st.get("seconds_per_letter", 2.0) or 2.0)
+
+        st["index"] = int(idx)
+
+        if idx >= total:
+            st["phase"] = "done"
+            st["current_letter"] = ""
+            st["time_left"] = 0.0
+            st["feedback_time_left"] = 0.0
+            st["bar_visual_ratio"] = 0.0
+            st["bar_hold_left"] = 0.0
+            st["bar_osc_amp"] = 0.0
+            st["bar_osc_t"] = 0.0
+        else:
+            st["phase"] = "idle"
+            st["current_letter"] = str(seq[idx])
+            st["time_left"] = float(spl)
+            st["feedback_time_left"] = 0.0
+            st["bar_visual_ratio"] = 1.0
+            st["bar_hold_left"] = float(TYPING_LAB_BAR_HOLD_ON_RESET)
+            st["bar_osc_amp"] = float(TYPING_LAB_BAR_OSC_START_AMP)
+            st["bar_osc_t"] = 0.0
+
+        S.typing_lab_state = st
+        return dict(st)
+
+    store.typing_lab_default_state = typing_lab_default_state
+    store.typing_lab_prepare = typing_lab_prepare
+    store.typing_lab_press_key = typing_lab_press_key
+    store.typing_lab_tick = typing_lab_tick
+    store.typing_lab_advance = typing_lab_advance
+    store.typing_lab_bar_color_from_ratio = typing_lab_bar_color_from_ratio
+
+
+default typing_lab_state = {
+    "phase": "idle",
+    "sequence": [],
+    "total": 10,
+    "index": 0,
+    "current_letter": "",
+    "hits": 0,
+    "seconds_per_letter": 2.0,
+    "time_left": 2.0,
+    "feedback_time_left": 0.0,
+    "bar_visual_ratio": 1.0,
+    "bar_hold_left": 0.0,
+    "bar_osc_amp": 0.0,
+    "bar_osc_t": 0.0,
+}
+
+
+screen typing_lab_qte_simple():
+    modal True
+    zorder 260
+
+    default _letters = "abcdefghijklmnopqrstuvwxyz"
+
+    python:
+        _st = getattr(store, "typing_lab_state", {})
+        _phase = str(_st.get("phase", "idle") or "idle")
+        _cur = str(_st.get("current_letter", "") or "")
+        _idx = int(_st.get("index", 0) or 0)
+        _tot = int(_st.get("total", 10) or 10)
+        _spl = float(_st.get("seconds_per_letter", 2.0) or 2.0)
+        _left = float(_st.get("time_left", 0.0) or 0.0)
+        _ratio = (0.0 if _spl <= 0.0 else max(0.0, min(1.0, _left / _spl)))
+        _vis_ratio = float(_st.get("bar_visual_ratio", _ratio) or _ratio)
+        _vis_ratio = max(0.0, min(1.0, _vis_ratio))
+
+        # Subpixel feel: borde/brillo con xpos fraccional + oscilación amortiguada.
+        _osc_amp = max(0.0, float(_st.get("bar_osc_amp", 0.0) or 0.0))
+        _osc_t = max(0.0, float(_st.get("bar_osc_t", 0.0) or 0.0))
+        _osc = (_osc_amp * math.sin(2.0 * math.pi * float(TYPING_LAB_BAR_OSC_FREQ_HZ) * _osc_t))
+
+        _bar_max = 520
+        _front_ratio = max(0.0, min(1.0, _ratio))
+        _lag_ratio = max(_front_ratio, max(0.0, min(1.0, _vis_ratio + _osc)))
+        _front_fill = int(max(0, min(_bar_max, int(_bar_max * _front_ratio))))
+        _lag_fill = int(max(0, min(_bar_max, int(_bar_max * _lag_ratio))))
+        _front_edge_x = (10.0 + (_front_ratio * _bar_max) - 1.0)
+        _lag_edge_x = (10.0 + (_lag_ratio * _bar_max) - 1.5)
+        _timer_txt = ("%.2f" % float(_left))
+
+        fn_bar_color = getattr(store, "typing_lab_bar_color_from_ratio", None)
+        _front_color = fn_bar_color(_front_ratio) if callable(fn_bar_color) else "#43E97B"
+
+        if _phase == "hit":
+            _letter_color = "#66FF99"
+        elif _phase == "timeout":
+            _letter_color = "#FF4D4D"
+        else:
+            _letter_color = "#FFFFFF"
+
+    timer 0.02 repeat True action Function(getattr(store, "typing_lab_tick", None), 0.02)
+
+    for _k in _letters:
+        key _k action Function(getattr(store, "typing_lab_press_key", None), _k)
+
+
+    if _phase == "done":
+        timer 0.02 action Return("win")
+
+    add Solid("#000000")
+
+
+    if _phase != "done":
+        text (_cur if _cur else "-"):
+            xalign 0.5
+            yalign 0.48
+            size 140
+            bold True
+            color _letter_color
+
+        frame:
+            background "#1A1A1A"
+            xalign 0.5
+            yalign 0.70
+            xsize 540
+            ysize 30
+            padding (0, 0)
+
+            fixed:
+                xsize 540
+                ysize 30
+
+                # Barra dual: lag (trail) + front (real), para sensación más líquida.
+                frame:
+                    background "#8A8A8A"
+                    xpos 10
+                    ypos 6
+                    xsize _lag_fill
+                    ysize 18
+                    padding (0, 0)
+
+                frame:
+                    background _front_color
+                    xpos 10
+                    ypos 6
+                    xsize _front_fill
+                    ysize 18
+                    padding (0, 0)
+
+                # Micro-segmentación visual (overlay semitransparente).
+                for _gx in range(10, 531, 13):
+                    add Solid("#FFFFFF22") xpos _gx ypos 6 xsize 1 ysize 18
+
+                # Subpixel feel: brillo/borde de avance con xpos fraccional.
+                add Solid("#FFFFFF66") xpos _lag_edge_x ypos 6 xsize 2 ysize 18
+                add Solid("#FFFFFFAA") xpos _front_edge_x ypos 6 xsize 2 ysize 18
+
+        text ("Tiempo: " + _timer_txt + " s"):
+            xalign 0.5
+            yalign 0.76
+            size 28
+            color "#D0D0D0"
+
+        text ("Letra %d/%d" % (int(min(_idx + 1, max(1, _tot))), int(max(1, _tot)))):
+            xalign 0.5
+            yalign 0.82
+            size 30
+            color "#D0D0D0"
+
+screen typing_lab_win_popup():
+    modal True
+    zorder 270
+
+    add Solid("#000000")
+
+    frame:
+        background "#0000"
+        xalign 0.5
+        yalign 0.5
+        padding (24, 20)
+
+        vbox:
+            spacing 18
+
+            text "GANASTE":
+                size 78
+                bold True
+                color "#66FF99"
+                xalign 0.5
+
+            textbutton "Volver al menú":
+                xalign 0.5
+                action Return("menu")
+
+label typing_lab_start:
+    $ typing_lab_state = typing_lab_default_state()
+    $ typing_lab_prepare(total_letters=10, seconds_per_letter=2.0)
+
+label typing_lab_round:
+    $ _typing_lab_simple_result = renpy.call_screen("typing_lab_qte_simple")
+    if _typing_lab_simple_result != "win":
+        jump typing_lab_round
+
+    $ _typing_lab_popup_action = renpy.call_screen("typing_lab_win_popup")
+    return
