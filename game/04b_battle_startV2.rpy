@@ -160,6 +160,9 @@ label battle_start:
                 "pending_next_index": None,
                 "feedback_time_left": 0.0,
                 "close_in": 0.0,
+                "hits": 0,
+                "misses": 0,
+                "required_hits": int(getattr(S, "counterattack_typing_required_hits", 6) or 6),
             }
 
     # =======================================================

@@ -418,6 +418,9 @@ screen counterattack_typing_qte():
         _left = float(_st.get("time_left", 0.0) or 0.0)
         _spl = max(2.0, float(_st.get("seconds_per_letter", 2.0) or 2.0))
         _status = str(_st.get("last_status", "active") or "active").strip().lower()
+        _hits = int(_st.get("hits", 0) or 0)
+        _miss = int(_st.get("misses", 0) or 0)
+        _req = int(_st.get("required_hits", 6) or 6)
         _progress = 0.0 if _spl <= 0.0 else max(0.0, min(1.0, (_spl - _left) / _spl))
 
         if _status in ("wrong", "timeout"):
@@ -462,4 +465,4 @@ screen counterattack_typing_qte():
                         bold True
                         at ctr_typing_letter_pulse(_spl)
 
-            text ("Letra %d/%d   %.2f s" % (int(_idx + 1), int(max(1, _tot)), float(_left or 0.0))) size 20 color "#D0D0D0" xalign 0.5
+            text ("Letra %d/%d   %.2f s   ✔ %d / ✖ %d (mín %d)" % (int(_idx + 1), int(max(1, _tot)), float(_left or 0.0), int(_hits), int(_miss), int(_req))) size 20 color "#D0D0D0" xalign 0.5

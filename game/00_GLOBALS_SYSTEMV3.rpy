@@ -240,6 +240,9 @@ init -990 python:
             "pending_next_index": None,
             "feedback_time_left": 0.0,
             "close_in": 0.0,
+            "hits": 0,
+            "misses": 0,
+            "required_hits": int(getattr(S, "counterattack_typing_required_hits", 6) or 6),
         }
 
     def bs_counterattack_typing_reset_state():
@@ -291,6 +294,9 @@ init -990 python:
             "pending_next_index": None,
             "feedback_time_left": 0.0,
             "close_in": 0.0,
+            "hits": 0,
+            "misses": 0,
+            "required_hits": int(getattr(S, "counterattack_typing_required_hits", 6) or 6),
         }
         S.counterattack_typing_state = state
         return dict(state)
@@ -332,16 +338,24 @@ init -990 python:
                 seq = list(st.get("sequence", []) or [])
                 if next_idx >= total:
                     st["active"] = False
-                    st["last_status"] = "success"
+                    hits = int(st.get("hits", 0) or 0)
+                    misses = int(st.get("misses", 0) or 0)
+                    req = int(st.get("required_hits", getattr(S, "counterattack_typing_required_hits", 6)) or 6)
+                    ok = bool(hits >= req)
+                    st["last_status"] = ("success" if ok else "fail")
                     st["result"] = {
                         "executed": True,
-                        "success": True,
+                        "success": bool(ok),
                         "roll": None,
                         "method": "typing",
-                        "typed_count": int(total),
+                        "reason": ("completed" if ok else "insufficient_hits"),
+                        "typed_count": int(hits),
+                        "hits": int(hits),
+                        "misses": int(misses),
+                        "required_hits": int(req),
                         "total_letters": int(total),
                     }
-                    st["close_in"] = 0.15
+                    st["close_in"] = 0.20
                 elif next_idx >= 0 and next_idx < len(seq):
                     spl = max(2.0, float(st.get("seconds_per_letter", 2.0) or 2.0))
                     st["index"] = int(next_idx)
@@ -360,19 +374,11 @@ init -990 python:
         if time_left <= 0.0:
             idx = int(st.get("index", 0) or 0)
             total = int(st.get("total", 0) or 0)
-            st["active"] = False
             st["last_status"] = "timeout"
-            st["result"] = {
-                "executed": True,
-                "success": False,
-                "roll": None,
-                "method": "typing",
-                "reason": "timeout",
-                "failed_index": int(idx),
-                "typed_count": int(idx),
-                "total_letters": int(total),
-            }
-            st["close_in"] = 0.25
+            st["misses"] = int(st.get("misses", 0) or 0) + 1
+            st["pending_next_index"] = int(idx + 1)
+            st["feedback_time_left"] = 0.18
+            st["time_left"] = 0.0
 
         S.counterattack_typing_state = st
         return dict(st)
@@ -395,6 +401,7 @@ init -990 python:
         got = str(key_text or "").strip().lower()[:1]
         if ("a" <= got <= "z") and got == expected:
             st["last_status"] = "hit"
+            st["hits"] = int(st.get("hits", 0) or 0) + 1
             st["pending_next_index"] = int(idx + 1)
             st["feedback_time_left"] = 0.10
             st["time_left"] = max(0.0, float(st.get("time_left", 0.0) or 0.0))
@@ -835,6 +842,7 @@ default counterattack_resolution_mode = "dice"
 default counterattack_typing_enabled = False
 default counterattack_typing_letters_count = 10
 default counterattack_typing_seconds_per_letter = 2.0
+default counterattack_typing_required_hits = 6
 default counterattack_typing_alphabet = "abcdefghijklmnopqrstuvwxyz"
 default counterattack_typing_ui_snapshot = {}
 default counterattack_typing_state = {
@@ -850,6 +858,9 @@ default counterattack_typing_state = {
     "pending_next_index": None,
     "feedback_time_left": 0.0,
     "close_in": 0.0,
+    "hits": 0,
+    "misses": 0,
+    "required_hits": 6,
 }
 
 # recursos base (para reglas de maniobras)
