@@ -432,10 +432,10 @@ screen counterattack_typing_qte():
     for _k in _letters:
         key _k action Function(getattr(store, "bs_counterattack_typing_press_key", None), _k)
 
-    add Solid("#00000066")
+    add Solid("#000000")
 
     frame:
-        background "#111A"
+        background "#0000"
         xalign 0.5
         yalign 0.5
         xmaximum 860
@@ -444,26 +444,22 @@ screen counterattack_typing_qte():
         vbox:
             spacing 12
 
-            text "CONTRAATAQUE · MECANOGRAFÍA" size 30 color "#FFD700" bold True xalign 0.5
-            text ("Letra %d de %d" % (int(_idx + 1), int(max(1, _tot)))) size 20 color "#B3E5FC" xalign 0.5
-
             frame:
-                background "#0B1320CC"
+                background "#0000"
                 xfill True
-                ymaximum 230
-                padding (14, 10)
+                ymaximum 280
+                padding (0, 0)
 
                 fixed:
                     xfill True
-                    ysize 200
+                    ysize 260
 
                     text (_cur if _cur else "-"):
                         xalign 0.5
                         yalign 0.5
-                        size 104
+                        size 120
                         color _c
                         bold True
                         at ctr_typing_letter_pulse(_spl)
 
-            text ("Tiempo restante: %.2f s" % float(_left or 0.0)) size 19 color "#E0E0E0" xalign 0.5
-            text "Presiona la tecla exacta en minúscula (a-z)." size 17 color "#BBBBBB" xalign 0.5
+            text ("Letra %d/%d   %.2f s" % (int(_idx + 1), int(max(1, _tot)), float(_left or 0.0))) size 20 color "#D0D0D0" xalign 0.5

@@ -401,22 +401,8 @@ init -990 python:
             S.counterattack_typing_state = st
             return dict(st)
 
-        st["active"] = False
-        st["last_status"] = "wrong"
-        st["result"] = {
-            "executed": True,
-            "success": False,
-            "roll": None,
-            "method": "typing",
-            "reason": "wrong_key",
-            "failed_index": int(idx),
-            "typed_count": int(idx),
-            "total_letters": int(total),
-            "expected": expected,
-            "pressed": got,
-        }
-        st["close_in"] = 0.25
-        S.counterattack_typing_state = st
+        # Ignorar teclas incorrectas para evitar fallos instantáneos por solapamientos/input residual.
+        # El fallo de la maniobra ocurre por timeout de la letra actual.
         return dict(st)
 
     def bs_counterattack_typing_resolve(count=None, seconds_per_letter=None, allow_repeat=True):
@@ -432,7 +418,24 @@ init -990 python:
                 "total_letters": 0,
             }
 
-        result = renpy.call_screen("counterattack_typing_qte")
+        snap = None
+        try:
+            fn_quiet = getattr(S, "bs_counterattack_typing_ui_quiet_enable", None)
+            if callable(fn_quiet):
+                snap = fn_quiet()
+        except:
+            snap = None
+
+        try:
+            result = renpy.call_screen("counterattack_typing_qte")
+        finally:
+            try:
+                fn_restore = getattr(S, "bs_counterattack_typing_ui_quiet_restore", None)
+                if callable(fn_restore):
+                    fn_restore(snap)
+            except:
+                pass
+
         if isinstance(result, dict):
             return result
 
@@ -449,6 +452,43 @@ init -990 python:
             "typed_count": 0,
             "total_letters": int(getattr(S, "counterattack_typing_letters_count", 10) or 10),
         }
+
+
+    def bs_counterattack_typing_ui_quiet_enable():
+        keys = [
+            "ui_show_options_panel",
+            "ui_show_unit_hud",
+            "ui_show_2v2_summary",
+            "ui_show_offensive_techniques",
+            "ui_show_defensive_techniques",
+            "ui_show_battle_debug_log",
+            "ui_show_offensive_operation_details",
+            "ui_show_target_assignment_details",
+            "ui_show_queue_2v2_details",
+            "show_technique_selector",
+            "debug_identity_panel",
+            "show_maneuver_choice",
+        ]
+        snap = {}
+        for k in keys:
+            snap[k] = getattr(S, k, None)
+            try:
+                setattr(S, k, False)
+            except:
+                pass
+        S.counterattack_typing_ui_snapshot = snap
+        return dict(snap)
+
+    def bs_counterattack_typing_ui_quiet_restore(snapshot=None):
+        snap = snapshot if isinstance(snapshot, dict) else getattr(S, "counterattack_typing_ui_snapshot", None)
+        if not isinstance(snap, dict):
+            return
+        for k, v in snap.items():
+            try:
+                setattr(S, k, v)
+            except:
+                pass
+        S.counterattack_typing_ui_snapshot = {}
 
     def bs_counterattack_can_use(unit_key="player:0", incoming_damage=0):
         try:
@@ -702,6 +742,8 @@ init -990 python:
     store.bs_counterattack_typing_tick = bs_counterattack_typing_tick
     store.bs_counterattack_typing_press_key = bs_counterattack_typing_press_key
     store.bs_counterattack_typing_resolve = bs_counterattack_typing_resolve
+    store.bs_counterattack_typing_ui_quiet_enable = bs_counterattack_typing_ui_quiet_enable
+    store.bs_counterattack_typing_ui_quiet_restore = bs_counterattack_typing_ui_quiet_restore
     store.bs_counterattack_can_use = bs_counterattack_can_use
     store.bs_counterattack_execute = bs_counterattack_execute
     store.bs_sacrifice_candidates = bs_sacrifice_candidates
@@ -794,6 +836,7 @@ default counterattack_typing_enabled = False
 default counterattack_typing_letters_count = 10
 default counterattack_typing_seconds_per_letter = 2.0
 default counterattack_typing_alphabet = "abcdefghijklmnopqrstuvwxyz"
+default counterattack_typing_ui_snapshot = {}
 default counterattack_typing_state = {
     "active": False,
     "sequence": [],

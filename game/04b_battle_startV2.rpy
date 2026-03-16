@@ -140,6 +140,7 @@ label battle_start:
     $ S.sacrifice_used_in_battle = False
     $ S.sacrifice_receiver_key = ""
     $ S.counterattack_resolution_mode = ("typing" if bool(getattr(S, "counterattack_typing_enabled", False)) else "dice")
+    $ S.counterattack_typing_ui_snapshot = {}
     python:
         import renpy.store as S
         fn_ctr_typing_reset = getattr(S, "bs_counterattack_typing_reset_state", None)
