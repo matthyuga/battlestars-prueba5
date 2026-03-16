@@ -226,6 +226,69 @@ init -990 python:
             "success": (successes >= 4)
         }
 
+    def bs_counterattack_typing_default_state():
+        return {
+            "active": False,
+            "sequence": [],
+            "total": 0,
+            "index": 0,
+            "current_letter": "",
+            "seconds_per_letter": float(getattr(S, "counterattack_typing_seconds_per_letter", 2.0) or 2.0),
+            "time_left": 0.0,
+            "last_status": "idle",
+            "result": None,
+        }
+
+    def bs_counterattack_typing_reset_state():
+        S.counterattack_typing_state = bs_counterattack_typing_default_state()
+        return dict(S.counterattack_typing_state)
+
+    def bs_counterattack_typing_generate_sequence(count=None, allow_repeat=True):
+        import random
+        alphabet = str(getattr(S, "counterattack_typing_alphabet", "abcdefghijklmnopqrstuvwxyz") or "abcdefghijklmnopqrstuvwxyz")
+        letters = [ch for ch in alphabet.lower() if ("a" <= ch <= "z")]
+        if not letters:
+            letters = list("abcdefghijklmnopqrstuvwxyz")
+
+        try:
+            n = int(count if count is not None else getattr(S, "counterattack_typing_letters_count", 10))
+        except:
+            n = 10
+        n = max(1, n)
+
+        if (not allow_repeat) and n <= len(letters):
+            seq = random.sample(letters, n)
+        else:
+            seq = [random.choice(letters) for _ in range(n)]
+
+        return "".join(seq)
+
+    def bs_counterattack_typing_prepare(count=None, seconds_per_letter=None, allow_repeat=True):
+        seq_txt = bs_counterattack_typing_generate_sequence(count=count, allow_repeat=allow_repeat)
+        seq = list(str(seq_txt or ""))
+        if not seq:
+            seq = ["a"]
+
+        try:
+            spl = float(seconds_per_letter if seconds_per_letter is not None else getattr(S, "counterattack_typing_seconds_per_letter", 2.0))
+        except:
+            spl = 2.0
+        spl = max(0.1, spl)
+
+        state = {
+            "active": True,
+            "sequence": list(seq),
+            "total": int(len(seq)),
+            "index": 0,
+            "current_letter": str(seq[0]),
+            "seconds_per_letter": float(spl),
+            "time_left": float(spl),
+            "last_status": "ready",
+            "result": None,
+        }
+        S.counterattack_typing_state = state
+        return dict(state)
+
     def bs_counterattack_can_use(unit_key="player:0", incoming_damage=0):
         try:
             in_dmg = max(0, int(incoming_damage or 0))
@@ -466,6 +529,10 @@ init -990 python:
 
     store.roll_3d = roll_3d
     store.roll_4d = roll_4d
+    store.bs_counterattack_typing_default_state = bs_counterattack_typing_default_state
+    store.bs_counterattack_typing_reset_state = bs_counterattack_typing_reset_state
+    store.bs_counterattack_typing_generate_sequence = bs_counterattack_typing_generate_sequence
+    store.bs_counterattack_typing_prepare = bs_counterattack_typing_prepare
     store.bs_counterattack_can_use = bs_counterattack_can_use
     store.bs_counterattack_execute = bs_counterattack_execute
     store.bs_sacrifice_candidates = bs_sacrifice_candidates
@@ -553,6 +620,22 @@ default counter_damage = 0
 default counterattack_used_in_battle = False
 default sacrifice_used_in_battle = False
 default sacrifice_receiver_key = ""
+default counterattack_resolution_mode = "dice"
+default counterattack_typing_enabled = False
+default counterattack_typing_letters_count = 10
+default counterattack_typing_seconds_per_letter = 2.0
+default counterattack_typing_alphabet = "abcdefghijklmnopqrstuvwxyz"
+default counterattack_typing_state = {
+    "active": False,
+    "sequence": [],
+    "total": 0,
+    "index": 0,
+    "current_letter": "",
+    "seconds_per_letter": 2.0,
+    "time_left": 0.0,
+    "last_status": "idle",
+    "result": None,
+}
 
 # recursos base (para reglas de maniobras)
 default player_reiatsu_base = 0
