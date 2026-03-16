@@ -242,6 +242,7 @@ screen battle_maneuver_choice(damage):
                                 ]
                                 text_size 26
                                 text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "dice" and local_choice == "counterattack" else "#BBBBBB")
+                                text_hover_color "#FFFFFF"
                             textbutton "Contraataque (tipeo-letras)":
                                 action [
                                     SetVariable("counterattack_resolution_mode", "typing"),
@@ -250,6 +251,7 @@ screen battle_maneuver_choice(damage):
                                 ]
                                 text_size 24
                                 text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "typing" and local_choice == "counterattack" else "#BBBBBB")
+                                text_hover_color "#FFFFFF"
 
                         if _counter_reason == "used":
                             text "{color=#FF8888}Contraataque ya fue usado en esta batalla.{/color}"
@@ -363,6 +365,7 @@ screen battle_maneuver_choice(damage):
                                 ]
                                 text_size 26
                                 text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "dice" and local_choice == "counterattack" else "#BBBBBB")
+                                text_hover_color "#FFFFFF"
                             textbutton "Contraataque (tipeo-letras)":
                                 action [
                                     SetVariable("counterattack_resolution_mode", "typing"),
@@ -372,6 +375,7 @@ screen battle_maneuver_choice(damage):
                                 ]
                                 text_size 24
                                 text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "typing" and local_choice == "counterattack" else "#BBBBBB")
+                                text_hover_color "#FFFFFF"
 
                         if not _sac_ok:
                             textbutton "Solicitar maniobra de sacrificio (no disponible)":
@@ -461,5 +465,5 @@ screen counterattack_typing_qte():
                         bold True
                         at ctr_typing_letter_pulse(_spl)
 
-            text "Tiempo restante: [" + "{:.2f}".format(_left) + "] s" size 19 color "#E0E0E0" xalign 0.5
+            text ("Tiempo restante: %.2f s" % float(_left or 0.0)) size 19 color "#E0E0E0" xalign 0.5
             text "Presiona la tecla exacta en minúscula (a-z)." size 17 color "#BBBBBB" xalign 0.5
