@@ -8,7 +8,11 @@
 
 init -850 python:
     import random
+    import math
     import renpy.store as S
+
+    TYPING_LAB_BAR_FOLLOW_RATE = 1.30
+    TYPING_LAB_BAR_HOLD_ON_RESET = 0.12
 
     def typing_lab_default_state():
         return {
@@ -21,6 +25,8 @@ init -850 python:
             "seconds_per_letter": 2.0,
             "time_left": 2.0,
             "feedback_time_left": 0.0,
+            "bar_visual_ratio": 1.0,
+            "bar_hold_left": float(TYPING_LAB_BAR_HOLD_ON_RESET),
         }
 
     def typing_lab_prepare(total_letters=10, seconds_per_letter=2.0):
@@ -49,6 +55,8 @@ init -850 python:
             "seconds_per_letter": float(spl),
             "time_left": float(spl),
             "feedback_time_left": 0.0,
+            "bar_visual_ratio": 1.0,
+            "bar_hold_left": float(TYPING_LAB_BAR_HOLD_ON_RESET),
         }
         S.typing_lab_state = st
         return dict(st)
@@ -106,6 +114,19 @@ init -850 python:
         left = max(0.0, left - delta)
         st["time_left"] = left
 
+        spl = max(0.0001, float(st.get("seconds_per_letter", 2.0) or 2.0))
+        target_ratio = max(0.0, min(1.0, left / spl))
+        vis_ratio = max(0.0, min(1.0, float(st.get("bar_visual_ratio", target_ratio) or target_ratio)))
+        hold_left = max(0.0, float(st.get("bar_hold_left", 0.0) or 0.0))
+
+        if hold_left > 0.0:
+            hold_left = max(0.0, hold_left - delta)
+            st["bar_hold_left"] = hold_left
+        else:
+            alpha = 1.0 - math.exp(-max(0.10, float(TYPING_LAB_BAR_FOLLOW_RATE)) * delta)
+            vis_ratio = vis_ratio + (target_ratio - vis_ratio) * alpha
+            st["bar_visual_ratio"] = max(0.0, min(1.0, vis_ratio))
+
         if left <= 0.0:
             st["phase"] = "timeout"
             st["feedback_time_left"] = 0.20
@@ -130,11 +151,15 @@ init -850 python:
             st["current_letter"] = ""
             st["time_left"] = 0.0
             st["feedback_time_left"] = 0.0
+            st["bar_visual_ratio"] = 0.0
+            st["bar_hold_left"] = 0.0
         else:
             st["phase"] = "idle"
             st["current_letter"] = str(seq[idx])
             st["time_left"] = float(spl)
             st["feedback_time_left"] = 0.0
+            st["bar_visual_ratio"] = 1.0
+            st["bar_hold_left"] = float(TYPING_LAB_BAR_HOLD_ON_RESET)
 
         S.typing_lab_state = st
         return dict(st)
@@ -156,6 +181,8 @@ default typing_lab_state = {
     "seconds_per_letter": 2.0,
     "time_left": 2.0,
     "feedback_time_left": 0.0,
+    "bar_visual_ratio": 1.0,
+    "bar_hold_left": 0.0,
 }
 
 
@@ -174,8 +201,10 @@ screen typing_lab_qte_simple():
         _spl = float(_st.get("seconds_per_letter", 2.0) or 2.0)
         _left = float(_st.get("time_left", 0.0) or 0.0)
         _ratio = (0.0 if _spl <= 0.0 else max(0.0, min(1.0, _left / _spl)))
+        _vis_ratio = float(_st.get("bar_visual_ratio", _ratio) or _ratio)
+        _vis_ratio = max(0.0, min(1.0, _vis_ratio))
         _bar_max = 520
-        _bar_fill = int(max(0, min(_bar_max, int(_bar_max * _ratio))))
+        _bar_fill = int(max(0, min(_bar_max, int(_bar_max * _vis_ratio))))
         _timer_txt = ("%.2f" % float(_left))
 
         if _phase == "hit":
