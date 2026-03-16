@@ -13,6 +13,10 @@ init -850 python:
 
     TYPING_LAB_BAR_FOLLOW_RATE = 0.975
     TYPING_LAB_BAR_HOLD_ON_RESET = 0.15
+    TYPING_LAB_BAR_TIME_CURVE_GAMMA = 0.88
+    TYPING_LAB_BAR_OSC_START_AMP = 0.045
+    TYPING_LAB_BAR_OSC_FREQ_HZ = 7.0
+    TYPING_LAB_BAR_OSC_DAMP = 7.5
 
     def typing_lab_default_state():
         return {
@@ -27,6 +31,8 @@ init -850 python:
             "feedback_time_left": 0.0,
             "bar_visual_ratio": 1.0,
             "bar_hold_left": float(TYPING_LAB_BAR_HOLD_ON_RESET),
+            "bar_osc_amp": float(TYPING_LAB_BAR_OSC_START_AMP),
+            "bar_osc_t": 0.0,
         }
 
     def typing_lab_prepare(total_letters=10, seconds_per_letter=2.0):
@@ -57,6 +63,8 @@ init -850 python:
             "feedback_time_left": 0.0,
             "bar_visual_ratio": 1.0,
             "bar_hold_left": float(TYPING_LAB_BAR_HOLD_ON_RESET),
+            "bar_osc_amp": float(TYPING_LAB_BAR_OSC_START_AMP),
+            "bar_osc_t": 0.0,
         }
         S.typing_lab_state = st
         return dict(st)
@@ -115,9 +123,20 @@ init -850 python:
         st["time_left"] = left
 
         spl = max(0.0001, float(st.get("seconds_per_letter", 2.0) or 2.0))
-        target_ratio = max(0.0, min(1.0, left / spl))
+        target_ratio_raw = max(0.0, min(1.0, left / spl))
+        # Curva no lineal visual (sin alterar el timing real): sensación más orgánica.
+        target_ratio = math.pow(target_ratio_raw, max(0.10, float(TYPING_LAB_BAR_TIME_CURVE_GAMMA)))
+
         vis_ratio = max(0.0, min(1.0, float(st.get("bar_visual_ratio", target_ratio) or target_ratio)))
         hold_left = max(0.0, float(st.get("bar_hold_left", 0.0) or 0.0))
+
+        # Oscilación amortiguada breve al reset de letra (jelly feel).
+        osc_amp = max(0.0, float(st.get("bar_osc_amp", 0.0) or 0.0))
+        osc_t = max(0.0, float(st.get("bar_osc_t", 0.0) or 0.0))
+        osc_t += delta
+        osc_amp *= math.exp(-max(0.1, float(TYPING_LAB_BAR_OSC_DAMP)) * delta)
+        st["bar_osc_t"] = osc_t
+        st["bar_osc_amp"] = osc_amp
 
         if hold_left > 0.0:
             hold_left = max(0.0, hold_left - delta)
@@ -153,6 +172,8 @@ init -850 python:
             st["feedback_time_left"] = 0.0
             st["bar_visual_ratio"] = 0.0
             st["bar_hold_left"] = 0.0
+            st["bar_osc_amp"] = 0.0
+            st["bar_osc_t"] = 0.0
         else:
             st["phase"] = "idle"
             st["current_letter"] = str(seq[idx])
@@ -160,6 +181,8 @@ init -850 python:
             st["feedback_time_left"] = 0.0
             st["bar_visual_ratio"] = 1.0
             st["bar_hold_left"] = float(TYPING_LAB_BAR_HOLD_ON_RESET)
+            st["bar_osc_amp"] = float(TYPING_LAB_BAR_OSC_START_AMP)
+            st["bar_osc_t"] = 0.0
 
         S.typing_lab_state = st
         return dict(st)
@@ -183,6 +206,8 @@ default typing_lab_state = {
     "feedback_time_left": 0.0,
     "bar_visual_ratio": 1.0,
     "bar_hold_left": 0.0,
+    "bar_osc_amp": 0.0,
+    "bar_osc_t": 0.0,
 }
 
 
@@ -203,12 +228,32 @@ screen typing_lab_qte_simple():
         _ratio = (0.0 if _spl <= 0.0 else max(0.0, min(1.0, _left / _spl)))
         _vis_ratio = float(_st.get("bar_visual_ratio", _ratio) or _ratio)
         _vis_ratio = max(0.0, min(1.0, _vis_ratio))
+
+        # Subpixel feel: borde/brillo con xpos fraccional + oscilación amortiguada.
+        _osc_amp = max(0.0, float(_st.get("bar_osc_amp", 0.0) or 0.0))
+        _osc_t = max(0.0, float(_st.get("bar_osc_t", 0.0) or 0.0))
+        _osc = (_osc_amp * math.sin(2.0 * math.pi * float(TYPING_LAB_BAR_OSC_FREQ_HZ) * _osc_t))
+
         _bar_max = 520
         _front_ratio = max(0.0, min(1.0, _ratio))
-        _lag_ratio = max(_front_ratio, _vis_ratio)
+        _lag_ratio = max(_front_ratio, max(0.0, min(1.0, _vis_ratio + _osc)))
         _front_fill = int(max(0, min(_bar_max, int(_bar_max * _front_ratio))))
         _lag_fill = int(max(0, min(_bar_max, int(_bar_max * _lag_ratio))))
+        _front_edge_x = (10.0 + (_front_ratio * _bar_max) - 1.0)
+        _lag_edge_x = (10.0 + (_lag_ratio * _bar_max) - 1.5)
         _timer_txt = ("%.2f" % float(_left))
+
+        # Color por umbral dinámico (tiempo restante):
+        # verde 100-71 | amarillo 70-40 | naranja 39-15 | rojo <=14
+        _pct = int(round(_front_ratio * 100.0))
+        if _pct >= 71:
+            _front_color = "#43E97B"
+        elif _pct >= 40:
+            _front_color = "#FFD400"
+        elif _pct >= 15:
+            _front_color = "#FF9A3D"
+        else:
+            _front_color = "#FF4D4D"
 
         if _phase == "hit":
             _letter_color = "#66FF99"
@@ -259,12 +304,20 @@ screen typing_lab_qte_simple():
                     padding (0, 0)
 
                 frame:
-                    background "#43E97B"
+                    background _front_color
                     xpos 10
                     ypos 6
                     xsize _front_fill
                     ysize 18
                     padding (0, 0)
+
+                # Micro-segmentación visual (overlay semitransparente).
+                for _gx in range(10, 531, 13):
+                    add Solid("#FFFFFF22") xpos _gx ypos 6 xsize 1 ysize 18
+
+                # Subpixel feel: brillo/borde de avance con xpos fraccional.
+                add Solid("#FFFFFF66") xpos _lag_edge_x ypos 6 xsize 2 ysize 18
+                add Solid("#FFFFFFAA") xpos _front_edge_x ypos 6 xsize 2 ysize 18
 
         text ("Tiempo: " + _timer_txt + " s"):
             xalign 0.5
