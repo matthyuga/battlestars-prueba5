@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04D_BATTLE_TURN_ENEMY.RPY – Turno ofensivo IA (MANEUVER EXTENDED)
 # Versión v12.3.1 Reflect RESOLVE ON TARGET HP (SyntaxFix + Sync) ✅
 # ------------------------------------------------------------
@@ -761,108 +761,6 @@ label battle_enemy_turn_legacy_entry:
             $ battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", delay=0.7)
             jump battle_offensive_turn
 
-
-    # ============================================================
-    # ⭐ PARRY POR TECLAS (ruta separada)
-    # ============================================================
-    if maneuver_selected == "parry_typing":
-
-        python:
-            import renpy.store as S
-
-            target_key = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "player:0")
-            fn_par = getattr(S, "bs_parry_typing_execute", None)
-            par = fn_par(unit_key=target_key, incoming_damage=incoming_damage) if callable(fn_par) else {"executed": False, "success": False}
-            par_ok = bool(isinstance(par, dict) and par.get("executed", False))
-            par_success = bool(isinstance(par, dict) and par.get("success", False))
-
-            if callable(getattr(S, "battle_log_add", None)):
-                if par_success:
-                    S.battle_log_add("{color=#66FF99}Parry por teclas exitoso: no recibes daño y ganas acción ofensiva.{/color}")
-                elif par_ok:
-                    _rp = int(par.get("reiatsu_penalty", 0) or 0)
-                    _ep = int(par.get("energy_penalty", 0) or 0)
-                    _r = (par.get("roll", {}) if isinstance(par.get("roll"), dict) else {})
-                    _why = str(_r.get("reason", "fallo") or "fallo")
-                    _h = int(_r.get("hits", _r.get("typed_count", 0)) or 0)
-                    _m = int(_r.get("misses", 0) or 0)
-                    _req = int(_r.get("required_hits", 6) or 6)
-                    S.battle_log_add("{color=#FF8888}Parry por teclas fallido (%s • ✔%s/✖%s • mín %s): -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_why), str(_h), str(_m), str(_req), str(_rp), str(_ep)))
-                else:
-                    S.battle_log_add("{color=#FF8888}Parry por teclas no disponible. Se aplica defensa normal.{/color}")
-
-            S._par_success = bool(par_success)
-            S._par_ok = bool(par_ok)
-
-        if _par_success:
-            $ extra_offensive_actions += 1
-            $ enemy_ai.reset_turn()
-            $ battle_turn_change("player")
-            python:
-                import renpy.store as S
-                _bp = getattr(S, "battle_player", None)
-                if isinstance(_bp, dict):
-                    _pname = str(_bp.get("name", "") or "")
-                else:
-                    _pname = ""
-                if not _pname:
-                    _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
-            $ battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", delay=0.7)
-            python:
-                import renpy.store as S
-                S.enemy_damage_plan = None
-                S.enemy_target_key = ""
-            jump battle_offensive_turn
-        elif _par_ok:
-            python:
-                import renpy.store as S
-                plan = getattr(S, "enemy_damage_plan", None)
-                target_key = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "")
-
-                fn_apply_plan = getattr(S, "bs_apply_damage_plan", None)
-                fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
-                fn_apply = getattr(S, "bs_apply_damage", None)
-
-                if isinstance(plan, dict) and callable(fn_apply_plan):
-                    fn_apply_plan(plan, reason="combat")
-                elif target_key and callable(fn_apply_key):
-                    fn_apply_key(target_key, incoming_damage, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat")
-                elif callable(fn_apply):
-                    fn_apply("player", incoming_damage, source="enemy", reason="combat")
-                else:
-                    player_hp = max(0, player_hp - incoming_damage)
-                    battle_update_hp_bars(player_hp, enemy_hp)
-
-                fn_sync_vis = getattr(S, "battle_sync_hp_visuals_from_store", None)
-                if callable(fn_sync_vis):
-                    fn_sync_vis(sync_hp_ui=True)
-                else:
-                    fn_sync = getattr(S, "bs_sync_hp_ui", None)
-                    if callable(fn_sync):
-                        fn_sync()
-                    fn_bars = getattr(S, "battle_update_hp_bars", None)
-                    if callable(fn_bars):
-                        fn_bars(getattr(S, "player_hp", 0), getattr(S, "enemy_hp", 0))
-                player_hp = int(getattr(S, "player_hp", 0) or 0)
-
-            $ enemy_ai.reset_turn()
-            $ battle_turn_change("player")
-            python:
-                import renpy.store as S
-                _bp = getattr(S, "battle_player", None)
-                if isinstance(_bp, dict):
-                    _pname = str(_bp.get("name", "") or "")
-                else:
-                    _pname = ""
-                if not _pname:
-                    _pname = str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
-            $ battle_popup_turn("Turno ofensivo — {}".format(_pname), "#FFD700", delay=0.7)
-            python:
-                import renpy.store as S
-                S.enemy_damage_plan = None
-                S.enemy_target_key = ""
-            jump battle_offensive_turn
-
     # ============================================================
     # ⭐ CONTRAATAQUE (4/4 dados)
     # ============================================================
@@ -930,16 +828,9 @@ label battle_enemy_turn_legacy_entry:
                     player_hp = max(0, player_hp - incoming_damage)
                     battle_update_hp_bars(player_hp, enemy_hp)
 
-                fn_sync_vis = getattr(S, "battle_sync_hp_visuals_from_store", None)
-                if callable(fn_sync_vis):
-                    fn_sync_vis(sync_hp_ui=True)
-                else:
-                    fn_sync = getattr(S, "bs_sync_hp_ui", None)
-                    if callable(fn_sync):
-                        fn_sync()
-                    fn_bars = getattr(S, "battle_update_hp_bars", None)
-                    if callable(fn_bars):
-                        fn_bars(getattr(S, "player_hp", 0), getattr(S, "enemy_hp", 0))
+                fn_sync = getattr(S, "bs_sync_hp_ui", None)
+                if callable(fn_sync):
+                    fn_sync()
                 player_hp = int(getattr(S, "player_hp", 0) or 0)
 
             $ enemy_ai.reset_turn()

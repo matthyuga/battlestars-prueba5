@@ -182,34 +182,10 @@ label battle_start:
     $ S.player_skip_attack_by_key = {}
     $ S.enemy_skip_attack_by_key = {}
     $ S.counterattack_used_in_battle = False
-    $ S.parry_typing_used_in_battle = False
     $ S.sacrifice_used_in_battle = False
     $ S.sacrifice_receiver_key = ""
-    $ S.counterattack_resolution_mode = ("typing" if bool(getattr(S, "counterattack_typing_enabled", False)) else "dice")
-    $ S.counterattack_typing_ui_snapshot = {}
-    python:
-        import renpy.store as S
-        fn_ctr_typing_reset = getattr(S, "bs_counterattack_typing_reset_state", None)
-        if callable(fn_ctr_typing_reset):
-            fn_ctr_typing_reset()
-        else:
-            S.counterattack_typing_state = {
-                "active": False,
-                "sequence": [],
-                "total": 0,
-                "index": 0,
-                "current_letter": "",
-                "seconds_per_letter": float(getattr(S, "counterattack_typing_seconds_per_letter", 2.0) or 2.0),
-                "time_left": 0.0,
-                "last_status": "idle",
-                "result": None,
-                "pending_next_index": None,
-                "feedback_time_left": 0.0,
-                "close_in": 0.0,
-                "hits": 0,
-                "misses": 0,
-                "required_hits": int(getattr(S, "counterattack_typing_required_hits", 6) or 6),
-            }
+    $ S.counterattack_resolution_mode = "dice"
+
 
     # =======================================================
     # 🌆 Fondo de batalla aleatorio

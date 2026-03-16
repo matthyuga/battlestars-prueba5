@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # RESOLUTOR – Separa daño defendible & directo
 # ============================================================
 
@@ -251,19 +251,17 @@ label battle_offensive_resolve_enemy:
             except:
                 pass
 
-            try:
-                fn_sync_vis = getattr(S, "battle_sync_hp_visuals_from_store", None)
-                if callable(fn_sync_vis):
-                    fn_sync_vis(sync_hp_ui=True)
-                else:
-                    fn_sync = getattr(S, "bs_sync_hp_ui", None)
-                    if callable(fn_sync):
-                        fn_sync()
+            if mode != "2v2":
+                fn_sync = getattr(S, "bs_sync_hp_ui", None)
+                if callable(fn_sync):
+                    fn_sync()
+
+                try:
                     fn_bars = getattr(S, "battle_update_hp_bars", None)
                     if callable(fn_bars):
                         fn_bars(getattr(S, "player_hp", 0), getattr(S, "enemy_hp", 0))
-            except:
-                pass
+                except:
+                    pass
         except:
             pass
 
