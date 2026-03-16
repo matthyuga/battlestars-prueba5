@@ -19,6 +19,8 @@ init -850 python:
     TYPING_LAB_BAR_OSC_DAMP = 7.5
     TYPING_LAB_BAR_FOLLOW_MIN = 0.45
     TYPING_LAB_BAR_FOLLOW_MAX = 2.25
+    TYPING_LAB_BAR_ACCEL_START_RATIO = 0.50
+    TYPING_LAB_BAR_ACCEL_MULT = 1.85
 
     def _typing_lab_color_lerp(c1, c2, t):
         t = max(0.0, min(1.0, float(t or 0.0)))
@@ -180,6 +182,13 @@ init -850 python:
             # Velocidad dinámica: inicio lento, medio normal, final rápido.
             progress = max(0.0, min(1.0, 1.0 - target_ratio_raw))
             dyn_follow = float(TYPING_LAB_BAR_FOLLOW_MIN) + (float(TYPING_LAB_BAR_FOLLOW_MAX) - float(TYPING_LAB_BAR_FOLLOW_MIN)) * (progress ** 1.25)
+
+            # Acelerón desde el 50% de barra hacia abajo para que trail alcance al front.
+            accel_start = max(0.0, min(1.0, float(TYPING_LAB_BAR_ACCEL_START_RATIO)))
+            if target_ratio_raw <= accel_start:
+                tail_progress = (accel_start - target_ratio_raw) / max(0.0001, accel_start)
+                dyn_follow *= (1.0 + (max(0.0, float(TYPING_LAB_BAR_ACCEL_MULT) - 1.0) * tail_progress))
+
             alpha = 1.0 - math.exp(-max(0.05, dyn_follow) * delta)
             vis_ratio = vis_ratio + (target_ratio - vis_ratio) * alpha
             st["bar_visual_ratio"] = max(0.0, min(1.0, vis_ratio))
@@ -326,7 +335,7 @@ screen typing_lab_qte_simple():
 
                 # Barra dual: lag (trail) + front (real), para sensación más líquida.
                 frame:
-                    background "#8AE65A"
+                    background "#8A8A8A"
                     xpos 10
                     ypos 6
                     xsize _lag_fill
