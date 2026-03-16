@@ -107,6 +107,7 @@ screen battle_maneuver_choice(damage):
     default local_choice = "none"
     default show_submenu = False
     default sac_receiver_key = ""
+    default local_counter_mode = str(getattr(store, "counterattack_resolution_mode", "dice") or "dice")
 
     $ import renpy.store as S
     $ will_die = S.player_hp - damage <= 0
@@ -197,6 +198,7 @@ screen battle_maneuver_choice(damage):
         drag:
             draggable True
             dragged ManeuverChoiceDragged()
+            drag_handle (0, 0, 512, 72)
 
             xpos maneuver_choice_x
             ypos maneuver_choice_y
@@ -276,7 +278,7 @@ screen battle_maneuver_choice(damage):
                             textbutton "Contraataque (dados 4/4)":
                                 action [
                                     SetScreenVariable("local_choice", "counterattack"),
-                                    SetVariable("counterattack_resolution_mode", "dice")
+                                    SetScreenVariable("local_counter_mode", "dice")
                                 ]
                                 style "maneuver_option_button"
                                 text_style "maneuver_option_button_text"
@@ -296,7 +298,7 @@ screen battle_maneuver_choice(damage):
                             textbutton "Parry por teclas":
                                 action [
                                     SetScreenVariable("local_choice", "parry_typing"),
-                                    SetVariable("counterattack_resolution_mode", "typing")
+                                    SetScreenVariable("local_counter_mode", "typing")
                                 ]
                                 style "maneuver_option_button"
                                 text_style "maneuver_option_button_text"
@@ -369,6 +371,7 @@ screen battle_maneuver_choice(damage):
                             textbutton "Confirmar decisión":
                                 action [
                                     SetVariable("maneuver_selected", local_choice),
+                                    SetVariable("counterattack_resolution_mode", local_counter_mode),
                                     SetVariable("sacrifice_receiver_key", sac_receiver_key),
                                     Hide("battle_maneuver_choice"),
                                     SetVariable("show_maneuver_choice", True)
@@ -429,7 +432,7 @@ screen battle_maneuver_choice(damage):
                             textbutton "Contraataque (dados 4/4)":
                                 action [
                                     SetScreenVariable("local_choice", "counterattack"),
-                                    SetVariable("counterattack_resolution_mode", "dice"),
+                                    SetScreenVariable("local_counter_mode", "dice"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
                                 style "maneuver_option_button"
@@ -450,7 +453,7 @@ screen battle_maneuver_choice(damage):
                             textbutton "Parry por teclas":
                                 action [
                                     SetScreenVariable("local_choice", "parry_typing"),
-                                    SetVariable("counterattack_resolution_mode", "typing"),
+                                    SetScreenVariable("local_counter_mode", "typing"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
                                 style "maneuver_option_button"
@@ -488,6 +491,7 @@ screen battle_maneuver_choice(damage):
                             textbutton "Confirmar decisión":
                                 action [
                                     SetVariable("maneuver_selected", local_choice),
+                                    SetVariable("counterattack_resolution_mode", local_counter_mode),
                                     SetVariable("sacrifice_receiver_key", sac_receiver_key),
                                     Hide("battle_maneuver_choice"),
                                     SetVariable("show_maneuver_choice", True)
