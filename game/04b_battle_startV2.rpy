@@ -156,6 +156,9 @@ label battle_start:
                 "time_left": 0.0,
                 "last_status": "idle",
                 "result": None,
+                "pending_next_index": None,
+                "feedback_time_left": 0.0,
+                "close_in": 0.0,
             }
 
     # =======================================================

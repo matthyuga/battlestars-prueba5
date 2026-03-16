@@ -357,3 +357,75 @@ screen battle_maneuver_choice(damage):
                             text_size 26
 
                         text "Arrastrá para mover • Tecla Y: ocultar/mostrar" size 16 color "#BBBBBB" xalign 0.5
+
+# -----------------------------------------------------------
+# Contraataque por mecanografía (QTE)
+# -----------------------------------------------------------
+transform ctr_typing_letter_pulse(_dur=2.0):
+    zoom 0.55
+    linear _dur zoom 1.85
+
+screen counterattack_typing_qte():
+    modal True
+    zorder 250
+
+    default _letters = "abcdefghijklmnopqrstuvwxyz"
+
+    python:
+        import renpy.store as S
+        _st = getattr(S, "counterattack_typing_state", {})
+        _cur = str(_st.get("current_letter", "") or "")
+        _idx = int(_st.get("index", 0) or 0)
+        _tot = int(_st.get("total", 0) or 0)
+        _left = float(_st.get("time_left", 0.0) or 0.0)
+        _spl = max(0.1, float(_st.get("seconds_per_letter", 2.0) or 2.0))
+        _status = str(_st.get("last_status", "active") or "active").strip().lower()
+        _progress = 0.0 if _spl <= 0.0 else max(0.0, min(1.0, (_spl - _left) / _spl))
+
+        if _status in ("wrong", "timeout"):
+            _c = "#FF4D4D"
+        elif _status in ("hit", "success"):
+            _c = "#66FF99"
+        else:
+            _c = "#FFFFFF"
+
+    timer 0.02 repeat True action Function(getattr(store, "bs_counterattack_typing_tick", None), 0.02)
+
+    for _k in _letters:
+        key _k action Function(getattr(store, "bs_counterattack_typing_press_key", None), _k)
+
+    add Solid("#00000066")
+
+    frame:
+        background "#111A"
+        xalign 0.5
+        yalign 0.5
+        xmaximum 860
+        padding (28, 22)
+
+        vbox:
+            spacing 12
+
+            text "CONTRAATAQUE · MECANOGRAFÍA" size 30 color "#FFD700" bold True xalign 0.5
+            text "Letra [(_idx+1)] de [max(1, _tot)]" size 20 color "#B3E5FC" xalign 0.5
+
+            frame:
+                background "#0B1320CC"
+                xfill True
+                ymaximum 230
+                padding (14, 10)
+
+                fixed:
+                    xfill True
+                    ysize 200
+
+                    text (_cur if _cur else "-"):
+                        xalign 0.5
+                        yalign 0.5
+                        size 104
+                        color _c
+                        bold True
+                        at ctr_typing_letter_pulse(_spl)
+
+            text "Tiempo restante: [" + "{:.2f}".format(_left) + "] s" size 19 color "#E0E0E0" xalign 0.5
+            text "Presiona la tecla exacta en minúscula (a-z)." size 17 color "#BBBBBB" xalign 0.5

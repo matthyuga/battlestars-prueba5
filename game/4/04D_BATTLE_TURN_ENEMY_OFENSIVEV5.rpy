@@ -776,12 +776,20 @@ label battle_enemy_turn_legacy_entry:
             ctr_success = bool(isinstance(ctr, dict) and ctr.get("success", False))
 
             if callable(getattr(S, "battle_log_add", None)):
+                _mtd = str((ctr.get("roll", {}) or {}).get("method", ctr.get("method", "dice")) if isinstance(ctr, dict) else "dice").strip().lower()
                 if ctr_success:
-                    S.battle_log_add("{color=#66FF99}Contraataque exitoso (4/4): no recibes daño y ganas acción ofensiva.{/color}")
+                    if _mtd == "typing":
+                        S.battle_log_add("{color=#66FF99}Contraataque mecanográfico exitoso: no recibes daño y ganas acción ofensiva.{/color}")
+                    else:
+                        S.battle_log_add("{color=#66FF99}Contraataque exitoso (4/4): no recibes daño y ganas acción ofensiva.{/color}")
                 elif ctr_ok:
                     _rp = int(ctr.get("reiatsu_penalty", 0) or 0)
                     _ep = int(ctr.get("energy_penalty", 0) or 0)
-                    S.battle_log_add("{color=#FF8888}Contraataque fallado: -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_rp), str(_ep)))
+                    if _mtd == "typing":
+                        _why = str((ctr.get("roll", {}) or {}).get("reason", "fallo") if isinstance(ctr.get("roll"), dict) else "fallo")
+                        S.battle_log_add("{color=#FF8888}Contraataque mecanográfico fallado (%s): -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_why), str(_rp), str(_ep)))
+                    else:
+                        S.battle_log_add("{color=#FF8888}Contraataque fallado: -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_rp), str(_ep)))
                 else:
                     S.battle_log_add("{color=#FF8888}Contraataque no disponible. Se aplica defensa normal.{/color}")
 
