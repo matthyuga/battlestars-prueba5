@@ -44,6 +44,7 @@ init -850 python:
         except:
             req = 6
         req = max(1, req)
+        req = min(req, len(seq) if seq else 1)
 
         st = {
             "active": True,
@@ -261,8 +262,9 @@ screen typing_lab_result(_result=None):
         _req = int(_r.get("required_hits", 6) or 6)
         _tot = int(_r.get("total_letters", 10) or 10)
         _ok = bool(_r.get("success", False))
-        _title = ("GANASTE" if _ok else "PERDISTE")
-        _title_color = ("#66FF99" if _ok else "#FF4D4D")
+        _executed = bool(_r.get("executed", True))
+        _title = ("GANASTE" if _ok else "PERDISTE") if _executed else "INTERRUMPIDO"
+        _title_color = ("#66FF99" if _ok else "#FF4D4D") if _executed else "#FFCC66"
 
     add Solid("#000000")
 
@@ -291,17 +293,28 @@ screen typing_lab_result(_result=None):
                 xalign 0.5
 
                 textbutton "Reintentar":
-                    action [Hide("typing_lab_result"), Jump("typing_lab_start")]
+                    action Return("retry")
 
                 textbutton "Volver al menú":
-                    action [Hide("typing_lab_result"), MainMenu()]
+                    action Return("menu")
 
 
 label typing_lab_start:
-    $ typing_lab_prepare(total_letters=10, seconds_per_letter=2.0, required_hits=6)
-    $ _typing_lab_result = renpy.call_screen("typing_lab_qte")
-    call screen typing_lab_result(_typing_lab_result)
-    return
+
+    while True:
+        $ typing_lab_state = typing_lab_default_state()
+        $ typing_lab_prepare(total_letters=10, seconds_per_letter=2.0, required_hits=6)
+        $ _typing_lab_result = renpy.call_screen("typing_lab_qte")
+
+        if not isinstance(_typing_lab_result, dict):
+            $ _typing_lab_result = {"executed": False, "success": False, "reason": "qte_closed", "hits": 0, "misses": 0, "required_hits": 6, "total_letters": 10}
+
+        $ _typing_lab_action = renpy.call_screen("typing_lab_result", _typing_lab_result)
+
+        if _typing_lab_action == "retry":
+            continue
+        else:
+            return
 
 
 default typing_lab_state = {
