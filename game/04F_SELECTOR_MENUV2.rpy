@@ -298,8 +298,8 @@ screen battle_command_menu():
     zorder 50
     modal False
 
-    key "K_o" action ToggleField(store, "ui_show_offensive_techniques")
-    key "K_d" action ToggleField(store, "ui_show_defensive_techniques")
+    key "ctrl_K_o" action ToggleField(store, "ui_show_offensive_techniques")
+    key "ctrl_K_d" action ToggleField(store, "ui_show_defensive_techniques")
 
     $ OFF = [
         "extra_attack",

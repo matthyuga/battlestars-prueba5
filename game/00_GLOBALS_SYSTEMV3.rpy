@@ -226,6 +226,291 @@ init -990 python:
             "success": (successes >= 4)
         }
 
+    def bs_counterattack_typing_default_state():
+        return {
+            "active": False,
+            "sequence": [],
+            "total": 0,
+            "index": 0,
+            "current_letter": "",
+            "seconds_per_letter": float(getattr(S, "counterattack_typing_seconds_per_letter", 2.0) or 2.0),
+            "time_left": 0.0,
+            "last_status": "idle",
+            "result": None,
+            "pending_next_index": None,
+            "feedback_time_left": 0.0,
+            "close_in": 0.0,
+            "hits": 0,
+            "misses": 0,
+            "required_hits": int(getattr(S, "counterattack_typing_required_hits", 6) or 6),
+        }
+
+    def bs_counterattack_typing_reset_state():
+        S.counterattack_typing_state = bs_counterattack_typing_default_state()
+        return dict(S.counterattack_typing_state)
+
+    def bs_counterattack_typing_generate_sequence(count=None, allow_repeat=True):
+        import random
+        alphabet = str(getattr(S, "counterattack_typing_alphabet", "abcdefghijklmnopqrstuvwxyz") or "abcdefghijklmnopqrstuvwxyz")
+        letters = [ch for ch in alphabet.lower() if ("a" <= ch <= "z")]
+        if not letters:
+            letters = list("abcdefghijklmnopqrstuvwxyz")
+
+        try:
+            n = int(count if count is not None else getattr(S, "counterattack_typing_letters_count", 10))
+        except:
+            n = 10
+        n = max(1, n)
+
+        if (not allow_repeat) and n <= len(letters):
+            seq = random.sample(letters, n)
+        else:
+            seq = [random.choice(letters) for _ in range(n)]
+
+        return "".join(seq)
+
+    def bs_counterattack_typing_prepare(count=None, seconds_per_letter=None, allow_repeat=True):
+        seq_txt = bs_counterattack_typing_generate_sequence(count=count, allow_repeat=allow_repeat)
+        seq = list(str(seq_txt or ""))
+        if not seq:
+            seq = ["a"]
+
+        try:
+            spl = float(seconds_per_letter if seconds_per_letter is not None else getattr(S, "counterattack_typing_seconds_per_letter", 2.0))
+        except:
+            spl = 2.0
+        spl = max(2.0, spl)
+
+        state = {
+            "active": True,
+            "sequence": list(seq),
+            "total": int(len(seq)),
+            "index": 0,
+            "current_letter": str(seq[0]),
+            "seconds_per_letter": float(spl),
+            "time_left": float(spl),
+            "last_status": "ready",
+            "result": None,
+            "pending_next_index": None,
+            "feedback_time_left": 0.0,
+            "close_in": 0.0,
+            "hits": 0,
+            "misses": 0,
+            "required_hits": int(getattr(S, "counterattack_typing_required_hits", 6) or 6),
+        }
+        S.counterattack_typing_state = state
+        return dict(state)
+
+    def bs_counterattack_typing_tick(dt=0.05):
+        st = getattr(S, "counterattack_typing_state", None)
+        if not isinstance(st, dict):
+            st = bs_counterattack_typing_default_state()
+
+        try:
+            delta = float(dt)
+        except:
+            delta = 0.05
+        if delta <= 0.0:
+            delta = 0.05
+
+        close_left = float(st.get("close_in", 0.0) or 0.0)
+        if close_left > 0.0:
+            close_left = max(0.0, close_left - delta)
+            st["close_in"] = close_left
+            S.counterattack_typing_state = st
+            if close_left <= 0.0 and st.get("result") is not None:
+                try:
+                    renpy.end_interaction(dict(st.get("result") or {}))
+                except:
+                    pass
+            return dict(st)
+
+        if st.get("result") is not None:
+            return dict(st)
+
+        feedback = float(st.get("feedback_time_left", 0.0) or 0.0)
+        if feedback > 0.0:
+            feedback = max(0.0, feedback - delta)
+            st["feedback_time_left"] = feedback
+            if feedback <= 0.0:
+                next_idx = int(st.get("pending_next_index", -1) or -1)
+                total = int(st.get("total", 0) or 0)
+                seq = list(st.get("sequence", []) or [])
+                if next_idx >= total:
+                    st["active"] = False
+                    hits = int(st.get("hits", 0) or 0)
+                    misses = int(st.get("misses", 0) or 0)
+                    req = int(st.get("required_hits", getattr(S, "counterattack_typing_required_hits", 6)) or 6)
+                    ok = bool(hits >= req)
+                    st["last_status"] = ("success" if ok else "fail")
+                    st["result"] = {
+                        "executed": True,
+                        "success": bool(ok),
+                        "roll": None,
+                        "method": "typing",
+                        "reason": ("completed" if ok else "insufficient_hits"),
+                        "typed_count": int(hits),
+                        "hits": int(hits),
+                        "misses": int(misses),
+                        "required_hits": int(req),
+                        "total_letters": int(total),
+                    }
+                    st["close_in"] = 0.20
+                elif next_idx >= 0 and next_idx < len(seq):
+                    spl = max(2.0, float(st.get("seconds_per_letter", 2.0) or 2.0))
+                    st["index"] = int(next_idx)
+                    st["current_letter"] = str(seq[next_idx])
+                    st["time_left"] = float(spl)
+                    st["last_status"] = "active"
+                st["pending_next_index"] = None
+            S.counterattack_typing_state = st
+            return dict(st)
+
+        time_left = float(st.get("time_left", 0.0) or 0.0)
+        if time_left > 0.0:
+            time_left = max(0.0, time_left - delta)
+        st["time_left"] = time_left
+
+        if time_left <= 0.0:
+            idx = int(st.get("index", 0) or 0)
+            total = int(st.get("total", 0) or 0)
+            st["last_status"] = "timeout"
+            st["misses"] = int(st.get("misses", 0) or 0) + 1
+            st["pending_next_index"] = int(idx + 1)
+            st["feedback_time_left"] = 0.35
+            st["time_left"] = 0.0
+
+        S.counterattack_typing_state = st
+        return dict(st)
+
+    def bs_counterattack_typing_press_key(key_text=""):
+        st = getattr(S, "counterattack_typing_state", None)
+        if not isinstance(st, dict):
+            st = bs_counterattack_typing_default_state()
+
+        if st.get("result") is not None:
+            return dict(st)
+
+        seq = list(st.get("sequence", []) or [])
+        idx = int(st.get("index", 0) or 0)
+        total = int(st.get("total", 0) or len(seq) or 0)
+        if idx < 0 or idx >= len(seq):
+            return dict(st)
+
+        expected = str(seq[idx] or "").lower()
+        got = str(key_text or "").strip().lower()[:1]
+        if ("a" <= got <= "z") and got == expected:
+            st["last_status"] = "hit"
+            st["hits"] = int(st.get("hits", 0) or 0) + 1
+            st["pending_next_index"] = int(idx + 1)
+            st["feedback_time_left"] = 0.20
+            st["time_left"] = max(0.0, float(st.get("time_left", 0.0) or 0.0))
+            S.counterattack_typing_state = st
+            return dict(st)
+
+        # Ignorar teclas incorrectas para evitar fallos instantáneos por solapamientos/input residual.
+        # El fallo de la maniobra ocurre por timeout de la letra actual.
+        return dict(st)
+
+    def bs_counterattack_typing_resolve(count=None, seconds_per_letter=None, allow_repeat=True):
+        st = bs_counterattack_typing_prepare(count=count, seconds_per_letter=seconds_per_letter, allow_repeat=allow_repeat)
+        if not bool(st.get("active", False)):
+            return {
+                "executed": True,
+                "success": False,
+                "roll": None,
+                "method": "typing",
+                "reason": "prepare_failed",
+                "typed_count": 0,
+                "total_letters": 0,
+            }
+
+        snap = None
+        try:
+            fn_quiet = getattr(S, "bs_counterattack_typing_ui_quiet_enable", None)
+            if callable(fn_quiet):
+                snap = fn_quiet()
+        except:
+            snap = None
+
+        try:
+            _guard = 0
+            while True:
+                _guard += 1
+                if _guard > 100:
+                    break
+                result = renpy.call_screen("counterattack_typing_qte")
+                if isinstance(result, dict):
+                    return result
+
+                st2 = getattr(S, "counterattack_typing_state", None)
+                if isinstance(st2, dict) and isinstance(st2.get("result"), dict):
+                    return dict(st2.get("result") or {})
+
+                # Si otra capa cerró la interacción por error, reabrimos la screen
+                # mientras la secuencia siga activa.
+                if isinstance(st2, dict) and bool(st2.get("active", False)):
+                    continue
+                break
+        finally:
+            try:
+                fn_restore = getattr(S, "bs_counterattack_typing_ui_quiet_restore", None)
+                if callable(fn_restore):
+                    fn_restore(snap)
+            except:
+                pass
+
+        st2 = getattr(S, "counterattack_typing_state", None)
+        if isinstance(st2, dict) and isinstance(st2.get("result"), dict):
+            return dict(st2.get("result") or {})
+
+        return {
+            "executed": True,
+            "success": False,
+            "roll": None,
+            "method": "typing",
+            "reason": "no_result",
+            "typed_count": int((st2 or {}).get("hits", 0) if isinstance(st2, dict) else 0),
+            "total_letters": int(getattr(S, "counterattack_typing_letters_count", 10) or 10),
+        }
+
+
+    def bs_counterattack_typing_ui_quiet_enable():
+        keys = [
+            "ui_show_options_panel",
+            "ui_show_unit_hud",
+            "ui_show_2v2_summary",
+            "ui_show_offensive_techniques",
+            "ui_show_defensive_techniques",
+            "ui_show_battle_debug_log",
+            "ui_show_offensive_operation_details",
+            "ui_show_target_assignment_details",
+            "ui_show_queue_2v2_details",
+            "show_technique_selector",
+            "debug_identity_panel",
+            "show_maneuver_choice",
+        ]
+        snap = {}
+        for k in keys:
+            snap[k] = getattr(S, k, None)
+            try:
+                setattr(S, k, False)
+            except:
+                pass
+        S.counterattack_typing_ui_snapshot = snap
+        return dict(snap)
+
+    def bs_counterattack_typing_ui_quiet_restore(snapshot=None):
+        snap = snapshot if isinstance(snapshot, dict) else getattr(S, "counterattack_typing_ui_snapshot", None)
+        if not isinstance(snap, dict):
+            return
+        for k, v in snap.items():
+            try:
+                setattr(S, k, v)
+            except:
+                pass
+        S.counterattack_typing_ui_snapshot = {}
+
     def bs_counterattack_can_use(unit_key="player:0", incoming_damage=0):
         try:
             in_dmg = max(0, int(incoming_damage or 0))
@@ -293,14 +578,80 @@ init -990 python:
             return out
 
         roll = roll_4d()
-        S.counterattack_used_in_battle = True
-
         try:
             fn_show = getattr(S, "show_dice_result", None)
             if callable(fn_show):
                 fn_show(roll, label_text="Contraataque")
         except:
             pass
+
+        S.counterattack_used_in_battle = True
+
+        success = bool(isinstance(roll, dict) and roll.get("success", False))
+        if success:
+            return {
+                "executed": True,
+                "success": True,
+                "roll": roll,
+                "reiatsu_penalty": 0,
+                "energy_penalty": 0,
+                "incoming_damage": int(info.get("incoming_damage", 0) or 0),
+            }
+
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        pr = int(info.get("reiatsu_penalty", 0) or 0)
+        pe = int(info.get("energy_penalty", 0) or 0)
+
+        if mode == "2v2":
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            fn_set = getattr(S, "bs_set_unit_resources", None)
+            if callable(fn_get) and callable(fn_set):
+                u = fn_get(str(unit_key or ""))
+                if isinstance(u, dict):
+                    cur_r = int(u.get("reiatsu", 0) or 0)
+                    cur_e = int(u.get("energy", 0) or 0)
+                    fn_set(str(unit_key or ""), max(0, cur_r - pr), max(0, cur_e - pe))
+                try:
+                    fn_sync = getattr(S, "bs_sync_to_legacy", None)
+                    if callable(fn_sync):
+                        fn_sync()
+                except:
+                    pass
+        else:
+            S.player_reiatsu = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - pr)
+            S.player_energy = max(0, int(getattr(S, "player_energy", 0) or 0) - pe)
+
+        return {
+            "executed": True,
+            "success": False,
+            "roll": roll,
+            "reiatsu_penalty": int(pr),
+            "energy_penalty": int(pe),
+            "incoming_damage": int(info.get("incoming_damage", 0) or 0),
+        }
+
+    def bs_parry_typing_can_use(unit_key="player:0", incoming_damage=0):
+        info = bs_counterattack_can_use(unit_key=unit_key, incoming_damage=incoming_damage)
+        used = bool(getattr(S, "parry_typing_used_in_battle", False))
+        if used:
+            info = dict(info)
+            info["ok"] = False
+            info["reason"] = "used"
+        return info
+
+    def bs_parry_typing_execute(unit_key="player:0", incoming_damage=0):
+        info = bs_parry_typing_can_use(unit_key=unit_key, incoming_damage=incoming_damage)
+        if not bool(info.get("ok", False)):
+            out = dict(info)
+            out["executed"] = False
+            out["success"] = False
+            out["roll"] = None
+            return out
+
+        fn_typ = getattr(S, "bs_counterattack_typing_resolve", None)
+        roll = fn_typ() if callable(fn_typ) else {"executed": True, "success": False, "roll": None, "method": "typing", "reason": "resolver_missing"}
+
+        S.parry_typing_used_in_battle = True
 
         success = bool(isinstance(roll, dict) and roll.get("success", False))
         if success:
@@ -466,8 +817,19 @@ init -990 python:
 
     store.roll_3d = roll_3d
     store.roll_4d = roll_4d
+    store.bs_counterattack_typing_default_state = bs_counterattack_typing_default_state
+    store.bs_counterattack_typing_reset_state = bs_counterattack_typing_reset_state
+    store.bs_counterattack_typing_generate_sequence = bs_counterattack_typing_generate_sequence
+    store.bs_counterattack_typing_prepare = bs_counterattack_typing_prepare
+    store.bs_counterattack_typing_tick = bs_counterattack_typing_tick
+    store.bs_counterattack_typing_press_key = bs_counterattack_typing_press_key
+    store.bs_counterattack_typing_resolve = bs_counterattack_typing_resolve
+    store.bs_counterattack_typing_ui_quiet_enable = bs_counterattack_typing_ui_quiet_enable
+    store.bs_counterattack_typing_ui_quiet_restore = bs_counterattack_typing_ui_quiet_restore
     store.bs_counterattack_can_use = bs_counterattack_can_use
     store.bs_counterattack_execute = bs_counterattack_execute
+    store.bs_parry_typing_can_use = bs_parry_typing_can_use
+    store.bs_parry_typing_execute = bs_parry_typing_execute
     store.bs_sacrifice_candidates = bs_sacrifice_candidates
     store.bs_sacrifice_can_use = bs_sacrifice_can_use
     store.bs_sacrifice_execute = bs_sacrifice_execute
@@ -551,8 +913,33 @@ default enemy_noatk_success = False
 default maneuver_selected = "none"
 default counter_damage = 0
 default counterattack_used_in_battle = False
+default parry_typing_used_in_battle = False
 default sacrifice_used_in_battle = False
 default sacrifice_receiver_key = ""
+default counterattack_resolution_mode = "dice"
+default counterattack_typing_enabled = False
+default counterattack_typing_letters_count = 10
+default counterattack_typing_seconds_per_letter = 2.0
+default counterattack_typing_required_hits = 6
+default counterattack_typing_alphabet = "abcdefghijklmnopqrstuvwxyz"
+default counterattack_typing_ui_snapshot = {}
+default counterattack_typing_state = {
+    "active": False,
+    "sequence": [],
+    "total": 0,
+    "index": 0,
+    "current_letter": "",
+    "seconds_per_letter": 2.0,
+    "time_left": 0.0,
+    "last_status": "idle",
+    "result": None,
+    "pending_next_index": None,
+    "feedback_time_left": 0.0,
+    "close_in": 0.0,
+    "hits": 0,
+    "misses": 0,
+    "required_hits": 6,
+}
 
 # recursos base (para reglas de maniobras)
 default player_reiatsu_base = 0

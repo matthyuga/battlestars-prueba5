@@ -6,21 +6,21 @@
 #   para la PRIMERA técnica afectada por Concentrar/Potenciar
 # ✔ Energía NO se duplica
 # ✔ No modifica la lógica interna del turno, solo la vista
-# ✔ Toggle panel con tecla U (no modal, no bloquea otros paneles)
+# ✔ Toggle panel con tecla Ctrl+U (no modal, no bloquea otros paneles)
 # ✔ FIX: key "K_u" (Ren'Py no entiende "toggle_technique_selector" como tecla)
 # ✔ FIX: preview usa get_real_cost() (coherente con selector_functions)
 # ============================================================
 
 
 # ------------------------------------------------------------
-# 🔑 Toggle del panel (tecla U)
+# 🔑 Toggle del panel (tecla Ctrl+U)
 # ------------------------------------------------------------
 init -990 python:
     import renpy.store as S
     import renpy.exports as R
 
     # (Opcional) también queda en keymap por si luego querés bindearlo global
-    config.keymap["toggle_technique_selector"] = ["K_u"]
+    config.keymap["toggle_technique_selector"] = ["ctrl_K_u"]
 
     def toggle_technique_selector():
         S.show_technique_selector = not getattr(S, "show_technique_selector", True)
@@ -227,8 +227,8 @@ screen technique_selector():
 
     default _target_preview = ""
 
-    # Toggle con tecla U (no bloquea otros paneles)
-    key "K_u" action Function(toggle_technique_selector)
+    # Toggle con tecla Ctrl+U (no bloquea otros paneles)
+    key "ctrl_K_u" action Function(toggle_technique_selector)
 
     default tooltip_data = None
 

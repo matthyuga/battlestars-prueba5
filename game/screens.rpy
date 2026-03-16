@@ -303,6 +303,7 @@ screen navigation():
 
             $ _quick_pid = str(getattr(store, "spa_editor_profile_id", "A") or "A")
             textbutton _("Load & Start [[{}]]").format(_quick_pid) action [Function(store.spa_ui_load_profile_feedback, _quick_pid), Start()]
+            textbutton _("Start 1v1 random [[{}]]").format(_quick_pid) action [Function(store.bs_prepare_quick_random_1v1, _quick_pid), Start()]
 
             textbutton _("Start") action Start()
 
@@ -1084,39 +1085,39 @@ screen mouse_help():
 screen hotkeys_help():
 
     hbox:
-        label "O"
+        label "Ctrl+O"
         text _("En batalla: técnicas ofensivas.")
 
     hbox:
-        label "D"
+        label "Ctrl+D"
         text _("En batalla: técnicas defensivas.")
 
     hbox:
-        label "U"
+        label "Ctrl+U"
         text _("En batalla: panel de técnicas en cola.")
 
     hbox:
-        label "Y"
+        label "Ctrl+Y"
         text _("En batalla: aviso de daño entrante.")
 
     hbox:
-        label "T"
+        label "Ctrl+T"
         text _("En batalla: panel debug Focus & Reflect.")
 
     hbox:
-        label "K"
+        label "Ctrl+K"
         text _("En batalla: registro de combate.")
 
     hbox:
-        label "P"
+        label "Ctrl+P"
         text _("En batalla: opciones secundarias.")
 
     hbox:
-        label "V"
+        label "Ctrl+V"
         text _("En batalla: orden de turnos.")
 
     hbox:
-        label "J"
+        label "Ctrl+J"
         text _("En batalla: cuadro(s) de personaje(s).")
 
 

@@ -33,6 +33,42 @@ init -900 python:
     config.keymap['toggle_skip'] = []
     config.keymap['toggle_afm'] = []
 
+
+    def bs_prepare_quick_random_1v1(profile_id=None):
+        import renpy.store as S
+        import renpy.exports as R
+        chars = ["Harribel", "Grimmjow", "Nel", "Hollow"]
+        try:
+            p = R.random.choice(chars)
+            e_pool = [c for c in chars if c != p] or chars
+            e = R.random.choice(e_pool)
+        except Exception:
+            p, e = "Harribel", "Hollow"
+
+        S.battle_team_mode = "1v1"
+        S.battle_multiplayer_manual = False
+        S.battle_player_count = 1
+        S.battle_enemy_count = 1
+        S.battle_enemy_pick_mode = "random"
+        S.battle_player_id = p
+        S.battle_enemy_id = e
+        S.battle_player_ids = [p]
+        S.battle_enemy_ids = [e]
+        S.battle_player_slot_0 = p
+        S.battle_player_slot_1 = ""
+        S.battle_enemy_slot_0 = e
+        S.battle_enemy_slot_1 = ""
+        S.quick_start_random_1v1 = True
+
+        pid = str(profile_id or getattr(S, "spa_editor_profile_id", "A") or "A")
+        fn_load = getattr(S, "spa_load_profile", None)
+        if callable(fn_load):
+            try:
+                fn_load(pid)
+            except Exception:
+                pass
+
+
     config.rollback_enabled = False
     config.hard_rollback_limit = 0
 
@@ -45,6 +81,11 @@ init -900 python:
 # default battle_player = None
 # default battle_enemy  = None
 
+
+# Inicio rápido para QA: carga 1v1 aleatorio y salta selección.
+default quick_start_random_1v1 = False
+
+
 # ===========================================================
 # 🔹 INICIO DEL JUEGO
 # ===========================================================
@@ -53,6 +94,10 @@ label start:
 
     # Mostrar log UNA sola vez (evita redundancia/“parpadeo”)
     show screen battle_log_screen
+
+    if quick_start_random_1v1:
+        $ quick_start_random_1v1 = False
+        jump battle_start
 
     "Sistema cargado correctamente."
 
@@ -137,8 +182,34 @@ label battle_start:
     $ S.player_skip_attack_by_key = {}
     $ S.enemy_skip_attack_by_key = {}
     $ S.counterattack_used_in_battle = False
+    $ S.parry_typing_used_in_battle = False
     $ S.sacrifice_used_in_battle = False
     $ S.sacrifice_receiver_key = ""
+    $ S.counterattack_resolution_mode = ("typing" if bool(getattr(S, "counterattack_typing_enabled", False)) else "dice")
+    $ S.counterattack_typing_ui_snapshot = {}
+    python:
+        import renpy.store as S
+        fn_ctr_typing_reset = getattr(S, "bs_counterattack_typing_reset_state", None)
+        if callable(fn_ctr_typing_reset):
+            fn_ctr_typing_reset()
+        else:
+            S.counterattack_typing_state = {
+                "active": False,
+                "sequence": [],
+                "total": 0,
+                "index": 0,
+                "current_letter": "",
+                "seconds_per_letter": float(getattr(S, "counterattack_typing_seconds_per_letter", 2.0) or 2.0),
+                "time_left": 0.0,
+                "last_status": "idle",
+                "result": None,
+                "pending_next_index": None,
+                "feedback_time_left": 0.0,
+                "close_in": 0.0,
+                "hits": 0,
+                "misses": 0,
+                "required_hits": int(getattr(S, "counterattack_typing_required_hits", 6) or 6),
+            }
 
     # =======================================================
     # 🌆 Fondo de batalla aleatorio

@@ -20,7 +20,7 @@ init -990 python:
     if not hasattr(S, "debug_identity_panel"):
         S.debug_identity_panel = False
 
-    config.keymap['toggle_identity_panel'] = ['K_t']
+    config.keymap['toggle_identity_panel'] = ['ctrl_K_t']
 
     def toggle_debug_identity():
         import renpy.exports as renpy_exports

@@ -21,11 +21,11 @@ init -990 python:
     import renpy.exports as R
 
     # Keymap para alternar esta ventanita
-    config.keymap["toggle_maneuver_choice"] = ["K_y"]
+    config.keymap["toggle_maneuver_choice"] = ["ctrl_K_y"]
 
     # Tamaño aproximado de la ventana (para clamp)
-    MANEUVER_WIN_W = 640
-    MANEUVER_WIN_H = 420
+    MANEUVER_WIN_W = 512
+    MANEUVER_WIN_H = 336
 
     def toggle_maneuver_choice():
         S.show_maneuver_choice = not getattr(S, "show_maneuver_choice", True)
@@ -77,6 +77,23 @@ init -990 python:
 #   bajo battle_popup_turn.
 # -----------------------------------------------------------
 
+
+
+init -989 python:
+    import renpy.store as S
+    import renpy.exports as R
+
+    def bs_pick_maneuver_choice(choice, mode=None, close_submenu=False):
+        try:
+            if mode is not None:
+                S.counterattack_resolution_mode = str(mode or "dice")
+            S._battle_maneuver_pick = str(choice or "none")
+            if close_submenu:
+                S._battle_maneuver_close_submenu = True
+            R.restart_interaction()
+        except Exception:
+            pass
+
 screen battle_maneuver_choice(damage):
 
     modal False
@@ -87,6 +104,18 @@ screen battle_maneuver_choice(damage):
     default local_choice = "none"
     default show_submenu = False
     default sac_receiver_key = ""
+    default local_counter_mode = str(getattr(store, "counterattack_resolution_mode", "dice") or "dice")
+
+    python:
+        import renpy.store as S
+        _picked = str(getattr(S, "_battle_maneuver_pick", "") or "")
+        if _picked:
+            local_choice = _picked
+            S._battle_maneuver_pick = ""
+
+        if bool(getattr(S, "_battle_maneuver_close_submenu", False)):
+            show_submenu = False
+            S._battle_maneuver_close_submenu = False
 
     $ import renpy.store as S
     $ will_die = S.player_hp - damage <= 0
@@ -143,6 +172,15 @@ screen battle_maneuver_choice(damage):
                     _counter_rei_cur = int(c.get("reiatsu_current", _counter_rei_cur) or _counter_rei_cur)
                     _counter_ene_cur = int(c.get("energy_current", _counter_ene_cur) or _counter_ene_cur)
 
+            _parry_ok = bool(_counter_ok)
+            _parry_reason = str(_counter_reason)
+            fn_parry = getattr(S, "bs_parry_typing_can_use", None)
+            if callable(fn_parry):
+                pp = fn_parry(unit_key=_incoming_key or "player:0", incoming_damage=damage)
+                if isinstance(pp, dict):
+                    _parry_ok = bool(pp.get("ok", _parry_ok))
+                    _parry_reason = str(pp.get("reason", _parry_reason) or _parry_reason)
+
             fn_sac = getattr(S, "bs_sacrifice_can_use", None)
             if callable(fn_sac):
                 sc = fn_sac(defender_key=_incoming_key or "player:0", incoming_damage=damage)
@@ -174,64 +212,78 @@ screen battle_maneuver_choice(damage):
 
             frame:
                 background "#1119"
-                padding (22, 22)
-                xmaximum 640
+                padding (18, 18)
+                xmaximum 512
 
-                vbox spacing 18:
+                vbox spacing 14:
 
                     hbox:
                         xfill True
-                        text "Daño entrante: [damage]" size 40 color "#FFD700" bold True xalign 0.0
+                        text "Daño entrante: [damage]" size 32 color "#FFD700" bold True xalign 0.0
                         textbutton "✖":
                             action SetVariable("show_maneuver_choice", False)
-                            text_size 26
+                            text_size 21
 
                     frame:
                         background "#0D2233CC"
                         xfill True
-                        padding (10, 8)
+                        padding (8, 6)
                         hbox:
                             spacing 10
-                            text "Objetivo:" size 22 color "#80DEEA" bold True
-                            text "[_incoming_tag] [_incoming_name]" size 24 color "#FFFFFF" bold True
+                            text "Objetivo:" size 18 color "#80DEEA" bold True
+                            text "[_incoming_tag] [_incoming_name]" size 19 color "#FFFFFF" bold True
 
                     if not show_submenu:
 
-                        text "¿Qué deseas hacer?" size 28 color "#FFFFFF"
+                        text "¿Qué deseas hacer?" size 22 color "#FFFFFF"
 
                         textbutton "Defender normalmente":
                             action SetScreenVariable("local_choice", "defense")
-                            text_size 26
+                            text_size 21
 
                         if will_die or is_dead or offense_locked:
                             textbutton "Ataque por defensa (no disponible)":
                                 action NullAction()
-                                text_size 26
+                                text_size 21
                                 text_color "#666666"
                         else:
                             textbutton "Ataque por defensa":
                                 action SetScreenVariable("local_choice", "atk_from_def")
-                                text_size 26
+                                text_size 21
 
                         if is_dead or offense_locked:
                             textbutton "Defensa por ataque (no disponible)":
                                 action NullAction()
-                                text_size 26
+                                text_size 21
                                 text_color "#666666"
                         else:
                             textbutton "Defensa por ataque":
                                 action SetScreenVariable("local_choice", "def_from_atk")
-                                text_size 26
+                                text_size 21
 
                         if not _counter_ok:
-                            textbutton "Contraataque (no disponible)":
+                            textbutton "Contraataque (dados 4/4) (no disponible)":
                                 action NullAction()
-                                text_size 26
+                                text_size 21
                                 text_color "#666666"
                         else:
-                            textbutton "Contraataque":
-                                action SetScreenVariable("local_choice", "counterattack")
-                                text_size 26
+                            textbutton "Contraataque (dados 4/4)":
+                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "counterattack", "dice", False)
+                                text_size 21
+                                text_color "#BBBBBB"
+                                text_hover_color "#FFFFFF"
+
+                        if not _parry_ok:
+                            textbutton "Parry por teclas (no disponible)":
+                                action NullAction()
+                                text_size 19
+                                text_color "#666666"
+                        else:
+                            textbutton "Parry por teclas":
+                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "parry_typing", None, False)
+                                text_size 19
+                                text_color "#BBBBBB"
+                                text_hover_color "#FFFFFF"
 
                         if _counter_reason == "used":
                             text "{color=#FF8888}Contraataque ya fue usado en esta batalla.{/color}"
@@ -252,12 +304,12 @@ screen battle_maneuver_choice(damage):
                         if not _sac_ok:
                             textbutton "Solicitar maniobra de sacrificio (no disponible)":
                                 action NullAction()
-                                text_size 24
+                                text_size 19
                                 text_color "#666666"
                         else:
                             textbutton "Solicitar maniobra de sacrificio":
                                 action SetScreenVariable("local_choice", "sacrifice_request")
-                                text_size 24
+                                text_size 19
 
                         if _sac_reason == "used":
                             text "{color=#FF8888}Sacrificio ya fue usado por tu equipo en esta batalla.{/color}"
@@ -265,7 +317,7 @@ screen battle_maneuver_choice(damage):
                             text "{color=#FFCC66}No hay aliado disponible para recibir el daño.{/color}"
 
                         if local_choice == "sacrifice_request" and _sac_ok and _sac_candidates:
-                            text "Aliado que se sacrifica:" size 20 color "#B3E5FC"
+                            text "Aliado que se sacrifica:" size 16 color "#B3E5FC"
                             hbox:
                                 spacing 8
                                 for _c in _sac_candidates:
@@ -281,7 +333,7 @@ screen battle_maneuver_choice(damage):
 
                         textbutton "Ver maniobras…":
                             action SetScreenVariable("show_submenu", True)
-                            text_size 26
+                            text_size 21
 
                         if local_choice != "none":
                             textbutton "Confirmar decisión":
@@ -291,19 +343,19 @@ screen battle_maneuver_choice(damage):
                                     Hide("battle_maneuver_choice"),
                                     SetVariable("show_maneuver_choice", True)
                                 ]
-                                text_size 30
+                                text_size 24
                                 xalign 0.5
 
-                        text "Arrastrá para mover • Tecla Y: ocultar/mostrar" size 16 color "#BBBBBB" xalign 0.5
+                        text "Arrastrá para mover • Ctrl+Y: ocultar/mostrar" size 13 color "#BBBBBB" xalign 0.5
 
                     else:
 
-                        text "Maniobras disponibles:" size 30 color "#FFD700" bold True
+                        text "Maniobras disponibles:" size 24 color "#FFD700" bold True
 
                         if will_die or is_dead or offense_locked:
                             textbutton "Ataque por defensa (no disponible)":
                                 action NullAction()
-                                text_size 26
+                                text_size 21
                                 text_color "#666666"
                         else:
                             textbutton "Ataque por defensa":
@@ -311,12 +363,12 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("local_choice", "atk_from_def"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
-                                text_size 26
+                                text_size 21
 
                         if is_dead or offense_locked:
                             textbutton "Defensa por ataque (no disponible)":
                                 action NullAction()
-                                text_size 26
+                                text_size 21
                                 text_color "#666666"
                         else:
                             textbutton "Defensa por ataque":
@@ -324,25 +376,36 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("local_choice", "def_from_atk"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
-                                text_size 26
+                                text_size 21
 
                         if not _counter_ok:
-                            textbutton "Contraataque (no disponible)":
+                            textbutton "Contraataque (dados 4/4) (no disponible)":
                                 action NullAction()
-                                text_size 26
+                                text_size 21
                                 text_color "#666666"
                         else:
-                            textbutton "Contraataque":
-                                action [
-                                    SetScreenVariable("local_choice", "counterattack"),
-                                    SetScreenVariable("show_submenu", False)
-                                ]
-                                text_size 26
+                            textbutton "Contraataque (dados 4/4)":
+                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "counterattack", "dice", True)
+                                text_size 21
+                                text_color "#BBBBBB"
+                                text_hover_color "#FFFFFF"
+
+                        if not _parry_ok:
+                            textbutton "Parry por teclas (no disponible)":
+                                action NullAction()
+                                text_size 19
+                                text_color "#666666"
+                        else:
+                            textbutton "Parry por teclas":
+                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "parry_typing", None, True)
+                                text_size 19
+                                text_color "#BBBBBB"
+                                text_hover_color "#FFFFFF"
 
                         if not _sac_ok:
                             textbutton "Solicitar maniobra de sacrificio (no disponible)":
                                 action NullAction()
-                                text_size 24
+                                text_size 19
                                 text_color "#666666"
                         else:
                             textbutton "Solicitar maniobra de sacrificio":
@@ -350,10 +413,99 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("local_choice", "sacrifice_request"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
-                                text_size 24
+                                text_size 19
 
                         textbutton "Cancelar":
                             action SetScreenVariable("show_submenu", False)
-                            text_size 26
+                            text_size 21
 
-                        text "Arrastrá para mover • Tecla Y: ocultar/mostrar" size 16 color "#BBBBBB" xalign 0.5
+                        if local_choice != "none":
+                            textbutton "Confirmar decisión":
+                                action [
+                                    SetVariable("maneuver_selected", local_choice),
+                                    SetVariable("sacrifice_receiver_key", sac_receiver_key),
+                                    Hide("battle_maneuver_choice"),
+                                    SetVariable("show_maneuver_choice", True)
+                                ]
+                                text_size 24
+                                xalign 0.5
+
+                        text "Arrastrá para mover • Ctrl+Y: ocultar/mostrar" size 13 color "#BBBBBB" xalign 0.5
+
+# -----------------------------------------------------------
+# Contraataque por mecanografía (QTE)
+# -----------------------------------------------------------
+transform ctr_typing_letter_pulse(_dur=2.0):
+    zoom 0.55
+    linear _dur zoom 1.85
+
+screen counterattack_typing_qte():
+    modal True
+    zorder 250
+
+    default _letters = "abcdefghijklmnopqrstuvwxyz"
+
+    python:
+        import renpy.store as S
+        _st = getattr(S, "counterattack_typing_state", {})
+        _cur = str(_st.get("current_letter", "") or "")
+        _idx = int(_st.get("index", 0) or 0)
+        _tot = int(_st.get("total", 0) or 0)
+        _left = float(_st.get("time_left", 0.0) or 0.0)
+        _spl = max(2.0, float(_st.get("seconds_per_letter", 2.0) or 2.0))
+        _status = str(_st.get("last_status", "active") or "active").strip().lower()
+        _hits = int(_st.get("hits", 0) or 0)
+        _miss = int(_st.get("misses", 0) or 0)
+        _req = int(_st.get("required_hits", 6) or 6)
+        _fb = float(_st.get("feedback_time_left", 0.0) or 0.0)
+        _progress = 0.0 if _spl <= 0.0 else max(0.0, min(1.0, (_spl - _left) / _spl))
+
+        if _status in ("wrong", "timeout"):
+            _c = "#FF4D4D"
+        elif _status in ("hit", "success"):
+            _c = "#66FF99"
+        else:
+            _c = "#FFFFFF"
+
+    timer 0.02 repeat True action Function(getattr(store, "bs_counterattack_typing_tick", None), 0.02)
+
+    for _k in _letters:
+        key _k action Function(getattr(store, "bs_counterattack_typing_press_key", None), _k)
+
+    add Solid("#000000")
+
+    frame:
+        background "#0000"
+        xalign 0.5
+        yalign 0.5
+        xmaximum 860
+        padding (28, 22)
+
+        vbox:
+            spacing 12
+
+            frame:
+                background "#0000"
+                xfill True
+                ymaximum 280
+                padding (0, 0)
+
+                fixed:
+                    xfill True
+                    ysize 260
+
+                    text (_cur if _cur else "-"):
+                        xalign 0.5
+                        yalign 0.5
+                        size 120
+                        color _c
+                        bold True
+                        at ctr_typing_letter_pulse(_spl)
+
+            if _fb > 0.0:
+                if _status == "hit":
+                    text "ÉXITO" size 52 color "#66FF99" bold True xalign 0.5
+                elif _status == "timeout":
+                    text "FALLO" size 52 color "#FF4D4D" bold True xalign 0.5
+
+            text ("Letra %d/%d   %.2f s   ✔ %d / ✖ %d (mín %d)" % (int(_idx + 1), int(max(1, _tot)), float(_left or 0.0), int(_hits), int(_miss), int(_req))) size 20 color "#D0D0D0" xalign 0.5
