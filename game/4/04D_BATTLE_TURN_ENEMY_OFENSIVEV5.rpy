@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04D_BATTLE_TURN_ENEMY.RPY – Turno ofensivo IA (MANEUVER EXTENDED)
 # Versión v12.3.1 Reflect RESOLVE ON TARGET HP (SyntaxFix + Sync) ✅
 # ------------------------------------------------------------
@@ -833,9 +833,16 @@ label battle_enemy_turn_legacy_entry:
                     player_hp = max(0, player_hp - incoming_damage)
                     battle_update_hp_bars(player_hp, enemy_hp)
 
-                fn_sync = getattr(S, "bs_sync_hp_ui", None)
-                if callable(fn_sync):
-                    fn_sync()
+                fn_sync_vis = getattr(S, "battle_sync_hp_visuals_from_store", None)
+                if callable(fn_sync_vis):
+                    fn_sync_vis(sync_hp_ui=True)
+                else:
+                    fn_sync = getattr(S, "bs_sync_hp_ui", None)
+                    if callable(fn_sync):
+                        fn_sync()
+                    fn_bars = getattr(S, "battle_update_hp_bars", None)
+                    if callable(fn_bars):
+                        fn_bars(getattr(S, "player_hp", 0), getattr(S, "enemy_hp", 0))
                 player_hp = int(getattr(S, "player_hp", 0) or 0)
 
             $ enemy_ai.reset_turn()
@@ -923,9 +930,16 @@ label battle_enemy_turn_legacy_entry:
                     player_hp = max(0, player_hp - incoming_damage)
                     battle_update_hp_bars(player_hp, enemy_hp)
 
-                fn_sync = getattr(S, "bs_sync_hp_ui", None)
-                if callable(fn_sync):
-                    fn_sync()
+                fn_sync_vis = getattr(S, "battle_sync_hp_visuals_from_store", None)
+                if callable(fn_sync_vis):
+                    fn_sync_vis(sync_hp_ui=True)
+                else:
+                    fn_sync = getattr(S, "bs_sync_hp_ui", None)
+                    if callable(fn_sync):
+                        fn_sync()
+                    fn_bars = getattr(S, "battle_update_hp_bars", None)
+                    if callable(fn_bars):
+                        fn_bars(getattr(S, "player_hp", 0), getattr(S, "enemy_hp", 0))
                 player_hp = int(getattr(S, "player_hp", 0) or 0)
 
             $ enemy_ai.reset_turn()

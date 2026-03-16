@@ -59,7 +59,9 @@ init -990 python:
     # -------------------------------------------------------
     # Fallbacks seguros (no-ops si falta algo)
     # -------------------------------------------------------
-    _ensure_noop("battle_update_hp_bars", lambda player_hp, enemy_hp: None)
+    _ensure_noop("battle_update_hp_bars", lambda player_hp, enemy_hp: _safe_log(
+        "WARN fallback battle_update_hp_bars activo (sin HUD trail real)"
+    ))
     _ensure_noop("battle_show_hud", lambda sync_fade=True: None)
     _ensure_noop("battle_hide_hud", lambda : None)
     _ensure_noop("battle_visual_float", lambda target="enemy", value=0, color="#FF4444": None)

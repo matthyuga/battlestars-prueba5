@@ -217,6 +217,35 @@ init -970 python:
             pass
 
 
+    def battle_sync_hp_visuals_from_store(sync_hp_ui=True):
+        """Sincroniza HP lógico -> HUD trail en cualquier modo (1v1/2v2)."""
+        import renpy.store as S
+
+        try:
+            if bool(sync_hp_ui):
+                fn_sync = getattr(S, "bs_sync_hp_ui", None)
+                if callable(fn_sync):
+                    fn_sync()
+        except:
+            pass
+
+        try:
+            p_hp = int(getattr(S, "player_hp", 0) or 0)
+        except:
+            p_hp = 0
+        try:
+            e_hp = int(getattr(S, "enemy_hp", 0) or 0)
+        except:
+            e_hp = 0
+
+        fn_bars = getattr(S, "battle_update_hp_bars", None)
+        if callable(fn_bars):
+            try:
+                fn_bars(p_hp, e_hp)
+            except:
+                pass
+
+
     def hud_hp_trail_get(unit_key, hp_cur, hp_max):
         """Retorna (front_ratio, lag_ratio).
         front sigue al HP real inmediatamente; lag desciende gradualmente.
@@ -361,6 +390,12 @@ init -970 python:
 
         hud_visible = True
         hud_hp_visual_state = {}
+
+        # Seed inicial del trail al abrir HUD para evitar saltos visuales por estado viejo.
+        try:
+            battle_sync_hp_visuals_from_store(sync_hp_ui=False)
+        except:
+            pass
 
         # ✅ Nombres dinámicos (display) con fallback seguro
         try:

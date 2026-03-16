@@ -130,12 +130,19 @@ label defensive_resolve(received_damage, hp_after, reflected):
             else:
                 S.player_hp = int(hp_after or 0)
 
-        fn_sync_hp = getattr(S, "bs_sync_hp_ui", None)
-        if callable(fn_sync_hp):
-            fn_sync_hp()
+        fn_sync_vis = getattr(S, "battle_sync_hp_visuals_from_store", None)
+        if callable(fn_sync_vis):
+            fn_sync_vis(sync_hp_ui=True)
+        else:
+            fn_sync_hp = getattr(S, "bs_sync_hp_ui", None)
+            if callable(fn_sync_hp):
+                fn_sync_hp()
 
     $ player_hp = getattr(S, "player_hp", int(hp_after or 0))
-    $ battle_update_hp_bars(player_hp, enemy_hp)
+    if hasattr(store, "battle_sync_hp_visuals_from_store"):
+        $ battle_sync_hp_visuals_from_store(sync_hp_ui=False)
+    else:
+        $ battle_update_hp_bars(player_hp, enemy_hp)
 
     if received_damage > 0:
         $ battle_visual_float("player", received_damage, "#66CCFF", is_final=True)
