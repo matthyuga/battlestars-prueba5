@@ -127,6 +127,10 @@ screen typing_lab_qte_simple():
 
     add Solid("#000000")
 
+    # Evita que teclas globales cierren la screen y retornen al label por accidente.
+    key "dismiss" action NullAction()
+    key "game_menu" action NullAction()
+
     if _phase != "done":
         text (_cur if _cur else "-"):
             xalign 0.5
@@ -172,10 +176,11 @@ screen typing_lab_win_popup():
 label typing_lab_start:
     $ typing_lab_state = typing_lab_default_state()
     $ typing_lab_prepare(total_letters=10)
+
+label typing_lab_round:
     $ _typing_lab_simple_result = renpy.call_screen("typing_lab_qte_simple")
+    if _typing_lab_simple_result != "win":
+        jump typing_lab_round
 
-    if _typing_lab_simple_result == "win":
-        $ _typing_lab_popup_action = renpy.call_screen("typing_lab_win_popup")
-        return
-
+    $ _typing_lab_popup_action = renpy.call_screen("typing_lab_win_popup")
     return
