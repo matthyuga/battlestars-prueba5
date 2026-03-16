@@ -301,20 +301,19 @@ screen typing_lab_result(_result=None):
 
 label typing_lab_start:
 
-    while True:
-        $ typing_lab_state = typing_lab_default_state()
-        $ typing_lab_prepare(total_letters=10, seconds_per_letter=2.0, required_hits=6)
-        $ _typing_lab_result = renpy.call_screen("typing_lab_qte")
+    $ typing_lab_state = typing_lab_default_state()
+    $ typing_lab_prepare(total_letters=10, seconds_per_letter=2.0, required_hits=6)
+    $ _typing_lab_result = renpy.call_screen("typing_lab_qte")
 
-        if not isinstance(_typing_lab_result, dict):
-            $ _typing_lab_result = {"executed": False, "success": False, "reason": "qte_closed", "hits": 0, "misses": 0, "required_hits": 6, "total_letters": 10}
+    if not isinstance(_typing_lab_result, dict):
+        $ _typing_lab_result = {"executed": False, "success": False, "reason": "qte_closed", "hits": 0, "misses": 0, "required_hits": 6, "total_letters": 10}
 
-        $ _typing_lab_action = renpy.call_screen("typing_lab_result", _typing_lab_result)
+    $ _typing_lab_action = renpy.call_screen("typing_lab_result", _typing_lab_result)
 
-        if _typing_lab_action == "retry":
-            continue
-        else:
-            return
+    if _typing_lab_action == "retry":
+        jump typing_lab_start
+    else:
+        return
 
 
 default typing_lab_state = {
