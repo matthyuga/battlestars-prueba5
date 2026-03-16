@@ -11,8 +11,8 @@ init -850 python:
     import math
     import renpy.store as S
 
-    TYPING_LAB_BAR_FOLLOW_RATE = 1.30
-    TYPING_LAB_BAR_HOLD_ON_RESET = 0.12
+    TYPING_LAB_BAR_FOLLOW_RATE = 0.975
+    TYPING_LAB_BAR_HOLD_ON_RESET = 0.15
 
     def typing_lab_default_state():
         return {
@@ -204,7 +204,10 @@ screen typing_lab_qte_simple():
         _vis_ratio = float(_st.get("bar_visual_ratio", _ratio) or _ratio)
         _vis_ratio = max(0.0, min(1.0, _vis_ratio))
         _bar_max = 520
-        _bar_fill = int(max(0, min(_bar_max, int(_bar_max * _vis_ratio))))
+        _front_ratio = max(0.0, min(1.0, _ratio))
+        _lag_ratio = max(_front_ratio, _vis_ratio)
+        _front_fill = int(max(0, min(_bar_max, int(_bar_max * _front_ratio))))
+        _lag_fill = int(max(0, min(_bar_max, int(_bar_max * _lag_ratio))))
         _timer_txt = ("%.2f" % float(_left))
 
         if _phase == "hit":
@@ -246,11 +249,20 @@ screen typing_lab_qte_simple():
                 xsize 540
                 ysize 30
 
+                # Barra dual: lag (trail) + front (real), para sensación más líquida.
+                frame:
+                    background "#8AE65A"
+                    xpos 10
+                    ypos 6
+                    xsize _lag_fill
+                    ysize 18
+                    padding (0, 0)
+
                 frame:
                     background "#43E97B"
                     xpos 10
                     ypos 6
-                    xsize _bar_fill
+                    xsize _front_fill
                     ysize 18
                     padding (0, 0)
 
