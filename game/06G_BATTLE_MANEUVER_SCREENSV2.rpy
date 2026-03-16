@@ -97,6 +97,25 @@ style maneuver_option_button_text is button_text:
     selected_color "#FFD700"
     insensitive_color "#666666"
 
+style maneuver_confirm_button is button:
+    xalign 0.5
+    xminimum 320
+    yminimum 54
+    left_padding 18
+    right_padding 18
+    top_padding 10
+    bottom_padding 10
+    background Solid("#FFFFFF10")
+    hover_background Solid("#00BFFFA0")
+    activate_background Solid("#D32F2FA0")
+    insensitive_background Solid("#FFFFFF08")
+
+style maneuver_confirm_button_text is button_text:
+    size 24
+    color "#FFFFFF"
+    hover_color "#E3F2FD"
+    insensitive_color "#777777"
+
 screen battle_maneuver_choice(damage):
 
     modal False
@@ -367,17 +386,17 @@ screen battle_maneuver_choice(damage):
                             text_style "maneuver_option_button_text"
                             text_size 21
 
-                        if local_choice != "none":
-                            textbutton "Confirmar decisión":
-                                action [
-                                    SetVariable("maneuver_selected", local_choice),
-                                    SetVariable("counterattack_resolution_mode", local_counter_mode),
-                                    SetVariable("sacrifice_receiver_key", sac_receiver_key),
-                                    Hide("battle_maneuver_choice"),
-                                    SetVariable("show_maneuver_choice", True)
-                                ]
-                                text_size 24
-                                xalign 0.5
+                        textbutton "Confirmar decisión":
+                            action [
+                                SetVariable("maneuver_selected", local_choice),
+                                SetVariable("counterattack_resolution_mode", local_counter_mode),
+                                SetVariable("sacrifice_receiver_key", sac_receiver_key),
+                                Hide("battle_maneuver_choice"),
+                                SetVariable("show_maneuver_choice", True)
+                            ]
+                            style "maneuver_confirm_button"
+                            text_style "maneuver_confirm_button_text"
+                            sensitive local_choice != "none"
 
                         text "Arrastrá para mover • Ctrl+Y: ocultar/mostrar" size 13 color "#BBBBBB" xalign 0.5
 
@@ -487,17 +506,17 @@ screen battle_maneuver_choice(damage):
                             text_style "maneuver_option_button_text"
                             text_size 21
 
-                        if local_choice != "none":
-                            textbutton "Confirmar decisión":
-                                action [
-                                    SetVariable("maneuver_selected", local_choice),
-                                    SetVariable("counterattack_resolution_mode", local_counter_mode),
-                                    SetVariable("sacrifice_receiver_key", sac_receiver_key),
-                                    Hide("battle_maneuver_choice"),
-                                    SetVariable("show_maneuver_choice", True)
-                                ]
-                                text_size 24
-                                xalign 0.5
+                        textbutton "Confirmar decisión":
+                            action [
+                                SetVariable("maneuver_selected", local_choice),
+                                SetVariable("counterattack_resolution_mode", local_counter_mode),
+                                SetVariable("sacrifice_receiver_key", sac_receiver_key),
+                                Hide("battle_maneuver_choice"),
+                                SetVariable("show_maneuver_choice", True)
+                            ]
+                            style "maneuver_confirm_button"
+                            text_style "maneuver_confirm_button_text"
+                            sensitive local_choice != "none"
 
                         text "Arrastrá para mover • Ctrl+Y: ocultar/mostrar" size 13 color "#BBBBBB" xalign 0.5
 
