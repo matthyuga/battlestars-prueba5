@@ -17,7 +17,7 @@ init -970 python:
     battle_hp_player = battle_hp_player_max
     battle_hp_enemy = battle_hp_enemy_max
     hud_hp_visual_state = {}
-    hud_hp_trail_speed_ratio_per_sec = 1.25
+    hud_hp_trail_speed_ratio_per_sec = 0.65
 
     hp_flash_timer = 0
     hp_flash_color = None
@@ -786,9 +786,19 @@ screen battle_hp_overlay():
                                                 size 10
                                                 bold True
 
+                                            fixed:
+                                                xpos 8
+                                                ypos 92
+                                                xsize int(max(60, int(_hud_layout.get("token_w", 118) or 118) - 16))
+                                                ysize 10
+                                                $ _token_w = int(max(60, int(_hud_layout.get("token_w", 118) or 118) - 16))
+                                                add Solid("#222222") xsize _token_w ysize 10
+                                                add Solid("#FFD400") xsize int(max(0, min(_token_w, int(_token_w * _hp_lag)))) ysize 10
+                                                add Solid(_hp_front_color) xsize int(max(0, min(_token_w, int(_token_w * _hp_front)))) ysize 10
+
                                             text "HP: {}/{}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                                 xpos 8
-                                                ypos 96
+                                                ypos 104
                                                 color "#FFFFFF"
                                                 size 8
 
@@ -798,7 +808,7 @@ screen battle_hp_overlay():
                                                 " (-{})".format(battle_fmt_num(abs(_rei_diff))) if _rei_diff != 0 else ""
                                             ):
                                                 xpos 8
-                                                ypos 112
+                                                ypos 120
                                                 color "#55FFFF"
                                                 size 8
 
@@ -808,7 +818,7 @@ screen battle_hp_overlay():
                                                 " (-{})".format(battle_fmt_num(abs(_ene_diff))) if _ene_diff != 0 else ""
                                             ):
                                                 xpos 8
-                                                ypos 128
+                                                ypos 136
                                                 color "#FFA500"
                                                 size 8
                                     else:
@@ -841,7 +851,7 @@ screen battle_hp_overlay():
                                                     ysize 14
 
                                                     add Solid("#222222") xsize 112 ysize 14
-                                                    add Solid("#AA3333") xsize int(max(0, min(112, int(112 * _hp_lag)))) ysize 14
+                                                    add Solid("#FFD400") xsize int(max(0, min(112, int(112 * _hp_lag)))) ysize 14
                                                     add Solid(_hp_front_color) xsize int(max(0, min(112, int(112 * _hp_front)))) ysize 14
 
                                                 text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
@@ -986,7 +996,7 @@ screen battle_hp_overlay():
                                             ysize 14
 
                                             add Solid("#222222") xsize 112 ysize 14
-                                            add Solid("#AA3333") xsize int(max(0, min(112, int(112 * _hp_lag)))) ysize 14
+                                            add Solid("#FFD400") xsize int(max(0, min(112, int(112 * _hp_lag)))) ysize 14
                                             add Solid(_hp_front_color) xsize int(max(0, min(112, int(112 * _hp_front)))) ysize 14
 
                                         text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
@@ -1033,7 +1043,7 @@ screen battle_hp_overlay():
                             xsize 280
                             ysize 16
                             add Solid("#222222") xsize 280 ysize 16
-                            add Solid("#AA3333") xsize int(max(0, min(280, int(280 * _p_lag)))) ysize 16
+                            add Solid("#FFD400") xsize int(max(0, min(280, int(280 * _p_lag)))) ysize 16
                             add Solid("#00BFFF") xsize int(max(0, min(280, int(280 * _p_front)))) ysize 16
                         text "{} / {}".format(battle_fmt_num(battle_hp_player), battle_fmt_num(battle_hp_player_max)) color "#FFFFFF" size 16
 
@@ -1063,7 +1073,7 @@ screen battle_hp_overlay():
                             xsize 280
                             ysize 16
                             add Solid("#222222") xsize 280 ysize 16
-                            add Solid("#AA3333") xsize int(max(0, min(280, int(280 * _e_lag)))) ysize 16
+                            add Solid("#FFD400") xsize int(max(0, min(280, int(280 * _e_lag)))) ysize 16
                             add Solid("#FF3333") xsize int(max(0, min(280, int(280 * _e_front)))) ysize 16
                         text "{} / {}".format(battle_fmt_num(battle_hp_enemy), battle_fmt_num(battle_hp_enemy_max)) color "#FFFFFF" size 16
                         text "Reiatsu: {}/{}".format(battle_fmt_num(enemy_reiatsu), battle_fmt_num(getattr(store, "enemy_reiatsu_base", enemy_reiatsu))) size 15 color "#55FFFF"
