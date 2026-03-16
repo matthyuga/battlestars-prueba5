@@ -20,6 +20,7 @@ init -850 python:
             "hits": 0,
             "seconds_per_letter": 2.0,
             "time_left": 2.0,
+            "feedback_time_left": 0.0,
         }
 
     def typing_lab_prepare(total_letters=10, seconds_per_letter=2.0):
@@ -47,6 +48,7 @@ init -850 python:
             "hits": 0,
             "seconds_per_letter": float(spl),
             "time_left": float(spl),
+            "feedback_time_left": 0.0,
         }
         S.typing_lab_state = st
         return dict(st)
@@ -70,6 +72,7 @@ init -850 python:
 
         st["phase"] = "hit"
         st["hits"] = int(st.get("hits", 0) or 0) + 1
+        st["feedback_time_left"] = 0.18
         S.typing_lab_state = st
         return dict(st)
 
@@ -78,9 +81,6 @@ init -850 python:
         if not isinstance(st, dict):
             st = typing_lab_default_state()
 
-        if str(st.get("phase", "idle") or "idle") != "idle":
-            return dict(st)
-
         try:
             delta = float(dt)
         except:
@@ -88,12 +88,27 @@ init -850 python:
         if delta <= 0.0:
             delta = 0.02
 
+        phase = str(st.get("phase", "idle") or "idle")
+
+        if phase in ("hit", "timeout"):
+            fb = float(st.get("feedback_time_left", 0.0) or 0.0)
+            fb = max(0.0, fb - delta)
+            st["feedback_time_left"] = fb
+            S.typing_lab_state = st
+            if fb <= 0.0:
+                return typing_lab_advance()
+            return dict(st)
+
+        if phase != "idle":
+            return dict(st)
+
         left = float(st.get("time_left", 0.0) or 0.0)
         left = max(0.0, left - delta)
         st["time_left"] = left
 
         if left <= 0.0:
             st["phase"] = "timeout"
+            st["feedback_time_left"] = 0.20
 
         S.typing_lab_state = st
         return dict(st)
@@ -114,10 +129,12 @@ init -850 python:
             st["phase"] = "done"
             st["current_letter"] = ""
             st["time_left"] = 0.0
+            st["feedback_time_left"] = 0.0
         else:
             st["phase"] = "idle"
             st["current_letter"] = str(seq[idx])
             st["time_left"] = float(spl)
+            st["feedback_time_left"] = 0.0
 
         S.typing_lab_state = st
         return dict(st)
@@ -138,6 +155,7 @@ default typing_lab_state = {
     "hits": 0,
     "seconds_per_letter": 2.0,
     "time_left": 2.0,
+    "feedback_time_left": 0.0,
 }
 
 
@@ -167,17 +185,11 @@ screen typing_lab_qte_simple():
         else:
             _letter_color = "#FFFFFF"
 
-    # Tick moderado para evitar carga/flicker y mantener barra fluida.
-    timer 0.05 repeat True action Function(getattr(store, "typing_lab_tick", None), 0.05)
+    timer 0.02 repeat True action Function(getattr(store, "typing_lab_tick", None), 0.02)
 
     for _k in _letters:
         key _k action Function(getattr(store, "typing_lab_press_key", None), _k)
 
-    if _phase == "hit":
-        timer 0.18 action Function(getattr(store, "typing_lab_advance", None))
-
-    if _phase == "timeout":
-        timer 0.20 action Function(getattr(store, "typing_lab_advance", None))
 
     if _phase == "done":
         timer 0.02 action Return("win")
