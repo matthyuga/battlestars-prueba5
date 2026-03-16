@@ -94,6 +94,24 @@ init -989 python:
         except Exception:
             pass
 
+style maneuver_option_button is button:
+    xfill True
+    yminimum 46
+    left_padding 14
+    right_padding 14
+    top_padding 8
+    bottom_padding 8
+    background Solid("#FFFFFF10")
+    hover_background Solid("#FFFFFF20")
+    selected_background Solid("#FFD70030")
+    insensitive_background Solid("#FFFFFF08")
+
+style maneuver_option_button_text is button_text:
+    color "#BBBBBB"
+    hover_color "#FFFFFF"
+    selected_color "#FFD700"
+    insensitive_color "#666666"
+
 screen battle_maneuver_choice(damage):
 
     modal False
@@ -239,36 +257,54 @@ screen battle_maneuver_choice(damage):
 
                         textbutton "Defender normalmente":
                             action SetScreenVariable("local_choice", "defense")
+                            style "maneuver_option_button"
+                            text_style "maneuver_option_button_text"
+                            selected local_choice == "defense"
                             text_size 21
 
                         if will_die or is_dead or offense_locked:
                             textbutton "Ataque por defensa (no disponible)":
                                 action NullAction()
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
                                 text_size 21
                                 text_color "#666666"
                         else:
                             textbutton "Ataque por defensa":
                                 action SetScreenVariable("local_choice", "atk_from_def")
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
+                                selected local_choice == "atk_from_def"
                                 text_size 21
 
                         if is_dead or offense_locked:
                             textbutton "Defensa por ataque (no disponible)":
                                 action NullAction()
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
                                 text_size 21
                                 text_color "#666666"
                         else:
                             textbutton "Defensa por ataque":
                                 action SetScreenVariable("local_choice", "def_from_atk")
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
+                                selected local_choice == "def_from_atk"
                                 text_size 21
 
                         if not _counter_ok:
                             textbutton "Contraataque (dados 4/4) (no disponible)":
                                 action NullAction()
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
                                 text_size 21
                                 text_color "#666666"
                         else:
                             textbutton "Contraataque (dados 4/4)":
                                 action Function(getattr(store, "bs_pick_maneuver_choice", None), "counterattack", "dice", False)
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
+                                selected local_choice == "counterattack"
                                 text_size 21
                                 text_color "#BBBBBB"
                                 text_hover_color "#FFFFFF"
@@ -276,11 +312,16 @@ screen battle_maneuver_choice(damage):
                         if not _parry_ok:
                             textbutton "Parry por teclas (no disponible)":
                                 action NullAction()
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
                                 text_size 19
                                 text_color "#666666"
                         else:
                             textbutton "Parry por teclas":
                                 action Function(getattr(store, "bs_pick_maneuver_choice", None), "parry_typing", None, False)
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
+                                selected local_choice == "parry_typing"
                                 text_size 19
                                 text_color "#BBBBBB"
                                 text_hover_color "#FFFFFF"
@@ -304,11 +345,16 @@ screen battle_maneuver_choice(damage):
                         if not _sac_ok:
                             textbutton "Solicitar maniobra de sacrificio (no disponible)":
                                 action NullAction()
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
                                 text_size 19
                                 text_color "#666666"
                         else:
                             textbutton "Solicitar maniobra de sacrificio":
                                 action SetScreenVariable("local_choice", "sacrifice_request")
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
+                                selected local_choice == "sacrifice_request"
                                 text_size 19
 
                         if _sac_reason == "used":
@@ -326,6 +372,9 @@ screen battle_maneuver_choice(damage):
                                     $ _ch = int(_c.get("hp", 0) or 0) if isinstance(_c, dict) else 0
                                     textbutton "{} (HP {})".format(_cn, battle_fmt_num(_ch)):
                                         action SetScreenVariable("sac_receiver_key", _ck)
+                                        style "maneuver_option_button"
+                                        text_style "maneuver_option_button_text"
+                                        selected _ck == sac_receiver_key
                                         text_color ("#66CCFF" if _ck == sac_receiver_key else "#FFFFFF")
 
                             if _sac_warn_ko:
@@ -333,6 +382,8 @@ screen battle_maneuver_choice(damage):
 
                         textbutton "Ver maniobras…":
                             action SetScreenVariable("show_submenu", True)
+                            style "maneuver_option_button"
+                            text_style "maneuver_option_button_text"
                             text_size 21
 
                         if local_choice != "none":
@@ -355,6 +406,8 @@ screen battle_maneuver_choice(damage):
                         if will_die or is_dead or offense_locked:
                             textbutton "Ataque por defensa (no disponible)":
                                 action NullAction()
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
                                 text_size 21
                                 text_color "#666666"
                         else:
@@ -363,11 +416,16 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("local_choice", "atk_from_def"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
+                                selected local_choice == "atk_from_def"
                                 text_size 21
 
                         if is_dead or offense_locked:
                             textbutton "Defensa por ataque (no disponible)":
                                 action NullAction()
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
                                 text_size 21
                                 text_color "#666666"
                         else:
@@ -376,16 +434,24 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("local_choice", "def_from_atk"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
+                                selected local_choice == "def_from_atk"
                                 text_size 21
 
                         if not _counter_ok:
                             textbutton "Contraataque (dados 4/4) (no disponible)":
                                 action NullAction()
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
                                 text_size 21
                                 text_color "#666666"
                         else:
                             textbutton "Contraataque (dados 4/4)":
                                 action Function(getattr(store, "bs_pick_maneuver_choice", None), "counterattack", "dice", True)
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
+                                selected local_choice == "counterattack"
                                 text_size 21
                                 text_color "#BBBBBB"
                                 text_hover_color "#FFFFFF"
@@ -393,11 +459,16 @@ screen battle_maneuver_choice(damage):
                         if not _parry_ok:
                             textbutton "Parry por teclas (no disponible)":
                                 action NullAction()
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
                                 text_size 19
                                 text_color "#666666"
                         else:
                             textbutton "Parry por teclas":
                                 action Function(getattr(store, "bs_pick_maneuver_choice", None), "parry_typing", None, True)
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
+                                selected local_choice == "parry_typing"
                                 text_size 19
                                 text_color "#BBBBBB"
                                 text_hover_color "#FFFFFF"
@@ -405,6 +476,8 @@ screen battle_maneuver_choice(damage):
                         if not _sac_ok:
                             textbutton "Solicitar maniobra de sacrificio (no disponible)":
                                 action NullAction()
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
                                 text_size 19
                                 text_color "#666666"
                         else:
@@ -413,10 +486,15 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("local_choice", "sacrifice_request"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
+                                style "maneuver_option_button"
+                                text_style "maneuver_option_button_text"
+                                selected local_choice == "sacrifice_request"
                                 text_size 19
 
                         textbutton "Cancelar":
                             action SetScreenVariable("show_submenu", False)
+                            style "maneuver_option_button"
+                            text_style "maneuver_option_button_text"
                             text_size 21
 
                         if local_choice != "none":
