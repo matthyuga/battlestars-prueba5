@@ -431,8 +431,18 @@ init -988 python:
             S.battle_log_add(msg, "#999999")
             return "nopay"
 
-        # Consumir recursos
-        cost = S.reiatsu_energy_dynamic_cost(key, S, unit_key=_ai_enemy_unit_key())
+        # Consumir recursos (si hay Potenciar defensivo activo, duplica solo Reiatsu)
+        def_mult = 1
+        try:
+            fn_def_mult = getattr(S, "defensive_boost_multiplier_peek", None)
+            if callable(fn_def_mult):
+                def_mult = int(fn_def_mult() or 1)
+                if def_mult < 1:
+                    def_mult = 1
+        except:
+            def_mult = 1
+
+        cost = S.reiatsu_energy_dynamic_cost(key, S, force_focus_mult=def_mult, unit_key=_ai_enemy_unit_key())
         rei_cost = int(cost.get("reiatsu_cost", 0) or 0)
         ene_cost = int(cost.get("energy_cost", 0) or 0)
         S.consume_resources(rei_cost, ene_cost, "enemy")

@@ -227,19 +227,29 @@ label offensive_formula(dmg, attack_records):
         try:
             _bla = getattr(S, "battle_log_add", None)
             if callable(_bla):
-                rei_before = int(getattr(S, "turn_off_rei_before", getattr(S, "player_reiatsu", 0)) or 0)
-                rei_after = int(getattr(S, "turn_off_rei_after", getattr(S, "player_reiatsu", 0)) or 0)
-                ene_before = int(getattr(S, "turn_off_ene_before", getattr(S, "player_energy", 0)) or 0)
-                ene_after = int(getattr(S, "turn_off_ene_after", getattr(S, "player_energy", 0)) or 0)
+                def _safe_int(v, d=0):
+                    try:
+                        return int(v)
+                    except:
+                        try:
+                            return int(str(v or "0").replace(".", "").replace(",", "").strip() or d)
+                        except:
+                            return int(d)
 
-                rei_base = int(getattr(S, "player_reiatsu_base", rei_before) or rei_before)
-                ene_base = int(getattr(S, "player_energy_base", ene_before) or ene_before)
+                rei_before = _safe_int(getattr(S, "turn_off_rei_before", getattr(S, "player_reiatsu", 0)), 0)
+                rei_after = _safe_int(getattr(S, "turn_off_rei_after", getattr(S, "player_reiatsu", 0)), 0)
+                ene_before = _safe_int(getattr(S, "turn_off_ene_before", getattr(S, "player_energy", 0)), 0)
+                ene_after = _safe_int(getattr(S, "turn_off_ene_after", getattr(S, "player_energy", 0)), 0)
+
+                rei_base = _safe_int(getattr(S, "player_reiatsu_base", rei_before), rei_before)
+                ene_base = _safe_int(getattr(S, "player_energy_base", ene_before), ene_before)
 
                 rei_turn_use = max(0, int(rei_before - rei_after))
                 ene_turn_use = max(0, int(ene_before - ene_after))
 
-                rei_tech_sum = max(0, int(getattr(S, "turn_off_rei_tech_sum", rei_turn_use) or 0))
-                ene_tech_sum = max(0, int(getattr(S, "turn_off_ene_tech_sum", ene_turn_use) or 0))
+                # Fallback robusto: si no hubo acumulador válido, usar consumo del turno.
+                rei_tech_sum = max(0, _safe_int(getattr(S, "turn_off_rei_tech_sum", rei_turn_use), rei_turn_use))
+                ene_tech_sum = max(0, _safe_int(getattr(S, "turn_off_ene_tech_sum", ene_turn_use), ene_turn_use))
 
                 _bla("▸ Recursos ofensivos:", "#FFFFFF", group="resource_detail")
                 _bla("   {color=#88CCFF}Reiatsu: {} - {} = {}{/color}".format(_fmt(rei_base), _fmt(rei_turn_use), _fmt(rei_after)), group="resource_detail")
