@@ -144,6 +144,13 @@ init -978 python:
             return DEFAULT_LOG_POS
 
 
+    def battle_log_on_dragged(d, drop):
+        try:
+            save_battle_log_position_xy(_drag_pos_safe(d))
+        except:
+            pass
+
+
     def battle_log_set_ui_flag(flag_name, value):
         try:
             setattr(S, str(flag_name), bool(value))
@@ -320,12 +327,16 @@ screen battle_log_screen():
     modal False
     zorder 120
 
-    key "ctrl_K_b" action Function(battle_log_toggle_ui_flag, "ui_show_battle_debug_log")
-    key "ctrl_K_d" action Function(battle_log_toggle_ui_flag, "ui_show_offensive_operation_details")
-    key "ctrl_K_g" action Function(battle_log_toggle_ui_flag, "ui_show_target_assignment_details")
-    key "ctrl_K_q" action Function(battle_log_toggle_ui_flag, "ui_show_queue_2v2_details")
-    key "K_i" action Function(battle_log_toggle_ui_flag, "ui_show_resource_details")
-    key "i" action Function(battle_log_toggle_ui_flag, "ui_show_resource_details")
+    key "ctrl_K_b" action ToggleVariable("ui_show_battle_debug_log")
+    key "ctrl_K_d" action ToggleVariable("ui_show_offensive_operation_details")
+    key "ctrl_K_g" action ToggleVariable("ui_show_target_assignment_details")
+    key "ctrl_K_q" action ToggleVariable("ui_show_queue_2v2_details")
+    key "K_i" action ToggleVariable("ui_show_resource_details")
+    key "i" action ToggleVariable("ui_show_resource_details")
+    key "d" action ToggleVariable("ui_show_offensive_operation_details")
+    key "g" action ToggleVariable("ui_show_target_assignment_details")
+    key "q" action ToggleVariable("ui_show_queue_2v2_details")
+    key "b" action ToggleVariable("ui_show_battle_debug_log")
 
     $ start_pos = get_battle_log_position()
 
@@ -335,7 +346,7 @@ screen battle_log_screen():
         droppable False
         drag_raise True
         pos start_pos
-        dragged (lambda d, drop: save_battle_log_position_xy(_drag_pos_safe(d)))
+        dragged battle_log_on_dragged
 
         frame:
             background "#111C"
@@ -347,7 +358,7 @@ screen battle_log_screen():
                 spacing 4
                 text "Registro de combate (narrativo)" size 22 color "#FFD700" bold True
                 textbutton ("[[B]] Debug: visible" if ui_show_battle_debug_log else "[[B]] Debug: oculto"):
-                    action Function(battle_log_toggle_ui_flag, "ui_show_battle_debug_log")
+                    action ToggleVariable("ui_show_battle_debug_log")
                     text_size 14
                     text_color "#80DEEA"
                     background "#0000"
@@ -356,22 +367,22 @@ screen battle_log_screen():
                 hbox:
                     spacing 10
                     textbutton ("[[D]] ▸ Operación" if not ui_show_offensive_operation_details else "[[D]] ▾ Operación"):
-                        action Function(battle_log_toggle_ui_flag, "ui_show_offensive_operation_details")
+                        action ToggleVariable("ui_show_offensive_operation_details")
                         text_size 13
                         text_color "#E0E0E0"
                         background "#0000"
                     textbutton ("[[G]] ▸ Target" if not ui_show_target_assignment_details else "[[G]] ▾ Target"):
-                        action Function(battle_log_toggle_ui_flag, "ui_show_target_assignment_details")
+                        action ToggleVariable("ui_show_target_assignment_details")
                         text_size 13
                         text_color "#B0E0E6"
                         background "#0000"
                     textbutton ("[[Q]] ▸ Cola 2v2" if not ui_show_queue_2v2_details else "[[Q]] ▾ Cola 2v2"):
-                        action Function(battle_log_toggle_ui_flag, "ui_show_queue_2v2_details")
+                        action ToggleVariable("ui_show_queue_2v2_details")
                         text_size 13
                         text_color "#B39DDB"
                         background "#0000"
                     textbutton ("[[I]] ▸ Recursos" if not ui_show_resource_details else "[[I]] ▾ Recursos"):
-                        action Function(battle_log_toggle_ui_flag, "ui_show_resource_details")
+                        action ToggleVariable("ui_show_resource_details")
                         text_size 13
                         text_color "#88CCFF"
                         background "#0000"
