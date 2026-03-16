@@ -325,6 +325,7 @@ screen battle_log_screen():
     key "ctrl_K_g" action Function(battle_log_toggle_ui_flag, "ui_show_target_assignment_details")
     key "ctrl_K_q" action Function(battle_log_toggle_ui_flag, "ui_show_queue_2v2_details")
     key "K_i" action Function(battle_log_toggle_ui_flag, "ui_show_resource_details")
+    key "i" action Function(battle_log_toggle_ui_flag, "ui_show_resource_details")
 
     $ start_pos = get_battle_log_position()
 

@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04C_OFFENSIVE_ACTIONS.rpy – Offensive Core (Action Objects)
 # ============================================================
 # v12.5 – SafeLogHub + StoreSafe LogRefs + BaseValue SafeCall Fix + 04X SSOT
@@ -603,7 +603,9 @@ label offensive_process_actions(selected):
                     if callable(fmt_red) and callable(fmt_white):
                         _blog(
                             fmt_red("Ataque más fuerte") +
-                            fmt_white(" → {} daño. ".format(make_dmg_text(action.base_value, dmg))) +
+                            fmt_white(" → Inflige ") +
+                            fmt_red(make_dmg_text(action.base_value, dmg)) +
+                            fmt_white(" de daño. ") +
                             _cost_line(rei_cost, ene_cost)
                         )
                     else:

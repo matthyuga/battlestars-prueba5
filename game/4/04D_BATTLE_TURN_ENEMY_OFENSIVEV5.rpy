@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 04D_BATTLE_TURN_ENEMY.RPY – Turno ofensivo IA (MANEUVER EXTENDED)
 # Versión v12.3.1 Reflect RESOLVE ON TARGET HP (SyntaxFix + Sync) ✅
 # ------------------------------------------------------------
@@ -297,6 +297,11 @@ label battle_enemy_turn_legacy_entry:
         S.enemy_attack_records    = []
         S.enemy_noatk_success     = False
 
+        S.turn_enemy_off_rei_before = int(getattr(S, "enemy_reiatsu", 0) or 0)
+        S.turn_enemy_off_ene_before = int(getattr(S, "enemy_energy", 0) or 0)
+        S.turn_enemy_off_rei_tech_sum = 0
+        S.turn_enemy_off_ene_tech_sum = 0
+
         # ID store-safe
         S.current_enemy_id = getattr(S, "BATTLE_IDENTITIES", {}).get(enemy_name, "ID_ENEMY_UNKNOWN")
         try:
@@ -326,18 +331,37 @@ label battle_enemy_turn_legacy_entry:
                 enemy_attack_executed = True
             bs_ui_pause(0.35, hard=True)
 
+        S.turn_enemy_off_rei_after = int(getattr(S, "enemy_reiatsu", 0) or 0)
+        S.turn_enemy_off_ene_after = int(getattr(S, "enemy_energy", 0) or 0)
+
         # ============================================================
         # ⭐ FÓRMULA OFENSIVA IA (SIN REFLECT)
         # ============================================================
         parts = []
         for base, dmg in (S.enemy_attack_records or []):
             try:
-                if dmg != base:
-                    parts.append("%s×2(%s)" % (S.battle_fmt_num(base), S.battle_fmt_num(dmg)))
-                else:
-                    parts.append(S.battle_fmt_num(base))
+                base_i = int(base or 0)
+                dmg_i = int(dmg or 0)
             except:
-                pass
+                base_i = 0
+                dmg_i = 0
+
+            if base_i <= 0:
+                continue
+
+            if dmg_i == base_i:
+                parts.append(S.battle_fmt_num(base_i))
+                continue
+
+            try:
+                mult_val = float(dmg_i) / float(base_i)
+            except:
+                mult_val = 0.0
+
+            if mult_val > 0 and abs(mult_val - round(mult_val)) < 0.01:
+                parts.append("%s×%s(%s)" % (S.battle_fmt_num(base_i), int(round(mult_val)), S.battle_fmt_num(dmg_i)))
+            else:
+                parts.append("%s→%s" % (S.battle_fmt_num(base_i), S.battle_fmt_num(dmg_i)))
 
         formula_text = " + ".join(parts) if parts else "0"
 
@@ -606,6 +630,30 @@ label battle_enemy_turn_legacy_entry:
                     ))
                 else:
                     S.battle_log_add("Daño total: {} defendibles".format(S.battle_fmt_num(dmg_defendible)))
+        except:
+            pass
+
+        try:
+            _bla = getattr(S, "battle_log_add", None)
+            if callable(_bla):
+                rei_before = int(getattr(S, "turn_enemy_off_rei_before", getattr(S, "enemy_reiatsu", 0)) or 0)
+                rei_after = int(getattr(S, "turn_enemy_off_rei_after", getattr(S, "enemy_reiatsu", 0)) or 0)
+                ene_before = int(getattr(S, "turn_enemy_off_ene_before", getattr(S, "enemy_energy", 0)) or 0)
+                ene_after = int(getattr(S, "turn_enemy_off_ene_after", getattr(S, "enemy_energy", 0)) or 0)
+
+                rei_base = int(getattr(S, "enemy_reiatsu_base", rei_before) or rei_before)
+                ene_base = int(getattr(S, "enemy_energy_base", ene_before) or ene_before)
+
+                rei_turn_use = max(0, int(rei_before - rei_after))
+                ene_turn_use = max(0, int(ene_before - ene_after))
+
+                rei_tech_sum = max(0, int(getattr(S, "turn_enemy_off_rei_tech_sum", rei_turn_use) or 0))
+                ene_tech_sum = max(0, int(getattr(S, "turn_enemy_off_ene_tech_sum", ene_turn_use) or 0))
+
+                _bla("{color=#88CCFF}Reiatsu base {} - uso turno {} = {}{/color}".format(S.battle_fmt_num(rei_base), S.battle_fmt_num(rei_turn_use), S.battle_fmt_num(rei_after)), group="resource_detail")
+                _bla("{color=#88CCFF}Reiatsu - consumo total técnicas ofensivas: {}{/color}".format(S.battle_fmt_num(rei_tech_sum)), group="resource_detail")
+                _bla("{color=#FFAA66}Energía base {} - uso turno {} = {}{/color}".format(S.battle_fmt_num(ene_base), S.battle_fmt_num(ene_turn_use), S.battle_fmt_num(ene_after)), group="resource_detail")
+                _bla("{color=#FFAA66}Energía - consumo total técnicas ofensivas: {}{/color}".format(S.battle_fmt_num(ene_tech_sum)), group="resource_detail")
         except:
             pass
 
