@@ -212,11 +212,10 @@ screen battle_maneuver_choice(damage):
             xpos maneuver_choice_x
             ypos maneuver_choice_y
 
-            frame:
+            frame at maneuver_choice_panel_zoom:
                 background "#1119"
                 padding (18, 18)
                 xmaximum 560
-                zoom 0.7
 
                 vbox spacing 14:
 
@@ -475,3 +474,7 @@ screen battle_maneuver_choice(damage):
                                     sensitive local_choice != "none"
 
                                 text "Arrastrá para mover • Ctrl+Y: ocultar/mostrar" size 13 color "#BBBBBB" xalign 0.5
+
+
+transform maneuver_choice_panel_zoom:
+    zoom 0.7
