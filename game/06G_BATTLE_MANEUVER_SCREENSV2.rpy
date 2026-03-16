@@ -77,6 +77,23 @@ init -990 python:
 #   bajo battle_popup_turn.
 # -----------------------------------------------------------
 
+
+
+init -989 python:
+    import renpy.store as S
+    import renpy.exports as R
+
+    def bs_pick_maneuver_choice(choice, mode=None, close_submenu=False):
+        try:
+            if mode is not None:
+                S.counterattack_resolution_mode = str(mode or "dice")
+            S._battle_maneuver_pick = str(choice or "none")
+            if close_submenu:
+                S._battle_maneuver_close_submenu = True
+            R.restart_interaction()
+        except Exception:
+            pass
+
 screen battle_maneuver_choice(damage):
 
     modal False
@@ -88,6 +105,17 @@ screen battle_maneuver_choice(damage):
     default show_submenu = False
     default sac_receiver_key = ""
     default local_counter_mode = str(getattr(store, "counterattack_resolution_mode", "dice") or "dice")
+
+    python:
+        import renpy.store as S
+        _picked = str(getattr(S, "_battle_maneuver_pick", "") or "")
+        if _picked:
+            local_choice = _picked
+            S._battle_maneuver_pick = ""
+
+        if bool(getattr(S, "_battle_maneuver_close_submenu", False)):
+            show_submenu = False
+            S._battle_maneuver_close_submenu = False
 
     $ import renpy.store as S
     $ will_die = S.player_hp - damage <= 0
@@ -240,12 +268,10 @@ screen battle_maneuver_choice(damage):
                                 text_color "#666666"
                         else:
                             textbutton "Contraataque (dados 4/4)":
-                                action [
-                                    SetVariable("counterattack_resolution_mode", "dice"),
-                                    SetScreenVariable("local_counter_mode", "dice"),
-                                    SetScreenVariable("local_choice", "counterattack")
-                                ]
+                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "counterattack", "dice", False)
                                 text_size 26
+                                text_color "#BBBBBB"
+                                text_hover_color "#FFFFFF"
 
                         if not _parry_ok:
                             textbutton "Parry por teclas (no disponible)":
@@ -254,8 +280,10 @@ screen battle_maneuver_choice(damage):
                                 text_color "#666666"
                         else:
                             textbutton "Parry por teclas":
-                                action SetScreenVariable("local_choice", "parry_typing")
+                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "parry_typing", None, False)
                                 text_size 24
+                                text_color "#BBBBBB"
+                                text_hover_color "#FFFFFF"
 
                         if _counter_reason == "used":
                             text "{color=#FF8888}Contraataque ya fue usado en esta batalla.{/color}"
@@ -357,13 +385,10 @@ screen battle_maneuver_choice(damage):
                                 text_color "#666666"
                         else:
                             textbutton "Contraataque (dados 4/4)":
-                                action [
-                                    SetVariable("counterattack_resolution_mode", "dice"),
-                                    SetScreenVariable("local_counter_mode", "dice"),
-                                    SetScreenVariable("local_choice", "counterattack"),
-                                    SetScreenVariable("show_submenu", False)
-                                ]
+                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "counterattack", "dice", True)
                                 text_size 26
+                                text_color "#BBBBBB"
+                                text_hover_color "#FFFFFF"
 
                         if not _parry_ok:
                             textbutton "Parry por teclas (no disponible)":
@@ -372,11 +397,10 @@ screen battle_maneuver_choice(damage):
                                 text_color "#666666"
                         else:
                             textbutton "Parry por teclas":
-                                action [
-                                    SetScreenVariable("local_choice", "parry_typing"),
-                                    SetScreenVariable("show_submenu", False)
-                                ]
+                                action Function(getattr(store, "bs_pick_maneuver_choice", None), "parry_typing", None, True)
                                 text_size 24
+                                text_color "#BBBBBB"
+                                text_hover_color "#FFFFFF"
 
                         if not _sac_ok:
                             textbutton "Solicitar maniobra de sacrificio (no disponible)":
