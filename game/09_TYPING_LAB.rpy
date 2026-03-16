@@ -11,6 +11,8 @@ screen typing_lab_result(_result=None):
         _req = int(_r.get("required_hits", 6) or 6)
         _tot = int(_r.get("total_letters", 10) or 10)
         _ok = bool(_r.get("success", False))
+        _executed = bool(_r.get("executed", True))
+        _reason = str(_r.get("reason", "") or "")
 
     add Solid("#000000")
 
@@ -23,16 +25,22 @@ screen typing_lab_result(_result=None):
         vbox:
             spacing 16
 
-            text ("GANASTE" if _ok else "PERDISTE"):
+            text (("GANASTE" if _ok else "PERDISTE") if _executed else "INTERRUMPIDO"):
                 size 72
                 bold True
-                color ("#66FF99" if _ok else "#FF4D4D")
+                color ("#66FF99" if _ok else "#FF4D4D") if _executed else "#FFCC66"
                 xalign 0.5
 
             text ("Resultado final: ✔ %d / ✖ %d · mínimo %d de %d" % (_hits, _misses, _req, _tot)):
                 size 28
                 color "#DDDDDD"
                 xalign 0.5
+
+            if (not _executed) and _reason:
+                text ("Motivo: %s" % _reason):
+                    size 20
+                    color "#BBBBBB"
+                    xalign 0.5
 
             hbox:
                 spacing 18
@@ -45,6 +53,15 @@ screen typing_lab_result(_result=None):
                     action [Hide("typing_lab_result"), MainMenu()]
 
 label typing_lab_start:
-    $ _typing_lab_result = bs_counterattack_typing_resolve(count=10, seconds_per_letter=2.0, allow_repeat=True)
+    # Flujo aislado: evita el resolver de combate (quiet UI + reintentos de capa)
+    # para que el minijuego de práctica no cierre por interacciones externas.
+    $ bs_counterattack_typing_prepare(count=10, seconds_per_letter=2.0, allow_repeat=True)
+    $ _typing_lab_result = renpy.call_screen("counterattack_typing_qte")
+    if not isinstance(_typing_lab_result, dict):
+        $ _typing_lab_st = getattr(store, "counterattack_typing_state", {})
+        if isinstance(_typing_lab_st, dict) and isinstance(_typing_lab_st.get("result"), dict):
+            $ _typing_lab_result = dict(_typing_lab_st.get("result") or {})
+        else:
+            $ _typing_lab_result = {"executed": False, "success": False, "reason": "ui_closed_unexpectedly", "hits": 0, "misses": 0, "required_hits": 6, "total_letters": 10}
     call screen typing_lab_result(_typing_lab_result)
     return
