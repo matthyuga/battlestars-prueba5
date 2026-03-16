@@ -246,20 +246,16 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("local_choice", "counterattack")
                                 ]
                                 text_size 26
-                                text_color ("#FFFFFF" if local_choice == "counterattack" else "#BBBBBB")
-                                text_hover_color "#FFFFFF"
 
-                            if not _parry_ok:
-                                textbutton "Parry por teclas (no disponible)":
-                                    action NullAction()
-                                    text_size 24
-                                    text_color "#666666"
-                            else:
-                                textbutton "Parry por teclas":
-                                    action SetScreenVariable("local_choice", "parry_typing")
-                                    text_size 24
-                                    text_color ("#FFFFFF" if local_choice == "parry_typing" else "#BBBBBB")
-                                    text_hover_color "#FFFFFF"
+                        if not _parry_ok:
+                            textbutton "Parry por teclas (no disponible)":
+                                action NullAction()
+                                text_size 24
+                                text_color "#666666"
+                        else:
+                            textbutton "Parry por teclas":
+                                action SetScreenVariable("local_choice", "parry_typing")
+                                text_size 24
 
                         if _counter_reason == "used":
                             text "{color=#FF8888}Contraataque ya fue usado en esta batalla.{/color}"
@@ -368,23 +364,19 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("show_submenu", False)
                                 ]
                                 text_size 26
-                                text_color ("#FFFFFF" if local_choice == "counterattack" else "#BBBBBB")
-                                text_hover_color "#FFFFFF"
 
-                            if not _parry_ok:
-                                textbutton "Parry por teclas (no disponible)":
-                                    action NullAction()
-                                    text_size 24
-                                    text_color "#666666"
-                            else:
-                                textbutton "Parry por teclas":
-                                    action [
-                                        SetScreenVariable("local_choice", "parry_typing"),
-                                        SetScreenVariable("show_submenu", False)
-                                    ]
-                                    text_size 24
-                                    text_color ("#FFFFFF" if local_choice == "parry_typing" else "#BBBBBB")
-                                    text_hover_color "#FFFFFF"
+                        if not _parry_ok:
+                            textbutton "Parry por teclas (no disponible)":
+                                action NullAction()
+                                text_size 24
+                                text_color "#666666"
+                        else:
+                            textbutton "Parry por teclas":
+                                action [
+                                    SetScreenVariable("local_choice", "parry_typing"),
+                                    SetScreenVariable("show_submenu", False)
+                                ]
+                                text_size 24
 
                         if not _sac_ok:
                             textbutton "Solicitar maniobra de sacrificio (no disponible)":
@@ -402,6 +394,17 @@ screen battle_maneuver_choice(damage):
                         textbutton "Cancelar":
                             action SetScreenVariable("show_submenu", False)
                             text_size 26
+
+                        if local_choice != "none":
+                            textbutton "Confirmar decisión":
+                                action [
+                                    SetVariable("maneuver_selected", local_choice),
+                                    SetVariable("sacrifice_receiver_key", sac_receiver_key),
+                                    Hide("battle_maneuver_choice"),
+                                    SetVariable("show_maneuver_choice", True)
+                                ]
+                                text_size 30
+                                xalign 0.5
 
                         text "Arrastrá para mover • Ctrl+Y: ocultar/mostrar" size 16 color "#BBBBBB" xalign 0.5
 

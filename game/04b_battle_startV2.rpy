@@ -33,6 +33,42 @@ init -900 python:
     config.keymap['toggle_skip'] = []
     config.keymap['toggle_afm'] = []
 
+
+    def bs_prepare_quick_random_1v1(profile_id=None):
+        import renpy.store as S
+        import renpy.exports as R
+        chars = ["Harribel", "Grimmjow", "Nel", "Hollow"]
+        try:
+            p = R.random.choice(chars)
+            e_pool = [c for c in chars if c != p] or chars
+            e = R.random.choice(e_pool)
+        except Exception:
+            p, e = "Harribel", "Hollow"
+
+        S.battle_team_mode = "1v1"
+        S.battle_multiplayer_manual = False
+        S.battle_player_count = 1
+        S.battle_enemy_count = 1
+        S.battle_enemy_pick_mode = "random"
+        S.battle_player_id = p
+        S.battle_enemy_id = e
+        S.battle_player_ids = [p]
+        S.battle_enemy_ids = [e]
+        S.battle_player_slot_0 = p
+        S.battle_player_slot_1 = ""
+        S.battle_enemy_slot_0 = e
+        S.battle_enemy_slot_1 = ""
+        S.quick_start_random_1v1 = True
+
+        pid = str(profile_id or getattr(S, "spa_editor_profile_id", "A") or "A")
+        fn_load = getattr(S, "spa_load_profile", None)
+        if callable(fn_load):
+            try:
+                fn_load(pid)
+            except Exception:
+                pass
+
+
     config.rollback_enabled = False
     config.hard_rollback_limit = 0
 
@@ -45,6 +81,11 @@ init -900 python:
 # default battle_player = None
 # default battle_enemy  = None
 
+
+# Inicio rápido para QA: carga 1v1 aleatorio y salta selección.
+default quick_start_random_1v1 = False
+
+
 # ===========================================================
 # 🔹 INICIO DEL JUEGO
 # ===========================================================
@@ -53,6 +94,10 @@ label start:
 
     # Mostrar log UNA sola vez (evita redundancia/“parpadeo”)
     show screen battle_log_screen
+
+    if quick_start_random_1v1:
+        $ quick_start_random_1v1 = False
+        jump battle_start
 
     "Sistema cargado correctamente."
 

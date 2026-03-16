@@ -303,6 +303,7 @@ screen navigation():
 
             $ _quick_pid = str(getattr(store, "spa_editor_profile_id", "A") or "A")
             textbutton _("Load & Start [[{}]]").format(_quick_pid) action [Function(store.spa_ui_load_profile_feedback, _quick_pid), Start()]
+            textbutton _("Start 1v1 random [[{}]]").format(_quick_pid) action [Function(store.bs_prepare_quick_random_1v1, _quick_pid), Start()]
 
             textbutton _("Start") action Start()
 
