@@ -377,7 +377,7 @@ init -990 python:
             st["last_status"] = "timeout"
             st["misses"] = int(st.get("misses", 0) or 0) + 1
             st["pending_next_index"] = int(idx + 1)
-            st["feedback_time_left"] = 0.18
+            st["feedback_time_left"] = 0.35
             st["time_left"] = 0.0
 
         S.counterattack_typing_state = st
@@ -403,7 +403,7 @@ init -990 python:
             st["last_status"] = "hit"
             st["hits"] = int(st.get("hits", 0) or 0) + 1
             st["pending_next_index"] = int(idx + 1)
-            st["feedback_time_left"] = 0.10
+            st["feedback_time_left"] = 0.20
             st["time_left"] = max(0.0, float(st.get("time_left", 0.0) or 0.0))
             S.counterattack_typing_state = st
             return dict(st)
@@ -434,7 +434,24 @@ init -990 python:
             snap = None
 
         try:
-            result = renpy.call_screen("counterattack_typing_qte")
+            _guard = 0
+            while True:
+                _guard += 1
+                if _guard > 100:
+                    break
+                result = renpy.call_screen("counterattack_typing_qte")
+                if isinstance(result, dict):
+                    return result
+
+                st2 = getattr(S, "counterattack_typing_state", None)
+                if isinstance(st2, dict) and isinstance(st2.get("result"), dict):
+                    return dict(st2.get("result") or {})
+
+                # Si otra capa cerró la interacción por error, reabrimos la screen
+                # mientras la secuencia siga activa.
+                if isinstance(st2, dict) and bool(st2.get("active", False)):
+                    continue
+                break
         finally:
             try:
                 fn_restore = getattr(S, "bs_counterattack_typing_ui_quiet_restore", None)
@@ -442,9 +459,6 @@ init -990 python:
                     fn_restore(snap)
             except:
                 pass
-
-        if isinstance(result, dict):
-            return result
 
         st2 = getattr(S, "counterattack_typing_state", None)
         if isinstance(st2, dict) and isinstance(st2.get("result"), dict):
@@ -456,7 +470,7 @@ init -990 python:
             "roll": None,
             "method": "typing",
             "reason": "no_result",
-            "typed_count": 0,
+            "typed_count": int((st2 or {}).get("hits", 0) if isinstance(st2, dict) else 0),
             "total_letters": int(getattr(S, "counterattack_typing_letters_count", 10) or 10),
         }
 

@@ -421,6 +421,7 @@ screen counterattack_typing_qte():
         _hits = int(_st.get("hits", 0) or 0)
         _miss = int(_st.get("misses", 0) or 0)
         _req = int(_st.get("required_hits", 6) or 6)
+        _fb = float(_st.get("feedback_time_left", 0.0) or 0.0)
         _progress = 0.0 if _spl <= 0.0 else max(0.0, min(1.0, (_spl - _left) / _spl))
 
         if _status in ("wrong", "timeout"):
@@ -464,5 +465,11 @@ screen counterattack_typing_qte():
                         color _c
                         bold True
                         at ctr_typing_letter_pulse(_spl)
+
+            if _fb > 0.0:
+                if _status == "hit":
+                    text "ÉXITO" size 52 color "#66FF99" bold True xalign 0.5
+                elif _status == "timeout":
+                    text "FALLO" size 52 color "#FF4D4D" bold True xalign 0.5
 
             text ("Letra %d/%d   %.2f s   ✔ %d / ✖ %d (mín %d)" % (int(_idx + 1), int(max(1, _tot)), float(_left or 0.0), int(_hits), int(_miss), int(_req))) size 20 color "#D0D0D0" xalign 0.5
