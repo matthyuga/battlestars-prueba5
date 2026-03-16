@@ -88,19 +88,19 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
             if mult:
                 parts.append(
                     "{color=%s}%s{/color} ×%s ({color=%s}%s{/color})" %
-                    (pal["blue"],
+                    (pal["cyan"],
                      S.battle_fmt_num(base_blk_i),
                      mult,
-                     pal["blue"],
+                     pal["cyan"],
                      S.battle_fmt_num(blk_i))
                 )
             else:
                 parts.append(
                     "{color=%s}%s{/color}" %
-                    (pal["blue"], S.battle_fmt_num(blk_i))
+                    (pal["cyan"], S.battle_fmt_num(blk_i))
                 )
 
-        parts_str = " + ".join(parts) if parts else fmt_blue("0")
+        parts_str = " + ".join(parts) if parts else fmt_cyan("0")
 
         # --------------------------------------------------------
         # (3) DEBUFF DEFENSIVO
@@ -116,16 +116,16 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
             txt = "{}: {} = {} - {}({}) = {}".format(
                 fmt_cyan("Defensas"),
                 parts_str,
-                fmt_blue(S.battle_fmt_num(total_block)),
+                fmt_cyan(S.battle_fmt_num(total_block)),
                 fmt_blue("{}%".format(int(deb_pct * 100))),
                 fmt_blue(S.battle_fmt_num(deb_val)),
-                fmt_blue(S.battle_fmt_num(eff_blk))
+                fmt_cyan(S.battle_fmt_num(eff_blk))
             )
         else:
             txt = "{}: {} = {}".format(
                 fmt_cyan("Defensas"),
                 parts_str,
-                fmt_blue(S.battle_fmt_num(total_block))
+                fmt_cyan(S.battle_fmt_num(total_block))
             )
 
         operation_add(txt, border)
