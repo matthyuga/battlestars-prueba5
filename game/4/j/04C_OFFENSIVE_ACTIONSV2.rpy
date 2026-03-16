@@ -254,6 +254,12 @@ label offensive_process_actions(selected):
         if not hasattr(S, "turn_offensive_attack_used"):
             S.turn_offensive_attack_used = False
 
+        # Telemetría de consumo ofensivo por turno (para registro detallado)
+        S.turn_off_rei_before = int(getattr(S, "player_reiatsu", 0) or 0)
+        S.turn_off_ene_before = int(getattr(S, "player_energy", 0) or 0)
+        S.turn_off_rei_tech_sum = 0
+        S.turn_off_ene_tech_sum = 0
+
         # ----------------------------------------------------
         # 1) Strings → OffAction
         # ----------------------------------------------------
@@ -449,6 +455,9 @@ label offensive_process_actions(selected):
                     except:
                         pass
 
+                S.turn_off_rei_tech_sum += int(rei_cost or 0)
+                S.turn_off_ene_tech_sum += int(ene_cost or 0)
+
                 actions -= 1
                 action.used = True
                 can_focus = True
@@ -496,6 +505,9 @@ label offensive_process_actions(selected):
                         S.consume_resources(rei_cost, ene_cost, "player")
                     except:
                         pass
+
+                S.turn_off_rei_tech_sum += int(rei_cost or 0)
+                S.turn_off_ene_tech_sum += int(ene_cost or 0)
 
                 action.used = True
                 continue
@@ -563,6 +575,9 @@ label offensive_process_actions(selected):
                     except:
                         pass
 
+                S.turn_off_rei_tech_sum += int(rei_cost or 0)
+                S.turn_off_ene_tech_sum += int(ene_cost or 0)
+
                 action.used = True
                 continue
 
@@ -607,6 +622,9 @@ label offensive_process_actions(selected):
                         S.consume_resources(rei_cost, ene_cost, "player")
                     except:
                         pass
+
+                S.turn_off_rei_tech_sum += int(rei_cost or 0)
+                S.turn_off_ene_tech_sum += int(ene_cost or 0)
 
                 action.used = True
                 continue
@@ -662,6 +680,9 @@ label offensive_process_actions(selected):
                     except:
                         pass
 
+                S.turn_off_rei_tech_sum += int(rei_cost or 0)
+                S.turn_off_ene_tech_sum += int(ene_cost or 0)
+
                 action.used = True
                 continue
 
@@ -673,5 +694,8 @@ label offensive_process_actions(selected):
             S.simulated_reiatsu = getattr(S, "player_reiatsu", 0)
         if hasattr(S, "simulated_energy"):
             S.simulated_energy = getattr(S, "player_energy", 0)
+
+        S.turn_off_rei_after = int(getattr(S, "player_reiatsu", 0) or 0)
+        S.turn_off_ene_after = int(getattr(S, "player_energy", 0) or 0)
 
     return

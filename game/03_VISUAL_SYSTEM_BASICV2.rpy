@@ -61,6 +61,8 @@ init -978 python:
         S.ui_show_target_assignment_details = False
     if not hasattr(S, "ui_show_queue_2v2_details"):
         S.ui_show_queue_2v2_details = False
+    if not hasattr(S, "ui_show_resource_details"):
+        S.ui_show_resource_details = False
 
     # Fase 8: persistencia de toggles por sesión (runtime store)
     if not hasattr(S, "battle_log_ui_session_prefs") or not isinstance(getattr(S, "battle_log_ui_session_prefs", None), dict):
@@ -69,6 +71,7 @@ init -978 python:
             "ui_show_offensive_operation_details": bool(getattr(S, "ui_show_offensive_operation_details", False)),
             "ui_show_target_assignment_details": bool(getattr(S, "ui_show_target_assignment_details", False)),
             "ui_show_queue_2v2_details": bool(getattr(S, "ui_show_queue_2v2_details", False)),
+            "ui_show_resource_details": bool(getattr(S, "ui_show_resource_details", False)),
         }
 
     MAX_LOG_LINES = 250
@@ -321,6 +324,7 @@ screen battle_log_screen():
     key "ctrl_K_d" action Function(battle_log_toggle_ui_flag, "ui_show_offensive_operation_details")
     key "ctrl_K_g" action Function(battle_log_toggle_ui_flag, "ui_show_target_assignment_details")
     key "ctrl_K_q" action Function(battle_log_toggle_ui_flag, "ui_show_queue_2v2_details")
+    key "K_i" action Function(battle_log_toggle_ui_flag, "ui_show_resource_details")
 
     $ start_pos = get_battle_log_position()
 
@@ -365,6 +369,11 @@ screen battle_log_screen():
                         text_size 13
                         text_color "#B39DDB"
                         background "#0000"
+                    textbutton ("[[I]] ▸ Recursos" if not ui_show_resource_details else "[[I]] ▾ Recursos"):
+                        action Function(battle_log_toggle_ui_flag, "ui_show_resource_details")
+                        text_size 13
+                        text_color "#88CCFF"
+                        background "#0000"
 
                 null height 6
 
@@ -385,7 +394,8 @@ screen battle_log_screen():
                                 (_grp == "offensive_operation" and ui_show_offensive_operation_details) or
                                 (_grp == "defensive_operation" and ui_show_offensive_operation_details) or
                                 (_grp == "target_assignment" and ui_show_target_assignment_details) or
-                                (_grp == "queue_2v2" and ui_show_queue_2v2_details)
+                                (_grp == "queue_2v2" and ui_show_queue_2v2_details) or
+                                (_grp == "resource_detail" and ui_show_resource_details)
                             )
                             if _show_debug and _show_grp:
                                 if "bg" in row:

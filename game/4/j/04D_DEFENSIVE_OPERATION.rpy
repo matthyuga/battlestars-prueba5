@@ -225,6 +225,33 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
 
         operation_dump_to_battle_log()
 
+        # --------------------------------------------------------
+        # (8) DESGLOSE DE RECURSOS DEFENSIVOS (spoiler [I])
+        # --------------------------------------------------------
+        try:
+            _bla = getattr(S, "battle_log_add", None)
+            if callable(_bla):
+                rei_before = int(getattr(S, "turn_def_rei_before", getattr(S, "player_reiatsu", 0)) or 0)
+                rei_after = int(getattr(S, "turn_def_rei_after", getattr(S, "player_reiatsu", 0)) or 0)
+                ene_before = int(getattr(S, "turn_def_ene_before", getattr(S, "player_energy", 0)) or 0)
+                ene_after = int(getattr(S, "turn_def_ene_after", getattr(S, "player_energy", 0)) or 0)
+
+                rei_base = int(getattr(S, "player_reiatsu_base", rei_before) or rei_before)
+                ene_base = int(getattr(S, "player_energy_base", ene_before) or ene_before)
+
+                rei_turn_use = max(0, int(rei_before - rei_after))
+                ene_turn_use = max(0, int(ene_before - ene_after))
+
+                rei_tech_sum = max(0, int(getattr(S, "turn_def_rei_tech_sum", rei_turn_use) or 0))
+                ene_tech_sum = max(0, int(getattr(S, "turn_def_ene_tech_sum", ene_turn_use) or 0))
+
+                _bla("{color=#88CCFF}Reiatsu base {} - uso turno {} = {}{/color}".format(S.battle_fmt_num(rei_base), S.battle_fmt_num(rei_turn_use), S.battle_fmt_num(rei_after)), group="resource_detail")
+                _bla("{color=#88CCFF}Reiatsu - consumo total técnicas defensivas: {}{/color}".format(S.battle_fmt_num(rei_tech_sum)), group="resource_detail")
+                _bla("{color=#FFAA66}Energía base {} - uso turno {} = {}{/color}".format(S.battle_fmt_num(ene_base), S.battle_fmt_num(ene_turn_use), S.battle_fmt_num(ene_after)), group="resource_detail")
+                _bla("{color=#FFAA66}Energía - consumo total técnicas defensivas: {}{/color}".format(S.battle_fmt_num(ene_tech_sum)), group="resource_detail")
+        except:
+            pass
+
     $ received_damage = received_damage
     $ hp_after = hp_after
     return

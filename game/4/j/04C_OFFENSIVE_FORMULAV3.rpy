@@ -221,6 +221,33 @@ label offensive_formula(dmg, attack_records):
         except:
             pass
 
+        # ----------------------------------------------------
+        # 4.1) Desglose de recursos ofensivos (spoiler [I])
+        # ----------------------------------------------------
+        try:
+            _bla = getattr(S, "battle_log_add", None)
+            if callable(_bla):
+                rei_before = int(getattr(S, "turn_off_rei_before", getattr(S, "player_reiatsu", 0)) or 0)
+                rei_after = int(getattr(S, "turn_off_rei_after", getattr(S, "player_reiatsu", 0)) or 0)
+                ene_before = int(getattr(S, "turn_off_ene_before", getattr(S, "player_energy", 0)) or 0)
+                ene_after = int(getattr(S, "turn_off_ene_after", getattr(S, "player_energy", 0)) or 0)
+
+                rei_base = int(getattr(S, "player_reiatsu_base", rei_before) or rei_before)
+                ene_base = int(getattr(S, "player_energy_base", ene_before) or ene_before)
+
+                rei_turn_use = max(0, int(rei_before - rei_after))
+                ene_turn_use = max(0, int(ene_before - ene_after))
+
+                rei_tech_sum = max(0, int(getattr(S, "turn_off_rei_tech_sum", rei_turn_use) or 0))
+                ene_tech_sum = max(0, int(getattr(S, "turn_off_ene_tech_sum", ene_turn_use) or 0))
+
+                _bla("{color=#88CCFF}Reiatsu base {} - uso turno {} = {}{/color}".format(_fmt(rei_base), _fmt(rei_turn_use), _fmt(rei_after)), group="resource_detail")
+                _bla("{color=#88CCFF}Reiatsu - consumo total técnicas ofensivas: {}{/color}".format(_fmt(rei_tech_sum)), group="resource_detail")
+                _bla("{color=#FFAA66}Energía base {} - uso turno {} = {}{/color}".format(_fmt(ene_base), _fmt(ene_turn_use), _fmt(ene_after)), group="resource_detail")
+                _bla("{color=#FFAA66}Energía - consumo total técnicas ofensivas: {}{/color}".format(_fmt(ene_tech_sum)), group="resource_detail")
+        except:
+            pass
+
         try:
             tot_fn = getattr(S, "log_total", None)
             if not callable(tot_fn):
