@@ -1,4 +1,4 @@
-# ===========================================================
+﻿# ===========================================================
 # 00_GLOBALS_SYSTEM.RPY – Núcleo Global del Sistema de Combate
 # ===========================================================
 # v3.5 IdentityStoreFix + FocusFix + Reiatsu/Energy + Reflect Compatibility
@@ -317,24 +317,39 @@ init -990 python:
         pr = int(info.get("reiatsu_penalty", 0) or 0)
         pe = int(info.get("energy_penalty", 0) or 0)
 
-        if mode == "2v2":
-            fn_get = getattr(S, "bs_get_unit_by_key", None)
-            fn_set = getattr(S, "bs_set_unit_resources", None)
-            if callable(fn_get) and callable(fn_set):
-                u = fn_get(str(unit_key or ""))
-                if isinstance(u, dict):
-                    cur_r = int(u.get("reiatsu", 0) or 0)
-                    cur_e = int(u.get("energy", 0) or 0)
-                    fn_set(str(unit_key or ""), max(0, cur_r - pr), max(0, cur_e - pe))
-                try:
-                    fn_sync = getattr(S, "bs_sync_to_legacy", None)
-                    if callable(fn_sync):
-                        fn_sync()
-                except:
-                    pass
-        else:
-            S.player_reiatsu = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - pr)
-            S.player_energy = max(0, int(getattr(S, "player_energy", 0) or 0) - pe)
+        # Aplica penalidad de recursos al defensor en estado de unidad y espejo legacy UI.
+        _uk = str(unit_key or "player:0")
+        fn_get = getattr(S, "bs_get_unit_by_key", None)
+        fn_set = getattr(S, "bs_set_unit_resources", None)
+        _applied_on_unit = False
+
+        if callable(fn_get) and callable(fn_set):
+            u = fn_get(_uk)
+            if isinstance(u, dict):
+                cur_r = int(u.get("reiatsu", getattr(S, "player_reiatsu", 0)) or 0)
+                cur_e = int(u.get("energy", getattr(S, "player_energy", 0)) or 0)
+                res = fn_set(_uk, max(0, cur_r - pr), max(0, cur_e - pe))
+                _applied_on_unit = bool(isinstance(res, dict) and res.get("ok", False))
+
+                # En 1v1, espejar siempre a variables legacy del HUD para feedback inmediato.
+                if mode != "2v2":
+                    S.player_reiatsu = int((res.get("reiatsu", max(0, cur_r - pr)) if isinstance(res, dict) else max(0, cur_r - pr)) or 0)
+                    S.player_energy = int((res.get("energy", max(0, cur_e - pe)) if isinstance(res, dict) else max(0, cur_e - pe)) or 0)
+
+        if not _applied_on_unit:
+            # Fallback seguro si falta capa de estado por unidad.
+            if mode == "2v2":
+                pass
+            else:
+                S.player_reiatsu = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - pr)
+                S.player_energy = max(0, int(getattr(S, "player_energy", 0) or 0) - pe)
+
+        try:
+            # Mantener preview HUD consistente tras penalidad.
+            S.simulated_reiatsu = int(getattr(S, "player_reiatsu", 0) or 0)
+            S.simulated_energy = int(getattr(S, "player_energy", 0) or 0)
+        except:
+            pass
 
         return {
             "executed": True,
