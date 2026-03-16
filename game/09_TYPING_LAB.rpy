@@ -140,9 +140,6 @@ default typing_lab_state = {
     "time_left": 2.0,
 }
 
-transform typing_lab_letter_fade:
-    alpha 0.0
-    linear 0.16 alpha 1.0
 
 screen typing_lab_qte_simple():
     modal True
@@ -170,7 +167,8 @@ screen typing_lab_qte_simple():
         else:
             _letter_color = "#FFFFFF"
 
-    timer 0.02 repeat True action Function(getattr(store, "typing_lab_tick", None), 0.02)
+    # Tick moderado para evitar carga/flicker y mantener barra fluida.
+    timer 0.05 repeat True action Function(getattr(store, "typing_lab_tick", None), 0.05)
 
     for _k in _letters:
         key _k action Function(getattr(store, "typing_lab_press_key", None), _k)
@@ -186,9 +184,6 @@ screen typing_lab_qte_simple():
 
     add Solid("#000000")
 
-    # Evita que teclas globales cierren la screen y retornen al label por accidente.
-    key "dismiss" action NullAction()
-    key "game_menu" action NullAction()
 
     if _phase != "done":
         text (_cur if _cur else "-"):
@@ -197,7 +192,6 @@ screen typing_lab_qte_simple():
             size 140
             bold True
             color _letter_color
-            at typing_lab_letter_fade
 
         frame:
             background "#1A1A1A"
