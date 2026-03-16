@@ -17,6 +17,41 @@ init -850 python:
     TYPING_LAB_BAR_OSC_START_AMP = 0.045
     TYPING_LAB_BAR_OSC_FREQ_HZ = 7.0
     TYPING_LAB_BAR_OSC_DAMP = 7.5
+    TYPING_LAB_BAR_FOLLOW_MIN = 0.45
+    TYPING_LAB_BAR_FOLLOW_MAX = 2.25
+
+    def _typing_lab_color_lerp(c1, c2, t):
+        t = max(0.0, min(1.0, float(t or 0.0)))
+        r = int(round(c1[0] + (c2[0] - c1[0]) * t))
+        g = int(round(c1[1] + (c2[1] - c1[1]) * t))
+        b = int(round(c1[2] + (c2[2] - c1[2]) * t))
+        return "#{:02X}{:02X}{:02X}".format(r, g, b)
+
+    def typing_lab_bar_color_from_ratio(ratio):
+        """Gradiente suave por tiempo restante.
+        100-71 verde, 70-40 amarillo, 39-15 naranja, <=14 rojo (sin cortes bruscos).
+        """
+        r = max(0.0, min(1.0, float(ratio or 0.0)))
+        # colores ancla
+        c_green  = (67, 233, 123)   # #43E97B
+        c_yellow = (255, 212, 0)    # #FFD400
+        c_orange = (255, 154, 61)   # #FF9A3D
+        c_red    = (255, 77, 77)    # #FF4D4D
+
+        if r >= 0.71:
+            # 0.71 -> 1.00 : amarillo a verde
+            t = (r - 0.71) / max(0.0001, 1.00 - 0.71)
+            return _typing_lab_color_lerp(c_yellow, c_green, t)
+        elif r >= 0.40:
+            # 0.40 -> 0.70 : naranja a amarillo
+            t = (r - 0.40) / max(0.0001, 0.70 - 0.40)
+            return _typing_lab_color_lerp(c_orange, c_yellow, t)
+        elif r >= 0.15:
+            # 0.15 -> 0.39 : rojo a naranja
+            t = (r - 0.15) / max(0.0001, 0.39 - 0.15)
+            return _typing_lab_color_lerp(c_red, c_orange, t)
+        else:
+            return "#FF4D4D"
 
     def typing_lab_default_state():
         return {
@@ -142,7 +177,10 @@ init -850 python:
             hold_left = max(0.0, hold_left - delta)
             st["bar_hold_left"] = hold_left
         else:
-            alpha = 1.0 - math.exp(-max(0.10, float(TYPING_LAB_BAR_FOLLOW_RATE)) * delta)
+            # Velocidad dinámica: inicio lento, medio normal, final rápido.
+            progress = max(0.0, min(1.0, 1.0 - target_ratio_raw))
+            dyn_follow = float(TYPING_LAB_BAR_FOLLOW_MIN) + (float(TYPING_LAB_BAR_FOLLOW_MAX) - float(TYPING_LAB_BAR_FOLLOW_MIN)) * (progress ** 1.25)
+            alpha = 1.0 - math.exp(-max(0.05, dyn_follow) * delta)
             vis_ratio = vis_ratio + (target_ratio - vis_ratio) * alpha
             st["bar_visual_ratio"] = max(0.0, min(1.0, vis_ratio))
 
@@ -192,6 +230,7 @@ init -850 python:
     store.typing_lab_press_key = typing_lab_press_key
     store.typing_lab_tick = typing_lab_tick
     store.typing_lab_advance = typing_lab_advance
+    store.typing_lab_bar_color_from_ratio = typing_lab_bar_color_from_ratio
 
 
 default typing_lab_state = {
@@ -243,17 +282,8 @@ screen typing_lab_qte_simple():
         _lag_edge_x = (10.0 + (_lag_ratio * _bar_max) - 1.5)
         _timer_txt = ("%.2f" % float(_left))
 
-        # Color por umbral dinámico (tiempo restante):
-        # verde 100-71 | amarillo 70-40 | naranja 39-15 | rojo <=14
-        _pct = int(round(_front_ratio * 100.0))
-        if _pct >= 71:
-            _front_color = "#43E97B"
-        elif _pct >= 40:
-            _front_color = "#FFD400"
-        elif _pct >= 15:
-            _front_color = "#FF9A3D"
-        else:
-            _front_color = "#FF4D4D"
+        fn_bar_color = getattr(store, "typing_lab_bar_color_from_ratio", None)
+        _front_color = fn_bar_color(_front_ratio) if callable(fn_bar_color) else "#43E97B"
 
         if _phase == "hit":
             _letter_color = "#66FF99"
