@@ -516,7 +516,7 @@ init -990 python:
             out["roll"] = None
             return out
 
-        use_typing = str(getattr(S, "counterattack_resolution_mode", "dice") or "dice").strip().lower() == "typing"
+        use_typing = bool(getattr(S, "counterattack_typing_enabled", False)) or (str(getattr(S, "counterattack_resolution_mode", "dice") or "dice").strip().lower() == "typing")
         if use_typing:
             fn_typ = getattr(S, "bs_counterattack_typing_resolve", None)
             roll = fn_typ() if callable(fn_typ) else {"executed": True, "success": False, "roll": None, "method": "typing", "reason": "resolver_missing"}

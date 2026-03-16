@@ -787,7 +787,7 @@ label battle_enemy_turn_legacy_entry:
                     _ep = int(ctr.get("energy_penalty", 0) or 0)
                     if _mtd == "typing":
                         _why = str((ctr.get("roll", {}) or {}).get("reason", "fallo") if isinstance(ctr.get("roll"), dict) else "fallo")
-                        S.battle_log_add("{color=#FF8888}Contraataque mecanográfico fallado (%s): -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_why), str(_rp), str(_ep)))
+                        S.battle_log_add("{color=#FF8888}Contraataque mecanográfico fallido (%s): -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_why), str(_rp), str(_ep)))
                     else:
                         S.battle_log_add("{color=#FF8888}Contraataque fallado: -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_rp), str(_ep)))
                 else:

@@ -229,7 +229,7 @@ screen battle_maneuver_choice(damage):
                                 text_size 26
                                 text_color "#666666"
                         else:
-                            textbutton "Contraataque":
+                            textbutton ("Contraataque (mecanografía)" if bool(getattr(store, "counterattack_typing_enabled", False)) else "Contraataque"):
                                 action SetScreenVariable("local_choice", "counterattack")
                                 text_size 26
 
@@ -332,7 +332,7 @@ screen battle_maneuver_choice(damage):
                                 text_size 26
                                 text_color "#666666"
                         else:
-                            textbutton "Contraataque":
+                            textbutton ("Contraataque (mecanografía)" if bool(getattr(store, "counterattack_typing_enabled", False)) else "Contraataque"):
                                 action [
                                     SetScreenVariable("local_choice", "counterattack"),
                                     SetScreenVariable("show_submenu", False)
