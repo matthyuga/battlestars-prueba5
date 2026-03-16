@@ -17,8 +17,8 @@ init -970 python:
     battle_hp_player = battle_hp_player_max
     battle_hp_enemy = battle_hp_enemy_max
     hud_hp_visual_state = {}
-    hud_hp_trail_hold_sec = 0.15
-    hud_hp_trail_follow_rate_per_sec = 1.2
+    hud_hp_trail_hold_sec = 0.80
+    hud_hp_trail_follow_rate_per_sec = 0.05
 
     hp_flash_timer = 0
     hp_flash_color = None
@@ -244,7 +244,7 @@ init -970 python:
                 try:
                     st["hold"] = max(float(st.get("hold", 0.0) or 0.0), float(hud_hp_trail_hold_sec))
                 except:
-                    st["hold"] = max(float(st.get("hold", 0.0) or 0.0), 0.15)
+                    st["hold"] = max(float(st.get("hold", 0.0) or 0.0), 0.80)
 
         hud_hp_visual_state[key] = st
         return (float(st.get("front", target) or target), float(st.get("lag", target) or target))
@@ -281,9 +281,9 @@ init -970 python:
 
                 try:
                     import math
-                    follow_rate = max(0.20, float(hud_hp_trail_follow_rate_per_sec))
+                    follow_rate = max(0.01, float(hud_hp_trail_follow_rate_per_sec))
                 except:
-                    follow_rate = 1.2
+                    follow_rate = 0.05
                 # Ease-out exponencial: rápido al inicio, suave al final (más natural).
                 alpha = 1.0 - math.exp(-follow_rate * delta)
                 lag2 = lag + (front - lag) * alpha
