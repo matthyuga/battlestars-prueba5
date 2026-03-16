@@ -224,14 +224,27 @@ screen battle_maneuver_choice(damage):
                                 text_size 26
 
                         if not _counter_ok:
-                            textbutton "Contraataque (no disponible)":
+                            textbutton "Contraataque (dados 4/4) (no disponible)":
                                 action NullAction()
                                 text_size 26
                                 text_color "#666666"
+                            textbutton "Contraataque (tipeo-letras) (no disponible)":
+                                action NullAction()
+                                text_size 24
+                                text_color "#666666"
                         else:
-                            textbutton ("Contraataque (mecanografía)" if bool(getattr(store, "counterattack_typing_enabled", False)) else "Contraataque"):
-                                action SetScreenVariable("local_choice", "counterattack")
+                            textbutton "Contraataque (dados 4/4)":
+                                action [
+                                    SetVariable("counterattack_resolution_mode", "dice"),
+                                    SetScreenVariable("local_choice", "counterattack")
+                                ]
                                 text_size 26
+                            textbutton "Contraataque (tipeo-letras)":
+                                action [
+                                    SetVariable("counterattack_resolution_mode", "typing"),
+                                    SetScreenVariable("local_choice", "counterattack")
+                                ]
+                                text_size 24
 
                         if _counter_reason == "used":
                             text "{color=#FF8888}Contraataque ya fue usado en esta batalla.{/color}"
@@ -327,17 +340,29 @@ screen battle_maneuver_choice(damage):
                                 text_size 26
 
                         if not _counter_ok:
-                            textbutton "Contraataque (no disponible)":
+                            textbutton "Contraataque (dados 4/4) (no disponible)":
                                 action NullAction()
                                 text_size 26
                                 text_color "#666666"
+                            textbutton "Contraataque (tipeo-letras) (no disponible)":
+                                action NullAction()
+                                text_size 24
+                                text_color "#666666"
                         else:
-                            textbutton ("Contraataque (mecanografía)" if bool(getattr(store, "counterattack_typing_enabled", False)) else "Contraataque"):
+                            textbutton "Contraataque (dados 4/4)":
                                 action [
+                                    SetVariable("counterattack_resolution_mode", "dice"),
                                     SetScreenVariable("local_choice", "counterattack"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
                                 text_size 26
+                            textbutton "Contraataque (tipeo-letras)":
+                                action [
+                                    SetVariable("counterattack_resolution_mode", "typing"),
+                                    SetScreenVariable("local_choice", "counterattack"),
+                                    SetScreenVariable("show_submenu", False)
+                                ]
+                                text_size 24
 
                         if not _sac_ok:
                             textbutton "Solicitar maniobra de sacrificio (no disponible)":
