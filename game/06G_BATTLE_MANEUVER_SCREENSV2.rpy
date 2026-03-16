@@ -24,8 +24,8 @@ init -990 python:
     config.keymap["toggle_maneuver_choice"] = ["ctrl_K_y"]
 
     # Tamaño aproximado de la ventana (para clamp)
-    MANEUVER_WIN_W = 512
-    MANEUVER_WIN_H = 336
+    MANEUVER_WIN_W = 560
+    MANEUVER_WIN_H = 680
 
     def toggle_maneuver_choice():
         S.show_maneuver_choice = not getattr(S, "show_maneuver_choice", True)
@@ -198,7 +198,7 @@ screen battle_maneuver_choice(damage):
         drag:
             draggable True
             dragged ManeuverChoiceDragged()
-            drag_handle (0, 0, 512, 72)
+            drag_handle (0, 0, 560, 72)
 
             xpos maneuver_choice_x
             ypos maneuver_choice_y
@@ -206,7 +206,7 @@ screen battle_maneuver_choice(damage):
             frame:
                 background "#1119"
                 padding (18, 18)
-                xmaximum 512
+                xmaximum 560
 
                 vbox spacing 14:
 
