@@ -87,6 +87,7 @@ screen battle_maneuver_choice(damage):
     default local_choice = "none"
     default show_submenu = False
     default sac_receiver_key = ""
+    default local_counter_mode = str(getattr(store, "counterattack_resolution_mode", "dice") or "dice")
 
     $ import renpy.store as S
     $ will_die = S.player_hp - damage <= 0
@@ -236,15 +237,19 @@ screen battle_maneuver_choice(damage):
                             textbutton "Contraataque (dados 4/4)":
                                 action [
                                     SetVariable("counterattack_resolution_mode", "dice"),
+                                    SetScreenVariable("local_counter_mode", "dice"),
                                     SetScreenVariable("local_choice", "counterattack")
                                 ]
                                 text_size 26
+                                text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "dice" and local_choice == "counterattack" else "#BBBBBB")
                             textbutton "Contraataque (tipeo-letras)":
                                 action [
                                     SetVariable("counterattack_resolution_mode", "typing"),
+                                    SetScreenVariable("local_counter_mode", "typing"),
                                     SetScreenVariable("local_choice", "counterattack")
                                 ]
                                 text_size 24
+                                text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "typing" and local_choice == "counterattack" else "#BBBBBB")
 
                         if _counter_reason == "used":
                             text "{color=#FF8888}Contraataque ya fue usado en esta batalla.{/color}"
@@ -352,17 +357,21 @@ screen battle_maneuver_choice(damage):
                             textbutton "Contraataque (dados 4/4)":
                                 action [
                                     SetVariable("counterattack_resolution_mode", "dice"),
+                                    SetScreenVariable("local_counter_mode", "dice"),
                                     SetScreenVariable("local_choice", "counterattack"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
                                 text_size 26
+                                text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "dice" and local_choice == "counterattack" else "#BBBBBB")
                             textbutton "Contraataque (tipeo-letras)":
                                 action [
                                     SetVariable("counterattack_resolution_mode", "typing"),
+                                    SetScreenVariable("local_counter_mode", "typing"),
                                     SetScreenVariable("local_choice", "counterattack"),
                                     SetScreenVariable("show_submenu", False)
                                 ]
                                 text_size 24
+                                text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "typing" and local_choice == "counterattack" else "#BBBBBB")
 
                         if not _sac_ok:
                             textbutton "Solicitar maniobra de sacrificio (no disponible)":
@@ -432,7 +441,7 @@ screen counterattack_typing_qte():
             spacing 12
 
             text "CONTRAATAQUE · MECANOGRAFÍA" size 30 color "#FFD700" bold True xalign 0.5
-            text "Letra [(_idx+1)] de [max(1, _tot)]" size 20 color "#B3E5FC" xalign 0.5
+            text ("Letra %d de %d" % (int(_idx + 1), int(max(1, _tot)))) size 20 color "#B3E5FC" xalign 0.5
 
             frame:
                 background "#0B1320CC"
