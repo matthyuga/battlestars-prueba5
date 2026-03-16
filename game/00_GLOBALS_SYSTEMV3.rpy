@@ -408,8 +408,15 @@ init -990 python:
             S.counterattack_typing_state = st
             return dict(st)
 
-        # Ignorar teclas incorrectas para evitar fallos instantáneos por solapamientos/input residual.
-        # El fallo de la maniobra ocurre por timeout de la letra actual.
+        if "a" <= got <= "z":
+            st["last_status"] = "wrong"
+            st["misses"] = int(st.get("misses", 0) or 0) + 1
+            st["pending_next_index"] = int(idx + 1)
+            st["feedback_time_left"] = 0.20
+            st["time_left"] = max(0.0, float(st.get("time_left", 0.0) or 0.0))
+            S.counterattack_typing_state = st
+            return dict(st)
+
         return dict(st)
 
     def bs_counterattack_typing_resolve(count=None, seconds_per_letter=None, allow_repeat=True):

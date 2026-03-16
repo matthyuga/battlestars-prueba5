@@ -607,7 +607,7 @@ screen counterattack_typing_qte():
             if _fb > 0.0:
                 if _status == "hit":
                     text "ÉXITO" size 52 color "#66FF99" bold True xalign 0.5
-                elif _status == "timeout":
+                elif _status in ("timeout", "wrong"):
                     text "FALLO" size 52 color "#FF4D4D" bold True xalign 0.5
 
             text ("Letra %d/%d   %.2f s   ✔ %d / ✖ %d (mín %d)" % (int(_idx + 1), int(max(1, _tot)), float(_left or 0.0), int(_hits), int(_miss), int(_req))) size 20 color "#D0D0D0" xalign 0.5
