@@ -238,10 +238,6 @@ screen battle_maneuver_choice(damage):
                                 action NullAction()
                                 text_size 26
                                 text_color "#666666"
-                            textbutton "Contraataque (tipeo-letras) (no disponible)":
-                                action NullAction()
-                                text_size 24
-                                text_color "#666666"
                         else:
                             textbutton "Contraataque (dados 4/4)":
                                 action [
@@ -250,16 +246,7 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("local_choice", "counterattack")
                                 ]
                                 text_size 26
-                                text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "dice" and local_choice == "counterattack" else "#BBBBBB")
-                                text_hover_color "#FFFFFF"
-                            textbutton "Contraataque (tipeo-letras)":
-                                action [
-                                    SetVariable("counterattack_resolution_mode", "typing"),
-                                    SetScreenVariable("local_counter_mode", "typing"),
-                                    SetScreenVariable("local_choice", "counterattack")
-                                ]
-                                text_size 24
-                                text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "typing" and local_choice == "counterattack" else "#BBBBBB")
+                                text_color ("#FFFFFF" if local_choice == "counterattack" else "#BBBBBB")
                                 text_hover_color "#FFFFFF"
 
                             if not _parry_ok:
@@ -372,10 +359,6 @@ screen battle_maneuver_choice(damage):
                                 action NullAction()
                                 text_size 26
                                 text_color "#666666"
-                            textbutton "Contraataque (tipeo-letras) (no disponible)":
-                                action NullAction()
-                                text_size 24
-                                text_color "#666666"
                         else:
                             textbutton "Contraataque (dados 4/4)":
                                 action [
@@ -385,17 +368,7 @@ screen battle_maneuver_choice(damage):
                                     SetScreenVariable("show_submenu", False)
                                 ]
                                 text_size 26
-                                text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "dice" and local_choice == "counterattack" else "#BBBBBB")
-                                text_hover_color "#FFFFFF"
-                            textbutton "Contraataque (tipeo-letras)":
-                                action [
-                                    SetVariable("counterattack_resolution_mode", "typing"),
-                                    SetScreenVariable("local_counter_mode", "typing"),
-                                    SetScreenVariable("local_choice", "counterattack"),
-                                    SetScreenVariable("show_submenu", False)
-                                ]
-                                text_size 24
-                                text_color ("#FFFFFF" if str(local_counter_mode or "dice") == "typing" and local_choice == "counterattack" else "#BBBBBB")
+                                text_color ("#FFFFFF" if local_choice == "counterattack" else "#BBBBBB")
                                 text_hover_color "#FFFFFF"
 
                             if not _parry_ok:

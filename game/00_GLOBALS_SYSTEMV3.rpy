@@ -577,18 +577,13 @@ init -990 python:
             out["roll"] = None
             return out
 
-        use_typing = (str(getattr(S, "counterattack_resolution_mode", "dice") or "dice").strip().lower() == "typing")
-        if use_typing:
-            fn_typ = getattr(S, "bs_counterattack_typing_resolve", None)
-            roll = fn_typ() if callable(fn_typ) else {"executed": True, "success": False, "roll": None, "method": "typing", "reason": "resolver_missing"}
-        else:
-            roll = roll_4d()
-            try:
-                fn_show = getattr(S, "show_dice_result", None)
-                if callable(fn_show):
-                    fn_show(roll, label_text="Contraataque")
-            except:
-                pass
+        roll = roll_4d()
+        try:
+            fn_show = getattr(S, "show_dice_result", None)
+            if callable(fn_show):
+                fn_show(roll, label_text="Contraataque")
+        except:
+            pass
 
         S.counterattack_used_in_battle = True
 

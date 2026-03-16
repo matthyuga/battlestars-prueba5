@@ -871,24 +871,12 @@ label battle_enemy_turn_legacy_entry:
             ctr_success = bool(isinstance(ctr, dict) and ctr.get("success", False))
 
             if callable(getattr(S, "battle_log_add", None)):
-                _mtd = str((ctr.get("roll", {}) or {}).get("method", ctr.get("method", "dice")) if isinstance(ctr, dict) else "dice").strip().lower()
                 if ctr_success:
-                    if _mtd == "typing":
-                        S.battle_log_add("{color=#66FF99}Contraataque mecanográfico exitoso: no recibes daño y ganas acción ofensiva.{/color}")
-                    else:
-                        S.battle_log_add("{color=#66FF99}Contraataque exitoso (4/4): no recibes daño y ganas acción ofensiva.{/color}")
+                    S.battle_log_add("{color=#66FF99}Contraataque exitoso (4/4): no recibes daño y ganas acción ofensiva.{/color}")
                 elif ctr_ok:
                     _rp = int(ctr.get("reiatsu_penalty", 0) or 0)
                     _ep = int(ctr.get("energy_penalty", 0) or 0)
-                    if _mtd == "typing":
-                        _r = (ctr.get("roll", {}) if isinstance(ctr.get("roll"), dict) else {})
-                        _why = str(_r.get("reason", "fallo") or "fallo")
-                        _h = int(_r.get("hits", _r.get("typed_count", 0)) or 0)
-                        _m = int(_r.get("misses", 0) or 0)
-                        _req = int(_r.get("required_hits", 6) or 6)
-                        S.battle_log_add("{color=#FF8888}Contraataque mecanográfico fallido (%s • ✔%s/✖%s • mín %s): -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_why), str(_h), str(_m), str(_req), str(_rp), str(_ep)))
-                    else:
-                        S.battle_log_add("{color=#FF8888}Contraataque fallado: -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_rp), str(_ep)))
+                    S.battle_log_add("{color=#FF8888}Contraataque fallado: -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_rp), str(_ep)))
                 else:
                     S.battle_log_add("{color=#FF8888}Contraataque no disponible. Se aplica defensa normal.{/color}")
 
