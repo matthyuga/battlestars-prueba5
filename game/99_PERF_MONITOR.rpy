@@ -5,6 +5,9 @@
 # ============================================================
 
 default perf_monitor_visible = False
+default perf_monitor_update_sec = 0.05
+default perf_monitor_window = []
+default perf_monitor_window_size = 30
 
 default perf_monitor_stats = {
     "fps": 0.0,
@@ -28,7 +31,7 @@ init -920 python:
         except:
             pass
 
-    def perf_monitor_tick(dt=0.25):
+    def perf_monitor_tick(dt=0.05):
         global _perf_last_wall
 
         t0 = time.time()
@@ -54,6 +57,27 @@ init -920 python:
         except:
             renderer = "n/a"
 
+        win = getattr(S, "perf_monitor_window", [])
+        if not isinstance(win, list):
+            win = []
+        win.append(float(frame_ms))
+        try:
+            maxn = max(5, int(getattr(S, "perf_monitor_window_size", 30) or 30))
+        except:
+            maxn = 30
+        if len(win) > maxn:
+            win = win[-maxn:]
+        S.perf_monitor_window = win
+
+        avg_ms = (sum(win) / float(len(win))) if len(win) > 0 else float(frame_ms)
+
+        try:
+            wsorted = sorted(win)
+            idx95 = int((len(wsorted) - 1) * 0.95)
+            p95_ms = float(wsorted[max(0, min(len(wsorted) - 1, idx95))]) if len(wsorted) > 0 else float(frame_ms)
+        except:
+            p95_ms = float(frame_ms)
+
         tick_ms = max(0.0, (time.time() - t0) * 1000.0)
 
         st = getattr(S, "perf_monitor_stats", {})
@@ -61,6 +85,8 @@ init -920 python:
             st = {}
         st["fps"] = float(fps)
         st["frame_ms"] = float(frame_ms)
+        st["avg_frame_ms"] = float(avg_ms)
+        st["p95_frame_ms"] = float(p95_ms)
         st["tick_ms"] = float(tick_ms)
         st["sample_count"] = int(st.get("sample_count", 0) or 0) + 1
         st["renderer"] = renderer
@@ -78,11 +104,14 @@ screen perf_monitor_overlay():
         $ _st = perf_monitor_stats if isinstance(perf_monitor_stats, dict) else {}
         $ _fps = float(_st.get("fps", 0.0) or 0.0)
         $ _fms = float(_st.get("frame_ms", 0.0) or 0.0)
+        $ _avg = float(_st.get("avg_frame_ms", 0.0) or 0.0)
+        $ _p95 = float(_st.get("p95_frame_ms", 0.0) or 0.0)
         $ _tms = float(_st.get("tick_ms", 0.0) or 0.0)
         $ _samples = int(_st.get("sample_count", 0) or 0)
         $ _renderer = str(_st.get("renderer", "n/a") or "n/a")
+        $ _upd = float(getattr(store, "perf_monitor_update_sec", 0.05) or 0.05)
 
-        timer 0.25 repeat True action Function(getattr(store, "perf_monitor_tick", None), 0.25)
+        timer _upd repeat True action Function(getattr(store, "perf_monitor_tick", None), _upd)
 
         frame:
             background "#00131CDD"
@@ -98,6 +127,8 @@ screen perf_monitor_overlay():
                 text "PERF MONITOR (F10)" size 14 color "#80DEEA" bold True
                 text "FPS: {:.1f}".format(_fps) size 13 color "#FFFFFF"
                 text "Frame: {:.2f} ms".format(_fms) size 13 color "#C5E1A5"
+                text "Avg(30): {:.2f} ms".format(_avg) size 12 color "#AED581"
+                text "P95(30): {:.2f} ms".format(_p95) size 12 color "#FFCC80"
                 text "Tick: {:.3f} ms".format(_tms) size 12 color "#B0BEC5"
                 text "Samples: {}".format(_samples) size 12 color "#B0BEC5"
                 text "Renderer: {}".format(_renderer) size 12 color "#B0BEC5"
