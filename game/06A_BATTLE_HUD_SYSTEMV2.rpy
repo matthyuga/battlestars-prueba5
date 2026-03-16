@@ -17,7 +17,8 @@ init -970 python:
     battle_hp_player = battle_hp_player_max
     battle_hp_enemy = battle_hp_enemy_max
     hud_hp_visual_state = {}
-    hud_hp_trail_speed_ratio_per_sec = 0.65
+    hud_hp_trail_hold_sec = 0.10
+    hud_hp_trail_follow_rate_per_sec = 2.4
 
     hp_flash_timer = 0
     hp_flash_color = None
@@ -226,7 +227,7 @@ init -970 python:
 
         st = hud_hp_visual_state.get(key)
         if not isinstance(st, dict):
-            st = {"front": target, "lag": target}
+            st = {"front": target, "lag": target, "hold": 0.0}
         else:
             front_prev = float(st.get("front", target) or target)
             lag_prev = float(st.get("lag", front_prev) or front_prev)
@@ -235,10 +236,15 @@ init -970 python:
                 # Curación / reset: sincroniza ambas barras.
                 st["front"] = target
                 st["lag"] = target
+                st["hold"] = 0.0
             else:
                 # Daño: front cae al instante; lag queda arriba y baja con tick.
                 st["front"] = target
                 st["lag"] = max(lag_prev, front_prev)
+                try:
+                    st["hold"] = max(float(st.get("hold", 0.0) or 0.0), float(hud_hp_trail_hold_sec))
+                except:
+                    st["hold"] = max(float(st.get("hold", 0.0) or 0.0), 0.10)
 
         hud_hp_visual_state[key] = st
         return (float(st.get("front", target) or target), float(st.get("lag", target) or target))
@@ -254,12 +260,6 @@ init -970 python:
         if delta <= 0.0:
             delta = 0.02
 
-        try:
-            speed = float(hud_hp_trail_speed_ratio_per_sec)
-        except:
-            speed = 1.25
-        speed = max(0.05, speed)
-
         changed = False
         for k in list(hud_hp_visual_state.keys()):
             st = hud_hp_visual_state.get(k)
@@ -270,7 +270,25 @@ init -970 python:
             lag = max(0.0, min(1.0, float(st.get("lag", front) or front)))
 
             if lag > front:
-                lag2 = max(front, lag - (speed * delta))
+                hold = max(0.0, float(st.get("hold", 0.0) or 0.0))
+                if hold > 0.0:
+                    hold2 = max(0.0, hold - delta)
+                    if abs(hold2 - hold) > 0.0001:
+                        st["hold"] = hold2
+                        hud_hp_visual_state[k] = st
+                        changed = True
+                    continue
+
+                try:
+                    import math
+                    follow_rate = max(0.20, float(hud_hp_trail_follow_rate_per_sec))
+                except:
+                    follow_rate = 2.4
+                # Ease-out exponencial: rápido al inicio, suave al final (más natural).
+                alpha = 1.0 - math.exp(-follow_rate * delta)
+                lag2 = lag + (front - lag) * alpha
+                lag2 = max(front, min(lag, lag2))
+
                 if abs(lag2 - lag) > 0.0001:
                     st["lag"] = lag2
                     hud_hp_visual_state[k] = st
