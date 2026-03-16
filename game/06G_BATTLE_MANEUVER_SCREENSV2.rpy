@@ -116,9 +116,6 @@ style maneuver_confirm_button_text is button_text:
     hover_color "#E3F2FD"
     insensitive_color "#777777"
 
-transform maneuver_choice_panel_zoom:
-    zoom 0.7
-
 screen battle_maneuver_choice(damage):
 
     modal False
@@ -129,7 +126,6 @@ screen battle_maneuver_choice(damage):
     default local_choice = "none"
     default show_submenu = False
     default sac_receiver_key = ""
-    default local_counter_mode = str(getattr(store, "counterattack_resolution_mode", "dice") or "dice")
 
     $ import renpy.store as S
     $ will_die = S.player_hp - damage <= 0
@@ -186,15 +182,6 @@ screen battle_maneuver_choice(damage):
                     _counter_rei_cur = int(c.get("reiatsu_current", _counter_rei_cur) or _counter_rei_cur)
                     _counter_ene_cur = int(c.get("energy_current", _counter_ene_cur) or _counter_ene_cur)
 
-            _parry_ok = bool(_counter_ok)
-            _parry_reason = str(_counter_reason)
-            fn_parry = getattr(S, "bs_parry_typing_can_use", None)
-            if callable(fn_parry):
-                pp = fn_parry(unit_key=_incoming_key or "player:0", incoming_damage=damage)
-                if isinstance(pp, dict):
-                    _parry_ok = bool(pp.get("ok", _parry_ok))
-                    _parry_reason = str(pp.get("reason", _parry_reason) or _parry_reason)
-
             fn_sac = getattr(S, "bs_sacrifice_can_use", None)
             if callable(fn_sac):
                 sc = fn_sac(defender_key=_incoming_key or "player:0", incoming_damage=damage)
@@ -225,11 +212,10 @@ screen battle_maneuver_choice(damage):
             xpos maneuver_choice_x
             ypos maneuver_choice_y
 
-            frame:
+            frame at maneuver_choice_panel_zoom:
                 background "#1119"
                 padding (18, 18)
                 xmaximum 560
-                at maneuver_choice_panel_zoom
 
                 vbox spacing 14:
 
@@ -309,34 +295,11 @@ screen battle_maneuver_choice(damage):
                                         text_color "#666666"
                                 else:
                                     textbutton "Contraataque (dados 4/4)":
-                                        action [
-                                            SetScreenVariable("local_choice", "counterattack"),
-                                            SetScreenVariable("local_counter_mode", "dice")
-                                        ]
+                                        action SetScreenVariable("local_choice", "counterattack")
                                         style "maneuver_option_button"
                                         text_style "maneuver_option_button_text"
                                         selected local_choice == "counterattack"
                                         text_size 21
-                                        text_color "#BBBBBB"
-                                        text_hover_color "#FFFFFF"
-
-                                if not _parry_ok:
-                                    textbutton "Parry por teclas (no disponible)":
-                                        action NullAction()
-                                        style "maneuver_option_button"
-                                        text_style "maneuver_option_button_text"
-                                        text_size 19
-                                        text_color "#666666"
-                                else:
-                                    textbutton "Parry por teclas":
-                                        action [
-                                            SetScreenVariable("local_choice", "parry_typing"),
-                                            SetScreenVariable("local_counter_mode", "typing")
-                                        ]
-                                        style "maneuver_option_button"
-                                        text_style "maneuver_option_button_text"
-                                        selected local_choice == "parry_typing"
-                                        text_size 19
                                         text_color "#BBBBBB"
                                         text_hover_color "#FFFFFF"
 
@@ -403,7 +366,7 @@ screen battle_maneuver_choice(damage):
                                 textbutton "Confirmar decisión":
                                     action [
                                         SetVariable("maneuver_selected", local_choice),
-                                        SetVariable("counterattack_resolution_mode", local_counter_mode),
+                                        SetVariable("counterattack_resolution_mode", "dice"),
                                         SetVariable("sacrifice_receiver_key", sac_receiver_key),
                                         Hide("battle_maneuver_choice"),
                                         SetVariable("show_maneuver_choice", True)
@@ -465,34 +428,12 @@ screen battle_maneuver_choice(damage):
                                     textbutton "Contraataque (dados 4/4)":
                                         action [
                                             SetScreenVariable("local_choice", "counterattack"),
-                                            SetScreenVariable("local_counter_mode", "dice"),
                                             SetScreenVariable("show_submenu", False)
                                         ]
                                         style "maneuver_option_button"
                                         text_style "maneuver_option_button_text"
                                         selected local_choice == "counterattack"
                                         text_size 21
-                                        text_color "#BBBBBB"
-                                        text_hover_color "#FFFFFF"
-
-                                if not _parry_ok:
-                                    textbutton "Parry por teclas (no disponible)":
-                                        action NullAction()
-                                        style "maneuver_option_button"
-                                        text_style "maneuver_option_button_text"
-                                        text_size 19
-                                        text_color "#666666"
-                                else:
-                                    textbutton "Parry por teclas":
-                                        action [
-                                            SetScreenVariable("local_choice", "parry_typing"),
-                                            SetScreenVariable("local_counter_mode", "typing"),
-                                            SetScreenVariable("show_submenu", False)
-                                        ]
-                                        style "maneuver_option_button"
-                                        text_style "maneuver_option_button_text"
-                                        selected local_choice == "parry_typing"
-                                        text_size 19
                                         text_color "#BBBBBB"
                                         text_hover_color "#FFFFFF"
 
@@ -523,7 +464,7 @@ screen battle_maneuver_choice(damage):
                                 textbutton "Confirmar decisión":
                                     action [
                                         SetVariable("maneuver_selected", local_choice),
-                                        SetVariable("counterattack_resolution_mode", local_counter_mode),
+                                        SetVariable("counterattack_resolution_mode", "dice"),
                                         SetVariable("sacrifice_receiver_key", sac_receiver_key),
                                         Hide("battle_maneuver_choice"),
                                         SetVariable("show_maneuver_choice", True)
@@ -534,80 +475,6 @@ screen battle_maneuver_choice(damage):
 
                                 text "Arrastrá para mover • Ctrl+Y: ocultar/mostrar" size 13 color "#BBBBBB" xalign 0.5
 
-# -----------------------------------------------------------
-# Contraataque por mecanografía (QTE)
-# -----------------------------------------------------------
-transform ctr_typing_letter_pulse(_dur=2.0):
-    zoom 0.55
-    linear _dur zoom 1.85
 
-screen counterattack_typing_qte():
-    modal True
-    zorder 250
-
-    default _letters = "abcdefghijklmnopqrstuvwxyz"
-
-    python:
-        import renpy.store as S
-        _st = getattr(S, "counterattack_typing_state", {})
-        _cur = str(_st.get("current_letter", "") or "")
-        _idx = int(_st.get("index", 0) or 0)
-        _tot = int(_st.get("total", 0) or 0)
-        _left = float(_st.get("time_left", 0.0) or 0.0)
-        _spl = max(2.0, float(_st.get("seconds_per_letter", 2.0) or 2.0))
-        _status = str(_st.get("last_status", "active") or "active").strip().lower()
-        _hits = int(_st.get("hits", 0) or 0)
-        _miss = int(_st.get("misses", 0) or 0)
-        _req = int(_st.get("required_hits", 6) or 6)
-        _fb = float(_st.get("feedback_time_left", 0.0) or 0.0)
-        _progress = 0.0 if _spl <= 0.0 else max(0.0, min(1.0, (_spl - _left) / _spl))
-
-        if _status in ("wrong", "timeout"):
-            _c = "#FF4D4D"
-        elif _status in ("hit", "success"):
-            _c = "#66FF99"
-        else:
-            _c = "#FFFFFF"
-
-    timer 0.02 repeat True action Function(getattr(store, "bs_counterattack_typing_tick", None), 0.02)
-
-    for _k in _letters:
-        key _k action Function(getattr(store, "bs_counterattack_typing_press_key", None), _k)
-
-    add Solid("#000000")
-
-    frame:
-        background "#0000"
-        xalign 0.5
-        yalign 0.5
-        xmaximum 860
-        padding (28, 22)
-
-        vbox:
-            spacing 12
-
-            frame:
-                background "#0000"
-                xfill True
-                ymaximum 280
-                padding (0, 0)
-
-                fixed:
-                    xfill True
-                    ysize 260
-
-                    text (_cur if _cur else "-"):
-                        xalign 0.5
-                        yalign 0.5
-                        size 120
-                        color _c
-                        bold True
-                        at ctr_typing_letter_pulse(_spl)
-
-            if _fb > 0.0:
-                if _status == "hit":
-                    text "ÉXITO" size 52 color "#66FF99" bold True xalign 0.5
-                elif _status == "timeout":
-                    text "FALLO" size 52 color "#FF4D4D" bold True xalign 0.5
-
-            text ("Letra %d/%d   %.2f s   ✔ %d / ✖ %d (mín %d)" % (int(_idx + 1), int(max(1, _tot)), float(_left or 0.0), int(_hits), int(_miss), int(_req))) size 20 color "#D0D0D0" xalign 0.5
+transform maneuver_choice_panel_zoom:
+    zoom 0.7
