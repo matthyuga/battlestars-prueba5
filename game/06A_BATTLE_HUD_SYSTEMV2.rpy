@@ -17,11 +17,23 @@ init -970 python:
     battle_hp_player = battle_hp_player_max
     battle_hp_enemy = battle_hp_enemy_max
     hud_hp_visual_state = {}
-    hud_hp_trail_hold_sec = 0.26
-    hud_hp_trail_follow_rate_min_per_sec = 0.28
-    hud_hp_trail_follow_rate_max_per_sec = 1.55
+
+    # === Tuning trail HP (flow visual) ===
+    # PRESET base "flow": inicio lento, medio estable y cierre más rápido.
+    # Puedes tocar solo estos valores para iterar sin cambiar lógica.
+    # - hold_sec: pausa inicial antes de que caiga la barra trail.
+    # - follow_min/max: velocidad mínima/máxima de seguimiento de la trail.
+    # - accel_start_progress: desde qué progreso (0..1) empieza el acelerón.
+    # - accel_mult: multiplicador del acelerón en la recta final.
+    # - curve_pow: >1.0 hace la salida más lenta (más "líquida").
+    # - tick_sec: frecuencia del timer (0.02 recomendado; 0.03 más segmentado).
+    hud_hp_trail_hold_sec = 0.32
+    hud_hp_trail_follow_rate_min_per_sec = 0.22
+    hud_hp_trail_follow_rate_max_per_sec = 1.42
     hud_hp_trail_accel_start_progress = 0.50
-    hud_hp_trail_accel_mult = 1.75
+    hud_hp_trail_accel_mult = 1.85
+    hud_hp_trail_curve_pow = 1.55
+    hud_hp_trail_tick_sec = 0.02
 
     hp_flash_timer = 0
     hp_flash_color = None
@@ -259,13 +271,19 @@ init -970 python:
         return (float(st.get("front", target) or target), float(st.get("lag", target) or target))
 
 
-    def hud_hp_trail_tick(dt=0.02):
+    def hud_hp_trail_tick(dt=None):
         global hud_hp_visual_state
 
-        try:
-            delta = float(dt)
-        except:
-            delta = 0.02
+        if dt is None:
+            try:
+                delta = float(hud_hp_trail_tick_sec)
+            except:
+                delta = 0.02
+        else:
+            try:
+                delta = float(dt)
+            except:
+                delta = 0.02
         if delta <= 0.0:
             delta = 0.02
 
@@ -294,21 +312,25 @@ init -970 python:
                     follow_max = max(follow_min, float(hud_hp_trail_follow_rate_max_per_sec))
                     accel_start = max(0.0, min(1.0, float(hud_hp_trail_accel_start_progress)))
                     accel_mult = max(1.0, float(hud_hp_trail_accel_mult))
+                    curve_pow = max(1.0, float(hud_hp_trail_curve_pow))
                 except:
-                    follow_min, follow_max, accel_start, accel_mult = 0.28, 1.55, 0.50, 1.75
+                    follow_min, follow_max, accel_start, accel_mult, curve_pow = 0.22, 1.42, 0.50, 1.85, 1.55
 
                 gap = max(0.0, lag - front)
                 gap0 = max(0.0001, float(st.get("gap_start", gap) or gap or 0.0001))
                 progress = max(0.0, min(1.0, 1.0 - (gap / gap0)))
                 st["progress"] = progress
 
-                # Inicio lento -> medio normal -> final rápido (flow líquido perceptible).
-                dyn_follow = follow_min + (follow_max - follow_min) * (progress ** 1.2)
+                # Curva no lineal: arranque lento, tramo medio estable y cola acelerada.
+                p_curve = progress ** curve_pow
+                p_smooth = progress * progress * (3.0 - 2.0 * progress)
+                blend = (p_curve * 0.70) + (p_smooth * 0.30)
+                dyn_follow = follow_min + (follow_max - follow_min) * blend
 
-                # Acelerón cuando se supera 50% del recorrido hacia el frente.
+                # Acelerón progresivo tras el umbral (mitad por defecto).
                 if progress >= accel_start:
                     tail = (progress - accel_start) / max(0.0001, 1.0 - accel_start)
-                    dyn_follow *= (1.0 + (accel_mult - 1.0) * tail)
+                    dyn_follow *= (1.0 + (accel_mult - 1.0) * (tail ** 1.35))
 
                 alpha = 1.0 - math.exp(-max(0.05, dyn_follow) * delta)
                 lag2 = lag + (front - lag) * alpha
@@ -755,7 +777,7 @@ screen battle_hp_overlay():
         if hp_flash_timer > 0:
             $ hp_flash_timer -= 1
 
-        timer 0.02 repeat True action Function(hud_hp_trail_tick, 0.02)
+        timer hud_hp_trail_tick_sec repeat True action Function(hud_hp_trail_tick, hud_hp_trail_tick_sec)
 
         # ======================================================
         # ⚔️ HUD DE UNIDADES
