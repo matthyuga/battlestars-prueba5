@@ -426,6 +426,12 @@ init -988 python:
         coating_dura_after = max(0, int(coating_dura_after_raw))
         hp_spill = max(0, int(after_cover) - int(coating_dura_before))
 
+        def _fmt_signed(v):
+            vv = int(v or 0)
+            if vv < 0:
+                return "-" + S.battle_fmt_num(abs(vv))
+            return S.battle_fmt_num(vv)
+
         hp_after  = max(0, hp_before - int(hp_spill))
 
         try:
@@ -445,7 +451,7 @@ init -988 python:
                 "      durabilidad: {} - {} = {}".format(
                     S.battle_fmt_num(coating_dura_before),
                     S.battle_fmt_num(after_cover),
-                    S.battle_fmt_num(coating_dura_after_raw)
+                    _fmt_signed(coating_dura_after_raw)
                 ),
                 border
             )

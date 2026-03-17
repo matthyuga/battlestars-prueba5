@@ -188,6 +188,12 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
         coating_dura_after = max(0, int(coating_dura_after_raw))
         hp_spill = max(0, int(after_cover) - int(coating_dura_before))
 
+        def _fmt_signed(v):
+            vv = int(v or 0)
+            if vv < 0:
+                return "-" + S.battle_fmt_num(abs(vv))
+            return S.battle_fmt_num(vv)
+
         hp_after  = max(0, hp_before - hp_spill)
         S.defense_hp_before = int(hp_before)
         S.defense_hp_expected_after_coating = int(hp_after)
@@ -208,7 +214,7 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
             "      durabilidad: {} - {} = {}".format(
                 S.battle_fmt_num(coating_dura_before),
                 S.battle_fmt_num(after_cover),
-                S.battle_fmt_num(coating_dura_after_raw)
+                _fmt_signed(coating_dura_after_raw)
             ),
             border
         )
