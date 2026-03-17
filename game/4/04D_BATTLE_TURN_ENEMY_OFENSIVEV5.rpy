@@ -95,6 +95,12 @@ label battle_enemy_turn_legacy_entry:
                 _dir_part = max(0, int(_enemy_pending_direct or 0))
                 _direct_only = (_def_part <= 0 and _dir_part > 0)
 
+                # Contexto para operación defensiva en el engine:
+                # - direct_pending: directo a sumar tras daño restante
+                # - direct_embedded: directo ya integrado como base (solo-directo)
+                S.pending_direct_damage_enemy_for_operation = int(_dir_part)
+                S.pending_direct_damage_enemy_embedded = bool(_direct_only)
+
                 if callable(fn_def):
                     try:
                         # Regla: si el daño entrante es SOLO directo, sí permite reducción,
@@ -147,9 +153,18 @@ label battle_enemy_turn_legacy_entry:
 
                 try:
                     if callable(getattr(S, "battle_log_add", None)):
-                        S.battle_log_add("{color=#90CAF9}Defensa diferida %s: %s{/color}" % (str(enemy_name), str(int(final_in))))
-                        if int(_enemy_pending_direct or 0) > 0:
-                            S.battle_log_add("{color=#FFD54F}Daño directo diferido %s: %s{/color}" % (str(enemy_name), str(int(_enemy_pending_direct))))
+                        if int(_enemy_pending_direct or 0) > 0 and not bool(_direct_only):
+                            S.battle_log_add("{color=#FFD54F}Daño restante: %s + %s = %s{/color}" % (
+                                str(int(final_in)),
+                                str(int(_enemy_pending_direct)),
+                                str(int(total_in))
+                            ))
+                except:
+                    pass
+
+                try:
+                    S.pending_direct_damage_enemy_for_operation = 0
+                    S.pending_direct_damage_enemy_embedded = False
                 except:
                     pass
 

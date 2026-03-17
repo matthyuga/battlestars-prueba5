@@ -390,18 +390,52 @@ init -988 python:
             pass
 
         # -------------------------------
-        # (4) RECUBRIMIENTO + HP
+        # (4) DIRECTO + RECUBRIMIENTO + HP
         # -------------------------------
+        direct_pending = 0
+        direct_embedded = False
+        try:
+            _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        except:
+            _mode = "1v1"
+
+        if _mode == "2v2":
+            direct_pending = max(0, int(getattr(S, "pending_direct_damage_enemy_for_operation", 0) or 0))
+            direct_embedded = bool(getattr(S, "pending_direct_damage_enemy_embedded", False))
+        else:
+            fn_get_direct = getattr(S, "bs_get_direct_pending", None)
+            if callable(fn_get_direct):
+                direct_pending = max(0, int(fn_get_direct("enemy") or 0))
+            else:
+                direct_pending = max(0, int(getattr(S, "_last_player_direct_damage", 0) or 0))
+
+        final_for_coating = int(final_damage)
+        if direct_pending > 0 and not direct_embedded:
+            final_for_coating = int(final_for_coating) + int(direct_pending)
+
+        try:
+            if direct_pending > 0 and not direct_embedded:
+                fw = globals().get("fmt_white", lambda x: x)
+                fr = globals().get("fmt_red", lambda x: x)
+                fo = globals().get("fmt_orange", lambda x: x)
+                S.operation_add(
+                    fw("Daño restante:") + " " +
+                    fr(S.battle_fmt_num(final_damage)) +
+                    fw(" + ") +
+                    fo(S.battle_fmt_num(direct_pending)) +
+                    fw(" = ") +
+                    fr(S.battle_fmt_num(final_for_coating)),
+                    border
+                )
+        except:
+            pass
+
         hp_before = int(getattr(S, "enemy_hp", 0) or 0)
         coating_type = "Hierro"
         coating_cover = 0
         coating_dura_before = 0
         coating_active = False
-        try:
-            mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
-        except:
-            mode = "1v1"
-        if mode == "2v2" and callable(getattr(S, "bs_get_unit_by_key", None)):
+        if _mode == "2v2" and callable(getattr(S, "bs_get_unit_by_key", None)):
             cu = S.bs_get_unit_by_key(str(getattr(S, "current_enemy_unit_key", "") or ""))
             if isinstance(cu, dict):
                 hp_before = int(cu.get("hp", hp_before) or hp_before)
@@ -422,7 +456,7 @@ init -988 python:
             coating_cover = 0
             coating_dura_before = 0
 
-        after_cover = max(0, int(final_damage) - int(coating_cover))
+        after_cover = max(0, int(final_for_coating) - int(coating_cover))
         coating_dura_after_raw = int(coating_dura_before) - int(after_cover)
         coating_dura_after = max(0, int(coating_dura_after_raw))
         hp_spill = max(0, int(after_cover) - int(coating_dura_before))
@@ -443,7 +477,7 @@ init -988 python:
             S.operation_add(
                 "      cubre: {} - {} = {}".format(
                     S.battle_fmt_num(coating_cover),
-                    S.battle_fmt_num(final_damage),
+                    S.battle_fmt_num(final_for_coating),
                     S.battle_fmt_num(after_cover)
                 ),
                 border
@@ -474,45 +508,6 @@ init -988 python:
             )
         except:
             pass
-
-
-        # En 1v1, si hubo daño directo del jugador este turno, mostrar HP total esperado.
-        direct_pending = 0
-        _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
-        if _mode != "2v2":
-            fn_get_direct = getattr(S, "bs_get_direct_pending", None)
-            if callable(fn_get_direct):
-                direct_pending = int(fn_get_direct("enemy") or 0)
-            else:
-                direct_pending = int(getattr(S, "_last_player_direct_damage", 0) or 0)
-
-        if direct_pending > 0:
-            hp_after_total = max(0, int(hp_after) - int(direct_pending))
-            try:
-                try:
-                    fw = globals().get("fmt_white", lambda x: x)
-                    fo = globals().get("fmt_orange", lambda x: x)
-                    fr = globals().get("fmt_red", lambda x: x)
-                    _green = _pal("green", "#00FF00")
-                    hp_after_fmt = ("{color=%s}%s{/color}" % (_green, S.battle_fmt_num(hp_after))) if hp_after > 0 else fr("{} KO".format(S.battle_fmt_num(hp_after)))
-                    hp_total_fmt = ("{color=%s}%s{/color}" % (_green, S.battle_fmt_num(hp_after_total))) if hp_after_total > 0 else fr("{} KO".format(S.battle_fmt_num(hp_after_total)))
-                except:
-                    fw = lambda x: x
-                    fo = lambda x: x
-                    fr = lambda x: x
-                    hp_after_fmt = S.battle_fmt_num(hp_after)
-                    hp_total_fmt = S.battle_fmt_num(hp_after_total)
-                S.operation_add(
-                    fw("Daño directo pendiente:") + " " + fo(S.battle_fmt_num(direct_pending)),
-                    border
-                )
-                S.operation_add(
-                    fw("HP total:") + " " + hp_after_fmt + fw(" - ") + fr(S.battle_fmt_num(direct_pending)) + fw(" = ") + hp_total_fmt,
-                    border
-                )
-            except:
-                pass
-
         # -------------------------------
         # (5) REFLECT (commit a ReflectManager)
         # -------------------------------

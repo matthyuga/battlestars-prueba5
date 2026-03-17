@@ -173,7 +173,7 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
 
         if direct_pending > 0 and not _direct_only:
             operation_add(
-                fmt_white("Daño neto + directo:") + " " +
+                fmt_white("Daño restante:") + " " +
                 fmt_red(S.battle_fmt_num(received_damage_def)) +
                 fmt_white(" + ") +
                 fmt_orange(S.battle_fmt_num(direct_pending)) +
