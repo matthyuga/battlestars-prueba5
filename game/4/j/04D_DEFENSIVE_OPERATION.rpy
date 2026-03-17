@@ -212,11 +212,12 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
             border
         )
         operation_add(
-            "      ◉ HP: {} - {} = {}".format(
-                S.battle_fmt_num(hp_before),
-                S.battle_fmt_num(hp_spill),
-                S.battle_fmt_num(hp_after)
-            ),
+            "      ◉ " + fmt_white("HP:") + " " +
+            fmt_green(S.battle_fmt_num(hp_before)) +
+            fmt_white(" - ") +
+            fmt_red(S.battle_fmt_num(hp_spill)) +
+            fmt_white(" = ") +
+            (fmt_green(S.battle_fmt_num(hp_after)) if int(hp_after or 0) > 0 else fmt_red("{} KO".format(S.battle_fmt_num(hp_after)))),
             border
         )
 
