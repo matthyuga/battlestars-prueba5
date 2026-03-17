@@ -136,6 +136,19 @@ label defensive_process_actions(selected, base_damage):
     python:
         import renpy.store as S
 
+        _mode_direct = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if _mode_direct == "2v2":
+            _direct_ctx = int(getattr(S, "pending_direct_damage_for_defense", 0) or 0)
+        else:
+            _fn_get_direct = getattr(S, "bs_get_direct_pending", None)
+            if callable(_fn_get_direct):
+                _direct_ctx = int(_fn_get_direct("player") or 0)
+            else:
+                _direct_ctx = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+        _reduc_base = int(base_damage or 0)
+        if _reduc_base <= 0 and _direct_ctx > 0:
+            _reduc_base = int(_direct_ctx)
+
         # ----------------------------------------------------
         # Estado store-safe con defaults
         # ----------------------------------------------------
@@ -296,7 +309,7 @@ label defensive_process_actions(selected, base_damage):
             elif action.tech_id == "defense_reducer":
 
                 atk_red = float(action.data.get("attack_reduction", 0.10))
-                S.reduc_val = int(base_damage * atk_red)
+                S.reduc_val = int(_reduc_base * atk_red)
                 if callable(log_defense_reducer):
                     summary_lines.append(
                         log_defense_reducer(

@@ -42,7 +42,7 @@ init -940 python:
             vv = hi
         return vv
 
-    SPA_POOL_KEYS = ("reiatsu", "energy", "hp")
+    SPA_POOL_KEYS = ("reiatsu", "energy", "hp", "coating_cover", "coating_durability")
 
     def _spa_pool_key(pool_key):
         raw = str(pool_key or "").strip().lower()
@@ -243,7 +243,7 @@ init -940 python:
                 "spent": 0,
                 "remaining": int(d.get("available_points_per_slot", 2000)),
                 "tech_bonus": {},
-                "resource_bonus": {"reiatsu": 0, "energy": 0, "hp": 0},
+                "resource_bonus": {"reiatsu": 0, "energy": 0, "hp": 0, "coating_cover": 0, "coating_durability": 0},
             }
         slots[uk] = _spa_recompute_slot_data(slots.get(uk, {}), d)
 
@@ -423,7 +423,7 @@ init -940 python:
             "spent": 0,
             "remaining": int(d.get("available_points_per_slot", 2000)),
             "tech_bonus": {},
-            "resource_bonus": {"reiatsu": 0, "energy": 0, "hp": 0},
+            "resource_bonus": {"reiatsu": 0, "energy": 0, "hp": 0, "coating_cover": 0, "coating_durability": 0},
         }
         slot = _spa_recompute_slot_data(slot, d)
 

@@ -213,13 +213,25 @@ label battle_start:
     python:
         import renpy.store as S
         fn_pool = getattr(S, "spa_get_pool_final", None)
+        player_coating_cover = int(battle_player.get("coating_cover", 0) or 0)
+        enemy_coating_cover = int(battle_enemy.get("coating_cover", 0) or 0)
+        player_coating_durability = int(battle_player.get("coating_durability", 0) or 0)
+        enemy_coating_durability = int(battle_enemy.get("coating_durability", 0) or 0)
         if callable(fn_pool):
             player_hp = int(fn_pool("player:0", "hp", player_hp) or player_hp)
             enemy_hp = int(fn_pool("enemy:0", "hp", enemy_hp) or enemy_hp)
+            player_coating_cover = int(fn_pool("player:0", "coating_cover", player_coating_cover) or player_coating_cover)
+            enemy_coating_cover = int(fn_pool("enemy:0", "coating_cover", enemy_coating_cover) or enemy_coating_cover)
+            player_coating_durability = int(fn_pool("player:0", "coating_durability", player_coating_durability) or player_coating_durability)
+            enemy_coating_durability = int(fn_pool("enemy:0", "coating_durability", enemy_coating_durability) or enemy_coating_durability)
 
         try:
             battle_player["HP"] = int(player_hp)
             battle_enemy["HP"] = int(enemy_hp)
+            battle_player["coating_cover"] = int(player_coating_cover)
+            battle_enemy["coating_cover"] = int(enemy_coating_cover)
+            battle_player["coating_durability"] = int(player_coating_durability)
+            battle_enemy["coating_durability"] = int(enemy_coating_durability)
         except:
             pass
 
@@ -254,7 +266,12 @@ label battle_start:
                     hp = int(fn_pool(ukey, "hp", hp) or hp)
                     rei = int(fn_pool(ukey, "reiatsu", rei) or rei)
                     ene = int(fn_pool(ukey, "energy", ene) or ene)
-                p_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene, "max_reiatsu": rei, "max_energy": ene, "base_reiatsu": rei, "base_energy": ene})
+                ccover = int(get_character(cid).get("coating_cover", 0) or 0)
+                cdura = int(get_character(cid).get("coating_durability", 0) or 0)
+                if callable(fn_pool):
+                    ccover = int(fn_pool(ukey, "coating_cover", ccover) or ccover)
+                    cdura = int(fn_pool(ukey, "coating_durability", cdura) or cdura)
+                p_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene, "max_reiatsu": rei, "max_energy": ene, "base_reiatsu": rei, "base_energy": ene, "coating_cover": ccover, "coating_durability_current": cdura, "coating_durability_max": cdura})
             for idx, cid in enumerate(e_ids[:2]):
                 hp = get_character_hp(cid)
                 rei = int(get_character(cid).get("Reiatsu", 0) or 0)
@@ -264,7 +281,12 @@ label battle_start:
                     hp = int(fn_pool(ukey, "hp", hp) or hp)
                     rei = int(fn_pool(ukey, "reiatsu", rei) or rei)
                     ene = int(fn_pool(ukey, "energy", ene) or ene)
-                e_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene, "max_reiatsu": rei, "max_energy": ene, "base_reiatsu": rei, "base_energy": ene})
+                ccover = int(get_character(cid).get("coating_cover", 0) or 0)
+                cdura = int(get_character(cid).get("coating_durability", 0) or 0)
+                if callable(fn_pool):
+                    ccover = int(fn_pool(ukey, "coating_cover", ccover) or ccover)
+                    cdura = int(fn_pool(ukey, "coating_durability", cdura) or cdura)
+                e_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene, "max_reiatsu": rei, "max_energy": ene, "base_reiatsu": rei, "base_energy": ene, "coating_cover": ccover, "coating_durability_current": cdura, "coating_durability_max": cdura})
 
             S.bs_init_teams(player_units=p_units, enemy_units=e_units)
 
@@ -289,6 +311,10 @@ label battle_start:
                     player_max_hp=battle_hp_player_max,
                     enemy_hp=enemy_hp,
                     enemy_max_hp=battle_hp_enemy_max,
+                    player_coating_cover=player_coating_cover,
+                    player_coating_durability=player_coating_durability,
+                    enemy_coating_cover=enemy_coating_cover,
+                    enemy_coating_durability=enemy_coating_durability,
                 )
 
     # =======================================================

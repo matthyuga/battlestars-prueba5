@@ -180,12 +180,19 @@ label battle_offensive_turn_legacy_entry:
             if str(ainfo.get("team", "player") or "player") != "player":
                 akey = ""
             ppend = getattr(S, "player_pending_damage_by_key", None)
+            ppend_direct = getattr(S, "player_pending_direct_damage_by_key", None)
             if akey and isinstance(ppend, dict):
+                if not isinstance(ppend_direct, dict):
+                    ppend_direct = {}
                 pend_amt = max(0, int(ppend.get(akey, 0) or 0))
-                if pend_amt > 0:
+                pend_direct = max(0, int(ppend_direct.get(akey, 0) or 0))
+                if pend_amt > 0 or pend_direct > 0:
                     ppend[akey] = 0
                     S.player_pending_damage_by_key = ppend
+                    ppend_direct[akey] = 0
+                    S.player_pending_direct_damage_by_key = ppend_direct
                     S.incoming_damage = int(pend_amt)
+                    S.pending_direct_damage_for_defense = int(pend_direct)
                     fn_set_incoming_ctx = getattr(S, "bs_set_incoming_ctx_2v2", None)
                     _src_key = str(getattr(S, "current_enemy_unit_key", "") or "")
                     if _mode == "2v2" and callable(fn_set_incoming_ctx):
@@ -210,8 +217,8 @@ label battle_offensive_turn_legacy_entry:
 
                     try:
                         if callable(getattr(S, "battle_log_add", None)):
-                            S.battle_log_add("{color=#80DEEA}[DEBUG] INCOMING_DAMAGE defender_id=%s defender_name=%s pending_amount=%s sources=%s{/color}" % (
-                                str(akey), str(def_name), str(int(pend_amt)), str(getattr(S, "incoming_damage_sources", []) or [])))
+                            S.battle_log_add("{color=#80DEEA}[DEBUG] INCOMING_DAMAGE defender_id=%s defender_name=%s pending_amount=%s direct=%s sources=%s{/color}" % (
+                                str(akey), str(def_name), str(int(pend_amt)), str(int(pend_direct)), str(getattr(S, "incoming_damage_sources", []) or [])))
                     except:
                         pass
 
@@ -229,8 +236,12 @@ label battle_offensive_turn_legacy_entry:
                             pass
 
                     try:
-                        battle_visual_float("player", int(pend_amt or 0), "#FF4444", is_final=True)
-                        bs_ui_pause(0.35, hard=True)
+                        if int(pend_amt or 0) > 0:
+                            battle_visual_float("player", int(pend_amt or 0), "#FF4444", is_final=True)
+                            bs_ui_pause(0.35, hard=True)
+                        if int(pend_direct or 0) > 0:
+                            battle_visual_float("player", int(pend_direct or 0), "#FFDD55", is_final=True)
+                            bs_ui_pause(0.25, hard=True)
                     except:
                         pass
 

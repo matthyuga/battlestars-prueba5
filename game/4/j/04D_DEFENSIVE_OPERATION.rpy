@@ -35,12 +35,28 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
         base_damage = int(base_damage or 0)
         reduc_val   = int(reduc_val or 0)
 
-        base_eff = max(0, base_damage - reduc_val)
+        # Daño directo pendiente del defensor activo.
+        direct_pending = 0
+        _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if _mode == "2v2":
+            direct_pending = int(getattr(S, "pending_direct_damage_for_defense", 0) or 0)
+        else:
+            fn_get_direct = getattr(S, "bs_get_direct_pending", None)
+            if callable(fn_get_direct):
+                direct_pending = int(fn_get_direct("player") or 0)
+            else:
+                direct_pending = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+
+        _direct_only = (base_damage <= 0 and direct_pending > 0)
+
+        _reduc_base = base_damage if base_damage > 0 else (direct_pending if _direct_only else 0)
+        base_eff = max(0, int(_reduc_base) - reduc_val)
 
         if reduc_val > 0:
             # safe pct
-            if base_damage > 0:
-                pct = int((reduc_val / float(base_damage)) * 100)
+            _reduc_base_pct = _reduc_base
+            if _reduc_base_pct > 0:
+                pct = int((reduc_val / float(_reduc_base_pct)) * 100)
             else:
                 pct = 0
 
@@ -109,7 +125,14 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
         deb_val = 0
         eff_blk = total_block
 
-        if total_block > 0 and deb_pct > 0:
+        if _direct_only:
+            eff_blk = 0
+            txt = "{}: {} = {}".format(
+                fmt_cyan("Defensas"),
+                parts_str,
+                fmt_cyan("0")
+            )
+        elif total_block > 0 and deb_pct > 0:
             deb_val = int(total_block * deb_pct)
             eff_blk = max(0, total_block - deb_val)
 
@@ -133,62 +156,118 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
         # --------------------------------------------------------
         # (4) DAÑO FINAL
         # --------------------------------------------------------
-        received_damage = max(0, base_eff - eff_blk)
+        received_damage_def = max(0, base_eff - eff_blk)
+        if _direct_only:
+            received_damage = int(received_damage_def)
+        else:
+            received_damage = int(received_damage_def) + int(direct_pending)
 
         operation_add(
             S.op_def_damage(
                 S.battle_fmt_num(base_eff),
                 S.battle_fmt_num(eff_blk),
-                S.battle_fmt_num(received_damage)
+                S.battle_fmt_num(received_damage_def)
             ),
             border
         )
 
+        if direct_pending > 0 and not _direct_only:
+            operation_add(
+                fmt_white("Daño restante:") + " " +
+                fmt_red(S.battle_fmt_num(received_damage_def)) +
+                fmt_white(" + ") +
+                fmt_orange(S.battle_fmt_num(direct_pending)) +
+                fmt_white(" = ") +
+                fmt_red(S.battle_fmt_num(received_damage)),
+                border
+            )
+
         # --------------------------------------------------------
-        # (5) HP objetivo defendido
+        # (5) RECUBRIMIENTO + HP objetivo defendido
         # --------------------------------------------------------
         mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
         def_key = str(getattr(S, "defense_target_key", "") or "")
+        if not def_key and callable(getattr(S, "bs_get_active_unit_key", None)):
+            try:
+                def_key = str(S.bs_get_active_unit_key("player") or "player:0")
+            except:
+                def_key = "player:0"
 
         hp_before = int(getattr(S, "player_hp", 0) or 0)
+        coating_type = "Hierro"
+        coating_cover = 0
+        coating_dura_before = 0
+        coating_active = False
         if mode == "2v2" and def_key:
             fn_get_key = getattr(S, "bs_get_unit_by_key", None)
             if callable(fn_get_key):
                 uu = fn_get_key(def_key)
                 if isinstance(uu, dict):
                     hp_before = int(uu.get("hp", hp_before) or hp_before)
+                    coating_type = str(uu.get("coating_type", "hierro") or "hierro").capitalize()
+                    coating_cover = max(0, int(uu.get("coating_cover", 0) or 0))
+                    coating_dura_before = max(0, int(uu.get("coating_durability_current", 0) or 0))
+                    coating_active = bool(uu.get("coating_active", False))
+        elif def_key and callable(getattr(S, "bs_get_unit_by_key", None)):
+            uu = S.bs_get_unit_by_key(def_key)
+            if isinstance(uu, dict):
+                hp_before = int(uu.get("hp", hp_before) or hp_before)
+                coating_type = str(uu.get("coating_type", "hierro") or "hierro").capitalize()
+                coating_cover = max(0, int(uu.get("coating_cover", 0) or 0))
+                coating_dura_before = max(0, int(uu.get("coating_durability_current", 0) or 0))
+                coating_active = bool(uu.get("coating_active", False))
 
-        hp_after  = max(0, hp_before - received_damage)
+        if not (coating_active and coating_cover > 0 and coating_dura_before > 0):
+            coating_cover = 0
+            coating_dura_before = 0
+
+        after_cover = max(0, int(received_damage) - int(coating_cover))
+        coating_dura_after_raw = int(coating_dura_before) - int(after_cover)
+        coating_dura_after = max(0, int(coating_dura_after_raw))
+        hp_spill = max(0, int(after_cover) - int(coating_dura_before))
+
+        def _fmt_signed(v):
+            vv = int(v or 0)
+            if vv < 0:
+                return "-" + S.battle_fmt_num(abs(vv))
+            return S.battle_fmt_num(vv)
+
+        hp_after  = max(0, hp_before - hp_spill)
         S.defense_hp_before = int(hp_before)
+        S.defense_hp_expected_after_coating = int(hp_after)
 
         operation_add(
-            S.op_def_hp(
-                S.battle_fmt_num(hp_before),
+            "    ◉ {}:".format(str(coating_type or "Recubrimiento")),
+            border
+        )
+        operation_add(
+            "      cubre: {} - {} = {}".format(
+                S.battle_fmt_num(coating_cover),
                 S.battle_fmt_num(received_damage),
-                S.battle_fmt_num(hp_after)
+                S.battle_fmt_num(after_cover)
             ),
+            border
+        )
+        operation_add(
+            "      durabilidad: {} - {} = {}".format(
+                S.battle_fmt_num(coating_dura_before),
+                S.battle_fmt_num(after_cover),
+                _fmt_signed(coating_dura_after_raw)
+            ),
+            border
+        )
+        operation_add(
+            "      ◉ " + fmt_white("HP:") + " " +
+            fmt_green(S.battle_fmt_num(hp_before)) +
+            fmt_white(" - ") +
+            fmt_red(S.battle_fmt_num(hp_spill)) +
+            fmt_white(" = ") +
+            (fmt_green(S.battle_fmt_num(hp_after)) if int(hp_after or 0) > 0 else fmt_red("{} KO".format(S.battle_fmt_num(hp_after)))),
             border
         )
 
 
-        # Si existe daño directo pendiente de IA, reflejar HP total esperado en el registro.
-        fn_get_direct = getattr(S, "bs_get_direct_pending", None)
-        if callable(fn_get_direct):
-            direct_pending = int(fn_get_direct("player") or 0)
-        else:
-            direct_pending = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
-        if direct_pending > 0:
-            hp_after_total = max(0, int(hp_after) - int(direct_pending))
-            hp_after_fmt = fmt_green(S.battle_fmt_num(hp_after)) if hp_after > 0 else fmt_red("{} KO".format(S.battle_fmt_num(hp_after)))
-            hp_total_fmt = (fmt_green(S.battle_fmt_num(hp_after_total)) if hp_after_total > 0 else fmt_red("{} KO".format(S.battle_fmt_num(hp_after_total))))
-            operation_add(
-                fmt_white("Daño directo pendiente:") + " " + fmt_orange(S.battle_fmt_num(direct_pending)),
-                border
-            )
-            operation_add(
-                fmt_white("HP total:") + " " + hp_after_fmt + fmt_white(" - ") + fmt_red(S.battle_fmt_num(direct_pending)) + fmt_white(" = ") + hp_total_fmt,
-                border
-            )
+        S.defense_received_includes_direct = bool(direct_pending > 0)
 
         # --------------------------------------------------------
         # (6) REFLECT

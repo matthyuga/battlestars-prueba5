@@ -27,7 +27,21 @@ label defensive_resolve(received_damage, hp_after, reflected):
         # - se aplica acá porque este label "asienta" el daño real
         # =========================================================
         fn_consume_direct = getattr(S, "bs_consume_direct_pending", None)
-        if callable(fn_consume_direct):
+        _direct_already_applied = bool(getattr(S, "defense_received_includes_direct", False))
+        S.defense_received_includes_direct = False
+        _mode_direct = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if _direct_already_applied:
+            if _mode_direct == "2v2":
+                S.pending_direct_damage_for_defense = 0
+            elif callable(fn_consume_direct):
+                fn_consume_direct("player")
+            else:
+                S.enemy_direct_pending_damage = 0
+            direct_enemy = 0
+        elif _mode_direct == "2v2":
+            direct_enemy = int(getattr(S, "pending_direct_damage_for_defense", 0) or 0)
+            S.pending_direct_damage_for_defense = 0
+        elif callable(fn_consume_direct):
             direct_enemy = int(fn_consume_direct("player") or 0)
         else:
             direct_enemy = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
@@ -109,10 +123,16 @@ label defensive_resolve(received_damage, hp_after, reflected):
                 except:
                     def_key = ""
 
-        if mode == "2v2" and def_key and callable(getattr(S, "bs_apply_damage_to_unit_key", None)):
+        if (def_key or mode == "1v1") and callable(getattr(S, "bs_apply_damage_to_unit_key", None)):
+            if not def_key:
+                try:
+                    def_key = str(S.bs_get_active_unit_key("player") if callable(getattr(S, "bs_get_active_unit_key", None)) else "player:0")
+                except:
+                    def_key = "player:0"
+
             hp_before_u = int(getattr(S, "defense_hp_before", 0) or 0)
-            dmg_apply = max(0, int(hp_before_u) - int(hp_after or 0))
-            S.bs_apply_damage_to_unit_key(def_key, dmg_apply, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat_defended_target", tags=["defense"])
+            dmg_apply = max(0, int(received_damage or 0))
+            _rr = S.bs_apply_damage_to_unit_key(def_key, dmg_apply, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat_defended_target", tags=["defense"])
 
             # alinear aliases legacy con la unidad defendida real
             try:
@@ -268,7 +288,11 @@ label defensive_resolve(received_damage, hp_after, reflected):
         _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
         if getattr(S, "defense_for_attack_active", False):
             S.defense_for_attack_active = False
-            next_turn = "enemy"
+            if _mode == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                next_turn = str(S.bs_parse_unit_key(nk, default_side="enemy", default_slot=0).get("team", "enemy") or "enemy")
+            else:
+                next_turn = "enemy"
         elif bool(getattr(S, "deferred_defense_return_to_offense", False)):
             next_turn = "player_same_actor"
         elif _mode == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):

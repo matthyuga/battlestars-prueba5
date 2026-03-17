@@ -47,6 +47,7 @@ label battle_enemy_turn_legacy_entry:
     python:
         import renpy.store as S
         _enemy_pending_damage = 0
+        _enemy_pending_direct = 0
         _enemy_pending_ko = False
         _enemy_actor_alive = True
 
@@ -59,7 +60,12 @@ label battle_enemy_turn_legacy_entry:
             akey = str(getattr(S, "current_enemy_unit_key", "") or "")
             _enemy_pending_damage = max(0, int(pend.get(akey, 0) or 0))
 
-            if _enemy_pending_damage > 0:
+            pend_direct = getattr(S, "enemy_pending_direct_damage_by_key", None)
+            if not isinstance(pend_direct, dict):
+                pend_direct = {}
+            _enemy_pending_direct = max(0, int(pend_direct.get(akey, 0) or 0))
+
+            if _enemy_pending_damage > 0 or _enemy_pending_direct > 0:
                 # preparar identidad visual/legacy del defensor actual
                 try:
                     S.battle_enemy_id = str(enemy_name or getattr(S, "battle_enemy_id", "Enemigo"))
@@ -85,12 +91,27 @@ label battle_enemy_turn_legacy_entry:
                 if _applied_red > 0.0:
                     S.next_defense_reduction = float(_applied_red)
 
+                _def_part = max(0, int(_enemy_pending_damage or 0))
+                _dir_part = max(0, int(_enemy_pending_direct or 0))
+                _direct_only = (_def_part <= 0 and _dir_part > 0)
+
+                # Contexto para operación defensiva en el engine:
+                # - direct_pending: directo a sumar tras daño restante
+                # - direct_embedded: directo ya integrado como base (solo-directo)
+                S.pending_direct_damage_enemy_for_operation = int(_dir_part)
+                S.pending_direct_damage_enemy_embedded = bool(_direct_only)
+
                 if callable(fn_def):
                     try:
-                        info = fn_def(_enemy_pending_damage)
-                        final_in = max(0, int(info.get("final_damage", _enemy_pending_damage) or _enemy_pending_damage))
+                        # Regla: si el daño entrante es SOLO directo, sí permite reducción,
+                        # pero no bloqueos defensivos.
+                        _def_input = int(_dir_part if _direct_only else _def_part)
+                        info = fn_def(_def_input, allow_block=(not _direct_only))
+                        final_in = max(0, int(info.get("final_damage", _def_input) or _def_input))
                     except:
-                        final_in = int(_enemy_pending_damage)
+                        final_in = int(_dir_part if _direct_only else _def_part)
+
+                total_in = max(0, int(final_in or 0)) + (0 if _direct_only else _dir_part)
 
                 # consumir debuff acumulado de este target y restaurar valor temporal
                 try:
@@ -105,11 +126,11 @@ label battle_enemy_turn_legacy_entry:
                 try:
                     fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
                     if callable(fn_apply_key) and akey:
-                        fn_apply_key(akey, int(final_in), source_key=getattr(S, "current_actor_unit_key", None), reason="combat_deferred_enemy", tags=["deferred", "enemy_defense"])
+                        fn_apply_key(akey, int(total_in), source_key=getattr(S, "current_actor_unit_key", None), reason="combat_deferred_enemy", tags=["deferred", "enemy_defense"])
                     else:
                         fn_set = getattr(S, "bs_set_hp", None)
                         cur = int(getattr(S, "enemy_hp", 0) or 0)
-                        nxt = max(0, cur - int(final_in or 0))
+                        nxt = max(0, cur - int(total_in or 0))
                         if callable(fn_set):
                             fn_set("enemy", nxt)
                         else:
@@ -120,6 +141,8 @@ label battle_enemy_turn_legacy_entry:
                 # consumir cola del actor actual
                 pend[akey] = 0
                 S.enemy_pending_damage_by_key = pend
+                pend_direct[akey] = 0
+                S.enemy_pending_direct_damage_by_key = pend_direct
 
                 try:
                     fn_sync = getattr(S, "bs_sync_hp_ui", None)
@@ -130,7 +153,18 @@ label battle_enemy_turn_legacy_entry:
 
                 try:
                     if callable(getattr(S, "battle_log_add", None)):
-                        S.battle_log_add("{color=#90CAF9}Defensa diferida %s: %s{/color}" % (str(enemy_name), str(int(final_in))))
+                        if int(_enemy_pending_direct or 0) > 0 and not bool(_direct_only):
+                            S.battle_log_add("{color=#FFD54F}Daño restante: %s + %s = %s{/color}" % (
+                                str(int(final_in)),
+                                str(int(_enemy_pending_direct)),
+                                str(int(total_in))
+                            ))
+                except:
+                    pass
+
+                try:
+                    S.pending_direct_damage_enemy_for_operation = 0
+                    S.pending_direct_damage_enemy_embedded = False
                 except:
                     pass
 
@@ -150,7 +184,7 @@ label battle_enemy_turn_legacy_entry:
         $ battle_log_add("{color=#FFD700}¡Victoria!{/color}")
         jump battle_end
 
-    if _enemy_pending_damage > 0 and not _enemy_actor_alive:
+    if (_enemy_pending_damage > 0 or _enemy_pending_direct > 0) and not _enemy_actor_alive:
         python:
             import renpy.store as S
             _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
@@ -649,8 +683,14 @@ label battle_enemy_turn_legacy_entry:
         if _mode2 == "2v2":
             plan = getattr(S, "enemy_damage_plan", None)
             ppend = getattr(S, "player_pending_damage_by_key", None)
+            ppend_direct = getattr(S, "player_pending_direct_damage_by_key", None)
             if not isinstance(ppend, dict):
                 ppend = {}
+            if not isinstance(ppend_direct, dict):
+                ppend_direct = {}
+
+            alloc_def = {}
+            alloc_direct = {}
 
             if isinstance(plan, dict):
                 for e in (list(plan.get("entries", []) or [])):
@@ -659,22 +699,61 @@ label battle_enemy_turn_legacy_entry:
                     tk = str(e.get("target_key", "") or "")
                     amt = max(0, int(e.get("amount", 0) or 0))
                     if tk and amt > 0:
-                        ppend[tk] = int(ppend.get(tk, 0) or 0) + amt
-                        _deferred_2v2 = True
+                        alloc_def[tk] = int(alloc_def.get(tk, 0) or 0) + amt
+
+            direct_total = max(0, int(dmg_directo or 0))
+            if direct_total > 0:
+                _primary = str(getattr(S, "enemy_target_key", "") or "")
+                if (not _primary) and alloc_def:
+                    _primary = str(list(alloc_def.keys())[0] or "")
+                if _primary:
+                    alloc_direct[_primary] = int(alloc_direct.get(_primary, 0) or 0) + int(direct_total)
+
+            for tk, amt in alloc_def.items():
+                ai = max(0, int(amt or 0))
+                if not tk or ai <= 0:
+                    continue
+                ppend[tk] = int(ppend.get(tk, 0) or 0) + ai
+                _deferred_2v2 = True
+
+            for tk, amt in alloc_direct.items():
+                ai = max(0, int(amt or 0))
+                if not tk or ai <= 0:
+                    continue
+                ppend_direct[tk] = int(ppend_direct.get(tk, 0) or 0) + ai
+                _deferred_2v2 = True
 
             if _deferred_2v2:
                 S.player_pending_damage_by_key = ppend
+                S.player_pending_direct_damage_by_key = ppend_direct
+
+                # El directo queda keyed en 2v2; se consume del bucket global para evitar
+                # aplicarlo al defensor equivocado cuando entre P1/P2.
+                if direct_total > 0:
+                    fn_consume_direct = getattr(S, "bs_consume_direct_pending", None)
+                    if callable(fn_consume_direct):
+                        fn_consume_direct("player", mirror_legacy=True)
+                    else:
+                        S.enemy_direct_pending_damage = 0
+
                 try:
                     if callable(getattr(S, "battle_log_add", None)):
                         fn_desc = getattr(S, "bs_describe_unit_key", None)
                         parts = []
-                        for _k, _v in ppend.items():
+                        for _k, _v in alloc_def.items():
                             if int(_v or 0) <= 0:
                                 continue
                             if callable(fn_desc):
                                 parts.append("{}:+{}".format(fn_desc(_k, default_side="player", default_slot=0), int(_v or 0)))
                             else:
                                 parts.append("{}:+{}".format(_k, int(_v or 0)))
+                        for _k, _v in alloc_direct.items():
+                            if int(_v or 0) <= 0:
+                                continue
+                            if callable(fn_desc):
+                                parts.append("{}:D+{}".format(fn_desc(_k, default_side="player", default_slot=0), int(_v or 0)))
+                            else:
+                                parts.append("{}:D+{}".format(_k, int(_v or 0)))
                         S.battle_log_add("{color=#B39DDB}Daño entrante en cola 2v2 → %s{/color}" % (" | ".join(parts)), group="queue_2v2")
                 except:
                     pass

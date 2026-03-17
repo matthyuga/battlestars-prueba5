@@ -57,10 +57,13 @@ init -850 python:
 
     def typing_lab_default_state():
         return {
+            "mode": "letters",      # letters | words
             "phase": "idle",         # idle | hit | timeout | done
             "sequence": [],
             "total": 10,
             "index": 0,
+            "cursor": 0,
+            "current_prompt": "",
             "current_letter": "",
             "hits": 0,
             "seconds_per_letter": 2.0,
@@ -72,8 +75,31 @@ init -850 python:
             "bar_osc_t": 0.0,
         }
 
-    def typing_lab_prepare(total_letters=10, seconds_per_letter=2.0):
+    def typing_lab_word_bank():
+        return [
+            "hollow",
+            "shinigami",
+            "bleach",
+            "bankai",
+            "reiatsu",
+            "zangetsu",
+            "arrancar",
+            "espada",
+            "captain",
+            "soul",
+            "society",
+            "ichigo",
+            "rukia",
+            "ulquiorra",
+            "aizen",
+        ]
+
+    def typing_lab_prepare(mode="letters", total_letters=10, seconds_per_letter=2.0, total_words=10, seconds_per_word=3.0):
         letters = list("abcdefghijklmnopqrstuvwxyz")
+        use_mode = str(mode or "letters").lower().strip()
+        if use_mode not in ("letters", "words"):
+            use_mode = "letters"
+
         try:
             n = int(total_letters)
         except:
@@ -86,14 +112,42 @@ init -850 python:
             spl = 2.0
         spl = max(0.2, spl)
 
-        seq = [random.choice(letters) for _ in range(n)]
+        if use_mode == "words":
+            try:
+                n_words = int(total_words)
+            except:
+                n_words = 10
+            n_words = max(1, n_words)
+
+            try:
+                spw = float(seconds_per_word)
+            except:
+                spw = 3.0
+            spw = max(0.2, spw)
+
+            bank = list(typing_lab_word_bank())
+            random.shuffle(bank)
+            if len(bank) >= n_words:
+                seq = bank[:n_words]
+            else:
+                seq = [random.choice(bank) for _ in range(n_words)]
+
+            n = n_words
+            spl = spw
+        else:
+            seq = [random.choice(letters) for _ in range(n)]
+
+        first_prompt = str(seq[0] if seq else "a")
 
         st = {
+            "mode": str(use_mode),
             "phase": "idle",
             "sequence": list(seq),
             "total": int(len(seq)),
             "index": 0,
-            "current_letter": str(seq[0] if seq else "a"),
+            "cursor": 0,
+            "current_prompt": first_prompt,
+            "current_letter": str(first_prompt[:1] if first_prompt else "a"),
             "hits": 0,
             "seconds_per_letter": float(spl),
             "time_left": float(spl),
@@ -119,9 +173,28 @@ init -850 python:
         if not ("a" <= got <= "z"):
             return dict(st)
 
-        expected = str(st.get("current_letter", "") or "").lower()
+        mode = str(st.get("mode", "letters") or "letters")
+        prompt = str(st.get("current_prompt", "") or "")
+        cursor = int(st.get("cursor", 0) or 0)
+        if cursor < 0:
+            cursor = 0
+
+        expected = ""
+        if mode == "words":
+            if prompt and cursor < len(prompt):
+                expected = str(prompt[cursor]).lower()
+        else:
+            expected = str(st.get("current_letter", "") or "").lower()
+
         if got != expected:
             return dict(st)
+
+        if mode == "words":
+            cursor += 1
+            st["cursor"] = int(cursor)
+            if cursor < len(prompt):
+                S.typing_lab_state = st
+                return dict(st)
 
         st["phase"] = "hit"
         st["hits"] = int(st.get("hits", 0) or 0) + 1
@@ -214,6 +287,8 @@ init -850 python:
 
         if idx >= total:
             st["phase"] = "done"
+            st["cursor"] = 0
+            st["current_prompt"] = ""
             st["current_letter"] = ""
             st["time_left"] = 0.0
             st["feedback_time_left"] = 0.0
@@ -222,8 +297,11 @@ init -850 python:
             st["bar_osc_amp"] = 0.0
             st["bar_osc_t"] = 0.0
         else:
+            new_prompt = str(seq[idx])
             st["phase"] = "idle"
-            st["current_letter"] = str(seq[idx])
+            st["cursor"] = 0
+            st["current_prompt"] = str(new_prompt)
+            st["current_letter"] = str(new_prompt[:1] if new_prompt else "")
             st["time_left"] = float(spl)
             st["feedback_time_left"] = 0.0
             st["bar_visual_ratio"] = 1.0
@@ -243,10 +321,13 @@ init -850 python:
 
 
 default typing_lab_state = {
+    "mode": "letters",
     "phase": "idle",
     "sequence": [],
     "total": 10,
     "index": 0,
+    "cursor": 0,
+    "current_prompt": "",
     "current_letter": "",
     "hits": 0,
     "seconds_per_letter": 2.0,
@@ -258,6 +339,67 @@ default typing_lab_state = {
     "bar_osc_t": 0.0,
 }
 
+default typing_lab_selected_mode = "letters"
+
+screen typing_lab_mode_menu():
+    modal True
+    zorder 265
+
+    add Solid("#000000")
+
+    frame:
+        background "#171717"
+        xalign 0.5
+        yalign 0.5
+        padding (34, 28)
+
+        vbox:
+            spacing 18
+            xalign 0.5
+
+            text "Typing Lab":
+                size 56
+                bold True
+                color "#FFFFFF"
+                xalign 0.5
+
+            text "Modo":
+                size 34
+                color "#D0D0D0"
+                xalign 0.5
+
+            hbox:
+                spacing 12
+                xalign 0.5
+
+                textbutton "Letras":
+                    action SetVariable("typing_lab_selected_mode", "letters")
+                    background ("#2A8F4A" if typing_lab_selected_mode == "letters" else "#2A2A2A")
+                    xpadding 16
+                    ypadding 10
+
+                textbutton "Palabras":
+                    action SetVariable("typing_lab_selected_mode", "words")
+                    background ("#2A8F4A" if typing_lab_selected_mode == "words" else "#2A2A2A")
+                    xpadding 16
+                    ypadding 10
+
+                textbutton "Frases":
+                    action SetVariable("typing_lab_selected_mode", "phrases")
+                    background ("#2A8F4A" if typing_lab_selected_mode == "phrases" else "#2A2A2A")
+                    xpadding 16
+                    ypadding 10
+
+            if typing_lab_selected_mode == "phrases":
+                text "Frases estará disponible más adelante.":
+                    size 24
+                    color "#FFB347"
+                    xalign 0.5
+
+            textbutton "Iniciar":
+                xalign 0.5
+                action Return("start")
+
 
 screen typing_lab_qte_simple():
     modal True
@@ -268,7 +410,10 @@ screen typing_lab_qte_simple():
     python:
         _st = getattr(store, "typing_lab_state", {})
         _phase = str(_st.get("phase", "idle") or "idle")
+        _mode = str(_st.get("mode", "letters") or "letters")
         _cur = str(_st.get("current_letter", "") or "")
+        _prompt = str(_st.get("current_prompt", _cur) or "")
+        _cursor = int(_st.get("cursor", 0) or 0)
         _idx = int(_st.get("index", 0) or 0)
         _tot = int(_st.get("total", 10) or 10)
         _spl = float(_st.get("seconds_per_letter", 2.0) or 2.0)
@@ -301,6 +446,16 @@ screen typing_lab_qte_simple():
         else:
             _letter_color = "#FFFFFF"
 
+        _word_markup = _prompt
+        if _mode == "words":
+            _cursor = max(0, min(len(_prompt), _cursor))
+            if _phase == "hit":
+                _word_markup = "{color=#66FF99}%s{/color}" % _prompt
+            else:
+                _typed = _prompt[:_cursor]
+                _pending = _prompt[_cursor:]
+                _word_markup = "{color=#66FF99}%s{/color}{color=#FFFFFF}%s{/color}" % (_typed, _pending)
+
     timer 0.02 repeat True action Function(getattr(store, "typing_lab_tick", None), 0.02)
 
     for _k in _letters:
@@ -314,12 +469,26 @@ screen typing_lab_qte_simple():
 
 
     if _phase != "done":
-        text (_cur if _cur else "-"):
-            xalign 0.5
-            yalign 0.48
-            size 140
-            bold True
-            color _letter_color
+        if _mode == "words":
+            text _word_markup:
+                xalign 0.5
+                yalign 0.48
+                size 88
+                bold True
+                text_align 0.5
+                min_width 680
+            text "Escribe la palabra en orden":
+                xalign 0.5
+                yalign 0.57
+                size 24
+                color "#BDBDBD"
+        else:
+            text (_cur if _cur else "-"):
+                xalign 0.5
+                yalign 0.48
+                size 140
+                bold True
+                color _letter_color
 
         frame:
             background "#1A1A1A"
@@ -364,7 +533,7 @@ screen typing_lab_qte_simple():
             size 28
             color "#D0D0D0"
 
-        text ("Letra %d/%d" % (int(min(_idx + 1, max(1, _tot))), int(max(1, _tot)))):
+        text (("Palabra %d/%d" if _mode == "words" else "Letra %d/%d") % (int(min(_idx + 1, max(1, _tot))), int(max(1, _tot)))):
             xalign 0.5
             yalign 0.82
             size 30
@@ -395,9 +564,22 @@ screen typing_lab_win_popup():
                 xalign 0.5
                 action Return("menu")
 
+            textbutton "Volver a intentar":
+                xalign 0.5
+                action Return("retry")
+
 label typing_lab_start:
     $ typing_lab_state = typing_lab_default_state()
-    $ typing_lab_prepare(total_letters=10, seconds_per_letter=2.0)
+    $ _typing_lab_menu_action = renpy.call_screen("typing_lab_mode_menu")
+    if _typing_lab_menu_action != "start":
+        return
+
+    if typing_lab_selected_mode == "words":
+        $ typing_lab_prepare(mode="words", total_words=10, seconds_per_word=3.0)
+    elif typing_lab_selected_mode == "letters":
+        $ typing_lab_prepare(mode="letters", total_letters=10, seconds_per_letter=2.0)
+    else:
+        jump typing_lab_start
 
 label typing_lab_round:
     $ _typing_lab_simple_result = renpy.call_screen("typing_lab_qte_simple")
@@ -405,4 +587,10 @@ label typing_lab_round:
         jump typing_lab_round
 
     $ _typing_lab_popup_action = renpy.call_screen("typing_lab_win_popup")
+    if _typing_lab_popup_action == "retry":
+        if typing_lab_selected_mode == "words":
+            $ typing_lab_prepare(mode="words", total_words=10, seconds_per_word=3.0)
+        else:
+            $ typing_lab_prepare(mode="letters", total_letters=10, seconds_per_letter=2.0)
+        jump typing_lab_round
     return
