@@ -274,7 +274,11 @@ label defensive_resolve(received_damage, hp_after, reflected):
         _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
         if getattr(S, "defense_for_attack_active", False):
             S.defense_for_attack_active = False
-            next_turn = "enemy"
+            if _mode == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):
+                nk = str(S.bs_turn_advance(mirror_legacy=True) or "")
+                next_turn = str(S.bs_parse_unit_key(nk, default_side="enemy", default_slot=0).get("team", "enemy") or "enemy")
+            else:
+                next_turn = "enemy"
         elif bool(getattr(S, "deferred_defense_return_to_offense", False)):
             next_turn = "player_same_actor"
         elif _mode == "2v2" and callable(getattr(S, "bs_turn_advance", None)) and callable(getattr(S, "bs_parse_unit_key", None)):

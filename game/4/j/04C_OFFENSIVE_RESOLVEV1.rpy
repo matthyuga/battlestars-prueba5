@@ -117,6 +117,7 @@ label battle_offensive_resolve_enemy:
             fn_apply = getattr(S, "bs_apply_damage", None)
 
             alloc = {}
+            alloc_direct = {}
             if isinstance(plan, dict):
                 entries = list(plan.get("entries", []) or [])
                 base_entries = []
@@ -150,9 +151,12 @@ label battle_offensive_resolve_enemy:
                     if (not primary) and base_entries:
                         primary = str(base_entries[0][0] or "")
                     if primary:
-                        alloc[primary] = int(alloc.get(primary, 0) or 0) + int(direct_total)
+                        alloc_direct[primary] = int(alloc_direct.get(primary, 0) or 0) + int(direct_total)
             elif target_key:
-                alloc[target_key] = int(dmg_total)
+                if defendible_total > 0:
+                    alloc[target_key] = int(defendible_total)
+                if direct_total > 0:
+                    alloc_direct[target_key] = int(direct_total)
 
             if mode == "2v2":
                 pend = getattr(S, "enemy_pending_damage_by_key", None)
@@ -164,6 +168,16 @@ label battle_offensive_resolve_enemy:
                         continue
                     pend[tk] = int(pend.get(tk, 0) or 0) + ai
                 S.enemy_pending_damage_by_key = pend
+
+                pend_direct = getattr(S, "enemy_pending_direct_damage_by_key", None)
+                if not isinstance(pend_direct, dict):
+                    pend_direct = {}
+                for tk, amt in alloc_direct.items():
+                    ai = max(0, int(amt or 0))
+                    if not tk or ai <= 0:
+                        continue
+                    pend_direct[tk] = int(pend_direct.get(tk, 0) or 0) + ai
+                S.enemy_pending_direct_damage_by_key = pend_direct
                 fn_set_incoming_ctx = getattr(S, "bs_set_incoming_ctx_2v2", None)
                 _tkey = str(target_key or (list(alloc.keys())[0] if alloc else ""))
                 _src_key = str(getattr(S, "current_actor_unit_key", "") or "")
@@ -192,7 +206,7 @@ label battle_offensive_resolve_enemy:
                     S.next_defense_reduction = 0.0
 
                 try:
-                    if callable(getattr(S, "battle_log_add", None)) and alloc:
+                    if callable(getattr(S, "battle_log_add", None)) and (alloc or alloc_direct):
                         fn_desc = getattr(S, "bs_describe_unit_key", None)
                         parts = []
                         for tk, amt in alloc.items():
@@ -200,6 +214,11 @@ label battle_offensive_resolve_enemy:
                                 parts.append("{}:+{}".format(fn_desc(tk, default_side="enemy", default_slot=0), int(amt or 0)))
                             else:
                                 parts.append("{}:+{}".format(tk, int(amt or 0)))
+                        for tk, amt in alloc_direct.items():
+                            if callable(fn_desc):
+                                parts.append("{}:D+{}".format(fn_desc(tk, default_side="enemy", default_slot=0), int(amt or 0)))
+                            else:
+                                parts.append("{}:D+{}".format(tk, int(amt or 0)))
                         S.battle_log_add("{color=#B39DDB}Daño en cola 2v2 → %s{/color}" % (" | ".join(parts)), group="queue_2v2")
                 except:
                     pass

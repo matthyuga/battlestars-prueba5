@@ -475,12 +475,16 @@ init -988 python:
             pass
 
 
-        # Si hubo daño directo del jugador este turno, mostrar HP total esperado.
-        fn_get_direct = getattr(S, "bs_get_direct_pending", None)
-        if callable(fn_get_direct):
-            direct_pending = int(fn_get_direct("enemy") or 0)
-        else:
-            direct_pending = int(getattr(S, "_last_player_direct_damage", 0) or 0)
+        # En 1v1, si hubo daño directo del jugador este turno, mostrar HP total esperado.
+        direct_pending = 0
+        _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if _mode != "2v2":
+            fn_get_direct = getattr(S, "bs_get_direct_pending", None)
+            if callable(fn_get_direct):
+                direct_pending = int(fn_get_direct("enemy") or 0)
+            else:
+                direct_pending = int(getattr(S, "_last_player_direct_damage", 0) or 0)
+
         if direct_pending > 0:
             hp_after_total = max(0, int(hp_after) - int(direct_pending))
             try:

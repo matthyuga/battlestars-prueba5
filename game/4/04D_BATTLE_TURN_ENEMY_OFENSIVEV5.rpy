@@ -47,6 +47,7 @@ label battle_enemy_turn_legacy_entry:
     python:
         import renpy.store as S
         _enemy_pending_damage = 0
+        _enemy_pending_direct = 0
         _enemy_pending_ko = False
         _enemy_actor_alive = True
 
@@ -59,7 +60,12 @@ label battle_enemy_turn_legacy_entry:
             akey = str(getattr(S, "current_enemy_unit_key", "") or "")
             _enemy_pending_damage = max(0, int(pend.get(akey, 0) or 0))
 
-            if _enemy_pending_damage > 0:
+            pend_direct = getattr(S, "enemy_pending_direct_damage_by_key", None)
+            if not isinstance(pend_direct, dict):
+                pend_direct = {}
+            _enemy_pending_direct = max(0, int(pend_direct.get(akey, 0) or 0))
+
+            if _enemy_pending_damage > 0 or _enemy_pending_direct > 0:
                 # preparar identidad visual/legacy del defensor actual
                 try:
                     S.battle_enemy_id = str(enemy_name or getattr(S, "battle_enemy_id", "Enemigo"))
@@ -92,6 +98,8 @@ label battle_enemy_turn_legacy_entry:
                     except:
                         final_in = int(_enemy_pending_damage)
 
+                total_in = max(0, int(final_in or 0)) + max(0, int(_enemy_pending_direct or 0))
+
                 # consumir debuff acumulado de este target y restaurar valor temporal
                 try:
                     if isinstance(_deb_map, dict) and akey:
@@ -105,11 +113,11 @@ label battle_enemy_turn_legacy_entry:
                 try:
                     fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
                     if callable(fn_apply_key) and akey:
-                        fn_apply_key(akey, int(final_in), source_key=getattr(S, "current_actor_unit_key", None), reason="combat_deferred_enemy", tags=["deferred", "enemy_defense"])
+                        fn_apply_key(akey, int(total_in), source_key=getattr(S, "current_actor_unit_key", None), reason="combat_deferred_enemy", tags=["deferred", "enemy_defense"])
                     else:
                         fn_set = getattr(S, "bs_set_hp", None)
                         cur = int(getattr(S, "enemy_hp", 0) or 0)
-                        nxt = max(0, cur - int(final_in or 0))
+                        nxt = max(0, cur - int(total_in or 0))
                         if callable(fn_set):
                             fn_set("enemy", nxt)
                         else:
@@ -120,6 +128,8 @@ label battle_enemy_turn_legacy_entry:
                 # consumir cola del actor actual
                 pend[akey] = 0
                 S.enemy_pending_damage_by_key = pend
+                pend_direct[akey] = 0
+                S.enemy_pending_direct_damage_by_key = pend_direct
 
                 try:
                     fn_sync = getattr(S, "bs_sync_hp_ui", None)
@@ -131,6 +141,8 @@ label battle_enemy_turn_legacy_entry:
                 try:
                     if callable(getattr(S, "battle_log_add", None)):
                         S.battle_log_add("{color=#90CAF9}Defensa diferida %s: %s{/color}" % (str(enemy_name), str(int(final_in))))
+                        if int(_enemy_pending_direct or 0) > 0:
+                            S.battle_log_add("{color=#FFD54F}Daño directo diferido %s: %s{/color}" % (str(enemy_name), str(int(_enemy_pending_direct))))
                 except:
                     pass
 
@@ -150,7 +162,7 @@ label battle_enemy_turn_legacy_entry:
         $ battle_log_add("{color=#FFD700}¡Victoria!{/color}")
         jump battle_end
 
-    if _enemy_pending_damage > 0 and not _enemy_actor_alive:
+    if (_enemy_pending_damage > 0 or _enemy_pending_direct > 0) and not _enemy_actor_alive:
         python:
             import renpy.store as S
             _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
