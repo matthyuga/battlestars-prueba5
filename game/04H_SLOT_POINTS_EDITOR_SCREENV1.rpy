@@ -9,6 +9,8 @@ default spa_editor_step = 100
 default spa_editor_message = ""
 default spa_editor_message_color = "#AAAAAA"
 default spa_editor_profile_id = "A"
+default spa_editor_clipboard_slot = None
+default spa_editor_clipboard_source = ""
 
 init -930 python:
     import renpy.store as S
@@ -272,6 +274,59 @@ init -930 python:
             spa_ui_set_message("No existe perfil {} guardado".format(str(profile_id)), "#FF8888")
         return None
 
+    def spa_ui_copy_slot_feedback(unit_key):
+        fn_get = getattr(S, "spa_get_slot", None)
+        if not callable(fn_get):
+            spa_ui_set_message("Allocator no disponible.", "#FF8888")
+            return None
+
+        slot = fn_get(unit_key)
+        if not isinstance(slot, dict):
+            spa_ui_set_message("No se pudo copiar el slot.", "#FF8888")
+            return None
+
+        S.spa_editor_clipboard_slot = {
+            "available": int(slot.get("available", 0) or 0),
+            "tech_bonus": dict(slot.get("tech_bonus", {}) if isinstance(slot.get("tech_bonus", {}), dict) else {}),
+            "resource_bonus": dict(slot.get("resource_bonus", {}) if isinstance(slot.get("resource_bonus", {}), dict) else {}),
+        }
+        S.spa_editor_clipboard_source = str(unit_key or "")
+        spa_ui_set_message("Configuración copiada desde {}.".format(spa_ui_unit_label(unit_key)), "#66DD66")
+        return None
+
+    def spa_ui_paste_slot_feedback(unit_key):
+        clip = getattr(S, "spa_editor_clipboard_slot", None)
+        if not isinstance(clip, dict):
+            spa_ui_set_message("No hay configuración copiada.", "#FF8888")
+            return None
+
+        fn_reset = getattr(S, "spa_reset_slot", None)
+        fn_set_av = getattr(S, "spa_set_available", None)
+        fn_set_pool = getattr(S, "spa_set_pool_bonus", None)
+        fn_set_bonus = getattr(S, "spa_set_bonus", None)
+        if not (callable(fn_reset) and callable(fn_set_av) and callable(fn_set_pool) and callable(fn_set_bonus)):
+            spa_ui_set_message("Allocator no disponible para pegar.", "#FF8888")
+            return None
+
+        fn_reset(unit_key, save=False)
+        fn_set_av(unit_key, int(clip.get("available", 0) or 0), save=False)
+
+        rb = clip.get("resource_bonus", {}) if isinstance(clip.get("resource_bonus", {}), dict) else {}
+        for pool_key, bonus in rb.items():
+            fn_set_pool(unit_key, str(pool_key), int(bonus or 0), save=False)
+
+        tb = clip.get("tech_bonus", {}) if isinstance(clip.get("tech_bonus", {}), dict) else {}
+        for tech_id, bonus in tb.items():
+            fn_set_bonus(unit_key, str(tech_id), int(bonus or 0), save=False)
+
+        fn_save = getattr(S, "spa_save_persistent", None)
+        if callable(fn_save):
+            fn_save()
+
+        src = spa_ui_unit_label(getattr(S, "spa_editor_clipboard_source", "") or unit_key)
+        spa_ui_set_message("Configuración pegada en {} (desde {}).".format(spa_ui_unit_label(unit_key), src), "#66DD66")
+        return None
+
 screen slot_points_editor():
     tag menu
 
@@ -334,6 +389,8 @@ screen slot_points_editor():
                     spacing 12
                     textbutton _("Reset slot") action Function(store.spa_ui_reset_slot_feedback, selected)
                     textbutton _("Reset TODO") action Confirm(_("¿Resetear TODOS los slots?"), yes=Function(store.spa_ui_reset_all_feedback))
+                    textbutton _("Copiar slot") action Function(store.spa_ui_copy_slot_feedback, selected)
+                    textbutton _("Pegar slot") action Function(store.spa_ui_paste_slot_feedback, selected)
 
                 frame:
                     has vbox
