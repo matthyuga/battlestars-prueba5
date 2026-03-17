@@ -367,6 +367,25 @@ screen slot_points_editor():
                         textbutton "+1000 HP" action Function(store.spa_ui_add_pool_feedback, selected, "hp", 1000)
                         textbutton "Reset HP" action Function(store.spa_ui_reset_pool_feedback, selected, "hp")
 
+                frame:
+                    has vbox
+                    spacing 6
+
+                    text "Puntos de hierro" size 20 color "#6EC1FF"
+                    hbox:
+                        spacing 16
+                        $ hierro_cover_bonus = int(store.spa_get_pool_bonus(selected, "coating_cover") if hasattr(store, "spa_get_pool_bonus") else 0)
+                        text "Cubre bonus: [hierro_cover_bonus]" size 17
+                        textbutton "+100 Cubre" action Function(store.spa_ui_add_pool_feedback, selected, "coating_cover", 100)
+                        textbutton "Reset Cubre" action Function(store.spa_ui_reset_pool_feedback, selected, "coating_cover")
+
+                    hbox:
+                        spacing 16
+                        $ hierro_dura_bonus = int(store.spa_get_pool_bonus(selected, "coating_durability") if hasattr(store, "spa_get_pool_bonus") else 0)
+                        text "Durabilidad bonus: [hierro_dura_bonus]" size 17
+                        textbutton "+1000 Durabilidad" action Function(store.spa_ui_add_pool_feedback, selected, "coating_durability", 1000)
+                        textbutton "Reset Durabilidad" action Function(store.spa_ui_reset_pool_feedback, selected, "coating_durability")
+
                 null height 8
 
                 for tech_id in store.spa_ui_tech_ids_v1():

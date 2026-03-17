@@ -547,7 +547,18 @@ init -989 python:
         S.battle_state = bs
         return {"reiatsu_spent": use_r, "energy_spent": use_e, "reiatsu_after": u["reiatsu"], "energy_after": u["energy"]}
 
-    def bs_init_single_teams(player_char_id=None, enemy_char_id=None, player_hp=None, player_max_hp=None, enemy_hp=None, enemy_max_hp=None):
+    def bs_init_single_teams(
+        player_char_id=None,
+        enemy_char_id=None,
+        player_hp=None,
+        player_max_hp=None,
+        enemy_hp=None,
+        enemy_max_hp=None,
+        player_coating_cover=None,
+        player_coating_durability=None,
+        enemy_coating_cover=None,
+        enemy_coating_durability=None,
+    ):
         bs = battle_state_ensure()
 
         p_char = str(player_char_id or _bs_default_char_id("player"))
@@ -563,6 +574,17 @@ init -989 python:
         if e_hp > e_mx:
             e_hp = e_mx
 
+        p_tpl = _bs_get_character_template(p_char)
+        e_tpl = _bs_get_character_template(e_char)
+        p_cover = _bs_to_int(player_coating_cover, p_tpl.get("coating_cover", 0))
+        p_dura = _bs_to_int(player_coating_durability, p_tpl.get("coating_durability", 0))
+        e_cover = _bs_to_int(enemy_coating_cover, e_tpl.get("coating_cover", 0))
+        e_dura = _bs_to_int(enemy_coating_durability, e_tpl.get("coating_durability", 0))
+        p_cover = max(0, p_cover)
+        p_dura = max(0, p_dura)
+        e_cover = max(0, e_cover)
+        e_dura = max(0, e_dura)
+
         bs.setdefault("teams", {})["player"] = [{
             "uid": "player_1",
             "char_id": p_char,
@@ -571,6 +593,9 @@ init -989 python:
             "alive": bool(p_hp > 0),
             "reiatsu": _bs_get_char_resource(p_char, "Reiatsu", getattr(S, "player_reiatsu", 0)),
             "energy": _bs_get_char_resource(p_char, "Energy", getattr(S, "player_energy", 0)),
+            "coating_cover": p_cover,
+            "coating_durability_current": p_dura,
+            "coating_durability_max": p_dura,
         }]
         bs.setdefault("teams", {})["enemy"] = [{
             "uid": "enemy_1",
@@ -580,6 +605,9 @@ init -989 python:
             "alive": bool(e_hp > 0),
             "reiatsu": _bs_get_char_resource(e_char, "Reiatsu", getattr(S, "enemy_reiatsu", 0)),
             "energy": _bs_get_char_resource(e_char, "Energy", getattr(S, "enemy_energy", 0)),
+            "coating_cover": e_cover,
+            "coating_durability_current": e_dura,
+            "coating_durability_max": e_dura,
         }]
         bs.setdefault("active", {})["player"] = "player_1"
         bs.setdefault("active", {})["enemy"] = "enemy_1"
@@ -589,6 +617,9 @@ init -989 python:
             "char_id": p_char,
             "hp": p_hp,
             "max_hp": p_mx,
+            "coating_cover": p_cover,
+            "coating_durability_current": p_dura,
+            "coating_durability_max": p_dura,
         }
         bs["units"]["player"] = _bs_with_coating_fields(bs["units"]["player"], p_char)
         bs.setdefault("units", {})["enemy"] = {
@@ -596,6 +627,9 @@ init -989 python:
             "char_id": e_char,
             "hp": e_hp,
             "max_hp": e_mx,
+            "coating_cover": e_cover,
+            "coating_durability_current": e_dura,
+            "coating_durability_max": e_dura,
         }
         bs["units"]["enemy"] = _bs_with_coating_fields(bs["units"]["enemy"], e_char)
 
