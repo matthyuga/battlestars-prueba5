@@ -91,14 +91,21 @@ label battle_enemy_turn_legacy_entry:
                 if _applied_red > 0.0:
                     S.next_defense_reduction = float(_applied_red)
 
+                _def_part = max(0, int(_enemy_pending_damage or 0))
+                _dir_part = max(0, int(_enemy_pending_direct or 0))
+                _direct_only = (_def_part <= 0 and _dir_part > 0)
+
                 if callable(fn_def):
                     try:
-                        info = fn_def(_enemy_pending_damage)
-                        final_in = max(0, int(info.get("final_damage", _enemy_pending_damage) or _enemy_pending_damage))
+                        # Regla: si el daño entrante es SOLO directo, sí permite reducción,
+                        # pero no bloqueos defensivos.
+                        _def_input = int(_dir_part if _direct_only else _def_part)
+                        info = fn_def(_def_input, allow_block=(not _direct_only))
+                        final_in = max(0, int(info.get("final_damage", _def_input) or _def_input))
                     except:
-                        final_in = int(_enemy_pending_damage)
+                        final_in = int(_dir_part if _direct_only else _def_part)
 
-                total_in = max(0, int(final_in or 0)) + max(0, int(_enemy_pending_direct or 0))
+                total_in = max(0, int(final_in or 0)) + (0 if _direct_only else _dir_part)
 
                 # consumir debuff acumulado de este target y restaurar valor temporal
                 try:

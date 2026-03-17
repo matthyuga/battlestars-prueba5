@@ -17,7 +17,7 @@
 
 init -988 python:
 
-    def ai_defense_execute_plan(plan, dmg_effective, name, border="#FFFFFF"):
+    def ai_defense_execute_plan(plan, dmg_effective, name, border="#FFFFFF", allow_block=True):
         import renpy.store as S
 
         # -------------------------------
@@ -189,8 +189,9 @@ init -988 python:
             except:
                 blk = int(base_blk or 0)
 
-            blocks_list.append((base_blk, blk))
-            total_block += int(blk)
+            if bool(allow_block):
+                blocks_list.append((base_blk, blk))
+                total_block += int(blk)
 
             # Logs por tipo
             if key == "def_extra":

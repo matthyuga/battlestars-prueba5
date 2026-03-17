@@ -8,7 +8,7 @@
 
 init -986 python:
 
-    def enemy_compute_reactive_defense(total_damage):
+    def enemy_compute_reactive_defense(total_damage, allow_block=True):
 
         import renpy.store as S
 
@@ -97,7 +97,7 @@ init -986 python:
         fn = getattr(S, "ai_defense_execute_plan", None)
         if callable(fn):
             try:
-                return fn(plan, dmg_effective, name, border)
+                return fn(plan, dmg_effective, name, border, allow_block=bool(allow_block))
             except:
                 pass
 
