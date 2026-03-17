@@ -117,33 +117,8 @@ label defensive_resolve(received_damage, hp_after, reflected):
                     def_key = "player:0"
 
             hp_before_u = int(getattr(S, "defense_hp_before", 0) or 0)
-            dmg_apply = max(0, int(hp_before_u) - int(hp_after or 0))
+            dmg_apply = max(0, int(received_damage or 0))
             _rr = S.bs_apply_damage_to_unit_key(def_key, dmg_apply, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat_defended_target", tags=["defense"])
-
-            try:
-                coat = dict((_rr or {}).get("coating", {}) or {})
-                ctype = str(coat.get("type", "Recubrimiento") or "Recubrimiento").capitalize()
-                cover = int(coat.get("cover", 0) or 0)
-                after_cover = int(coat.get("after_cover", 0) or 0)
-                dura_before = int(coat.get("durability_before", 0) or 0)
-                dura_after = int(coat.get("durability_after", 0) or 0)
-                hp_before_log = int((_rr or {}).get("hp_before", hp_before_u) or hp_before_u)
-                hp_after_log = int((_rr or {}).get("hp_after", hp_before_log) or hp_before_log)
-                spill = int(coat.get("hp_spill", max(0, hp_before_log - hp_after_log)) or 0)
-
-                fn_fmt = getattr(S, "battle_fmt_num", None)
-                f = (fn_fmt if callable(fn_fmt) else (lambda x: str(int(x or 0))))
-                fn_blog = getattr(S, "blog", None)
-                if not callable(fn_blog):
-                    fn_blog = getattr(S, "battle_log_add", None)
-
-                if callable(fn_blog):
-                    fn_blog("    ◉ {}:".format(ctype), "#8FCBFF")
-                    fn_blog("      cubre: {} - {} = {}".format(f(cover), f(dmg_apply), f(after_cover)), "#BFDFFF")
-                    fn_blog("      durabilidad: {} - {} = {}".format(f(dura_before), f(after_cover), f(dura_after)), "#7DB2E8")
-                    fn_blog("      HP: {} - {} = {}".format(f(hp_before_log), f(spill), f(hp_after_log)), "#66FF99")
-            except:
-                pass
 
             # alinear aliases legacy con la unidad defendida real
             try:
