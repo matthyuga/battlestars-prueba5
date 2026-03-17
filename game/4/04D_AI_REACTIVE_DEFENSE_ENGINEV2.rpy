@@ -389,9 +389,13 @@ init -988 python:
             pass
 
         # -------------------------------
-        # (4) HP
+        # (4) RECUBRIMIENTO + HP
         # -------------------------------
         hp_before = int(getattr(S, "enemy_hp", 0) or 0)
+        coating_type = "Hierro"
+        coating_cover = 0
+        coating_dura_before = 0
+        coating_active = False
         try:
             mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
         except:
@@ -400,11 +404,64 @@ init -988 python:
             cu = S.bs_get_unit_by_key(str(getattr(S, "current_enemy_unit_key", "") or ""))
             if isinstance(cu, dict):
                 hp_before = int(cu.get("hp", hp_before) or hp_before)
-        hp_after  = max(0, hp_before - int(final_damage))
+                coating_type = str(cu.get("coating_type", "hierro") or "hierro").capitalize()
+                coating_cover = max(0, int(cu.get("coating_cover", 0) or 0))
+                coating_dura_before = max(0, int(cu.get("coating_durability_current", 0) or 0))
+                coating_active = bool(cu.get("coating_active", False))
+        elif callable(getattr(S, "bs_get_unit_by_key", None)):
+            cu = S.bs_get_unit_by_key(str(getattr(S, "current_enemy_unit_key", "") or "enemy:0"))
+            if isinstance(cu, dict):
+                hp_before = int(cu.get("hp", hp_before) or hp_before)
+                coating_type = str(cu.get("coating_type", "hierro") or "hierro").capitalize()
+                coating_cover = max(0, int(cu.get("coating_cover", 0) or 0))
+                coating_dura_before = max(0, int(cu.get("coating_durability_current", 0) or 0))
+                coating_active = bool(cu.get("coating_active", False))
+
+        if not (coating_active and coating_cover > 0 and coating_dura_before > 0):
+            coating_cover = 0
+            coating_dura_before = 0
+
+        after_cover = max(0, int(final_damage) - int(coating_cover))
+        coating_dura_after = max(0, int(coating_dura_before) - int(after_cover))
+        hp_spill = max(0, int(after_cover) - int(coating_dura_before))
+
+        hp_after  = max(0, hp_before - int(hp_spill))
 
         try:
             S.operation_add(
-                S.op_def_hp(S.battle_fmt_num(hp_before), S.battle_fmt_num(final_damage), S.battle_fmt_num(hp_after)),
+                "    ◉ {}:".format(str(coating_type or "Recubrimiento")),
+                border
+            )
+            S.operation_add(
+                "      cubre: {} - {} = {}".format(
+                    S.battle_fmt_num(coating_cover),
+                    S.battle_fmt_num(final_damage),
+                    S.battle_fmt_num(after_cover)
+                ),
+                border
+            )
+            S.operation_add(
+                "      durabilidad: {} - {} = {}".format(
+                    S.battle_fmt_num(coating_dura_before),
+                    S.battle_fmt_num(after_cover),
+                    S.battle_fmt_num(coating_dura_after)
+                ),
+                border
+            )
+            try:
+                fw = globals().get("fmt_white", lambda x: x)
+                fr = globals().get("fmt_red", lambda x: x)
+                fg = globals().get("fmt_green", lambda x: "{color=%s}%s{/color}" % (_pal("green", "#00FF00"), x))
+            except:
+                fw = fr = fg = (lambda x: x)
+
+            S.operation_add(
+                "      ◉ " + fw("HP:") + " " +
+                fg(S.battle_fmt_num(hp_before)) +
+                fw(" - ") +
+                fr(S.battle_fmt_num(hp_spill)) +
+                fw(" = ") +
+                (fg(S.battle_fmt_num(hp_after)) if hp_after > 0 else fr("{} KO".format(S.battle_fmt_num(hp_after)))),
                 border
             )
         except:
