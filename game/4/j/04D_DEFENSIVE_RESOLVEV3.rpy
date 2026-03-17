@@ -27,7 +27,11 @@ label defensive_resolve(received_damage, hp_after, reflected):
         # - se aplica acá porque este label "asienta" el daño real
         # =========================================================
         fn_consume_direct = getattr(S, "bs_consume_direct_pending", None)
-        if callable(fn_consume_direct):
+        _mode_direct = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if _mode_direct == "2v2":
+            direct_enemy = int(getattr(S, "pending_direct_damage_for_defense", 0) or 0)
+            S.pending_direct_damage_for_defense = 0
+        elif callable(fn_consume_direct):
             direct_enemy = int(fn_consume_direct("player") or 0)
         else:
             direct_enemy = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)

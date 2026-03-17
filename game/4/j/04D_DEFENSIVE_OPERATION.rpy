@@ -230,11 +230,17 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
 
 
         # Si existe daño directo pendiente de IA, reflejar HP total esperado en el registro.
-        fn_get_direct = getattr(S, "bs_get_direct_pending", None)
-        if callable(fn_get_direct):
-            direct_pending = int(fn_get_direct("player") or 0)
+        # En 2v2 se usa el directo keyed del defensor activo para evitar cruzar P1/P2.
+        direct_pending = 0
+        _mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if _mode == "2v2":
+            direct_pending = int(getattr(S, "pending_direct_damage_for_defense", 0) or 0)
         else:
-            direct_pending = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+            fn_get_direct = getattr(S, "bs_get_direct_pending", None)
+            if callable(fn_get_direct):
+                direct_pending = int(fn_get_direct("player") or 0)
+            else:
+                direct_pending = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
         if direct_pending > 0:
             hp_after_total = max(0, int(hp_after) - int(direct_pending))
             hp_after_fmt = fmt_green(S.battle_fmt_num(hp_after)) if hp_after > 0 else fmt_red("{} KO".format(S.battle_fmt_num(hp_after)))

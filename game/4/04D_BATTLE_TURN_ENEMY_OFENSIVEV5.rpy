@@ -661,8 +661,14 @@ label battle_enemy_turn_legacy_entry:
         if _mode2 == "2v2":
             plan = getattr(S, "enemy_damage_plan", None)
             ppend = getattr(S, "player_pending_damage_by_key", None)
+            ppend_direct = getattr(S, "player_pending_direct_damage_by_key", None)
             if not isinstance(ppend, dict):
                 ppend = {}
+            if not isinstance(ppend_direct, dict):
+                ppend_direct = {}
+
+            alloc_def = {}
+            alloc_direct = {}
 
             if isinstance(plan, dict):
                 for e in (list(plan.get("entries", []) or [])):
@@ -671,22 +677,61 @@ label battle_enemy_turn_legacy_entry:
                     tk = str(e.get("target_key", "") or "")
                     amt = max(0, int(e.get("amount", 0) or 0))
                     if tk and amt > 0:
-                        ppend[tk] = int(ppend.get(tk, 0) or 0) + amt
-                        _deferred_2v2 = True
+                        alloc_def[tk] = int(alloc_def.get(tk, 0) or 0) + amt
+
+            direct_total = max(0, int(dmg_directo or 0))
+            if direct_total > 0:
+                _primary = str(getattr(S, "enemy_target_key", "") or "")
+                if (not _primary) and alloc_def:
+                    _primary = str(list(alloc_def.keys())[0] or "")
+                if _primary:
+                    alloc_direct[_primary] = int(alloc_direct.get(_primary, 0) or 0) + int(direct_total)
+
+            for tk, amt in alloc_def.items():
+                ai = max(0, int(amt or 0))
+                if not tk or ai <= 0:
+                    continue
+                ppend[tk] = int(ppend.get(tk, 0) or 0) + ai
+                _deferred_2v2 = True
+
+            for tk, amt in alloc_direct.items():
+                ai = max(0, int(amt or 0))
+                if not tk or ai <= 0:
+                    continue
+                ppend_direct[tk] = int(ppend_direct.get(tk, 0) or 0) + ai
+                _deferred_2v2 = True
 
             if _deferred_2v2:
                 S.player_pending_damage_by_key = ppend
+                S.player_pending_direct_damage_by_key = ppend_direct
+
+                # El directo queda keyed en 2v2; se consume del bucket global para evitar
+                # aplicarlo al defensor equivocado cuando entre P1/P2.
+                if direct_total > 0:
+                    fn_consume_direct = getattr(S, "bs_consume_direct_pending", None)
+                    if callable(fn_consume_direct):
+                        fn_consume_direct("player", mirror_legacy=True)
+                    else:
+                        S.enemy_direct_pending_damage = 0
+
                 try:
                     if callable(getattr(S, "battle_log_add", None)):
                         fn_desc = getattr(S, "bs_describe_unit_key", None)
                         parts = []
-                        for _k, _v in ppend.items():
+                        for _k, _v in alloc_def.items():
                             if int(_v or 0) <= 0:
                                 continue
                             if callable(fn_desc):
                                 parts.append("{}:+{}".format(fn_desc(_k, default_side="player", default_slot=0), int(_v or 0)))
                             else:
                                 parts.append("{}:+{}".format(_k, int(_v or 0)))
+                        for _k, _v in alloc_direct.items():
+                            if int(_v or 0) <= 0:
+                                continue
+                            if callable(fn_desc):
+                                parts.append("{}:D+{}".format(fn_desc(_k, default_side="player", default_slot=0), int(_v or 0)))
+                            else:
+                                parts.append("{}:D+{}".format(_k, int(_v or 0)))
                         S.battle_log_add("{color=#B39DDB}Daño entrante en cola 2v2 → %s{/color}" % (" | ".join(parts)), group="queue_2v2")
                 except:
                     pass
