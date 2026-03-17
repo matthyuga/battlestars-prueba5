@@ -16,6 +16,16 @@ init -970 python:
     battle_hp_enemy_max = 1
     battle_hp_player = battle_hp_player_max
     battle_hp_enemy = battle_hp_enemy_max
+    battle_coating_player_type = ""
+    battle_coating_enemy_type = ""
+    battle_coating_player_cover = 0
+    battle_coating_enemy_cover = 0
+    battle_coating_player_durability = 0
+    battle_coating_enemy_durability = 0
+    battle_coating_player_durability_max = 1
+    battle_coating_enemy_durability_max = 1
+    battle_coating_player_active = False
+    battle_coating_enemy_active = False
 
     hp_flash_timer = 0
     hp_flash_color = None
@@ -182,9 +192,41 @@ init -970 python:
     # ===========================================================
     def battle_update_hp_bars(player_hp, enemy_hp, flash_target=None, color=None):
         global battle_hp_player, battle_hp_enemy, hp_flash_timer, hp_flash_color
+        global battle_coating_player_type, battle_coating_enemy_type
+        global battle_coating_player_cover, battle_coating_enemy_cover
+        global battle_coating_player_durability, battle_coating_enemy_durability
+        global battle_coating_player_durability_max, battle_coating_enemy_durability_max
+        global battle_coating_player_active, battle_coating_enemy_active
 
         battle_hp_player = int(player_hp)
         battle_hp_enemy = int(enemy_hp)
+
+        try:
+            fn_key = getattr(S, "bs_get_active_unit_key", None)
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            if callable(fn_key) and callable(fn_get):
+                pu = fn_get(fn_key("player")) or {}
+                eu = fn_get(fn_key("enemy")) or {}
+            else:
+                pu = {}
+                eu = {}
+
+            battle_coating_player_type = str((pu.get("coating_type", "") if isinstance(pu, dict) else "") or "")
+            battle_coating_enemy_type = str((eu.get("coating_type", "") if isinstance(eu, dict) else "") or "")
+
+            battle_coating_player_cover = max(0, int((pu.get("coating_cover", 0) if isinstance(pu, dict) else 0) or 0))
+            battle_coating_enemy_cover = max(0, int((eu.get("coating_cover", 0) if isinstance(eu, dict) else 0) or 0))
+
+            battle_coating_player_durability_max = max(1, int((pu.get("coating_durability_max", 1) if isinstance(pu, dict) else 1) or 1))
+            battle_coating_enemy_durability_max = max(1, int((eu.get("coating_durability_max", 1) if isinstance(eu, dict) else 1) or 1))
+
+            battle_coating_player_durability = max(0, min(battle_coating_player_durability_max, int((pu.get("coating_durability_current", 0) if isinstance(pu, dict) else 0) or 0)))
+            battle_coating_enemy_durability = max(0, min(battle_coating_enemy_durability_max, int((eu.get("coating_durability_current", 0) if isinstance(eu, dict) else 0) or 0)))
+
+            battle_coating_player_active = bool((pu.get("coating_active", False) if isinstance(pu, dict) else False))
+            battle_coating_enemy_active = bool((eu.get("coating_active", False) if isinstance(eu, dict) else False))
+        except:
+            pass
 
         if flash_target:
             hp_flash_timer = 10
@@ -656,6 +698,11 @@ screen battle_hp_overlay():
                                 $ _name = hud_ai_resolve_unit_name(_team, i, _uu)
                                 $ _hp = int((_uu.get("hp", 0) if isinstance(_uu, dict) else 0) or 0)
                                 $ _mx = int((_uu.get("max_hp", 1) if isinstance(_uu, dict) else 1) or 1)
+                                $ _coat_type = str((_uu.get("coating_type", "") if isinstance(_uu, dict) else "") or "")
+                                $ _coat_cover = int((_uu.get("coating_cover", 0) if isinstance(_uu, dict) else 0) or 0)
+                                $ _coat_dm = max(1, int((_uu.get("coating_durability_max", 1) if isinstance(_uu, dict) else 1) or 1))
+                                $ _coat_dc = max(0, min(_coat_dm, int((_uu.get("coating_durability_current", 0) if isinstance(_uu, dict) else 0) or 0)))
+                                $ _coat_active = bool((_uu.get("coating_active", False) if isinstance(_uu, dict) else False))
                                 $ _active = bool(str(_ctx_u.get("owner_team", "")) == _team and int(_ctx_u.get("owner_slot", 0) or 0) == i)
                                 $ _is_autonomous_unit = hud_ai_is_autonomous_unit(_team, _uu)
                                 $ _is_framed_unit = bool(_is_autonomous_unit or _team == "player")
@@ -700,6 +747,17 @@ screen battle_hp_overlay():
                                                 ypos 96
                                                 color "#FFFFFF"
                                                 size 8
+
+                                            text "{} {}/{} · C {}".format(
+                                                str(_coat_type or "recubrimiento").capitalize(),
+                                                battle_fmt_num(_coat_dc),
+                                                battle_fmt_num(_coat_dm),
+                                                battle_fmt_num(_coat_cover)
+                                            ):
+                                                xpos 8
+                                                ypos 104
+                                                color ("#7EC8FF" if _coat_active else "#8AA0B3")
+                                                size 7
 
                                             text "Rei: {}/{}{}".format(
                                                 battle_fmt_num(hud_ai_res_value(_res, "reiatsu")),
@@ -759,13 +817,34 @@ screen battle_hp_overlay():
                                                     color "#FFFFFF"
                                                     size int((_hud_layout.get("stat_size", 11) or 11) + 2)
 
+                                                bar:
+                                                    xpos 18
+                                                    ypos 245
+                                                    value (float(_coat_dc) / max(1.0, float(_coat_dm)))
+                                                    range 1.0
+                                                    xmaximum 112
+                                                    ymaximum 10
+                                                    left_bar "#2F7DFF"
+                                                    right_bar "#1A1A1A"
+
+                                                text "{}: {}/{} · Cubre {}".format(
+                                                    str(_coat_type or "recubrimiento").capitalize(),
+                                                    battle_fmt_num(_coat_dc),
+                                                    battle_fmt_num(_coat_dm),
+                                                    battle_fmt_num(_coat_cover)
+                                                ):
+                                                    xpos 18
+                                                    ypos 259
+                                                    color ("#7EC8FF" if _coat_active else "#8AA0B3")
+                                                    size int((_hud_layout.get("stat_size", 9) or 9) + 1)
+
                                                 text "Reiatsu: {}/{}{}".format(
                                                     battle_fmt_num(hud_ai_res_value(_res, "reiatsu")),
                                                     battle_fmt_num(_rei_base),
                                                     " (-{})".format(battle_fmt_num(abs(_rei_diff))) if _rei_diff != 0 else ""
                                                 ):
                                                     xpos 18
-                                                    ypos 247
+                                                    ypos 274
                                                     color "#55FFFF"
                                                     size int((_hud_layout.get("stat_size", 11) or 11) + 2)
 
@@ -775,7 +854,7 @@ screen battle_hp_overlay():
                                                     " (-{})".format(battle_fmt_num(abs(_ene_diff))) if _ene_diff != 0 else ""
                                                 ):
                                                     xpos 18
-                                                    ypos 265
+                                                    ypos 292
                                                     color "#FFA500"
                                                     size int((_hud_layout.get("stat_size", 11) or 11) + 2)
                                             else:
@@ -942,6 +1021,16 @@ screen battle_hp_overlay():
                             range 1.0 xmaximum 280 ymaximum 16
                             left_bar "#00BFFF" right_bar "#222222"
                         text "{} / {}".format(battle_fmt_num(battle_hp_player), battle_fmt_num(battle_hp_player_max)) color "#FFFFFF" size 16
+                        bar:
+                            value (float(battle_coating_player_durability) / max(1.0, float(battle_coating_player_durability_max)))
+                            range 1.0 xmaximum 280 ymaximum 12
+                            left_bar "#2F7DFF" right_bar "#1A1A1A"
+                        text "{}: {}/{} · Cubre {}".format(
+                            str(battle_coating_player_type or "Recubrimiento").capitalize(),
+                            battle_fmt_num(battle_coating_player_durability),
+                            battle_fmt_num(battle_coating_player_durability_max),
+                            battle_fmt_num(battle_coating_player_cover)
+                        ) size 14 color ("#7EC8FF" if battle_coating_player_active else "#8AA0B3")
 
                         hbox:
                             spacing 6
@@ -969,6 +1058,16 @@ screen battle_hp_overlay():
                             range 1.0 xmaximum 280 ymaximum 16
                             left_bar "#FF3333" right_bar "#222222"
                         text "{} / {}".format(battle_fmt_num(battle_hp_enemy), battle_fmt_num(battle_hp_enemy_max)) color "#FFFFFF" size 16
+                        bar:
+                            value (float(battle_coating_enemy_durability) / max(1.0, float(battle_coating_enemy_durability_max)))
+                            range 1.0 xmaximum 280 ymaximum 12
+                            left_bar "#2F7DFF" right_bar "#1A1A1A"
+                        text "{}: {}/{} · Cubre {}".format(
+                            str(battle_coating_enemy_type or "Recubrimiento").capitalize(),
+                            battle_fmt_num(battle_coating_enemy_durability),
+                            battle_fmt_num(battle_coating_enemy_durability_max),
+                            battle_fmt_num(battle_coating_enemy_cover)
+                        ) size 14 color ("#7EC8FF" if battle_coating_enemy_active else "#8AA0B3")
                         text "Reiatsu: {}/{}".format(battle_fmt_num(enemy_reiatsu), battle_fmt_num(getattr(store, "enemy_reiatsu_base", enemy_reiatsu))) size 15 color "#55FFFF"
                         text "Energía: {}/{}".format(battle_fmt_num(enemy_energy), battle_fmt_num(getattr(store, "enemy_energy_base", enemy_energy))) size 15 color "#FFA500"
 

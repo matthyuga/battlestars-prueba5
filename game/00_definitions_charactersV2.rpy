@@ -17,11 +17,15 @@ init -995 python:
     DEFAULT_CHARACTER = {
         "id": "Unknown",               # ID interno del sistema (clave estable)
         "name": "Unknown",             # Nombre visible para el jugador
+        "race": "human",
         "HP": 100,
         "Strength": 10,
         "Defense": 8,
         "Reiatsu": 100,
         "Energy": 100,
+        "coating_type": "fullbring",
+        "coating_cover": 0,
+        "coating_durability": 0,
         "background": "bg_battle_base",  # tag de imagen Ren'Py (string)
         "color": "#FFFFFF"
     }
@@ -36,6 +40,7 @@ init -995 python:
         "Harribel": {
             "id": "Harribel",
             "name": "Harribel",
+            "race": "arrancar",
             "HP": 100,
             "Strength": 12,
             "Defense": 9,
@@ -43,6 +48,9 @@ init -995 python:
             # ⭐ RECURSOS
             "Reiatsu": 100,
             "Energy": 100,
+            "coating_type": "hierro",
+            "coating_cover": 500,
+            "coating_durability": 2000,
 
             # HUD
             "background": "bg_battle_desert",
@@ -52,12 +60,16 @@ init -995 python:
         "Hollow": {
             "id": "Hollow",
             "name": "Hollow",
+            "race": "hollow",
             "HP": 100,
             "Strength": 10,
             "Defense": 8,
 
             "Reiatsu": 100,
             "Energy": 100,
+            "coating_type": "hierro",
+            "coating_cover": 500,
+            "coating_durability": 2000,
 
             "background": "bg_battle_base",
             "color": "#FF5555"
@@ -66,12 +78,16 @@ init -995 python:
         "Grimmjow": {
             "id": "Grimmjow",
             "name": "Grimmjow",
+            "race": "arrancar",
             "HP": 100,
             "Strength": 14,
             "Defense": 9,
 
             "Reiatsu": 100,
             "Energy": 100,
+            "coating_type": "hierro",
+            "coating_cover": 500,
+            "coating_durability": 2000,
 
             "background": "bg_battle_desert",
             "color": "#3CC3FF"
@@ -80,12 +96,16 @@ init -995 python:
         "Nel": {
             "id": "Nel",
             "name": "Neliel",
+            "race": "arrancar",
             "HP": 100,
             "Strength": 11,
             "Defense": 11,
 
             "Reiatsu": 100,
             "Energy": 100,
+            "coating_type": "hierro",
+            "coating_cover": 500,
+            "coating_durability": 2000,
 
             "background": "bg_battle_desert",
             "color": "#77FF77"

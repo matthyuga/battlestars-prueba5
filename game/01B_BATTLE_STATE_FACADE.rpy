@@ -10,6 +10,18 @@
 init -989 python:
     import renpy.store as S
 
+    BS_RACE_COATING_MAP = {
+        "shinigami": "reishi",
+        "humano": "fullbring",
+        "human": "fullbring",
+        "quincy": "blut vene",
+        "hollow": "hierro",
+        "arrancar": "hierro",
+        "infernal": "coraza",
+        "ghoul": "aura",
+        "guoul": "aura",
+    }
+
     def _bs_to_int(v, default=0):
         try:
             return int(v)
@@ -67,6 +79,47 @@ init -989 python:
             return str(getattr(S, "battle_player_id", "Harribel") or "Harribel")
         return str(getattr(S, "battle_enemy_id", "Hollow") or "Hollow")
 
+    def _bs_get_character_template(char_id):
+        try:
+            fn = getattr(S, "get_character", None)
+            if callable(fn):
+                c = fn(char_id)
+                if isinstance(c, dict):
+                    return dict(c)
+        except:
+            pass
+        return {}
+
+    def _bs_coating_type_for_race(race, fallback="fullbring"):
+        rk = str(race or "").strip().lower()
+        return str(BS_RACE_COATING_MAP.get(rk, fallback) or fallback)
+
+    def _bs_with_coating_fields(unit, char_id=None):
+        u = dict(unit) if isinstance(unit, dict) else {}
+        cid = str(char_id or u.get("char_id", "") or "")
+        ch = _bs_get_character_template(cid)
+
+        race = str(u.get("race", ch.get("race", "human")) or "human").strip().lower()
+        coating_type = str(u.get("coating_type", ch.get("coating_type", "")) or "").strip().lower()
+        if not coating_type:
+            coating_type = _bs_coating_type_for_race(race)
+
+        cover = max(0, _bs_to_int(u.get("coating_cover", ch.get("coating_cover", 0)), 0))
+        dura_max = max(0, _bs_to_int(u.get("coating_durability_max", u.get("coating_durability", ch.get("coating_durability", 0))), 0))
+        dura_cur = max(0, _bs_to_int(u.get("coating_durability_current", dura_max), dura_max))
+        if dura_cur > dura_max:
+            dura_cur = dura_max
+
+        active = bool(u.get("coating_active", True)) and dura_cur > 0 and cover > 0
+
+        u["race"] = race
+        u["coating_type"] = coating_type
+        u["coating_cover"] = cover
+        u["coating_durability_max"] = dura_max
+        u["coating_durability_current"] = dura_cur
+        u["coating_active"] = bool(active)
+        return u
+
     def _bs_sync_active_unit_from_units(bs, side):
         side = _bs_side_key(side)
         units = bs.setdefault("units", {})
@@ -112,6 +165,7 @@ init -989 python:
         unit["max_hp"] = mx
         unit["hp"] = hp
         unit["alive"] = bool(hp > 0)
+        unit = _bs_with_coating_fields(unit, unit.get("char_id", _bs_default_char_id(side)))
         team[idx] = unit
 
         teams[side] = team
@@ -121,6 +175,12 @@ init -989 python:
             "char_id": unit["char_id"],
             "hp": hp,
             "max_hp": mx,
+            "race": str(unit.get("race", "human") or "human"),
+            "coating_type": str(unit.get("coating_type", "fullbring") or "fullbring"),
+            "coating_cover": max(0, _bs_to_int(unit.get("coating_cover", 0), 0)),
+            "coating_durability_max": max(0, _bs_to_int(unit.get("coating_durability_max", 0), 0)),
+            "coating_durability_current": max(0, _bs_to_int(unit.get("coating_durability_current", 0), 0)),
+            "coating_active": bool(unit.get("coating_active", False)),
         }
 
         bs["teams"] = teams
@@ -151,6 +211,7 @@ init -989 python:
 
             u["hp"] = hp
             u["max_hp"] = mx
+            u = _bs_with_coating_fields(u, u.get("char_id", _bs_default_char_id(side)))
             units[side] = u
 
         bs["units"] = units
@@ -529,12 +590,14 @@ init -989 python:
             "hp": p_hp,
             "max_hp": p_mx,
         }
+        bs["units"]["player"] = _bs_with_coating_fields(bs["units"]["player"], p_char)
         bs.setdefault("units", {})["enemy"] = {
             "uid": "enemy_1",
             "char_id": e_char,
             "hp": e_hp,
             "max_hp": e_mx,
         }
+        bs["units"]["enemy"] = _bs_with_coating_fields(bs["units"]["enemy"], e_char)
 
         S.battle_state = bs
         return bs
@@ -574,6 +637,7 @@ init -989 python:
                     "reiatsu": max(0, _bs_to_int(rei_i, 0)),
                     "energy": max(0, _bs_to_int(ene_i, 0)),
                 })
+                out[-1] = _bs_with_coating_fields(out[-1], cid)
 
             while len(out) < 2:
                 i = len(out)
@@ -584,6 +648,7 @@ init -989 python:
                     "max_hp": max(1, _bs_legacy_max_hp(side)),
                     "alive": False,
                 })
+                out[-1] = _bs_with_coating_fields(out[-1], str(fallback_char))
             return out
 
         p_fallback = _bs_default_char_id("player")
@@ -615,12 +680,14 @@ init -989 python:
             "hp": max(0, _bs_to_int(p_u.get("hp", 0), 0)),
             "max_hp": max(1, _bs_to_int(p_u.get("max_hp", 1), 1)),
         }
+        bs["units"]["player"] = _bs_with_coating_fields(bs["units"]["player"], bs["units"]["player"].get("char_id", p_fallback))
         bs.setdefault("units", {})["enemy"] = {
             "uid": str(e_u.get("uid", "enemy_1")),
             "char_id": str(e_u.get("char_id", e_fallback) or e_fallback),
             "hp": max(0, _bs_to_int(e_u.get("hp", 0), 0)),
             "max_hp": max(1, _bs_to_int(e_u.get("max_hp", 1), 1)),
         }
+        bs["units"]["enemy"] = _bs_with_coating_fields(bs["units"]["enemy"], bs["units"]["enemy"].get("char_id", e_fallback))
 
         bs.setdefault("turn", {})["scheduler"] = "round_robin_slots"
         bs.setdefault("turn", {})["rr_last_slot"] = {"player": -1, "enemy": -1}
@@ -1004,6 +1071,7 @@ init -989 python:
         unit["max_hp"] = mx
         unit["hp"] = hp
         unit["alive"] = bool(hp > 0)
+        unit = _bs_with_coating_fields(unit, unit.get("char_id", _bs_default_char_id(side)))
         t[idx] = unit
         bs.setdefault("teams", {})[side] = t
 
@@ -1014,6 +1082,12 @@ init -989 python:
                 "char_id": str(unit.get("char_id", _bs_default_char_id(side)) or _bs_default_char_id(side)),
                 "hp": hp,
                 "max_hp": mx,
+                "race": str(unit.get("race", "human") or "human"),
+                "coating_type": str(unit.get("coating_type", "fullbring") or "fullbring"),
+                "coating_cover": max(0, _bs_to_int(unit.get("coating_cover", 0), 0)),
+                "coating_durability_max": max(0, _bs_to_int(unit.get("coating_durability_max", 0), 0)),
+                "coating_durability_current": max(0, _bs_to_int(unit.get("coating_durability_current", 0), 0)),
+                "coating_active": bool(unit.get("coating_active", False)),
             }
 
         S.battle_state = bs
@@ -1039,7 +1113,40 @@ init -989 python:
         hp_before = max(0, _bs_to_int(cur_unit.get("hp", 0), 0))
         mx = max(1, _bs_to_int(cur_unit.get("max_hp", 1), 1))
         dmg_i = max(0, _bs_to_int(dmg, 0))
-        hp_after = max(0, min(mx, hp_before - dmg_i))
+
+        cur_unit = _bs_with_coating_fields(cur_unit, cur_unit.get("char_id", _bs_default_char_id(side)))
+        cover = max(0, _bs_to_int(cur_unit.get("coating_cover", 0), 0))
+        dura_before = max(0, _bs_to_int(cur_unit.get("coating_durability_current", 0), 0))
+        coating_active_before = bool(cur_unit.get("coating_active", False)) and cover > 0 and dura_before > 0
+
+        after_cover = max(0, dmg_i - cover) if coating_active_before else dmg_i
+        absorbed_by_cover = max(0, dmg_i - after_cover) if coating_active_before else 0
+
+        absorbed_by_durability = 0
+        spill_to_hp = after_cover
+        dura_after = dura_before
+        if coating_active_before and after_cover > 0:
+            absorbed_by_durability = min(dura_before, after_cover)
+            dura_after = max(0, dura_before - after_cover)
+            spill_to_hp = max(0, after_cover - dura_before)
+
+        hp_after = max(0, min(mx, hp_before - spill_to_hp))
+
+        cur_unit["coating_durability_current"] = int(dura_after)
+        cur_unit["coating_active"] = bool(cover > 0 and dura_after > 0)
+
+        try:
+            bs = battle_state_ensure()
+            t = bs.get("teams", {}).get(side, []) or []
+            if slot < len(t) and isinstance(t[slot], dict):
+                uu = dict(t[slot])
+                uu["coating_durability_current"] = int(dura_after)
+                uu["coating_active"] = bool(cover > 0 and dura_after > 0)
+                t[slot] = uu
+                bs.setdefault("teams", {})[side] = t
+                S.battle_state = bs
+        except:
+            pass
 
         updated = _bs_apply_unit_hp(side, slot, hp_after, mirror_units=True)
         died = (hp_after <= 0 and hp_before > 0)
@@ -1063,6 +1170,18 @@ init -989 python:
             "reason": reason,
             "tags": list(tags) if isinstance(tags, (list, tuple)) else ([] if tags is None else [str(tags)]),
             "damage": dmg_i,
+            "coating": {
+                "type": str(cur_unit.get("coating_type", "") or ""),
+                "active_before": bool(coating_active_before),
+                "active_after": bool((updated or {}).get("coating_active", False)) if isinstance(updated, dict) else bool(cover > 0 and dura_after > 0),
+                "cover": int(cover),
+                "cover_absorbed": int(absorbed_by_cover),
+                "after_cover": int(after_cover),
+                "durability_before": int(dura_before),
+                "durability_absorbed": int(absorbed_by_durability),
+                "durability_after": int(dura_after),
+                "hp_spill": int(spill_to_hp),
+            },
             "hp_before": hp_before,
             "hp_after": hp_after,
             "died": died,
