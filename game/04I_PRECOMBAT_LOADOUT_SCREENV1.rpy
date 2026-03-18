@@ -419,10 +419,12 @@ screen precombat_loadout_editor():
                                 $ cat = getattr(store, "precombat_selected_category", "atk")
                                 $ _page = int((getattr(store, "precombat_catalog_page", {}) or {}).get(cat, 0) or 0)
                                 $ _maxp = int(store.precombat_catalog_max_page(cat) or 0)
+                                $ _page_display = _page + 1
+                                $ _maxp_display = _maxp + 1
                                 hbox:
                                     spacing 8
                                     textbutton _("◀") action Function(store.precombat_catalog_change_page, cat, -1)
-                                    text _("Página [(_page + 1)]/[(_maxp + 1)]") size 12 color "#BBBBBB"
+                                    text _("Página [_page_display]/[_maxp_display]") size 12 color "#BBBBBB"
                                     textbutton _("▶") action Function(store.precombat_catalog_change_page, cat, +1)
                                 for item in store.precombat_catalog_page_items(cat):
                                     $ tid = item.get("id", "")
@@ -452,25 +454,28 @@ screen precombat_loadout_editor():
                                 spacing 6
                                 text _("ATK") size 14 color "#66CCFF"
                                 for tid in (getattr(store, "precombat_loadout", {}) or {}).get("atk", []):
+                                    $ tid_label = store.precombat_label_by_id(tid)
                                     hbox:
                                         spacing 8
-                                        text "[store.precombat_label_by_id(tid)]" size 14
+                                        text "[tid_label]" size 14
                                         textbutton _("Quitar") action Function(store.precombat_remove, "atk", tid)
                                 if len((getattr(store, "precombat_loadout", {}) or {}).get("atk", [])) == 0:
                                     text "-" size 12 color "#777777"
 
                                 text _("DEF") size 14 color "#66CCFF"
                                 for tid in (getattr(store, "precombat_loadout", {}) or {}).get("def", []):
+                                    $ tid_label = store.precombat_label_by_id(tid)
                                     hbox:
                                         spacing 8
-                                        text "[store.precombat_label_by_id(tid)]" size 14
+                                        text "[tid_label]" size 14
                                         textbutton _("Quitar") action Function(store.precombat_remove, "def", tid)
                                 if len((getattr(store, "precombat_loadout", {}) or {}).get("def", [])) == 0:
                                     text "-" size 12 color "#777777"
 
                                 text _("SPC (derivado)") size 14 color "#66CCFF"
                                 for tid in store.precombat_special_ids_selected():
-                                    text "• [store.precombat_label_by_id(tid)]" size 13
+                                    $ tid_label = store.precombat_label_by_id(tid)
+                                    text "• [tid_label]" size 13
                                 if len(store.precombat_special_ids_selected()) == 0:
                                     text "-" size 12 color "#777777"
 
