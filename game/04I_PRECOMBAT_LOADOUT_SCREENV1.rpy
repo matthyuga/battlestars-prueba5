@@ -18,55 +18,151 @@ default precombat_catalog_per_page = 4
 default precombat_use_icons = True
 default precombat_unit_loadouts = {"p1": {"atk": [], "def": []}, "p2": {"atk": [], "def": []}}
 default precombat_spa_profile_id = "A"
+default precombat_diag_enabled = False
+default precombat_diag_events = {}
+default precombat_diag_started_ms = 0
+default precombat_diag_frame_count = 0
+default precombat_diag_last_report_ms = 0
+default precombat_diag_overlay = True
 
 define PRECOMBAT_PROFILES_KEY = "precombat_profiles_v1"
 
 init -925 python:
+    import time
     import renpy.store as S
     import renpy.exports as R
 
+    _PRECOMBAT_CATALOG_V1 = {
+        "atk": [
+            {"id": "extra_attack", "name": "Ataque extra", "kind": "offensive"},
+            {"id": "extra_tech", "name": "Técnica extra", "kind": "offensive"},
+            {"id": "stronger_attack", "name": "Ataque más fuerte", "kind": "offensive"},
+            {"id": "attack_reducer", "name": "Ataque reductor", "kind": "offensive"},
+            {"id": "direct_attack", "name": "Ataque directo", "kind": "offensive"},
+            {"id": "noatk_attack", "name": "Ataque negador", "kind": "offensive"},
+            {"id": "focus", "name": "Concentrar", "kind": "special_offensive"},
+            {"id": "ladron_ofensivo", "name": "Ladrón ofensivo", "kind": "special_offensive"},
+            {"id": "ladron_defensivo", "name": "Ladrón defensivo", "kind": "special_offensive"},
+            {"id": "ladron_concentrar", "name": "Ladrón de concentrar", "kind": "special_offensive"},
+        ],
+        "def": [
+            {"id": "defense_extra", "name": "Defensa extra", "kind": "defensive"},
+            {"id": "defense_reducer", "name": "Defensa reductora", "kind": "defensive"},
+            {"id": "defense_reflect", "name": "Defensa reflectora", "kind": "defensive"},
+            {"id": "defense_strong_block", "name": "Defensa fuerte", "kind": "defensive"},
+            {"id": "defense_boost", "name": "Potenciar", "kind": "special_defensive"},
+            {"id": "salvaguarda_principiante", "name": "Salvaguarda principiante", "kind": "special_defensive"},
+        ],
+    }
+    _PRECOMBAT_TECH_INDEX = {}
+    for _item in list(_PRECOMBAT_CATALOG_V1.get("atk", [])) + list(_PRECOMBAT_CATALOG_V1.get("def", [])):
+        _PRECOMBAT_TECH_INDEX[str(_item.get("id", ""))] = _item
+    _PRECOMBAT_ICON_MAP = {
+        "extra_attack": "game/gui/tech_buttons/atk_extra.png",
+        "extra_tech": "game/gui/tech_buttons/tec_extra.png",
+        "attack_reducer": "game/gui/tech_buttons/atk_reductor.png",
+        "direct_attack": "game/gui/tech_buttons/atk_directo.png",
+        "noatk_attack": "game/gui/tech_buttons/atk_negador.png",
+        "stronger_attack": "game/gui/tech_buttons/atk_mas_fuerte.png",
+        "defense_extra": "game/gui/tech_buttons/def_extra.png",
+        "defense_reducer": "game/gui/tech_buttons/def_reductora.png",
+        "defense_reflect": "game/gui/tech_buttons/def_reflectora.png",
+        "defense_strong_block": "game/gui/tech_buttons/def_fuerte.png",
+        "focus": "game/gui/tech_buttons/concentrar_x2.png",
+        "defense_boost": "game/gui/tech_buttons/potenciar_x2.png",
+        "ladron_ofensivo": "game/gui/tech_buttons/ladron_ofensivo.png",
+        "ladron_defensivo": "game/gui/tech_buttons/ladron_defensivo.png",
+        "ladron_concentrar": "game/gui/tech_buttons/ladron_concentrar.png",
+        "salvaguarda_principiante": "game/gui/tech_buttons/salvaguarda_principiante.png",
+    }
+    _PRECOMBAT_ICON_LOADABLE_CACHE = {}
+
+    def _precombat_now_ms():
+        return int(time.time() * 1000.0)
+
+    def _precombat_diag_record(tag, elapsed_ms):
+        if not bool(getattr(S, "precombat_diag_enabled", False)):
+            return None
+        key = str(tag or "unknown")
+        events = dict(getattr(S, "precombat_diag_events", {}) or {})
+        row = dict(events.get(key, {}) or {})
+        calls = int(row.get("calls", 0) or 0) + 1
+        total_ms = float(row.get("total_ms", 0.0) or 0.0) + float(elapsed_ms or 0.0)
+        max_ms = max(float(row.get("max_ms", 0.0) or 0.0), float(elapsed_ms or 0.0))
+        row["calls"] = calls
+        row["total_ms"] = total_ms
+        row["max_ms"] = max_ms
+        events[key] = row
+        S.precombat_diag_events = events
+        return None
+
+    def precombat_diag_reset():
+        S.precombat_diag_events = {}
+        S.precombat_diag_started_ms = _precombat_now_ms()
+        S.precombat_diag_frame_count = 0
+        S.precombat_diag_last_report_ms = S.precombat_diag_started_ms
+        return None
+
+    def precombat_diag_set_enabled(v):
+        S.precombat_diag_enabled = bool(v)
+        precombat_diag_reset()
+        precombat_set_message(
+            "Diagnóstico pre-combate: {}".format("ON" if bool(v) else "OFF"),
+            "#FFD966" if bool(v) else "#AAAAAA"
+        )
+        return None
+
+    def precombat_diag_mark_frame():
+        if not bool(getattr(S, "precombat_diag_enabled", False)):
+            return None
+        S.precombat_diag_frame_count = int(getattr(S, "precombat_diag_frame_count", 0) or 0) + 1
+        return None
+
+    def precombat_diag_report_text(limit=4):
+        started = int(getattr(S, "precombat_diag_started_ms", 0) or 0)
+        now = _precombat_now_ms()
+        elapsed_sec = max(0.001, float(now - started) / 1000.0)
+        frames = int(getattr(S, "precombat_diag_frame_count", 0) or 0)
+        fps_ui = float(frames) / elapsed_sec
+        events = dict(getattr(S, "precombat_diag_events", {}) or {})
+        pairs = list(events.items())
+        pairs.sort(key=lambda kv: float((kv[1] or {}).get("total_ms", 0.0) or 0.0), reverse=True)
+        chunks = ["FPS_UI~{:.1f}".format(fps_ui)]
+        for k, v in pairs[:max(1, int(limit or 4))]:
+            calls = int((v or {}).get("calls", 0) or 0)
+            total_ms = float((v or {}).get("total_ms", 0.0) or 0.0)
+            avg_ms = (total_ms / float(calls)) if calls > 0 else 0.0
+            max_ms = float((v or {}).get("max_ms", 0.0) or 0.0)
+            chunks.append("{} c:{} avg:{:.2f} max:{:.2f}".format(k, calls, avg_ms, max_ms))
+        return " | ".join(chunks)
+
+    def precombat_diag_periodic_report():
+        if not bool(getattr(S, "precombat_diag_enabled", False)):
+            return None
+        now = _precombat_now_ms()
+        last = int(getattr(S, "precombat_diag_last_report_ms", 0) or 0)
+        if now - last < 1000:
+            return None
+        S.precombat_diag_last_report_ms = now
+        print("[PRECOMBAT_DIAG] {}".format(precombat_diag_report_text()))
+        return None
+
     def precombat_catalog_v1():
         """Catálogo editable de Fase 1 (sin runtime profundo)."""
-        return {
-            "atk": [
-                {"id": "extra_attack", "name": "Ataque extra", "kind": "offensive"},
-                {"id": "extra_tech", "name": "Técnica extra", "kind": "offensive"},
-                {"id": "stronger_attack", "name": "Ataque más fuerte", "kind": "offensive"},
-                {"id": "attack_reducer", "name": "Ataque reductor", "kind": "offensive"},
-                {"id": "direct_attack", "name": "Ataque directo", "kind": "offensive"},
-                {"id": "noatk_attack", "name": "Ataque negador", "kind": "offensive"},
-                {"id": "focus", "name": "Concentrar", "kind": "special_offensive"},
-                {"id": "ladron_ofensivo", "name": "Ladrón ofensivo", "kind": "special_offensive"},
-                {"id": "ladron_defensivo", "name": "Ladrón defensivo", "kind": "special_offensive"},
-                {"id": "ladron_concentrar", "name": "Ladrón de concentrar", "kind": "special_offensive"},
-            ],
-            "def": [
-                {"id": "defense_extra", "name": "Defensa extra", "kind": "defensive"},
-                {"id": "defense_reducer", "name": "Defensa reductora", "kind": "defensive"},
-                {"id": "defense_reflect", "name": "Defensa reflectora", "kind": "defensive"},
-                {"id": "defense_strong_block", "name": "Defensa fuerte", "kind": "defensive"},
-                {"id": "defense_boost", "name": "Potenciar", "kind": "special_defensive"},
-                {"id": "salvaguarda_principiante", "name": "Salvaguarda principiante", "kind": "special_defensive"},
-            ],
-        }
+        return _PRECOMBAT_CATALOG_V1
 
     def precombat_kind_by_id(tech_id):
         tid = str(tech_id or "")
-        cat = precombat_catalog_v1()
-        for item in list(cat.get("atk", [])) + list(cat.get("def", [])):
-            if str(item.get("id", "")) == tid:
-                return str(item.get("kind", ""))
-        return ""
+        item = _PRECOMBAT_TECH_INDEX.get(tid, {})
+        return str(item.get("kind", ""))
 
     def precombat_label_by_id(tech_id):
         tid = str(tech_id or "")
-        cat = precombat_catalog_v1()
-        for item in list(cat.get("atk", [])) + list(cat.get("def", [])):
-            if str(item.get("id", "")) == tid:
-                return str(item.get("name", tid))
-        return tid
+        item = _PRECOMBAT_TECH_INDEX.get(tid, {})
+        return str(item.get("name", tid))
 
     def precombat_special_ids_selected():
+        t0 = _precombat_now_ms()
         out = []
         loadout = getattr(S, "precombat_loadout", {}) or {}
         for category in ("atk", "def"):
@@ -74,6 +170,7 @@ init -925 python:
                 kind = precombat_kind_by_id(tid)
                 if kind.startswith("special_") and tid not in out:
                     out.append(tid)
+        _precombat_diag_record("special_ids_selected", _precombat_now_ms() - t0)
         return out
 
     def precombat_spc_limit():
@@ -83,40 +180,35 @@ init -925 python:
         return max(0, base + perk)
 
     def precombat_usage_snapshot():
+        t0 = _precombat_now_ms()
         loadout = getattr(S, "precombat_loadout", {}) or {}
         atk_used = len(list(loadout.get("atk", []) or []))
         def_used = len(list(loadout.get("def", []) or []))
         spc_used = len(precombat_special_ids_selected())
-        return {
+        out = {
             "atk": atk_used,
             "def": def_used,
             "spc": spc_used,
             "spc_limit": precombat_spc_limit(),
         }
+        _precombat_diag_record("usage_snapshot", _precombat_now_ms() - t0)
+        return out
 
     def precombat_icon_path(tech_id):
+        t0 = _precombat_now_ms()
         tid = str(tech_id or "").strip().lower()
-        mapping = {
-            "extra_attack": "game/gui/tech_buttons/atk_extra.png",
-            "extra_tech": "game/gui/tech_buttons/tec_extra.png",
-            "attack_reducer": "game/gui/tech_buttons/atk_reductor.png",
-            "direct_attack": "game/gui/tech_buttons/atk_directo.png",
-            "noatk_attack": "game/gui/tech_buttons/atk_negador.png",
-            "stronger_attack": "game/gui/tech_buttons/atk_mas_fuerte.png",
-            "defense_extra": "game/gui/tech_buttons/def_extra.png",
-            "defense_reducer": "game/gui/tech_buttons/def_reductora.png",
-            "defense_reflect": "game/gui/tech_buttons/def_reflectora.png",
-            "defense_strong_block": "game/gui/tech_buttons/def_fuerte.png",
-            "focus": "game/gui/tech_buttons/concentrar_x2.png",
-            "defense_boost": "game/gui/tech_buttons/potenciar_x2.png",
-            "ladron_ofensivo": "game/gui/tech_buttons/ladron_ofensivo.png",
-            "ladron_defensivo": "game/gui/tech_buttons/ladron_defensivo.png",
-            "ladron_concentrar": "game/gui/tech_buttons/ladron_concentrar.png",
-            "salvaguarda_principiante": "game/gui/tech_buttons/salvaguarda_principiante.png",
-        }
-        pth = mapping.get(tid, "")
-        if pth and R.loadable(pth):
+        pth = _PRECOMBAT_ICON_MAP.get(tid, "")
+        if not pth:
+            _precombat_diag_record("icon_path", _precombat_now_ms() - t0)
+            return ""
+        cached = _PRECOMBAT_ICON_LOADABLE_CACHE.get(pth, None)
+        if cached is None:
+            cached = bool(R.loadable(pth))
+            _PRECOMBAT_ICON_LOADABLE_CACHE[pth] = cached
+        if cached:
+            _precombat_diag_record("icon_path", _precombat_now_ms() - t0)
             return pth
+        _precombat_diag_record("icon_path", _precombat_now_ms() - t0)
         return ""
 
     def precombat_set_use_icons(v):
@@ -142,6 +234,7 @@ init -925 python:
         return max(0, (len(items) - 1) // per_page)
 
     def precombat_catalog_page_items(category):
+        t0 = _precombat_now_ms()
         cat = str(category or "atk").strip().lower()
         items = list(precombat_catalog_v1().get(cat, []) or [])
         per_page = max(1, int(getattr(S, "precombat_catalog_per_page", 4) or 4))
@@ -156,7 +249,9 @@ init -925 python:
         S.precombat_catalog_page = pages
         start = page * per_page
         end = start + per_page
-        return items[start:end]
+        out = items[start:end]
+        _precombat_diag_record("catalog_page_items", _precombat_now_ms() - t0)
+        return out
 
     def precombat_catalog_change_page(category, delta):
         cat = str(category or "atk").strip().lower()
@@ -398,6 +493,8 @@ init -925 python:
 
 screen precombat_loadout_editor():
     tag menu
+    $ store.precombat_diag_mark_frame()
+    timer 1.0 action Function(store.precombat_diag_periodic_report) repeat True
 
     default _slot_keys = ["atk", "def", "spc"]
     default _categories = ["atk", "def"]
@@ -454,18 +551,35 @@ screen precombat_loadout_editor():
                 text _("Vista:") size 14
                 textbutton _("Íconos") action Function(store.precombat_set_use_icons, True) text_color ("#66CCFF" if bool(getattr(store, "precombat_use_icons", True)) else "#FFFFFF")
                 textbutton _("Simple") action Function(store.precombat_set_use_icons, False) text_color ("#66CCFF" if not bool(getattr(store, "precombat_use_icons", True)) else "#FFFFFF")
+                null width 10
+                text _("Diag:") size 14
+                textbutton _("ON") action Function(store.precombat_diag_set_enabled, True) text_color ("#FFD966" if bool(getattr(store, "precombat_diag_enabled", False)) else "#FFFFFF")
+                textbutton _("OFF") action Function(store.precombat_diag_set_enabled, False) text_color ("#FFD966" if not bool(getattr(store, "precombat_diag_enabled", False)) else "#FFFFFF")
+                textbutton _("Reset") action Function(store.precombat_diag_reset)
+                textbutton _("Overlay") action ToggleVariable("precombat_diag_overlay")
+
+            if bool(getattr(store, "precombat_diag_enabled", False)) and bool(getattr(store, "precombat_diag_overlay", True)):
+                frame:
+                    xfill True
+                    yminimum 42
+                    xpadding 8
+                    ypadding 6
+                    $ _diag_text = store.precombat_diag_report_text()
+                    text "[_diag_text]" size 11 color "#FFD966"
 
             frame:
                 xfill True
                 yminimum 84
+                $ _slots_cfg = getattr(store, "precombat_slots", {}) or {}
+                $ _usage_snapshot = store.precombat_usage_snapshot() or {}
                 vbox:
                     spacing 4
                     text _("Límites de slots (modo por slots)") size 14
                     hbox:
                         spacing 8
                         for sk in _slot_keys:
-                            $ lim = (store.precombat_spc_limit() if sk == "spc" else int((getattr(store, "precombat_slots", {}) or {}).get(sk, 0) or 0))
-                            $ used = int((store.precombat_usage_snapshot() or {}).get(sk, 0) or 0)
+                            $ lim = (store.precombat_spc_limit() if sk == "spc" else int(_slots_cfg.get(sk, 0) or 0))
+                            $ used = int(_usage_snapshot.get(sk, 0) or 0)
                             $ sk_u = str(sk or "").upper()
                             frame:
                                 xpadding 6
@@ -513,6 +627,7 @@ screen precombat_loadout_editor():
                                 $ cat = getattr(store, "precombat_selected_category", "atk")
                                 $ _page = int((getattr(store, "precombat_catalog_page", {}) or {}).get(cat, 0) or 0)
                                 $ _maxp = int(store.precombat_catalog_max_page(cat) or 0)
+                                $ _cat_page_items = store.precombat_catalog_page_items(cat)
                                 $ _page_display = _page + 1
                                 $ _maxp_display = _maxp + 1
                                 hbox:
@@ -520,7 +635,7 @@ screen precombat_loadout_editor():
                                     textbutton _("◀") action Function(store.precombat_catalog_change_page, cat, -1)
                                     text _("Página [_page_display]/[_maxp_display]") size 12 color "#BBBBBB"
                                     textbutton _("▶") action Function(store.precombat_catalog_change_page, cat, +1)
-                                for item in store.precombat_catalog_page_items(cat):
+                                for item in _cat_page_items:
                                     $ tid = item.get("id", "")
                                     $ nm = item.get("name", tid)
                                     $ kind = item.get("kind", "")
@@ -546,31 +661,35 @@ screen precombat_loadout_editor():
                             ymaximum 420
                             vbox:
                                 spacing 3
+                                $ _loadout = (getattr(store, "precombat_loadout", {}) or {})
+                                $ _loadout_atk = _loadout.get("atk", [])
+                                $ _loadout_def = _loadout.get("def", [])
+                                $ _special_ids = store.precombat_special_ids_selected()
                                 text _("ATK") size 13 color "#66CCFF"
-                                for tid in (getattr(store, "precombat_loadout", {}) or {}).get("atk", []):
+                                for tid in _loadout_atk:
                                     $ tid_label = store.precombat_label_by_id(tid)
                                     hbox:
                                         spacing 4
                                         text "[tid_label]" size 13
                                         textbutton _("Quitar") action Function(store.precombat_remove, "atk", tid)
-                                if len((getattr(store, "precombat_loadout", {}) or {}).get("atk", [])) == 0:
+                                if len(_loadout_atk) == 0:
                                     text "-" size 12 color "#777777"
 
                                 text _("DEF") size 13 color "#66CCFF"
-                                for tid in (getattr(store, "precombat_loadout", {}) or {}).get("def", []):
+                                for tid in _loadout_def:
                                     $ tid_label = store.precombat_label_by_id(tid)
                                     hbox:
                                         spacing 4
                                         text "[tid_label]" size 13
                                         textbutton _("Quitar") action Function(store.precombat_remove, "def", tid)
-                                if len((getattr(store, "precombat_loadout", {}) or {}).get("def", [])) == 0:
+                                if len(_loadout_def) == 0:
                                     text "-" size 12 color "#777777"
 
                                 text _("SPC (derivado)") size 13 color "#66CCFF"
-                                for tid in store.precombat_special_ids_selected():
+                                for tid in _special_ids:
                                     $ tid_label = store.precombat_label_by_id(tid)
                                     text "• [tid_label]" size 12
-                                if len(store.precombat_special_ids_selected()) == 0:
+                                if len(_special_ids) == 0:
                                     text "-" size 12 color "#777777"
 
             hbox:
