@@ -335,19 +335,29 @@ screen precombat_loadout_editor():
 
     default _slot_keys = ["atk", "def", "spc"]
     default _categories = ["atk", "def"]
+    default _panel_w = min(1260, max(980, int(config.screen_width or 1280) - 40))
+
+    key "mouseup_3" action MainMenu(confirm=False)
+    key "K_ESCAPE" action MainMenu(confirm=False)
 
     frame:
         style_prefix "game_menu"
-        xalign 0.5
+        xalign 0.53
         yalign 0.5
-        xsize 1360
+        xsize _panel_w
         ysize 740
+        xpadding 18
+        ypadding 12
 
         vbox:
             spacing 8
             text _("Pre-combate (Fase 1/2)") size 56 color "#00BFFF"
             text _("Configura loadout por slots con modo libre/por slots y persistencia de perfil.") size 14 color "#BBBBBB"
             text "[store.precombat_message]" size 12 color getattr(store, "precombat_message_color", "#AAAAAA")
+
+            hbox:
+                xfill True
+                textbutton _("↩ Menú principal") action MainMenu(confirm=False) xalign 1.0
 
             hbox:
                 spacing 8
@@ -484,3 +494,4 @@ screen precombat_loadout_editor():
                 textbutton _("Validar") action Function(store.precombat_validate_feedback)
                 textbutton _("Confirmar loadout") action Function(store.precombat_confirm_selection)
                 textbutton _("Volver") action Return()
+                textbutton _("Menú principal") action MainMenu(confirm=False)
