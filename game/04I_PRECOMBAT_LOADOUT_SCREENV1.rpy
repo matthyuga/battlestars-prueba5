@@ -337,8 +337,9 @@ screen precombat_loadout_editor():
     default _categories = ["atk", "def"]
     default _panel_w = min(1260, max(980, int(config.screen_width or 1280) - 40))
 
-    key "mouseup_3" action MainMenu(confirm=False)
-    key "K_ESCAPE" action MainMenu(confirm=False)
+    key "mouseup_3" action ShowMenu("main_menu")
+    key "K_ESCAPE" action ShowMenu("main_menu")
+    key "game_menu" action ShowMenu("main_menu")
 
     frame:
         style_prefix "game_menu"
@@ -357,7 +358,7 @@ screen precombat_loadout_editor():
 
             hbox:
                 xfill True
-                textbutton _("↩ Menú principal") action MainMenu(confirm=False) xalign 1.0
+                textbutton _("↩ Menú principal") action ShowMenu("main_menu") xalign 1.0
 
             hbox:
                 spacing 8
@@ -494,4 +495,17 @@ screen precombat_loadout_editor():
                 textbutton _("Validar") action Function(store.precombat_validate_feedback)
                 textbutton _("Confirmar loadout") action Function(store.precombat_confirm_selection)
                 textbutton _("Volver") action Return()
-                textbutton _("Menú principal") action MainMenu(confirm=False)
+                textbutton _("Menú principal") action ShowMenu("main_menu")
+
+            hbox:
+                spacing 8
+                textbutton _("Iniciar batalla 1v1 (aleatoria, panel simple)") action [
+                    Function(store.precombat_confirm_selection),
+                    Function(store.bs_prepare_quick_random_1v1, getattr(store, "precombat_profile_id", "A")),
+                    Start()
+                ]
+                textbutton _("Iniciar batalla 2v2 (aleatoria, panel simple)") action [
+                    Function(store.precombat_confirm_selection),
+                    Function(store.bs_prepare_quick_random_2v2, getattr(store, "precombat_profile_id", "A")),
+                    Start()
+                ]

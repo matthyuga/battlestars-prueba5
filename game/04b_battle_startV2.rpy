@@ -59,6 +59,50 @@ init -900 python:
         S.battle_enemy_slot_0 = e
         S.battle_enemy_slot_1 = ""
         S.quick_start_random_1v1 = True
+        S.quick_start_random_2v2 = False
+        S.ui_safe_mode = True
+        S.ui_safe_mode_prompted = True
+
+        pid = str(profile_id or getattr(S, "spa_editor_profile_id", "A") or "A")
+        fn_load = getattr(S, "spa_load_profile", None)
+        if callable(fn_load):
+            try:
+                fn_load(pid)
+            except Exception:
+                pass
+
+    def bs_prepare_quick_random_2v2(profile_id=None):
+        import renpy.store as S
+        import renpy.exports as R
+        chars = ["Harribel", "Grimmjow", "Nel", "Hollow"]
+        try:
+            pool = list(chars)
+            R.random.shuffle(pool)
+            p_team = pool[:2]
+            e_team = pool[2:4]
+            if len(e_team) < 2:
+                e_team = list(chars[:2])
+        except Exception:
+            p_team = ["Harribel", "Grimmjow"]
+            e_team = ["Nel", "Hollow"]
+
+        S.battle_team_mode = "2v2"
+        S.battle_multiplayer_manual = False
+        S.battle_player_count = 2
+        S.battle_enemy_count = 2
+        S.battle_enemy_pick_mode = "random"
+        S.battle_player_id = p_team[0]
+        S.battle_enemy_id = e_team[0]
+        S.battle_player_ids = list(p_team)
+        S.battle_enemy_ids = list(e_team)
+        S.battle_player_slot_0 = p_team[0]
+        S.battle_player_slot_1 = p_team[1]
+        S.battle_enemy_slot_0 = e_team[0]
+        S.battle_enemy_slot_1 = e_team[1]
+        S.quick_start_random_1v1 = False
+        S.quick_start_random_2v2 = True
+        S.ui_safe_mode = True
+        S.ui_safe_mode_prompted = True
 
         pid = str(profile_id or getattr(S, "spa_editor_profile_id", "A") or "A")
         fn_load = getattr(S, "spa_load_profile", None)
@@ -84,6 +128,7 @@ init -900 python:
 
 # Inicio rápido para QA: carga 1v1 aleatorio y salta selección.
 default quick_start_random_1v1 = False
+default quick_start_random_2v2 = False
 
 
 # ===========================================================
@@ -97,6 +142,9 @@ label start:
 
     if quick_start_random_1v1:
         $ quick_start_random_1v1 = False
+        jump battle_start
+    if quick_start_random_2v2:
+        $ quick_start_random_2v2 = False
         jump battle_start
 
     "Sistema cargado correctamente."
