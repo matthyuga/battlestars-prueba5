@@ -30,6 +30,15 @@ init -970 python:
     hp_flash_timer = 0
     hp_flash_color = None
     hud_visible = False
+    hp_fake_player_ratio = 1.0
+    hp_fake_enemy_ratio = 1.0
+    hp_fake_player_alpha = 0.0
+    hp_fake_enemy_alpha = 0.0
+    hp_fake_player_delay = 0.0
+    hp_fake_enemy_delay = 0.0
+    HP_FAKE_FX_ALPHA = 0.88
+    HP_FAKE_FX_DELAY = 0.07
+    HP_FAKE_FX_FADE_SECONDS = 0.35
 
     # === Nombres HUD (display) ===
     hud_player_name = "Jugador"
@@ -190,6 +199,84 @@ init -970 python:
     # ===========================================================
     # 🔸 Actualiza barras de HP
     # ===========================================================
+    def _battle_hp_ratio(cur_hp, max_hp):
+        try:
+            cur_i = int(cur_hp)
+        except:
+            cur_i = 0
+        try:
+            max_i = int(max_hp)
+        except:
+            max_i = 1
+        max_i = max(1, max_i)
+        return max(0.0, min(1.0, float(cur_i) / float(max_i)))
+
+    def battle_hp_fake_reset():
+        global hp_fake_player_ratio, hp_fake_enemy_ratio
+        global hp_fake_player_alpha, hp_fake_enemy_alpha
+        global hp_fake_player_delay, hp_fake_enemy_delay
+        hp_fake_player_ratio = _battle_hp_ratio(battle_hp_player, battle_hp_player_max)
+        hp_fake_enemy_ratio = _battle_hp_ratio(battle_hp_enemy, battle_hp_enemy_max)
+        hp_fake_player_alpha = 0.0
+        hp_fake_enemy_alpha = 0.0
+        hp_fake_player_delay = 0.0
+        hp_fake_enemy_delay = 0.0
+
+    def _battle_hp_fake_register_hit(side, old_hp, new_hp, max_hp):
+        global hp_fake_player_ratio, hp_fake_enemy_ratio
+        global hp_fake_player_alpha, hp_fake_enemy_alpha
+        global hp_fake_player_delay, hp_fake_enemy_delay
+
+        old_ratio = _battle_hp_ratio(old_hp, max_hp)
+        new_ratio = _battle_hp_ratio(new_hp, max_hp)
+
+        if new_ratio >= old_ratio:
+            if side == "player":
+                hp_fake_player_ratio = new_ratio
+                hp_fake_player_alpha = 0.0
+                hp_fake_player_delay = 0.0
+            else:
+                hp_fake_enemy_ratio = new_ratio
+                hp_fake_enemy_alpha = 0.0
+                hp_fake_enemy_delay = 0.0
+            return
+
+        if side == "player":
+            hp_fake_player_ratio = max(old_ratio, float(hp_fake_player_ratio))
+            hp_fake_player_alpha = float(HP_FAKE_FX_ALPHA)
+            hp_fake_player_delay = float(HP_FAKE_FX_DELAY)
+        else:
+            hp_fake_enemy_ratio = max(old_ratio, float(hp_fake_enemy_ratio))
+            hp_fake_enemy_alpha = float(HP_FAKE_FX_ALPHA)
+            hp_fake_enemy_delay = float(HP_FAKE_FX_DELAY)
+
+    def battle_hp_fake_tick(dt=0.016):
+        global hp_fake_player_ratio, hp_fake_enemy_ratio
+        global hp_fake_player_alpha, hp_fake_enemy_alpha
+        global hp_fake_player_delay, hp_fake_enemy_delay
+        fade_total = max(0.08, float(HP_FAKE_FX_FADE_SECONDS))
+
+        try:
+            dt_f = max(0.0, float(dt))
+        except:
+            dt_f = 0.016
+
+        if hp_fake_player_alpha > 0.0:
+            if hp_fake_player_delay > 0.0:
+                hp_fake_player_delay = max(0.0, float(hp_fake_player_delay) - dt_f)
+            else:
+                hp_fake_player_alpha = max(0.0, float(hp_fake_player_alpha) - (dt_f / fade_total))
+                if hp_fake_player_alpha <= 0.0:
+                    hp_fake_player_ratio = _battle_hp_ratio(battle_hp_player, battle_hp_player_max)
+
+        if hp_fake_enemy_alpha > 0.0:
+            if hp_fake_enemy_delay > 0.0:
+                hp_fake_enemy_delay = max(0.0, float(hp_fake_enemy_delay) - dt_f)
+            else:
+                hp_fake_enemy_alpha = max(0.0, float(hp_fake_enemy_alpha) - (dt_f / fade_total))
+                if hp_fake_enemy_alpha <= 0.0:
+                    hp_fake_enemy_ratio = _battle_hp_ratio(battle_hp_enemy, battle_hp_enemy_max)
+
     def battle_update_hp_bars(player_hp, enemy_hp, flash_target=None, color=None):
         global battle_hp_player, battle_hp_enemy, hp_flash_timer, hp_flash_color
         global battle_coating_player_type, battle_coating_enemy_type
@@ -198,8 +285,12 @@ init -970 python:
         global battle_coating_player_durability_max, battle_coating_enemy_durability_max
         global battle_coating_player_active, battle_coating_enemy_active
 
+        prev_player_hp = int(battle_hp_player)
+        prev_enemy_hp = int(battle_hp_enemy)
         battle_hp_player = int(player_hp)
         battle_hp_enemy = int(enemy_hp)
+        _battle_hp_fake_register_hit("player", prev_player_hp, battle_hp_player, battle_hp_player_max)
+        _battle_hp_fake_register_hit("enemy", prev_enemy_hp, battle_hp_enemy, battle_hp_enemy_max)
 
         try:
             fn_key = getattr(S, "bs_get_active_unit_key", None)
@@ -252,6 +343,7 @@ init -970 python:
         import renpy.store as S
 
         hud_visible = True
+        battle_hp_fake_reset()
 
         # ✅ Nombres dinámicos (display) con fallback seguro
         try:
@@ -663,6 +755,8 @@ screen battle_hp_overlay():
     if not hud_visible:
         null
     else:
+        if (hp_fake_player_alpha > 0.0 or hp_fake_enemy_alpha > 0.0 or hp_fake_player_delay > 0.0 or hp_fake_enemy_delay > 0.0):
+            timer 0.016 repeat True action Function(battle_hp_fake_tick, 0.016)
 
         if hp_flash_timer > 0:
             $ hp_flash_timer -= 1
@@ -1016,10 +1110,26 @@ screen battle_hp_overlay():
                     vbox at hp_pulse_player:
                         spacing 2
                         text hud_player_name color "#88CCFF" size 22 bold True
-                        bar:
-                            value (float(battle_hp_player) / battle_hp_player_max)
-                            range 1.0 xmaximum 280 ymaximum 16
-                            left_bar "#00BFFF" right_bar "#222222"
+                        $ _p_ratio = (float(battle_hp_player) / max(1.0, float(battle_hp_player_max)))
+                        $ _p_fake_ratio = max(_p_ratio, float(hp_fake_player_ratio))
+                        fixed:
+                            xmaximum 280
+                            ymaximum 16
+                            bar:
+                                value _p_fake_ratio
+                                range 1.0
+                                xmaximum 280
+                                ymaximum 16
+                                left_bar "#9E9E9E"
+                                right_bar "#0000"
+                                alpha hp_fake_player_alpha
+                            bar:
+                                value _p_ratio
+                                range 1.0
+                                xmaximum 280
+                                ymaximum 16
+                                left_bar "#00BFFF"
+                                right_bar "#222222"
                         text "{} / {}".format(battle_fmt_num(battle_hp_player), battle_fmt_num(battle_hp_player_max)) color "#FFFFFF" size 16
                         bar:
                             value (float(battle_coating_player_durability) / max(1.0, float(battle_coating_player_durability_max)))
@@ -1053,10 +1163,26 @@ screen battle_hp_overlay():
                     vbox at hp_pulse_enemy:
                         spacing 2
                         text hud_enemy_name color "#FF7777" size 22 bold True
-                        bar:
-                            value (float(battle_hp_enemy) / battle_hp_enemy_max)
-                            range 1.0 xmaximum 280 ymaximum 16
-                            left_bar "#FF3333" right_bar "#222222"
+                        $ _e_ratio = (float(battle_hp_enemy) / max(1.0, float(battle_hp_enemy_max)))
+                        $ _e_fake_ratio = max(_e_ratio, float(hp_fake_enemy_ratio))
+                        fixed:
+                            xmaximum 280
+                            ymaximum 16
+                            bar:
+                                value _e_fake_ratio
+                                range 1.0
+                                xmaximum 280
+                                ymaximum 16
+                                left_bar "#9E9E9E"
+                                right_bar "#0000"
+                                alpha hp_fake_enemy_alpha
+                            bar:
+                                value _e_ratio
+                                range 1.0
+                                xmaximum 280
+                                ymaximum 16
+                                left_bar "#FF3333"
+                                right_bar "#222222"
                         text "{} / {}".format(battle_fmt_num(battle_hp_enemy), battle_fmt_num(battle_hp_enemy_max)) color "#FFFFFF" size 16
                         bar:
                             value (float(battle_coating_enemy_durability) / max(1.0, float(battle_coating_enemy_durability_max)))
