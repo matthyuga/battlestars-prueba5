@@ -28,11 +28,15 @@ init python:
         "direct_attack":        "gui/tech_buttons/atk_directo.png",
         "noatk_attack":         "gui/tech_buttons/atk_negador.png",
         "stronger_attack":      "gui/tech_buttons/atk_fuerte.png",
+        "ladron_ofensivo":      "gui/tech_buttons/ladron_ofensivo.png",
+        "ladron_defensivo":     "gui/tech_buttons/ladron_defensivo.png",
+        "ladron_concentrar":    "gui/tech_buttons/ladron_concentrar.png",
 
         "defense_extra":        "gui/tech_buttons/def_extra.png",
         "defense_reducer":      "gui/tech_buttons/def_reductora.png",
         "defense_reflect":      "gui/tech_buttons/def_reflectora.png",
         "defense_strong_block": "gui/tech_buttons/def_fuerte.png",
+        "salvaguarda_principiante": "gui/tech_buttons/salvaguarda_principiante.png",
 
         "focus_attack":         "gui/tech_buttons/concentrar_x2.png",
         "focus_defense":        "gui/tech_buttons/potenciar_x2.png",
@@ -46,11 +50,15 @@ init python:
         "direct_attack": "Ataque Directo",
         "noatk_attack": "Ataque Negador",
         "stronger_attack": "Ataque más fuerte",
+        "ladron_ofensivo": "Ladrón ofensivo",
+        "ladron_defensivo": "Ladrón defensivo",
+        "ladron_concentrar": "Ladrón de concentrar",
 
         "defense_extra": "Defensa Extra",
         "defense_reducer": "Defensa Reductora",
         "defense_reflect": "Defensa Reflectora",
         "defense_strong_block": "Defensa Fuerte",
+        "salvaguarda_principiante": "Salvaguarda principiante",
 
         "focus_attack": "Concentrar x2",
         "focus_defense": "Potenciar",
@@ -308,6 +316,9 @@ screen battle_command_menu():
         "direct_attack",
         "noatk_attack",
         "stronger_attack",
+        "ladron_ofensivo",
+        "ladron_defensivo",
+        "ladron_concentrar",
         "focus_attack",
     ]
 
@@ -316,6 +327,7 @@ screen battle_command_menu():
         "defense_reducer",
         "defense_reflect",
         "defense_strong_block",
+        "salvaguarda_principiante",
         "focus_defense",
     ]
 

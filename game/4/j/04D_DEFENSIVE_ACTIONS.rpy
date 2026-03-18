@@ -92,6 +92,7 @@ init python:
             "Defensa Reductora":   "defense_reducer",
             "Defensa Reflectora":  "defense_reflect",
             "Defensa Fuerte":      "defense_strong_block",
+            "Salvaguarda principiante": "salvaguarda_principiante",
             "Potenciar":           "defense_boost",
         }
 
@@ -166,6 +167,10 @@ label defensive_process_actions(selected, base_damage):
             S.reflected = 0
         if not hasattr(S, "awaiting_turn_end"):
             S.awaiting_turn_end = False
+        if not hasattr(S, "special_defense_reduction_pct"):
+            S.special_defense_reduction_pct = 0.0
+        else:
+            S.special_defense_reduction_pct = 0.0
 
         # ONE-SHOT: Potenciar pendiente para la próxima defensa real
         if not hasattr(S, "def_boost_pending"):
@@ -272,6 +277,10 @@ label defensive_process_actions(selected, base_damage):
             else:
                 action.final_block = int(action.base_block)
 
+            if action.tech_id == "salvaguarda_principiante":
+                action.base_block = 0
+                action.final_block = 0
+
             S.total_block += action.final_block
             S.blocks_list.append((action.base_block, action.final_block))
 
@@ -321,6 +330,13 @@ label defensive_process_actions(selected, base_damage):
                     )
                 else:
                     summary_lines.append(fmt_cyan("Defensa Reductora") + fmt_white(" → Reduce {} de daño.".format(_fmt_num(S.reduc_val))))
+
+            elif action.tech_id == "salvaguarda_principiante":
+
+                S.special_defense_reduction_pct = 0.50
+                summary_lines.append(
+                    fmt_cyan("Salvaguarda principiante") + fmt_white(" → Reduce 50% del daño defendible restante.")
+                )
 
             elif action.tech_id == "defense_strong_block":
 

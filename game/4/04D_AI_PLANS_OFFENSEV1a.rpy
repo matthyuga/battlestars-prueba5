@@ -222,7 +222,10 @@ init -989 python:
         fin = _pick_finisher(ai)
 
         unit_key = _resolve_enemy_unit_key_for_plan()
-        if _effective_finisher_mode_for_unit(unit_key) == "stats":
+        mode = _effective_finisher_mode_for_unit(unit_key)
+        forced_mode = str(mode or "").startswith("force_")
+
+        if mode == "stats":
             _ai_finisher_stats_add(fin)
 
         concat_mode = _effective_offense_concat_for_unit(unit_key)
@@ -243,6 +246,11 @@ init -989 python:
             pass
 
         plan.append(fin)
+
+        try:
+            plan = ai_filter_blocked_plan(plan, unit_key, forced=forced_mode, phase="offense")
+        except:
+            pass
 
         _safe_set_plan(
             ai,

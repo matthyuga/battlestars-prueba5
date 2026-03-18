@@ -157,6 +157,23 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
         # (4) DAÑO FINAL
         # --------------------------------------------------------
         received_damage_def = max(0, base_eff - eff_blk)
+
+        # --------------------------------------------------------
+        # (4-b) REDUCCIÓN ESPECIAL (Salvaguarda) sobre daño defendible
+        # Prioridad: ya pasó reducción común; ahora aplica especial.
+        # --------------------------------------------------------
+        spc_pct = float(getattr(S, "special_defense_reduction_pct", 0.0) or 0.0)
+        if not _direct_only and spc_pct > 0.0:
+            _before_spc = int(received_damage_def)
+            received_damage_def = int(max(0, int(received_damage_def) * (1.0 - spc_pct)))
+            operation_add(
+                fmt_white("Salvaguarda:") + " " +
+                fmt_red(S.battle_fmt_num(_before_spc)) +
+                fmt_white(" × 50% = ") +
+                fmt_red(S.battle_fmt_num(received_damage_def)),
+                border
+            )
+
         if _direct_only:
             received_damage = int(received_damage_def)
         else:

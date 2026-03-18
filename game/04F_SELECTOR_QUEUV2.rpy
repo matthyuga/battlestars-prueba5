@@ -41,11 +41,15 @@ init python:
         "Ataque Directo":      "direct_attack",
         "Ataque Negador":      "noatk_attack",
         "Ataque más fuerte":   "stronger_attack",
+        "Ladrón ofensivo":     "ladron_ofensivo",
+        "Ladrón defensivo":    "ladron_defensivo",
+        "Ladrón de concentrar": "ladron_concentrar",
 
         "Defensa Extra":       "defense_extra",
         "Defensa Reductora":   "defense_reducer",
         "Defensa Reflectora":  "defense_reflect",
         "Defensa Fuerte":      "defense_strong_block",
+        "Salvaguarda principiante": "salvaguarda_principiante",
 
         # especiales (no consumen recursos directos)
         "Concentrar":          "focus",
@@ -106,7 +110,8 @@ init python:
                         "extra_attack", "extra_tech",
                         "attack_reducer", "direct_attack",
                         "noatk_attack", "strong_attack",
-                        "stronger_attack"
+                        "stronger_attack", "ladron_ofensivo",
+                        "ladron_defensivo", "ladron_concentrar"
                     ):
                         return i
 
@@ -122,7 +127,8 @@ init python:
                     tech_id = TECH_MAP_GLOBAL.get(name)
                     if tech_id in (
                         "defense_extra", "defense_reducer",
-                        "defense_reflect", "defense_strong_block"
+                        "defense_reflect", "defense_strong_block",
+                        "salvaguarda_principiante"
                     ):
                         return i
 

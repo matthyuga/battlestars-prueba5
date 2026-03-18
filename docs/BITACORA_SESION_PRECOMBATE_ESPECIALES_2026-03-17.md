@@ -128,3 +128,24 @@ Se confirmó presencia local de estos archivos en `game/gui/tech_buttons`:
 - Plan maestro por fases:
   - `docs/PLAN_FASES_PRECOMBATE_TECNICAS_ESPECIALES.md`
 - Esta bitácora está pensada como checkpoint narrativo para retomar rápido contexto funcional.
+
+---
+
+## Addendum de continuidad (2026-03-18)
+- Se mantiene Fase 0 como cierre funcional documental previo a implementación.
+- Se acuerda incorporar para configuración de pruebas:
+  - `modo libre`,
+  - `modo por slots` con cantidades configurables de `atk`, `def`, `spc`.
+- Se acuerda un parámetro base de perk para especiales (`extra_spc_slots`) para habilitar de 1 a 2 técnicas especiales cuando aplique.
+- Se consolida regla operativa de `Salvaguarda principiante` en capas:
+  1. reducción común,
+  2. reducción especial (50%),
+  sin suma lineal de porcentajes.
+
+
+---
+
+## Addendum de avance (2026-03-18, cierre Fase 0 -> inicio Fase 1)
+- Se confirma cierre operativo de Fase 0 para habilitar implementación incremental.
+- Se inicia Fase 1 con foco en UI de pre-combate, validador central de slots y persistencia de loadout.
+- Se mantiene estrategia: resolver runtime de especiales en fases posteriores para evitar retrabajo temprano.

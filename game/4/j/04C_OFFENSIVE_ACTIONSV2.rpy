@@ -103,6 +103,56 @@ init python:
 
         return "player:0"
 
+
+    def _off_enemy_unit_key():
+        """Unit key objetivo enemigo para efectos especiales ofensivos."""
+        try:
+            fn_ctx = getattr(S, "bs_get_turn_ctx", None)
+            fn_key = getattr(S, "bs_unit_key", None)
+            if callable(fn_ctx) and callable(fn_key):
+                ctx = fn_ctx() or {}
+                team = str(ctx.get("owner_team", "player") or "player").strip().lower()
+                if team == "player":
+                    es = int(getattr(S, "enemy_active_slot", 0) or 0)
+                    return str(fn_key("enemy", es) or "enemy:0")
+        except:
+            pass
+        try:
+            fn_akt = getattr(S, "bs_get_active_unit_key", None)
+            if callable(fn_akt):
+                return str(fn_akt("enemy") or "enemy:0")
+        except:
+            pass
+        return str(getattr(S, "current_enemy_unit_key", "enemy:0") or "enemy:0")
+
+    def _pick_enemy_tech_to_block(block_kind):
+        """Selecciona técnica objetivo por tipo para bloqueo de 1 turno."""
+        techniques = getattr(S, "battle_techniques", {}) or {}
+
+        preferred_off = ["attack_reducer", "direct_attack", "noatk_attack", "stronger_attack", "extra_attack", "extra_tech"]
+        preferred_def = ["defense_reducer", "defense_reflect", "defense_strong_block", "defense_extra", "salvaguarda_principiante"]
+
+        if block_kind == "focus":
+            return "focus"
+
+        pool = preferred_off if block_kind == "offense" else preferred_def
+        for tid in pool:
+            t = techniques.get(tid, {}) if isinstance(techniques, dict) else {}
+            if isinstance(t, dict) and t:
+                return tid
+
+        # fallback robusto por type
+        for tid, t in (techniques.items() if isinstance(techniques, dict) else []):
+            if not isinstance(t, dict):
+                continue
+            ttype = str(t.get("type", "") or "")
+            if block_kind == "offense" and ttype == "offensive":
+                return str(tid)
+            if block_kind == "defense" and ttype == "defensive":
+                return str(tid)
+
+        return ""
+
     def _blog(text, color=None, border=None):
         """
         Wrapper universal:
@@ -224,6 +274,9 @@ init python:
             "Ataque Directo":     "direct_attack",
             "Ataque Negador":     "noatk_attack",
             "Ataque más fuerte":  "stronger_attack",
+            "Ladrón ofensivo":    "ladron_ofensivo",
+            "Ladrón defensivo":   "ladron_defensivo",
+            "Ladrón de concentrar": "ladron_concentrar",
 
             "Concentrar":         "focus",
             "Concentrar x2":      "focus",
@@ -400,6 +453,52 @@ label offensive_process_actions(selected):
 
             dmg  = action.final_value
             tech = action.tech_id
+
+            # ----------------------------------------------------
+            # ===== LADRÓN ... (bloqueo de técnica por 1 turno) =====
+            # ----------------------------------------------------
+            if tech in ("ladron_ofensivo", "ladron_defensivo", "ladron_concentrar"):
+
+                block_kind = "offense"
+                phase = "offense"
+                if tech == "ladron_defensivo":
+                    block_kind = "defense"
+                    phase = "defense"
+                elif tech == "ladron_concentrar":
+                    block_kind = "focus"
+                    phase = "offense"
+
+                target_key = _off_enemy_unit_key()
+                target_tech = _pick_enemy_tech_to_block(block_kind)
+                blocked_ok = False
+                try:
+                    fn_block = getattr(S, "ai_block_tech_for_unit", None)
+                    if callable(fn_block) and target_tech:
+                        blocked_ok = bool(fn_block(target_key, target_tech, turns=1, phase=phase, reason=tech))
+                except:
+                    blocked_ok = False
+
+                try:
+                    S.consume_resources(rei_cost, ene_cost, actor="player")
+                except:
+                    try:
+                        S.consume_resources(rei_cost, ene_cost, "player")
+                    except:
+                        pass
+
+                S.turn_off_rei_tech_sum += int(rei_cost or 0)
+                S.turn_off_ene_tech_sum += int(ene_cost or 0)
+
+                actions -= 1
+                action.used = True
+                can_focus = True
+
+                if blocked_ok and target_tech:
+                    _blog("{} → bloquea {} en {} por 1 turno. {}".format(action.name, str(target_tech), str(target_key), _cost_line(rei_cost, ene_cost)), "#B39DDB")
+                else:
+                    _blog("{} ejecutada (sin objetivo válido de bloqueo). {}".format(action.name, _cost_line(rei_cost, ene_cost)), "#B39DDB")
+
+                continue
 
             # Guardar para fórmula
             try:
