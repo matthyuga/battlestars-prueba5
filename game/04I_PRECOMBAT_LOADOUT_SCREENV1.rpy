@@ -20,8 +20,8 @@ default precombat_use_icons = True
 define PRECOMBAT_PROFILES_KEY = "precombat_profiles_v1"
 
 init -925 python:
-    import renpy
     import renpy.store as S
+    import renpy.exports as R
 
     def precombat_catalog_v1():
         """Catálogo editable de Fase 1 (sin runtime profundo)."""
@@ -113,7 +113,7 @@ init -925 python:
             "salvaguarda_principiante": "game/gui/tech_buttons/salvaguarda_principiante.png",
         }
         pth = mapping.get(tid, "")
-        if pth and renpy.loadable(pth):
+        if pth and R.loadable(pth):
             return pth
         return ""
 
@@ -172,7 +172,7 @@ init -925 python:
     def precombat_set_message(msg, color="#AAAAAA"):
         S.precombat_message = str(msg or "")
         S.precombat_message_color = str(color or "#AAAAAA")
-        renpy.restart_interaction()
+        R.restart_interaction()
 
     def precombat_set_mode(mode):
         m = str(mode or "slots").strip().lower()
@@ -288,7 +288,7 @@ init -925 python:
             "loadout": dict(getattr(S, "precombat_loadout", {}) or {}),
         }
         S.persistent.precombat_profiles_v1 = data
-        renpy.save_persistent()
+        R.save_persistent()
         precombat_set_message("Perfil pre-combate guardado [{}]".format(pid), "#66DD66")
 
     def precombat_load_profile(profile_id=None):
