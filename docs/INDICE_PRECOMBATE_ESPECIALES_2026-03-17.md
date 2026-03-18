@@ -15,6 +15,11 @@
    - Archivo: `docs/PLAN_FASES_PRECOMBATE_TECNICAS_ESPECIALES.md`
    - Define el roadmap incremental desde contrato funcional, UI de pre-combate, integración de especiales, lógica runtime, escalado 2v2 y QA por hitos.
 
+
+3. **Checklist firmable de Fase 0 (gate de salida)**
+   - Archivo: `docs/CHECKLIST_FASE0_SSOT_FIRMABLE.md`
+   - Plantilla de aprobación formal para cerrar SSOT funcional antes de pasar a implementación.
+
 ## Resumen funcional consolidado
 
 - Técnicas especiales de la iteración:
