@@ -141,3 +141,11 @@ Se confirmó presencia local de estos archivos en `game/gui/tech_buttons`:
   1. reducción común,
   2. reducción especial (50%),
   sin suma lineal de porcentajes.
+
+
+---
+
+## Addendum de avance (2026-03-18, cierre Fase 0 -> inicio Fase 1)
+- Se confirma cierre operativo de Fase 0 para habilitar implementación incremental.
+- Se inicia Fase 1 con foco en UI de pre-combate, validador central de slots y persistencia de loadout.
+- Se mantiene estrategia: resolver runtime de especiales en fases posteriores para evitar retrabajo temprano.

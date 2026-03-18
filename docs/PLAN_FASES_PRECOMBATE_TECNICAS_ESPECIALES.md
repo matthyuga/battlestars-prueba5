@@ -5,6 +5,12 @@ Implementar de forma incremental el sistema de **pre-combate** con selección de
 
 ---
 
+## Estado de ejecución actual
+- **Fase 0:** cerrada en modalidad operativa (documentación consolidada).
+- **Fase 1:** iniciada (UI pre-combate + validación de slots).
+
+---
+
 ## Resumen de reglas funcionales acordadas
 
 ### 1) Categorías de slots

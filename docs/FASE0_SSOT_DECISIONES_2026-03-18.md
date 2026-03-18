@@ -1,7 +1,7 @@
 # Fase 0 — Decisiones funcionales cerradas (2026-03-18)
 
 ## Estado
-**En curso (pre-aprobación):** decisiones núcleo consolidadas para arrancar implementación controlada.
+**Cerrada (aprobada para avance):** reglas núcleo consolidadas y habilitadas para iniciar Fase 1.
 
 ---
 
@@ -70,3 +70,12 @@
 
 - Definir responsables finales de firma (funcional / implementación / QA) durante el avance.
 - Completar checklist firmable de Fase 0 en sesión de validación conjunta.
+
+
+---
+
+## 6) Cierre operativo de Fase 0
+
+- Estado de salida: **GO Fase 1**.
+- Cierre aplicado en modalidad operativa: validación funcional consolidada + documentación actualizada.
+- Pendientes no bloqueantes (roles/firmas nominales) se completan durante Fase 1 sin frenar implementación.

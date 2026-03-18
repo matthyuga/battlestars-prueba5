@@ -24,6 +24,10 @@
    - Archivo: `docs/FASE0_SSOT_DECISIONES_2026-03-18.md`
    - Consolida reglas cerradas de catálogo, modo libre/slots, perk base de especiales y prioridad de Salvaguarda.
 
+5. **Arranque de Fase 1 (pre-combate)**
+   - Archivo: `docs/FASE1_ARRANQUE_PRECOMBATE_2026-03-18.md`
+   - Define objetivo, alcance, criterios de aceptación y checklist de implementación inmediata.
+
 ## Resumen funcional consolidado
 
 - Técnicas especiales de la iteración:

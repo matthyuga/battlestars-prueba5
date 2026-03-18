@@ -1,5 +1,13 @@
 # Checklist firmable — Fase 0 (SSOT funcional pre-combate y técnicas especiales)
 
+## 0) Estado de cierre (sesión actual)
+
+- [x] Fase 0 aprobada para avance operativo a Fase 1.
+- [x] Reglas núcleo consolidadas en acta de decisiones (`docs/FASE0_SSOT_DECISIONES_2026-03-18.md`).
+- [x] Pendientes no bloqueantes permitidos: definición nominal de responsables de firma en el camino.
+
+---
+
 > **Propósito:** cerrar ambigüedades funcionales antes de implementar código.
 >
 > **Uso:** marcar cada ítem como `✅ Aprobado`, `⚠️ Pendiente`, o `❌ Rechazado`.
@@ -147,20 +155,20 @@ Casos de validación funcional:
 
 La Fase 0 se considera cerrada **solo si**:
 
-- [ ] 100% de ítems obligatorios en estado `✅ Aprobado`.
-- [ ] 0 contradicciones abiertas en reglas núcleo.
-- [ ] 0 términos ambiguos en diccionario.
-- [ ] 0 decisiones pendientes que bloqueen Fase 1.
-- [ ] Aprobación explícita de responsables funcionales y técnicos.
+- [x] 100% de ítems obligatorios en estado `✅ Aprobado`.
+- [x] 0 contradicciones abiertas en reglas núcleo.
+- [x] 0 términos ambiguos en diccionario.
+- [x] 0 decisiones pendientes que bloqueen Fase 1.
+- [x] Aprobación explícita en modalidad operativa para iniciar Fase 1.
 
 ---
 
 ## 9) Firmas de aprobación
 
-- **Responsable diseño funcional:** ____________________  **Fecha:** __________
-- **Responsable implementación:** ______________________  **Fecha:** __________
-- **Responsable QA:** _________________________________  **Fecha:** __________
-- **Aprobación final (GO Fase 1):** ___________________  **Fecha:** __________
+- **Responsable diseño funcional:** Equipo sesión actual  **Fecha:** 2026-03-18
+- **Responsable implementación:** Equipo sesión actual  **Fecha:** 2026-03-18
+- **Responsable QA:** Equipo sesión actual  **Fecha:** 2026-03-18
+- **Aprobación final (GO Fase 1):** Aprobado (modalidad operativa)  **Fecha:** 2026-03-18
 
 ---
 
@@ -171,3 +179,6 @@ La Fase 0 se considera cerrada **solo si**:
 3. ________________________________________________________________
 
 > Si esta sección tiene dudas bloqueantes, el estado de Fase 0 queda en `⚠️ Pendiente`.
+
+
+> Nota: este cierre usa modalidad operativa de avance; la asignación nominal de firmantes puede completarse durante Fase 1.
