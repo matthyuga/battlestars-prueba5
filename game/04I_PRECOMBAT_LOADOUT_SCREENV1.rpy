@@ -16,6 +16,8 @@ default precombat_confirmed_loadout = {}
 default precombat_catalog_page = {"atk": 0, "def": 0}
 default precombat_catalog_per_page = 4
 default precombat_use_icons = True
+default precombat_unit_loadouts = {"p1": {"atk": [], "def": []}, "p2": {"atk": [], "def": []}}
+default precombat_spa_profile_id = "A"
 
 define PRECOMBAT_PROFILES_KEY = "precombat_profiles_v1"
 
@@ -286,6 +288,7 @@ init -925 python:
             "extra_spc": int(getattr(S, "precombat_extra_spc_slots", 0) or 0),
             "slots": dict(getattr(S, "precombat_slots", {}) or {}),
             "loadout": dict(getattr(S, "precombat_loadout", {}) or {}),
+            "by_side": dict(getattr(S, "precombat_unit_loadouts", {}) or {}),
         }
         S.persistent.precombat_profiles_v1 = data
         R.save_persistent()
@@ -306,12 +309,74 @@ init -925 python:
         lo.setdefault("atk", [])
         lo.setdefault("def", [])
         S.precombat_loadout = lo
+        by_side = dict(cfg.get("by_side", {"p1": {"atk": [], "def": []}, "p2": {"atk": [], "def": []}}) or {})
+        by_side.setdefault("p1", {"atk": [], "def": []})
+        by_side.setdefault("p2", {"atk": [], "def": []})
+        S.precombat_unit_loadouts = by_side
         precombat_set_message("Perfil pre-combate cargado [{}]".format(pid), "#66CCFF")
 
     def precombat_validate_feedback():
         ok, msg = precombat_validate_current()
         precombat_set_message(msg, "#66DD66" if ok else "#FF8888")
         return ok
+
+    def _precombat_clean_loadout(raw):
+        data = dict(raw or {})
+        atk = list(data.get("atk", []) or [])
+        deff = list(data.get("def", []) or [])
+        return {"atk": [str(x) for x in atk], "def": [str(x) for x in deff]}
+
+    def precombat_store_current_for_side(side_key):
+        sk = str(side_key or "").strip().lower()
+        if sk not in ("p1", "p2"):
+            sk = "p1"
+        by_side = dict(getattr(S, "precombat_unit_loadouts", {}) or {})
+        by_side.setdefault("p1", {"atk": [], "def": []})
+        by_side.setdefault("p2", {"atk": [], "def": []})
+        by_side[sk] = _precombat_clean_loadout(getattr(S, "precombat_loadout", {}) or {})
+        S.precombat_unit_loadouts = by_side
+        precombat_set_message("Configuración actual guardada en {}.".format(sk.upper()), "#66DD66")
+        return None
+
+    def precombat_apply_side_to_current(side_key):
+        sk = str(side_key or "").strip().lower()
+        if sk not in ("p1", "p2"):
+            sk = "p1"
+        by_side = dict(getattr(S, "precombat_unit_loadouts", {}) or {})
+        cfg = _precombat_clean_loadout(by_side.get(sk, {"atk": [], "def": []}))
+        S.precombat_loadout = cfg
+        precombat_set_message("Configuración {} cargada al editor.".format(sk.upper()), "#66CCFF")
+        return None
+
+    def precombat_copy_side_to_side(src_key, dst_key):
+        src = str(src_key or "").strip().lower()
+        dst = str(dst_key or "").strip().lower()
+        if src not in ("p1", "p2") or dst not in ("p1", "p2"):
+            precombat_set_message("Copia inválida: lado no reconocido.", "#FF8888")
+            return None
+        by_side = dict(getattr(S, "precombat_unit_loadouts", {}) or {})
+        by_side.setdefault("p1", {"atk": [], "def": []})
+        by_side.setdefault("p2", {"atk": [], "def": []})
+        by_side[dst] = _precombat_clean_loadout(by_side.get(src, {"atk": [], "def": []}))
+        S.precombat_unit_loadouts = by_side
+        precombat_set_message("Configuración copiada {} -> {}.".format(src.upper(), dst.upper()), "#66DD66")
+        return None
+
+    def precombat_load_spa_profile(profile_id=None):
+        pid = str(profile_id or getattr(S, "precombat_spa_profile_id", "A") or "A").strip().upper()
+        if pid not in ("A", "B", "C"):
+            pid = "A"
+        S.precombat_spa_profile_id = pid
+        fn_load = getattr(S, "spa_load_profile", None)
+        if not callable(fn_load):
+            precombat_set_message("Editor de puntos no disponible en esta sesión.", "#FF8888")
+            return False
+        ok = bool(fn_load(pid))
+        if ok:
+            precombat_set_message("Perfil de puntos [{}] cargado desde editor A/B/C.".format(pid), "#66DD66")
+            return True
+        precombat_set_message("No existe perfil de puntos [{}] guardado.".format(pid), "#FF8888")
+        return False
 
     def precombat_confirm_selection():
         ok, msg = precombat_validate_current()
@@ -325,6 +390,7 @@ init -925 python:
             "slots": dict(getattr(S, "precombat_slots", {}) or {}),
             "loadout": dict(getattr(S, "precombat_loadout", {}) or {}),
             "specials": list(precombat_special_ids_selected()),
+            "by_side": dict(getattr(S, "precombat_unit_loadouts", {}) or {}),
         }
         precombat_set_message("Loadout confirmado: {}".format(msg), "#66DD66")
         return True
@@ -369,6 +435,13 @@ screen precombat_loadout_editor():
                 textbutton _("Cargar") action Function(store.precombat_load_profile, getattr(store, "precombat_profile_id", "A"))
 
             hbox:
+                spacing 8
+                text _("Puntos A/B/C:") size 14
+                for pid in ("A", "B", "C"):
+                    textbutton pid action SetVariable("precombat_spa_profile_id", pid) text_color ("#66CCFF" if pid == getattr(store, "precombat_spa_profile_id", "A") else "#FFFFFF")
+                textbutton _("Cargar editor puntos") action Function(store.precombat_load_spa_profile, getattr(store, "precombat_spa_profile_id", "A"))
+
+            hbox:
                 spacing 10
                 text _("Modo:") size 14
                 textbutton _("Por slots") action Function(store.precombat_set_mode, "slots") text_color ("#66CCFF" if getattr(store, "precombat_mode", "slots") == "slots" else "#FFFFFF")
@@ -409,6 +482,16 @@ screen precombat_loadout_editor():
                 spacing 8
                 for c in _categories:
                     textbutton c.upper() action Function(store.precombat_set_category, c) text_color ("#66CCFF" if c == getattr(store, "precombat_selected_category", "atk") else "#FFFFFF")
+
+            hbox:
+                spacing 8
+                text _("Config técnicas P1/P2:") size 14
+                textbutton _("Guardar -> P1") action Function(store.precombat_store_current_for_side, "p1")
+                textbutton _("Guardar -> P2") action Function(store.precombat_store_current_for_side, "p2")
+                textbutton _("Cargar P1") action Function(store.precombat_apply_side_to_current, "p1")
+                textbutton _("Cargar P2") action Function(store.precombat_apply_side_to_current, "p2")
+                textbutton _("Copiar P1 -> P2") action Function(store.precombat_copy_side_to_side, "p1", "p2")
+                textbutton _("Copiar P2 -> P1") action Function(store.precombat_copy_side_to_side, "p2", "p1")
 
             hbox:
                 spacing 10
@@ -499,13 +582,13 @@ screen precombat_loadout_editor():
 
             hbox:
                 spacing 8
-                textbutton _("Iniciar batalla 1v1 (aleatoria, panel simple)") action [
+                textbutton _("Prueba 1v1 aleatoria (panel simple)") action [
                     Function(store.precombat_confirm_selection),
-                    Function(store.bs_prepare_quick_random_1v1, getattr(store, "precombat_profile_id", "A")),
+                    Function(store.bs_prepare_quick_random_1v1, getattr(store, "precombat_spa_profile_id", "A")),
                     Start()
                 ]
-                textbutton _("Iniciar batalla 2v2 (aleatoria, panel simple)") action [
+                textbutton _("Prueba 2v2 aleatoria (panel simple)") action [
                     Function(store.precombat_confirm_selection),
-                    Function(store.bs_prepare_quick_random_2v2, getattr(store, "precombat_profile_id", "A")),
+                    Function(store.bs_prepare_quick_random_2v2, getattr(store, "precombat_spa_profile_id", "A")),
                     Start()
                 ]
