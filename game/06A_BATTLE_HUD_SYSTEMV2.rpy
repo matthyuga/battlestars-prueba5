@@ -36,9 +36,9 @@ init -970 python:
     hp_fake_enemy_alpha = 0.0
     hp_fake_player_delay = 0.0
     hp_fake_enemy_delay = 0.0
-    HP_FAKE_FX_ALPHA = 0.88
-    HP_FAKE_FX_DELAY = 0.07
-    HP_FAKE_FX_FADE_SECONDS = 0.35
+    HP_FAKE_FX_ALPHA = 1.0
+    HP_FAKE_FX_DELAY = 0.12
+    HP_FAKE_FX_FADE_SECONDS = 0.65
 
     # === Nombres HUD (display) ===
     hud_player_name = "Jugador"
@@ -895,15 +895,29 @@ screen battle_hp_overlay():
                                                     size int((_hud_layout.get("name_size", 20) or 20) + 2)
                                                     bold True
 
-                                                bar:
+                                                $ _hp_ratio_local = (float(_hp) / max(1.0, float(_mx)))
+                                                $ _hp_fake_ratio_local = max(_hp_ratio_local, float(hp_fake_enemy_ratio if _team == "enemy" else hp_fake_player_ratio))
+                                                $ _hp_fake_alpha_local = float(hp_fake_enemy_alpha if _team == "enemy" else hp_fake_player_alpha)
+                                                fixed:
                                                     xpos 18
                                                     ypos 202
-                                                    value (float(_hp) / max(1.0, float(_mx)))
-                                                    range 1.0
                                                     xmaximum 112
                                                     ymaximum 14
-                                                    left_bar "#00BFFF"
-                                                    right_bar "#222222"
+                                                    bar:
+                                                        value _hp_fake_ratio_local
+                                                        range 1.0
+                                                        xmaximum 112
+                                                        ymaximum 14
+                                                        left_bar "#9E9E9E"
+                                                        right_bar "#0000"
+                                                        at Transform(alpha=_hp_fake_alpha_local)
+                                                    bar:
+                                                        value _hp_ratio_local
+                                                        range 1.0
+                                                        xmaximum 112
+                                                        ymaximum 14
+                                                        left_bar "#00BFFF"
+                                                        right_bar "#222222"
 
                                                 text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                                     xpos 18
@@ -1061,15 +1075,29 @@ screen battle_hp_overlay():
                                             size int(_hud_layout.get("name_size", 17) or 17)
                                             bold True
 
-                                        bar:
+                                        $ _hp_ratio_local = (float(_hp) / max(1.0, float(_mx)))
+                                        $ _hp_fake_ratio_local = max(_hp_ratio_local, float(hp_fake_enemy_ratio if _team == "enemy" else hp_fake_player_ratio))
+                                        $ _hp_fake_alpha_local = float(hp_fake_enemy_alpha if _team == "enemy" else hp_fake_player_alpha)
+                                        fixed:
                                             xpos 18
                                             ypos 203
-                                            value (float(_hp) / max(1.0, float(_mx)))
-                                            range 1.0
                                             xmaximum 112
                                             ymaximum 14
-                                            left_bar "#00BFFF"
-                                            right_bar "#222222"
+                                            bar:
+                                                value _hp_fake_ratio_local
+                                                range 1.0
+                                                xmaximum 112
+                                                ymaximum 14
+                                                left_bar "#9E9E9E"
+                                                right_bar "#0000"
+                                                at Transform(alpha=_hp_fake_alpha_local)
+                                            bar:
+                                                value _hp_ratio_local
+                                                range 1.0
+                                                xmaximum 112
+                                                ymaximum 14
+                                                left_bar "#00BFFF"
+                                                right_bar "#222222"
 
                                         text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                             xpos 18
