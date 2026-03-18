@@ -37,11 +37,11 @@ Implementar la sala de pre-combate para configurar loadout por categorías (`atk
 
 ## Checklist de implementación inmediata
 
-- [ ] Definir estructura de estado de pre-combate (`mode`, slots, loadout seleccionado).
-- [ ] Implementar validador central de slots (incluye doble consumo).
-- [ ] Conectar UI base con datasets de técnicas.
-- [ ] Agregar feedback de error de validación en confirmación.
-- [ ] Guardar/restaurar selección para inicio de combate.
+- [x] Definir estructura de estado de pre-combate (`mode`, slots, loadout seleccionado).
+- [x] Implementar validador central de slots (incluye doble consumo vía especiales derivadas).
+- [x] Conectar UI base con catálogo técnico inicial (incluye especiales previstas de Fase 3 para equipamiento).
+- [x] Agregar feedback de error de validación en confirmación.
+- [x] Guardar/restaurar selección de pre-combate por perfil persistente.
 
 ---
 
@@ -53,3 +53,12 @@ Implementar la sala de pre-combate para configurar loadout por categorías (`atk
    - Mitigación: mostrar consumo explícito en UI.
 3. **Regresiones de navegación**
    - Mitigación: smoke test de ruta pre-combate -> volver -> iniciar combate.
+
+
+---
+
+## Implementación aplicada (corte actual)
+
+- Archivo UI/estado: `game/04I_PRECOMBAT_LOADOUT_SCREENV1.rpy`.
+- Entrada desde menú principal: botón `Pre-combate (Fase 1)` en `game/screens.rpy`.
+- Resultado de corte: sala funcional de configuración + validación + confirmación de loadout.

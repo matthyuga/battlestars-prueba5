@@ -1,0 +1,386 @@
+# ============================================================
+# 04I_PRECOMBAT_LOADOUT_SCREENV1.rpy
+# Fase 1 — Sala pre-combate (v1)
+# ============================================================
+
+# Estado UI persistente por sesión
+default precombat_mode = "slots"   # slots | free
+default precombat_profile_id = "A"
+default precombat_extra_spc_slots = 0
+default precombat_selected_category = "atk"
+default precombat_message = ""
+default precombat_message_color = "#AAAAAA"
+default precombat_slots = {"atk": 7, "def": 5, "spc": 1}
+default precombat_loadout = {"atk": [], "def": []}
+default precombat_confirmed_loadout = {}
+
+define PRECOMBAT_PROFILES_KEY = "precombat_profiles_v1"
+
+init -925 python:
+    import renpy
+    import renpy.store as S
+
+    def precombat_catalog_v1():
+        """Catálogo editable de Fase 1 (sin runtime profundo)."""
+        return {
+            "atk": [
+                {"id": "extra_attack", "name": "Ataque extra", "kind": "offensive"},
+                {"id": "extra_tech", "name": "Técnica extra", "kind": "offensive"},
+                {"id": "stronger_attack", "name": "Ataque más fuerte", "kind": "offensive"},
+                {"id": "attack_reducer", "name": "Ataque reductor", "kind": "offensive"},
+                {"id": "direct_attack", "name": "Ataque directo", "kind": "offensive"},
+                {"id": "noatk_attack", "name": "Ataque negador", "kind": "offensive"},
+                {"id": "focus", "name": "Concentrar", "kind": "special_offensive"},
+                {"id": "ladron_ofensivo", "name": "Ladrón ofensivo", "kind": "special_offensive"},
+                {"id": "ladron_defensivo", "name": "Ladrón defensivo", "kind": "special_offensive"},
+                {"id": "ladron_concentrar", "name": "Ladrón de concentrar", "kind": "special_offensive"},
+            ],
+            "def": [
+                {"id": "defense_extra", "name": "Defensa extra", "kind": "defensive"},
+                {"id": "defense_reducer", "name": "Defensa reductora", "kind": "defensive"},
+                {"id": "defense_reflect", "name": "Defensa reflectora", "kind": "defensive"},
+                {"id": "defense_strong_block", "name": "Defensa fuerte", "kind": "defensive"},
+                {"id": "defense_boost", "name": "Potenciar", "kind": "special_defensive"},
+                {"id": "salvaguarda_principiante", "name": "Salvaguarda principiante", "kind": "special_defensive"},
+            ],
+        }
+
+    def precombat_kind_by_id(tech_id):
+        tid = str(tech_id or "")
+        cat = precombat_catalog_v1()
+        for item in list(cat.get("atk", [])) + list(cat.get("def", [])):
+            if str(item.get("id", "")) == tid:
+                return str(item.get("kind", ""))
+        return ""
+
+    def precombat_label_by_id(tech_id):
+        tid = str(tech_id or "")
+        cat = precombat_catalog_v1()
+        for item in list(cat.get("atk", [])) + list(cat.get("def", [])):
+            if str(item.get("id", "")) == tid:
+                return str(item.get("name", tid))
+        return tid
+
+    def precombat_special_ids_selected():
+        out = []
+        loadout = getattr(S, "precombat_loadout", {}) or {}
+        for category in ("atk", "def"):
+            for tid in list(loadout.get(category, []) or []):
+                kind = precombat_kind_by_id(tid)
+                if kind.startswith("special_") and tid not in out:
+                    out.append(tid)
+        return out
+
+    def precombat_spc_limit():
+        slots = getattr(S, "precombat_slots", {}) or {}
+        base = int(slots.get("spc", 1) or 1)
+        perk = int(getattr(S, "precombat_extra_spc_slots", 0) or 0)
+        return max(0, base + perk)
+
+    def precombat_usage_snapshot():
+        loadout = getattr(S, "precombat_loadout", {}) or {}
+        atk_used = len(list(loadout.get("atk", []) or []))
+        def_used = len(list(loadout.get("def", []) or []))
+        spc_used = len(precombat_special_ids_selected())
+        return {
+            "atk": atk_used,
+            "def": def_used,
+            "spc": spc_used,
+            "spc_limit": precombat_spc_limit(),
+        }
+
+    def precombat_set_message(msg, color="#AAAAAA"):
+        S.precombat_message = str(msg or "")
+        S.precombat_message_color = str(color or "#AAAAAA")
+        renpy.restart_interaction()
+
+    def precombat_set_mode(mode):
+        m = str(mode or "slots").strip().lower()
+        if m not in ("slots", "free"):
+            m = "slots"
+        S.precombat_mode = m
+        precombat_set_message("Modo: {}".format("Por slots" if m == "slots" else "Libre"), "#66CCFF")
+
+    def precombat_set_extra_spc(v):
+        try:
+            vv = int(v)
+        except:
+            vv = 0
+        if vv < 0:
+            vv = 0
+        if vv > 1:
+            vv = 1
+        S.precombat_extra_spc_slots = vv
+        precombat_set_message("Perk especiales: +{}".format(vv), "#66CCFF")
+
+    def precombat_adjust_slot(slot_key, delta):
+        key = str(slot_key or "").strip().lower()
+        if key not in ("atk", "def", "spc"):
+            return None
+        slots = dict(getattr(S, "precombat_slots", {}) or {})
+        cur = int(slots.get(key, 0) or 0)
+        nxt = max(0, cur + int(delta or 0))
+        slots[key] = nxt
+        S.precombat_slots = slots
+        precombat_set_message("Slots {} = {}".format(key.upper(), nxt), "#66CCFF")
+        return None
+
+    def precombat_add(category, tech_id):
+        cat = str(category or "").strip().lower()
+        tid = str(tech_id or "").strip()
+        if cat not in ("atk", "def") or not tid:
+            return None
+
+        loadout = dict(getattr(S, "precombat_loadout", {}) or {})
+        arr = list(loadout.get(cat, []) or [])
+        if tid in arr:
+            precombat_set_message("Ya estaba equipada: {}".format(precombat_label_by_id(tid)), "#AAAAAA")
+            return None
+
+        arr.append(tid)
+        loadout[cat] = arr
+        S.precombat_loadout = loadout
+
+        ok, msg = precombat_validate_current()
+        if not ok and str(getattr(S, "precombat_mode", "slots")) == "slots":
+            arr.pop()
+            loadout[cat] = arr
+            S.precombat_loadout = loadout
+            precombat_set_message(msg, "#FF8888")
+            return None
+
+        precombat_set_message("Equipada: {}".format(precombat_label_by_id(tid)), "#66DD66")
+        return None
+
+    def precombat_remove(category, tech_id):
+        cat = str(category or "").strip().lower()
+        tid = str(tech_id or "").strip()
+        if cat not in ("atk", "def") or not tid:
+            return None
+
+        loadout = dict(getattr(S, "precombat_loadout", {}) or {})
+        arr = list(loadout.get(cat, []) or [])
+        if tid in arr:
+            arr.remove(tid)
+            loadout[cat] = arr
+            S.precombat_loadout = loadout
+            precombat_set_message("Quitada: {}".format(precombat_label_by_id(tid)), "#CCCC66")
+        return None
+
+    def precombat_validate_current():
+        mode = str(getattr(S, "precombat_mode", "slots") or "slots")
+        if mode == "free":
+            return True, "OK (modo libre)"
+
+        slots = getattr(S, "precombat_slots", {}) or {}
+        snap = precombat_usage_snapshot()
+
+        atk_max = int(slots.get("atk", 0) or 0)
+        def_max = int(slots.get("def", 0) or 0)
+        spc_max = int(snap.get("spc_limit", 0) or 0)
+
+        if snap["atk"] > atk_max:
+            return False, "Excede slots ATK ({} / {})".format(snap["atk"], atk_max)
+        if snap["def"] > def_max:
+            return False, "Excede slots DEF ({} / {})".format(snap["def"], def_max)
+        if snap["spc"] > spc_max:
+            return False, "Excede slots SPC ({} / {})".format(snap["spc"], spc_max)
+
+        return True, "Loadout válido"
+
+    def precombat_get_profiles_store():
+        p = getattr(S, "persistent", None)
+        if p is None:
+            return {}
+        data = getattr(p, PRECOMBAT_PROFILES_KEY, None)
+        if not isinstance(data, dict):
+            data = {}
+            setattr(p, PRECOMBAT_PROFILES_KEY, data)
+        return data
+
+    def precombat_save_profile(profile_id=None):
+        pid = str(profile_id or getattr(S, "precombat_profile_id", "A") or "A")
+        data = precombat_get_profiles_store()
+        data[pid] = {
+            "mode": str(getattr(S, "precombat_mode", "slots") or "slots"),
+            "extra_spc": int(getattr(S, "precombat_extra_spc_slots", 0) or 0),
+            "slots": dict(getattr(S, "precombat_slots", {}) or {}),
+            "loadout": dict(getattr(S, "precombat_loadout", {}) or {}),
+        }
+        S.persistent.precombat_profiles_v1 = data
+        renpy.save_persistent()
+        precombat_set_message("Perfil pre-combate guardado [{}]".format(pid), "#66DD66")
+
+    def precombat_load_profile(profile_id=None):
+        pid = str(profile_id or getattr(S, "precombat_profile_id", "A") or "A")
+        data = precombat_get_profiles_store()
+        cfg = data.get(pid, None)
+        if not isinstance(cfg, dict):
+            precombat_set_message("No existe perfil [{}]".format(pid), "#FF8888")
+            return None
+
+        S.precombat_mode = str(cfg.get("mode", "slots") or "slots")
+        S.precombat_extra_spc_slots = int(cfg.get("extra_spc", 0) or 0)
+        S.precombat_slots = dict(cfg.get("slots", {"atk": 7, "def": 5, "spc": 1}) or {"atk": 7, "def": 5, "spc": 1})
+        lo = dict(cfg.get("loadout", {"atk": [], "def": []}) or {"atk": [], "def": []})
+        lo.setdefault("atk", [])
+        lo.setdefault("def", [])
+        S.precombat_loadout = lo
+        precombat_set_message("Perfil pre-combate cargado [{}]".format(pid), "#66CCFF")
+
+    def precombat_validate_feedback():
+        ok, msg = precombat_validate_current()
+        precombat_set_message(msg, "#66DD66" if ok else "#FF8888")
+        return ok
+
+    def precombat_confirm_selection():
+        ok, msg = precombat_validate_current()
+        if not ok:
+            precombat_set_message(msg, "#FF8888")
+            return False
+
+        S.precombat_confirmed_loadout = {
+            "mode": str(getattr(S, "precombat_mode", "slots") or "slots"),
+            "extra_spc": int(getattr(S, "precombat_extra_spc_slots", 0) or 0),
+            "slots": dict(getattr(S, "precombat_slots", {}) or {}),
+            "loadout": dict(getattr(S, "precombat_loadout", {}) or {}),
+            "specials": list(precombat_special_ids_selected()),
+        }
+        precombat_set_message("Loadout confirmado: {}".format(msg), "#66DD66")
+        return True
+
+
+screen precombat_loadout_editor():
+    tag menu
+
+    default _slot_keys = ["atk", "def", "spc"]
+    default _categories = ["atk", "def"]
+
+    frame:
+        style_prefix "game_menu"
+        xalign 0.5
+        yalign 0.5
+        xsize 1700
+        ysize 980
+
+        vbox:
+            spacing 12
+            label _("Pre-combate (Fase 1)")
+            text _("Configura loadout por slots con modo libre/por slots y persistencia de perfil.") size 20 color "#BBBBBB"
+            text "[store.precombat_message]" size 18 color getattr(store, "precombat_message_color", "#AAAAAA")
+
+            hbox:
+                spacing 10
+                text _("Perfil:") size 20
+                for pid in ("A", "B", "C"):
+                    textbutton pid action SetVariable("precombat_profile_id", pid) text_color ("#66CCFF" if pid == getattr(store, "precombat_profile_id", "A") else "#FFFFFF")
+                textbutton _("Guardar") action Function(store.precombat_save_profile, getattr(store, "precombat_profile_id", "A"))
+                textbutton _("Cargar") action Function(store.precombat_load_profile, getattr(store, "precombat_profile_id", "A"))
+
+            hbox:
+                spacing 14
+                text _("Modo:") size 20
+                textbutton _("Por slots") action Function(store.precombat_set_mode, "slots") text_color ("#66CCFF" if getattr(store, "precombat_mode", "slots") == "slots" else "#FFFFFF")
+                textbutton _("Libre") action Function(store.precombat_set_mode, "free") text_color ("#66CCFF" if getattr(store, "precombat_mode", "slots") == "free" else "#FFFFFF")
+                null width 24
+                text _("Perk extra SPC:") size 20
+                textbutton _("0") action Function(store.precombat_set_extra_spc, 0) text_color ("#66CCFF" if int(getattr(store, "precombat_extra_spc_slots", 0) or 0) == 0 else "#FFFFFF")
+                textbutton _("+1") action Function(store.precombat_set_extra_spc, 1) text_color ("#66CCFF" if int(getattr(store, "precombat_extra_spc_slots", 0) or 0) == 1 else "#FFFFFF")
+
+            frame:
+                xfill True
+                yminimum 110
+                vbox:
+                    spacing 6
+                    text _("Límites de slots (modo por slots)") size 20
+                    hbox:
+                        spacing 12
+                        for sk in _slot_keys:
+                            $ lim = (store.precombat_spc_limit() if sk == "spc" else int((getattr(store, "precombat_slots", {}) or {}).get(sk, 0) or 0))
+                            $ used = int((store.precombat_usage_snapshot() or {}).get(sk, 0) or 0)
+                            frame:
+                                xpadding 8
+                                ypadding 6
+                                vbox:
+                                    text "[sk.upper()] [used]/[lim]" size 18
+                                    if sk in ("atk", "def", "spc"):
+                                        hbox:
+                                            spacing 4
+                                            textbutton "-" action Function(store.precombat_adjust_slot, sk, -1)
+                                            textbutton "+" action Function(store.precombat_adjust_slot, sk, +1)
+
+            hbox:
+                spacing 12
+                for c in _categories:
+                    textbutton c.upper() action SetVariable("precombat_selected_category", c) text_color ("#66CCFF" if c == getattr(store, "precombat_selected_category", "atk") else "#FFFFFF")
+
+            hbox:
+                spacing 16
+
+                frame:
+                    xfill True
+                    yfill True
+                    xmaximum 780
+                    vbox:
+                        spacing 4
+                        text _("Catálogo disponible") size 20
+                        viewport:
+                            draggable True
+                            mousewheel True
+                            scrollbars "vertical"
+                            ymaximum 500
+                            vbox:
+                                spacing 4
+                                $ cat = getattr(store, "precombat_selected_category", "atk")
+                                for item in store.precombat_catalog_v1().get(cat, []):
+                                    $ tid = item.get("id", "")
+                                    $ nm = item.get("name", tid)
+                                    $ kind = item.get("kind", "")
+                                    hbox:
+                                        spacing 8
+                                        text "[nm]" size 18
+                                        text "([kind])" size 14 color "#999999"
+                                        textbutton _("Equipar") action Function(store.precombat_add, cat, tid)
+
+                frame:
+                    xfill True
+                    yfill True
+                    vbox:
+                        spacing 6
+                        text _("Loadout actual") size 20
+                        viewport:
+                            draggable True
+                            mousewheel True
+                            scrollbars "vertical"
+                            ymaximum 500
+                            vbox:
+                                spacing 6
+                                text _("ATK") size 18 color "#66CCFF"
+                                for tid in (getattr(store, "precombat_loadout", {}) or {}).get("atk", []):
+                                    hbox:
+                                        spacing 8
+                                        text "[store.precombat_label_by_id(tid)]" size 18
+                                        textbutton _("Quitar") action Function(store.precombat_remove, "atk", tid)
+                                if len((getattr(store, "precombat_loadout", {}) or {}).get("atk", [])) == 0:
+                                    text "-" size 16 color "#777777"
+
+                                text _("DEF") size 18 color "#66CCFF"
+                                for tid in (getattr(store, "precombat_loadout", {}) or {}).get("def", []):
+                                    hbox:
+                                        spacing 8
+                                        text "[store.precombat_label_by_id(tid)]" size 18
+                                        textbutton _("Quitar") action Function(store.precombat_remove, "def", tid)
+                                if len((getattr(store, "precombat_loadout", {}) or {}).get("def", [])) == 0:
+                                    text "-" size 16 color "#777777"
+
+                                text _("SPC (derivado)") size 18 color "#66CCFF"
+                                for tid in store.precombat_special_ids_selected():
+                                    text "• [store.precombat_label_by_id(tid)]" size 17
+                                if len(store.precombat_special_ids_selected()) == 0:
+                                    text "-" size 16 color "#777777"
+
+            hbox:
+                spacing 12
+                textbutton _("Validar") action Function(store.precombat_validate_feedback)
+                textbutton _("Confirmar loadout") action Function(store.precombat_confirm_selection)
+                textbutton _("Volver") action Return()

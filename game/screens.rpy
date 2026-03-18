@@ -320,6 +320,7 @@ screen navigation():
 
         if main_menu:
             textbutton _("Editor de puntos") action ShowMenu("slot_points_editor")
+            textbutton _("Pre-combate (Fase 1)") action ShowMenu("precombat_loadout_editor")
 
         if _in_replay:
 
