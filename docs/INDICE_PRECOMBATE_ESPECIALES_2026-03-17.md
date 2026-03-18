@@ -20,6 +20,10 @@
    - Archivo: `docs/CHECKLIST_FASE0_SSOT_FIRMABLE.md`
    - Plantilla de aprobación formal para cerrar SSOT funcional antes de pasar a implementación.
 
+4. **Acta de decisiones Fase 0 (actualización de sesión)**
+   - Archivo: `docs/FASE0_SSOT_DECISIONES_2026-03-18.md`
+   - Consolida reglas cerradas de catálogo, modo libre/slots, perk base de especiales y prioridad de Salvaguarda.
+
 ## Resumen funcional consolidado
 
 - Técnicas especiales de la iteración:

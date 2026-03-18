@@ -75,16 +75,22 @@ Criterio de aceptación:
 - [ ] Categorías confirmadas: `atk`, `def`, `spc`.
 - [ ] Base de prueba confirmada: `atk=7`, `def=5`, `spc=1`.
 - [ ] Perfil ejemplo nivel 1 confirmado: `atk=2`, `def=1`, `spc=1`.
-- [ ] Regla oficial vigente: 1 técnica especial por jugador (salvo perks futuros).
+- [ ] Regla oficial vigente: 1 técnica especial por jugador en modo por slots.
 
-### 4.2 Doble consumo para especiales
+### 4.2 Configuración de modos y perks (control de pruebas)
+
+- [ ] Existe parámetro base para perk de especiales (ej. `extra_spc_slots`) que permite subir de 1 a 2 especiales.
+- [ ] Existe modo de configuración `modo libre` y `modo por slots` para pruebas/control.
+- [ ] En `modo por slots` se puede definir cantidad de slots de `atk`, `def`, `spc`.
+
+### 4.3 Doble consumo para especiales
 
 - [ ] Especial ofensiva consume `1 atk + 1 spc`.
 - [ ] Especial defensiva consume `1 def + 1 spc`.
 - [ ] `Concentrar` tratado como especial ofensiva.
 - [ ] `Potenciar` tratado como especial defensiva.
 
-### 4.3 Casos borde acordados
+### 4.4 Casos borde acordados
 
 - [ ] ¿Qué pasa si no hay `spc` disponible?
 - [ ] ¿Qué pasa si hay `atk`/`def` disponible pero falta `spc`?
@@ -112,17 +118,18 @@ Casos de validación funcional:
 
 ## 6) Salvaguarda principiante (obligatorio)
 
-- [ ] Reduce 50% de daño defendible.
-- [ ] No reduce daño directo en versión principiante.
-- [ ] Prioridad confirmada: reducción común → reducción especial.
+- [ ] Reduce 50% del daño enemigo final aplicable en la resolución (con prioridad por capas).
+- [ ] Prioridad confirmada: reducción común → reducción especial (Salvaguarda).
+- [ ] No se suma porcentualmente con técnica reductora; se aplica secuencialmente por prioridad.
+- [ ] Definidos flags separados de efecto común y efecto especial para pipeline de daño.
 - [ ] Fórmula de referencia aprobada para documentación.
-- [ ] Evolución futura “Salvaguarda intermedio” documentada (incluye directo).
 
 Casos de validación funcional:
 
 - [ ] Caso solo defendible.
 - [ ] Caso mixto (defendible + directo).
 - [ ] Caso solo directo.
+- [ ] Caso con reducción común + Salvaguarda (validando orden y no suma directa de %).
 
 ---
 

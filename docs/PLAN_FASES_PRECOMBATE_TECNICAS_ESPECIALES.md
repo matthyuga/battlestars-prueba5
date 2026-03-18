@@ -24,9 +24,9 @@ Implementar de forma incremental el sistema de **pre-combate** con selección de
   - `spc`: 1
 
 ### 4) Regla oficial del juego para especiales
-- Oficialmente se admite **1 técnica especial** por jugador.
-- A futuro, perks pueden aumentar `spc`.
-- En etapa de pruebas se habilita test con más especiales si se requiere.
+- Oficialmente se admite **1 técnica especial** por jugador en modo por slots.
+- Se incorpora parámetro base de perk (`extra_spc_slots`) para habilitar 2 especiales cuando aplique.
+- En etapa de pruebas se habilita `modo libre` para validar comportamiento sin límites estrictos.
 
 ### 5) Doble consumo para técnicas especiales
 - Especial ofensiva consume: `1 atk + 1 spc`.
@@ -70,7 +70,8 @@ Crear un panel de pre-combate, similar al editor de puntos, para seleccionar té
 - Nueva pantalla de pre-combate accesible por botón/ruta.
 - Selección de técnicas por categorías (`atk`, `def`, `spc`).
 - Contadores visibles de slots usados/restantes.
-- Validación de límites por slot.
+- Selector de modo: `modo libre` / `modo por slots`.
+- Validación de límites por slot cuando esté activo modo por slots.
 - Integración de reglas de doble consumo para especiales.
 - Inclusión explícita de `Concentrar` y `Potenciar` como `spc` según tipo.
 
@@ -127,19 +128,18 @@ Aplicar reducción especial con prioridad correcta en pipeline de daño.
 
 ### Alcance
 - `Salvaguarda principiante`:
-  - reduce 50% del daño **defendible**.
-  - no afecta daño directo.
+  - reduce 50% del daño enemigo aplicable en resolución,
+  - no se suma linealmente al porcentaje de técnica común; se aplica por capas.
 - Prioridad obligatoria:
   1. reducción de técnica común (p. ej. defensa reductora),
   2. reducción de técnica especial (`Salvaguarda`).
-- Preparar evolución futura:
-  - `Salvaguarda intermedio` también reduce 50% del daño directo.
+- Requisito técnico:
+  - separar flags de efecto común y efecto especial para el pipeline.
 
 ### Fórmula base (principiante)
-- `D1_def = D_def * (1 - r_comun)`
-- `D2_def = D1_def * 0.50`
-- `D2_dir = D_dir`
-- `D_total = D2_def + D2_dir`
+- `D1 = D_in * (1 - r_comun)`
+- `D2 = D1 * 0.50`
+- `D_total = D2`
 
 ### Criterio de salida
 - Logs y operación muestran prioridad aplicada sin ambigüedad.
