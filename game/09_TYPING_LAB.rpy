@@ -94,10 +94,29 @@ init -850 python:
             "aizen",
         ]
 
-    def typing_lab_prepare(mode="letters", total_letters=10, seconds_per_letter=2.0, total_words=10, seconds_per_word=3.0):
+    def typing_lab_phrase_bank():
+        return [
+            "el miedo nace en la oscuridad",
+            "la desesperacion rompe el espiritu",
+            "la voluntad supera el destino",
+            "un corazon firme no se quiebra",
+            "el orgullo sostiene la espada",
+            "la calma precede al bankai",
+            "el reiatsu revela la verdad",
+            "la soledad tambien forja fuerza",
+            "la batalla define la conviccion",
+            "la esperanza no conoce limite",
+            "cada cicatriz guarda una leccion",
+            "sin riesgo no hay evolucion",
+            "la fe protege el alma",
+            "el honor pesa mas que el miedo",
+            "el silencio anuncia la tormenta",
+        ]
+
+    def typing_lab_prepare(mode="letters", total_letters=10, seconds_per_letter=2.0, total_words=10, seconds_per_word=3.0, total_phrases=10, seconds_per_phrase=3.5):
         letters = list("abcdefghijklmnopqrstuvwxyz")
         use_mode = str(mode or "letters").lower().strip()
-        if use_mode not in ("letters", "words"):
+        if use_mode not in ("letters", "words", "phrases"):
             use_mode = "letters"
 
         try:
@@ -134,10 +153,34 @@ init -850 python:
 
             n = n_words
             spl = spw
+        elif use_mode == "phrases":
+            try:
+                n_phrases = int(total_phrases)
+            except:
+                n_phrases = 10
+            n_phrases = max(1, n_phrases)
+
+            try:
+                spp = float(seconds_per_phrase)
+            except:
+                spp = 3.5
+            spp = max(0.2, spp)
+
+            bank = list(typing_lab_phrase_bank())
+            random.shuffle(bank)
+            if len(bank) >= n_phrases:
+                seq = bank[:n_phrases]
+            else:
+                seq = [random.choice(bank) for _ in range(n_phrases)]
+
+            n = n_phrases
+            spl = spp
         else:
             seq = [random.choice(letters) for _ in range(n)]
 
         first_prompt = str(seq[0] if seq else "a")
+        first_words = [w for w in first_prompt.split(" ") if w]
+        first_word = str(first_words[0] if first_words else "")
 
         st = {
             "mode": str(use_mode),
@@ -146,8 +189,10 @@ init -850 python:
             "total": int(len(seq)),
             "index": 0,
             "cursor": 0,
+            "word_cursor": 0,
+            "phrase_words": list(first_words),
             "current_prompt": first_prompt,
-            "current_letter": str(first_prompt[:1] if first_prompt else "a"),
+            "current_letter": (str(first_word[:1] if first_word else "a") if use_mode == "phrases" else str(first_prompt[:1] if first_prompt else "a")),
             "hits": 0,
             "seconds_per_letter": float(spl),
             "time_left": float(spl),
@@ -169,8 +214,12 @@ init -850 python:
         if phase != "idle":
             return dict(st)
 
-        got = str(key_text or "").strip().lower()[:1]
-        if not ("a" <= got <= "z"):
+        raw = str(key_text or "")
+        low = raw.lower()
+        got = low.strip()[:1]
+        is_space = (low == " " or low == "space")
+
+        if not is_space and not ("a" <= got <= "z"):
             return dict(st)
 
         mode = str(st.get("mode", "letters") or "letters")
@@ -180,7 +229,27 @@ init -850 python:
             cursor = 0
 
         expected = ""
-        if mode == "words":
+        if mode == "phrases":
+            words = list(st.get("phrase_words", []) or [])
+            word_idx = int(st.get("word_cursor", 0) or 0)
+            word_idx = max(0, min(len(words), word_idx))
+
+            if word_idx >= len(words):
+                return dict(st)
+
+            current_word = str(words[word_idx] or "")
+            if current_word and cursor < len(current_word):
+                expected = str(current_word[cursor]).lower()
+
+            if is_space:
+                if cursor == len(current_word) and word_idx < (len(words) - 1):
+                    st["word_cursor"] = int(word_idx + 1)
+                    st["cursor"] = 0
+                    next_word = str(words[word_idx + 1] or "")
+                    st["current_letter"] = str(next_word[:1] if next_word else "")
+                    S.typing_lab_state = st
+                return dict(st)
+        elif mode == "words":
             if prompt and cursor < len(prompt):
                 expected = str(prompt[cursor]).lower()
         else:
@@ -189,7 +258,19 @@ init -850 python:
         if got != expected:
             return dict(st)
 
-        if mode == "words":
+        if mode == "phrases":
+            words = list(st.get("phrase_words", []) or [])
+            word_idx = int(st.get("word_cursor", 0) or 0)
+            current_word = str(words[word_idx] if (0 <= word_idx < len(words)) else "")
+            cursor += 1
+            st["cursor"] = int(cursor)
+            if cursor < len(current_word):
+                S.typing_lab_state = st
+                return dict(st)
+            if word_idx < (len(words) - 1):
+                S.typing_lab_state = st
+                return dict(st)
+        elif mode == "words":
             cursor += 1
             st["cursor"] = int(cursor)
             if cursor < len(prompt):
@@ -288,6 +369,8 @@ init -850 python:
         if idx >= total:
             st["phase"] = "done"
             st["cursor"] = 0
+            st["word_cursor"] = 0
+            st["phrase_words"] = []
             st["current_prompt"] = ""
             st["current_letter"] = ""
             st["time_left"] = 0.0
@@ -300,8 +383,15 @@ init -850 python:
             new_prompt = str(seq[idx])
             st["phase"] = "idle"
             st["cursor"] = 0
+            st["word_cursor"] = 0
             st["current_prompt"] = str(new_prompt)
-            st["current_letter"] = str(new_prompt[:1] if new_prompt else "")
+            phrase_words = [w for w in str(new_prompt).split(" ") if w]
+            st["phrase_words"] = list(phrase_words)
+            if str(st.get("mode", "letters") or "letters") == "phrases":
+                first_word = str(phrase_words[0] if phrase_words else "")
+                st["current_letter"] = str(first_word[:1] if first_word else "")
+            else:
+                st["current_letter"] = str(new_prompt[:1] if new_prompt else "")
             st["time_left"] = float(spl)
             st["feedback_time_left"] = 0.0
             st["bar_visual_ratio"] = 1.0
@@ -327,6 +417,8 @@ default typing_lab_state = {
     "total": 10,
     "index": 0,
     "cursor": 0,
+    "word_cursor": 0,
+    "phrase_words": [],
     "current_prompt": "",
     "current_letter": "",
     "hits": 0,
@@ -390,12 +482,6 @@ screen typing_lab_mode_menu():
                     xpadding 16
                     ypadding 10
 
-            if typing_lab_selected_mode == "phrases":
-                text "Frases estará disponible más adelante.":
-                    size 24
-                    color "#FFB347"
-                    xalign 0.5
-
             textbutton "Iniciar":
                 xalign 0.5
                 action Return("start")
@@ -405,7 +491,7 @@ screen typing_lab_qte_simple():
     modal True
     zorder 260
 
-    default _letters = "abcdefghijklmnopqrstuvwxyz"
+    default _letters = "abcdefghijklmnopqrstuvwxyz "
 
     python:
         _st = getattr(store, "typing_lab_state", {})
@@ -455,11 +541,29 @@ screen typing_lab_qte_simple():
                 _typed = _prompt[:_cursor]
                 _pending = _prompt[_cursor:]
                 _word_markup = "{color=#66FF99}%s{/color}{color=#FFFFFF}%s{/color}" % (_typed, _pending)
+        elif _mode == "phrases":
+            _words = [w for w in _prompt.split(" ") if w]
+            _word_cursor = int(_st.get("word_cursor", 0) or 0)
+            _word_cursor = max(0, min(len(_words), _word_cursor))
+            _cursor = int(_st.get("cursor", 0) or 0)
+            _markup_parts = []
+            for _i, _w in enumerate(_words):
+                if _phase == "hit" or _i < _word_cursor:
+                    _markup_parts.append("{color=#66FF99}%s{/color}" % _w)
+                elif _i == _word_cursor:
+                    _local_cursor = max(0, min(len(_w), _cursor))
+                    _typed = _w[:_local_cursor]
+                    _pending = _w[_local_cursor:]
+                    _markup_parts.append("{color=#66FF99}%s{/color}{color=#FFFFFF}%s{/color}" % (_typed, _pending))
+                else:
+                    _markup_parts.append("{color=#FFFFFF}%s{/color}" % _w)
+            _word_markup = " ".join(_markup_parts)
 
     timer 0.02 repeat True action Function(getattr(store, "typing_lab_tick", None), 0.02)
 
     for _k in _letters:
         key _k action Function(getattr(store, "typing_lab_press_key", None), _k)
+    key "K_SPACE" action Function(getattr(store, "typing_lab_press_key", None), "space")
 
 
     if _phase == "done":
@@ -469,7 +573,7 @@ screen typing_lab_qte_simple():
 
 
     if _phase != "done":
-        if _mode == "words":
+        if _mode in ("words", "phrases"):
             text _word_markup:
                 xalign 0.5
                 yalign 0.48
@@ -477,7 +581,7 @@ screen typing_lab_qte_simple():
                 bold True
                 text_align 0.5
                 min_width 680
-            text "Escribe la palabra en orden":
+            text ("Escribe y usa ESPACIO para seguir" if _mode == "phrases" else "Escribe la palabra en orden"):
                 xalign 0.5
                 yalign 0.57
                 size 24
@@ -533,7 +637,7 @@ screen typing_lab_qte_simple():
             size 28
             color "#D0D0D0"
 
-        text (("Palabra %d/%d" if _mode == "words" else "Letra %d/%d") % (int(min(_idx + 1, max(1, _tot))), int(max(1, _tot)))):
+        text ((("Frase %d/%d" if _mode == "phrases" else ("Palabra %d/%d" if _mode == "words" else "Letra %d/%d"))) % (int(min(_idx + 1, max(1, _tot))), int(max(1, _tot)))):
             xalign 0.5
             yalign 0.82
             size 30
@@ -576,6 +680,8 @@ label typing_lab_start:
 
     if typing_lab_selected_mode == "words":
         $ typing_lab_prepare(mode="words", total_words=10, seconds_per_word=3.0)
+    elif typing_lab_selected_mode == "phrases":
+        $ typing_lab_prepare(mode="phrases", total_phrases=10, seconds_per_phrase=3.5)
     elif typing_lab_selected_mode == "letters":
         $ typing_lab_prepare(mode="letters", total_letters=10, seconds_per_letter=2.0)
     else:
@@ -590,6 +696,8 @@ label typing_lab_round:
     if _typing_lab_popup_action == "retry":
         if typing_lab_selected_mode == "words":
             $ typing_lab_prepare(mode="words", total_words=10, seconds_per_word=3.0)
+        elif typing_lab_selected_mode == "phrases":
+            $ typing_lab_prepare(mode="phrases", total_phrases=10, seconds_per_phrase=3.5)
         else:
             $ typing_lab_prepare(mode="letters", total_letters=10, seconds_per_letter=2.0)
         jump typing_lab_round
