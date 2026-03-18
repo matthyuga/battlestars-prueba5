@@ -44,6 +44,10 @@
    - Archivo: `docs/FASE3_RUNTIME_ESPECIALES_2026-03-18.md`
    - Cierra implementación base de Ladrón y Salvaguarda en runtime y selector.
 
+10. **Cierre técnico consolidado de sesión (plan + fases + bugs + fixes)**
+   - Archivo: `docs/CIERRE_SESION_PRECOMBATE_2026-03-18.md`
+   - Resume estado actual, cronología de errores/correcciones y pendientes para continuidad.
+
 ## Resumen funcional consolidado
 
 - Técnicas especiales de la iteración:
