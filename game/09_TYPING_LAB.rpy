@@ -69,6 +69,8 @@ init -850 python:
             "seconds_per_letter": 2.0,
             "time_left": 2.0,
             "feedback_time_left": 0.0,
+            "total_score": 0,
+            "score_popups": [],
             "bar_visual_ratio": 1.0,
             "bar_hold_left": float(TYPING_LAB_BAR_HOLD_ON_RESET),
             "bar_osc_amp": float(TYPING_LAB_BAR_OSC_START_AMP),
@@ -112,6 +114,52 @@ init -850 python:
             "el honor pesa mas que el miedo",
             "el silencio anuncia la tormenta",
         ]
+
+    def typing_lab_score_color(score_value=0):
+        try:
+            val = int(score_value)
+        except:
+            val = 0
+        if val >= 30:
+            return "#FF4D4D"
+        if val >= 20:
+            return "#FF9A3D"
+        if val >= 10:
+            return "#FFD400"
+        return "#66FF99"
+
+    def typing_lab_add_word_score_popup(word_len=0):
+        st = getattr(S, "typing_lab_state", None)
+        if not isinstance(st, dict):
+            st = typing_lab_default_state()
+
+        try:
+            letters_score = int(word_len)
+        except:
+            letters_score = 0
+        letters_score = max(0, letters_score)
+
+        time_left = max(0.0, float(st.get("time_left", 0.0) or 0.0))
+        points = int(round((letters_score + 10) * time_left))
+        if points <= 0 and letters_score > 0:
+            points = 1
+
+        popups = list(st.get("score_popups", []) or [])
+        popups.append({
+            "text": ("+%d" % points),
+            "color": str(typing_lab_score_color(points)),
+            "xalign": 0.5,
+            "yalign": 0.44,
+            "vy": -0.12,
+            "life": 0.70,
+        })
+        if len(popups) > 8:
+            popups = popups[-8:]
+
+        st["score_popups"] = popups
+        st["total_score"] = int(st.get("total_score", 0) or 0) + int(points)
+        S.typing_lab_state = st
+        return int(points)
 
     def typing_lab_prepare(mode="letters", total_letters=10, seconds_per_letter=2.0, total_words=10, seconds_per_word=3.0, total_phrases=10, seconds_per_phrase=3.5):
         letters = list("abcdefghijklmnopqrstuvwxyz")
@@ -197,6 +245,8 @@ init -850 python:
             "seconds_per_letter": float(spl),
             "time_left": float(spl),
             "feedback_time_left": 0.0,
+            "total_score": 0,
+            "score_popups": [],
             "bar_visual_ratio": 1.0,
             "bar_hold_left": float(TYPING_LAB_BAR_HOLD_ON_RESET),
             "bar_osc_amp": float(TYPING_LAB_BAR_OSC_START_AMP),
@@ -267,6 +317,7 @@ init -850 python:
             if cursor < len(current_word):
                 S.typing_lab_state = st
                 return dict(st)
+            typing_lab_add_word_score_popup(len(current_word))
             if word_idx < (len(words) - 1):
                 S.typing_lab_state = st
                 return dict(st)
@@ -306,7 +357,20 @@ init -850 python:
                 return typing_lab_advance()
             return dict(st)
 
+        popups = list(st.get("score_popups", []) or [])
+        if popups:
+            next_popups = []
+            for p in popups:
+                life = max(0.0, float(p.get("life", 0.0) or 0.0) - delta)
+                if life <= 0.0:
+                    continue
+                p["life"] = life
+                p["yalign"] = float(p.get("yalign", 0.44) or 0.44) + (float(p.get("vy", -0.12) or -0.12) * delta)
+                next_popups.append(p)
+            st["score_popups"] = next_popups
+
         if phase != "idle":
+            S.typing_lab_state = st
             return dict(st)
 
         left = float(st.get("time_left", 0.0) or 0.0)
@@ -375,6 +439,7 @@ init -850 python:
             st["current_letter"] = ""
             st["time_left"] = 0.0
             st["feedback_time_left"] = 0.0
+            st["score_popups"] = []
             st["bar_visual_ratio"] = 0.0
             st["bar_hold_left"] = 0.0
             st["bar_osc_amp"] = 0.0
@@ -394,6 +459,7 @@ init -850 python:
                 st["current_letter"] = str(new_prompt[:1] if new_prompt else "")
             st["time_left"] = float(spl)
             st["feedback_time_left"] = 0.0
+            st["score_popups"] = []
             st["bar_visual_ratio"] = 1.0
             st["bar_hold_left"] = float(TYPING_LAB_BAR_HOLD_ON_RESET)
             st["bar_osc_amp"] = float(TYPING_LAB_BAR_OSC_START_AMP)
@@ -408,6 +474,7 @@ init -850 python:
     store.typing_lab_tick = typing_lab_tick
     store.typing_lab_advance = typing_lab_advance
     store.typing_lab_bar_color_from_ratio = typing_lab_bar_color_from_ratio
+    store.typing_lab_score_color = typing_lab_score_color
 
 
 default typing_lab_state = {
@@ -425,6 +492,8 @@ default typing_lab_state = {
     "seconds_per_letter": 2.0,
     "time_left": 2.0,
     "feedback_time_left": 0.0,
+    "total_score": 0,
+    "score_popups": [],
     "bar_visual_ratio": 1.0,
     "bar_hold_left": 0.0,
     "bar_osc_amp": 0.0,
@@ -491,7 +560,7 @@ screen typing_lab_qte_simple():
     modal True
     zorder 260
 
-    default _letters = "abcdefghijklmnopqrstuvwxyz "
+    default _letters = "abcdefghijklmnopqrstuvwxyz"
 
     python:
         _st = getattr(store, "typing_lab_state", {})
@@ -502,6 +571,8 @@ screen typing_lab_qte_simple():
         _cursor = int(_st.get("cursor", 0) or 0)
         _idx = int(_st.get("index", 0) or 0)
         _tot = int(_st.get("total", 10) or 10)
+        _total_score = int(_st.get("total_score", 0) or 0)
+        _score_popups = list(_st.get("score_popups", []) or [])
         _spl = float(_st.get("seconds_per_letter", 2.0) or 2.0)
         _left = float(_st.get("time_left", 0.0) or 0.0)
         _ratio = (0.0 if _spl <= 0.0 else max(0.0, min(1.0, _left / _spl)))
@@ -573,31 +644,41 @@ screen typing_lab_qte_simple():
 
 
     if _phase != "done":
+        text ("Escribe y pulsa ESPACIO para pasar de palabra" if _mode == "phrases" else "Escribe en orden"):
+            xalign 0.5
+            yalign 0.10
+            size 24
+            color "#BDBDBD"
+
         if _mode in ("words", "phrases"):
             text _word_markup:
                 xalign 0.5
-                yalign 0.48
+                yalign 0.40
                 size 88
                 bold True
                 text_align 0.5
                 min_width 680
-            text ("Escribe y usa ESPACIO para seguir" if _mode == "phrases" else "Escribe la palabra en orden"):
-                xalign 0.5
-                yalign 0.57
-                size 24
-                color "#BDBDBD"
         else:
             text (_cur if _cur else "-"):
                 xalign 0.5
-                yalign 0.48
+                yalign 0.42
                 size 140
                 bold True
                 color _letter_color
 
+        for _p in _score_popups:
+            text str(_p.get("text", "+0")):
+                xalign float(_p.get("xalign", 0.5) or 0.5)
+                yalign float(_p.get("yalign", 0.44) or 0.44)
+                size 42
+                bold True
+                color str(_p.get("color", "#66FF99") or "#66FF99")
+                outlines [(2, "#00000099", 0, 0)]
+
         frame:
             background "#1A1A1A"
             xalign 0.5
-            yalign 0.70
+            yalign 0.78
             xsize 540
             ysize 30
             padding (0, 0)
@@ -633,15 +714,21 @@ screen typing_lab_qte_simple():
 
         text ("Tiempo: " + _timer_txt + " s"):
             xalign 0.5
-            yalign 0.76
+            yalign 0.86
             size 28
             color "#D0D0D0"
 
         text ((("Frase %d/%d" if _mode == "phrases" else ("Palabra %d/%d" if _mode == "words" else "Letra %d/%d"))) % (int(min(_idx + 1, max(1, _tot))), int(max(1, _tot)))):
             xalign 0.5
-            yalign 0.82
+            yalign 0.91
             size 30
             color "#D0D0D0"
+
+        text ("Puntos: %d" % _total_score):
+            xalign 0.5
+            yalign 0.96
+            size 26
+            color "#F3F3F3"
 
 screen typing_lab_win_popup():
     modal True
