@@ -1122,7 +1122,7 @@ screen battle_hp_overlay():
                                 ymaximum 16
                                 left_bar "#9E9E9E"
                                 right_bar "#0000"
-                                alpha hp_fake_player_alpha
+                                at Transform(alpha=hp_fake_player_alpha)
                             bar:
                                 value _p_ratio
                                 range 1.0
@@ -1175,7 +1175,7 @@ screen battle_hp_overlay():
                                 ymaximum 16
                                 left_bar "#9E9E9E"
                                 right_bar "#0000"
-                                alpha hp_fake_enemy_alpha
+                                at Transform(alpha=hp_fake_enemy_alpha)
                             bar:
                                 value _e_ratio
                                 range 1.0
