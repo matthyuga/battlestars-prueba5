@@ -36,6 +36,10 @@
    - Archivo: `docs/FASE4_IA_COMPAT_1V1_2V2_2026-03-18.md`
    - Registra bloqueo por `unit_key`, reglas forzado/normal y ejecución IA con omisión de técnica bloqueada.
 
+8. **Fase 5 — QA incremental (corte inicial)**
+   - Archivo: `docs/FASE5_QA_CHECKPOINTS_2026-03-18.md`
+   - Consolida gate automático + matriz QA A/B/C/D y estado de cierre pendiente por Fase 3.
+
 ## Resumen funcional consolidado
 
 - Técnicas especiales de la iteración:
