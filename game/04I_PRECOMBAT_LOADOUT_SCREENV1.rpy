@@ -564,7 +564,8 @@ screen precombat_loadout_editor():
                     yminimum 42
                     xpadding 8
                     ypadding 6
-                    text "[store.precombat_diag_report_text()]" size 11 color "#FFD966"
+                    $ _diag_text = store.precombat_diag_report_text()
+                    text "[_diag_text]" size 11 color "#FFD966"
 
             frame:
                 xfill True
