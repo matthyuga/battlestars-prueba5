@@ -28,6 +28,10 @@
    - Archivo: `docs/FASE1_ARRANQUE_PRECOMBATE_2026-03-18.md`
    - Define objetivo, alcance, criterios de aceptación y checklist de implementación inmediata.
 
+6. **Fase 2 — Escalabilidad visual (corte v1)**
+   - Archivo: `docs/FASE2_UI_ESCALABILIDAD_2026-03-18.md`
+   - Registra compactación de UI, paginación horizontal y vista íconos/fallback simple.
+
 ## Resumen funcional consolidado
 
 - Técnicas especiales de la iteración:

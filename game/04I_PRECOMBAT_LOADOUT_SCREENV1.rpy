@@ -13,6 +13,9 @@ default precombat_message_color = "#AAAAAA"
 default precombat_slots = {"atk": 7, "def": 5, "spc": 1}
 default precombat_loadout = {"atk": [], "def": []}
 default precombat_confirmed_loadout = {}
+default precombat_catalog_page = {"atk": 0, "def": 0}
+default precombat_catalog_per_page = 4
+default precombat_use_icons = True
 
 define PRECOMBAT_PROFILES_KEY = "precombat_profiles_v1"
 
@@ -88,6 +91,83 @@ init -925 python:
             "spc": spc_used,
             "spc_limit": precombat_spc_limit(),
         }
+
+    def precombat_icon_path(tech_id):
+        tid = str(tech_id or "").strip().lower()
+        mapping = {
+            "extra_attack": "game/gui/tech_buttons/atk_extra.png",
+            "extra_tech": "game/gui/tech_buttons/tec_extra.png",
+            "attack_reducer": "game/gui/tech_buttons/atk_reductor.png",
+            "direct_attack": "game/gui/tech_buttons/atk_directo.png",
+            "noatk_attack": "game/gui/tech_buttons/atk_negador.png",
+            "stronger_attack": "game/gui/tech_buttons/atk_mas_fuerte.png",
+            "defense_extra": "game/gui/tech_buttons/def_extra.png",
+            "defense_reducer": "game/gui/tech_buttons/def_reductora.png",
+            "defense_reflect": "game/gui/tech_buttons/def_reflectora.png",
+            "defense_strong_block": "game/gui/tech_buttons/def_fuerte.png",
+            "focus": "game/gui/tech_buttons/concentrar_x2.png",
+            "defense_boost": "game/gui/tech_buttons/potenciar_x2.png",
+            "ladron_ofensivo": "game/gui/tech_buttons/ladron_ofensivo.png",
+            "ladron_defensivo": "game/gui/tech_buttons/ladron_defensivo.png",
+            "ladron_concentrar": "game/gui/tech_buttons/ladron_concentrar.png",
+            "salvaguarda_principiante": "game/gui/tech_buttons/salvaguarda_principiante.png",
+        }
+        pth = mapping.get(tid, "")
+        if pth and renpy.loadable(pth):
+            return pth
+        return ""
+
+    def precombat_set_use_icons(v):
+        S.precombat_use_icons = bool(v)
+        precombat_set_message("Vista {}".format("con íconos" if bool(v) else "simple"), "#66CCFF")
+
+    def precombat_set_category(cat):
+        c = str(cat or "atk").strip().lower()
+        if c not in ("atk", "def"):
+            c = "atk"
+        S.precombat_selected_category = c
+        pages = dict(getattr(S, "precombat_catalog_page", {}) or {})
+        if c not in pages:
+            pages[c] = 0
+        S.precombat_catalog_page = pages
+
+    def precombat_catalog_max_page(category):
+        cat = str(category or "atk").strip().lower()
+        items = list(precombat_catalog_v1().get(cat, []) or [])
+        per_page = max(1, int(getattr(S, "precombat_catalog_per_page", 4) or 4))
+        if len(items) <= 0:
+            return 0
+        return max(0, (len(items) - 1) // per_page)
+
+    def precombat_catalog_page_items(category):
+        cat = str(category or "atk").strip().lower()
+        items = list(precombat_catalog_v1().get(cat, []) or [])
+        per_page = max(1, int(getattr(S, "precombat_catalog_per_page", 4) or 4))
+        pages = dict(getattr(S, "precombat_catalog_page", {}) or {})
+        page = int(pages.get(cat, 0) or 0)
+        maxp = precombat_catalog_max_page(cat)
+        if page < 0:
+            page = 0
+        if page > maxp:
+            page = maxp
+        pages[cat] = page
+        S.precombat_catalog_page = pages
+        start = page * per_page
+        end = start + per_page
+        return items[start:end]
+
+    def precombat_catalog_change_page(category, delta):
+        cat = str(category or "atk").strip().lower()
+        pages = dict(getattr(S, "precombat_catalog_page", {}) or {})
+        cur = int(pages.get(cat, 0) or 0)
+        nxt = cur + int(delta or 0)
+        maxp = precombat_catalog_max_page(cat)
+        if nxt < 0:
+            nxt = 0
+        if nxt > maxp:
+            nxt = maxp
+        pages[cat] = nxt
+        S.precombat_catalog_page = pages
 
     def precombat_set_message(msg, color="#AAAAAA"):
         S.precombat_message = str(msg or "")
@@ -260,18 +340,18 @@ screen precombat_loadout_editor():
         style_prefix "game_menu"
         xalign 0.5
         yalign 0.5
-        xsize 1700
-        ysize 980
+        xsize 1360
+        ysize 790
 
         vbox:
             spacing 12
-            label _("Pre-combate (Fase 1)")
-            text _("Configura loadout por slots con modo libre/por slots y persistencia de perfil.") size 20 color "#BBBBBB"
-            text "[store.precombat_message]" size 18 color getattr(store, "precombat_message_color", "#AAAAAA")
+            label _("Pre-combate (Fase 1/2)")
+            text _("Configura loadout por slots con modo libre/por slots y persistencia de perfil.") size 16 color "#BBBBBB"
+            text "[store.precombat_message]" size 14 color getattr(store, "precombat_message_color", "#AAAAAA")
 
             hbox:
                 spacing 10
-                text _("Perfil:") size 20
+                text _("Perfil:") size 16
                 for pid in ("A", "B", "C"):
                     textbutton pid action SetVariable("precombat_profile_id", pid) text_color ("#66CCFF" if pid == getattr(store, "precombat_profile_id", "A") else "#FFFFFF")
                 textbutton _("Guardar") action Function(store.precombat_save_profile, getattr(store, "precombat_profile_id", "A"))
@@ -279,20 +359,24 @@ screen precombat_loadout_editor():
 
             hbox:
                 spacing 14
-                text _("Modo:") size 20
+                text _("Modo:") size 16
                 textbutton _("Por slots") action Function(store.precombat_set_mode, "slots") text_color ("#66CCFF" if getattr(store, "precombat_mode", "slots") == "slots" else "#FFFFFF")
                 textbutton _("Libre") action Function(store.precombat_set_mode, "free") text_color ("#66CCFF" if getattr(store, "precombat_mode", "slots") == "free" else "#FFFFFF")
                 null width 24
-                text _("Perk extra SPC:") size 20
+                text _("Perk extra SPC:") size 16
                 textbutton _("0") action Function(store.precombat_set_extra_spc, 0) text_color ("#66CCFF" if int(getattr(store, "precombat_extra_spc_slots", 0) or 0) == 0 else "#FFFFFF")
                 textbutton _("+1") action Function(store.precombat_set_extra_spc, 1) text_color ("#66CCFF" if int(getattr(store, "precombat_extra_spc_slots", 0) or 0) == 1 else "#FFFFFF")
+                null width 16
+                text _("Vista:") size 16
+                textbutton _("Íconos") action Function(store.precombat_set_use_icons, True) text_color ("#66CCFF" if bool(getattr(store, "precombat_use_icons", True)) else "#FFFFFF")
+                textbutton _("Simple") action Function(store.precombat_set_use_icons, False) text_color ("#66CCFF" if not bool(getattr(store, "precombat_use_icons", True)) else "#FFFFFF")
 
             frame:
                 xfill True
                 yminimum 110
                 vbox:
                     spacing 6
-                    text _("Límites de slots (modo por slots)") size 20
+                    text _("Límites de slots (modo por slots)") size 16
                     hbox:
                         spacing 12
                         for sk in _slot_keys:
@@ -302,7 +386,7 @@ screen precombat_loadout_editor():
                                 xpadding 8
                                 ypadding 6
                                 vbox:
-                                    text "[sk.upper()] [used]/[lim]" size 18
+                                    text "[sk.upper()] [used]/[lim]" size 14
                                     if sk in ("atk", "def", "spc"):
                                         hbox:
                                             spacing 4
@@ -312,7 +396,7 @@ screen precombat_loadout_editor():
             hbox:
                 spacing 12
                 for c in _categories:
-                    textbutton c.upper() action SetVariable("precombat_selected_category", c) text_color ("#66CCFF" if c == getattr(store, "precombat_selected_category", "atk") else "#FFFFFF")
+                    textbutton c.upper() action Function(store.precombat_set_category, c) text_color ("#66CCFF" if c == getattr(store, "precombat_selected_category", "atk") else "#FFFFFF")
 
             hbox:
                 spacing 16
@@ -320,26 +404,36 @@ screen precombat_loadout_editor():
                 frame:
                     xfill True
                     yfill True
-                    xmaximum 780
+                    xmaximum 640
                     vbox:
                         spacing 4
-                        text _("Catálogo disponible") size 20
+                        text _("Catálogo disponible") size 16
                         viewport:
                             draggable True
                             mousewheel True
                             scrollbars "vertical"
-                            ymaximum 500
+                            ymaximum 380
                             vbox:
                                 spacing 4
                                 $ cat = getattr(store, "precombat_selected_category", "atk")
-                                for item in store.precombat_catalog_v1().get(cat, []):
+                                $ _page = int((getattr(store, "precombat_catalog_page", {}) or {}).get(cat, 0) or 0)
+                                $ _maxp = int(store.precombat_catalog_max_page(cat) or 0)
+                                hbox:
+                                    spacing 8
+                                    textbutton _("◀") action Function(store.precombat_catalog_change_page, cat, -1)
+                                    text _("Página [(_page + 1)]/[(_maxp + 1)]") size 12 color "#BBBBBB"
+                                    textbutton _("▶") action Function(store.precombat_catalog_change_page, cat, +1)
+                                for item in store.precombat_catalog_page_items(cat):
                                     $ tid = item.get("id", "")
                                     $ nm = item.get("name", tid)
                                     $ kind = item.get("kind", "")
+                                    $ icon = store.precombat_icon_path(tid)
                                     hbox:
                                         spacing 8
-                                        text "[nm]" size 18
-                                        text "([kind])" size 14 color "#999999"
+                                        if bool(getattr(store, "precombat_use_icons", True)) and icon:
+                                            add icon zoom 0.80
+                                        text "[nm]" size 14
+                                        text "([kind])" size 12 color "#999999"
                                         textbutton _("Equipar") action Function(store.precombat_add, cat, tid)
 
                 frame:
@@ -347,37 +441,37 @@ screen precombat_loadout_editor():
                     yfill True
                     vbox:
                         spacing 6
-                        text _("Loadout actual") size 20
+                        text _("Loadout actual") size 16
                         viewport:
                             draggable True
                             mousewheel True
                             scrollbars "vertical"
-                            ymaximum 500
+                            ymaximum 380
                             vbox:
                                 spacing 6
-                                text _("ATK") size 18 color "#66CCFF"
+                                text _("ATK") size 14 color "#66CCFF"
                                 for tid in (getattr(store, "precombat_loadout", {}) or {}).get("atk", []):
                                     hbox:
                                         spacing 8
-                                        text "[store.precombat_label_by_id(tid)]" size 18
+                                        text "[store.precombat_label_by_id(tid)]" size 14
                                         textbutton _("Quitar") action Function(store.precombat_remove, "atk", tid)
                                 if len((getattr(store, "precombat_loadout", {}) or {}).get("atk", [])) == 0:
-                                    text "-" size 16 color "#777777"
+                                    text "-" size 12 color "#777777"
 
-                                text _("DEF") size 18 color "#66CCFF"
+                                text _("DEF") size 14 color "#66CCFF"
                                 for tid in (getattr(store, "precombat_loadout", {}) or {}).get("def", []):
                                     hbox:
                                         spacing 8
-                                        text "[store.precombat_label_by_id(tid)]" size 18
+                                        text "[store.precombat_label_by_id(tid)]" size 14
                                         textbutton _("Quitar") action Function(store.precombat_remove, "def", tid)
                                 if len((getattr(store, "precombat_loadout", {}) or {}).get("def", [])) == 0:
-                                    text "-" size 16 color "#777777"
+                                    text "-" size 12 color "#777777"
 
-                                text _("SPC (derivado)") size 18 color "#66CCFF"
+                                text _("SPC (derivado)") size 14 color "#66CCFF"
                                 for tid in store.precombat_special_ids_selected():
-                                    text "• [store.precombat_label_by_id(tid)]" size 17
+                                    text "• [store.precombat_label_by_id(tid)]" size 13
                                 if len(store.precombat_special_ids_selected()) == 0:
-                                    text "-" size 16 color "#777777"
+                                    text "-" size 12 color "#777777"
 
             hbox:
                 spacing 12

@@ -62,3 +62,11 @@ Implementar la sala de pre-combate para configurar loadout por categorías (`atk
 - Archivo UI/estado: `game/04I_PRECOMBAT_LOADOUT_SCREENV1.rpy`.
 - Entrada desde menú principal: botón `Pre-combate (Fase 1)` en `game/screens.rpy`.
 - Resultado de corte: sala funcional de configuración + validación + confirmación de loadout.
+
+
+---
+
+## Evolución a Fase 2
+
+- Sobre este corte de Fase 1 se aplicó escalabilidad visual (compactación, paginación, íconos/fallback).
+- Ver detalle en `docs/FASE2_UI_ESCALABILIDAD_2026-03-18.md`.
