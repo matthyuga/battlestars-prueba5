@@ -341,81 +341,81 @@ screen precombat_loadout_editor():
         xalign 0.5
         yalign 0.5
         xsize 1360
-        ysize 790
+        ysize 740
 
         vbox:
-            spacing 12
-            label _("Pre-combate (Fase 1/2)")
-            text _("Configura loadout por slots con modo libre/por slots y persistencia de perfil.") size 16 color "#BBBBBB"
-            text "[store.precombat_message]" size 14 color getattr(store, "precombat_message_color", "#AAAAAA")
+            spacing 8
+            text _("Pre-combate (Fase 1/2)") size 56 color "#00BFFF"
+            text _("Configura loadout por slots con modo libre/por slots y persistencia de perfil.") size 14 color "#BBBBBB"
+            text "[store.precombat_message]" size 12 color getattr(store, "precombat_message_color", "#AAAAAA")
 
             hbox:
-                spacing 10
-                text _("Perfil:") size 16
+                spacing 8
+                text _("Perfil:") size 14
                 for pid in ("A", "B", "C"):
                     textbutton pid action SetVariable("precombat_profile_id", pid) text_color ("#66CCFF" if pid == getattr(store, "precombat_profile_id", "A") else "#FFFFFF")
                 textbutton _("Guardar") action Function(store.precombat_save_profile, getattr(store, "precombat_profile_id", "A"))
                 textbutton _("Cargar") action Function(store.precombat_load_profile, getattr(store, "precombat_profile_id", "A"))
 
             hbox:
-                spacing 14
-                text _("Modo:") size 16
+                spacing 10
+                text _("Modo:") size 14
                 textbutton _("Por slots") action Function(store.precombat_set_mode, "slots") text_color ("#66CCFF" if getattr(store, "precombat_mode", "slots") == "slots" else "#FFFFFF")
                 textbutton _("Libre") action Function(store.precombat_set_mode, "free") text_color ("#66CCFF" if getattr(store, "precombat_mode", "slots") == "free" else "#FFFFFF")
-                null width 24
-                text _("Perk extra SPC:") size 16
+                null width 10
+                text _("Perk extra SPC:") size 14
                 textbutton _("0") action Function(store.precombat_set_extra_spc, 0) text_color ("#66CCFF" if int(getattr(store, "precombat_extra_spc_slots", 0) or 0) == 0 else "#FFFFFF")
                 textbutton _("+1") action Function(store.precombat_set_extra_spc, 1) text_color ("#66CCFF" if int(getattr(store, "precombat_extra_spc_slots", 0) or 0) == 1 else "#FFFFFF")
-                null width 16
-                text _("Vista:") size 16
+                null width 10
+                text _("Vista:") size 14
                 textbutton _("Íconos") action Function(store.precombat_set_use_icons, True) text_color ("#66CCFF" if bool(getattr(store, "precombat_use_icons", True)) else "#FFFFFF")
                 textbutton _("Simple") action Function(store.precombat_set_use_icons, False) text_color ("#66CCFF" if not bool(getattr(store, "precombat_use_icons", True)) else "#FFFFFF")
 
             frame:
                 xfill True
-                yminimum 110
+                yminimum 84
                 vbox:
-                    spacing 6
-                    text _("Límites de slots (modo por slots)") size 16
+                    spacing 4
+                    text _("Límites de slots (modo por slots)") size 14
                     hbox:
-                        spacing 12
+                        spacing 8
                         for sk in _slot_keys:
                             $ lim = (store.precombat_spc_limit() if sk == "spc" else int((getattr(store, "precombat_slots", {}) or {}).get(sk, 0) or 0))
                             $ used = int((store.precombat_usage_snapshot() or {}).get(sk, 0) or 0)
                             $ sk_u = str(sk or "").upper()
                             frame:
-                                xpadding 8
-                                ypadding 6
+                                xpadding 6
+                                ypadding 4
                                 vbox:
-                                    text "[sk_u] [used]/[lim]" size 14
+                                    text "[sk_u] [used]/[lim]" size 12
                                     if sk in ("atk", "def", "spc"):
                                         hbox:
-                                            spacing 4
+                                            spacing 2
                                             textbutton "-" action Function(store.precombat_adjust_slot, sk, -1)
                                             textbutton "+" action Function(store.precombat_adjust_slot, sk, +1)
 
             hbox:
-                spacing 12
+                spacing 8
                 for c in _categories:
                     textbutton c.upper() action Function(store.precombat_set_category, c) text_color ("#66CCFF" if c == getattr(store, "precombat_selected_category", "atk") else "#FFFFFF")
 
             hbox:
-                spacing 16
+                spacing 10
 
                 frame:
                     xfill True
                     yfill True
-                    xmaximum 640
+                    xmaximum 620
                     vbox:
                         spacing 4
-                        text _("Catálogo disponible") size 16
+                        text _("Catálogo disponible") size 14
                         viewport:
                             draggable True
                             mousewheel True
                             scrollbars "vertical"
-                            ymaximum 380
+                            ymaximum 420
                             vbox:
-                                spacing 4
+                                spacing 3
                                 $ cat = getattr(store, "precombat_selected_category", "atk")
                                 $ _page = int((getattr(store, "precombat_catalog_page", {}) or {}).get(cat, 0) or 0)
                                 $ _maxp = int(store.precombat_catalog_max_page(cat) or 0)
@@ -432,55 +432,55 @@ screen precombat_loadout_editor():
                                     $ kind = item.get("kind", "")
                                     $ icon = store.precombat_icon_path(tid)
                                     hbox:
-                                        spacing 8
+                                        spacing 4
                                         if bool(getattr(store, "precombat_use_icons", True)) and icon:
                                             add icon zoom 0.80
-                                        text "[nm]" size 14
-                                        text "([kind])" size 12 color "#999999"
+                                        text "[nm]" size 13
+                                        text "([kind])" size 11 color "#999999"
                                         textbutton _("Equipar") action Function(store.precombat_add, cat, tid)
 
                 frame:
                     xfill True
                     yfill True
                     vbox:
-                        spacing 6
-                        text _("Loadout actual") size 16
+                        spacing 4
+                        text _("Loadout actual") size 14
                         viewport:
                             draggable True
                             mousewheel True
                             scrollbars "vertical"
-                            ymaximum 380
+                            ymaximum 420
                             vbox:
-                                spacing 6
-                                text _("ATK") size 14 color "#66CCFF"
+                                spacing 3
+                                text _("ATK") size 13 color "#66CCFF"
                                 for tid in (getattr(store, "precombat_loadout", {}) or {}).get("atk", []):
                                     $ tid_label = store.precombat_label_by_id(tid)
                                     hbox:
-                                        spacing 8
-                                        text "[tid_label]" size 14
+                                        spacing 4
+                                        text "[tid_label]" size 13
                                         textbutton _("Quitar") action Function(store.precombat_remove, "atk", tid)
                                 if len((getattr(store, "precombat_loadout", {}) or {}).get("atk", [])) == 0:
                                     text "-" size 12 color "#777777"
 
-                                text _("DEF") size 14 color "#66CCFF"
+                                text _("DEF") size 13 color "#66CCFF"
                                 for tid in (getattr(store, "precombat_loadout", {}) or {}).get("def", []):
                                     $ tid_label = store.precombat_label_by_id(tid)
                                     hbox:
-                                        spacing 8
-                                        text "[tid_label]" size 14
+                                        spacing 4
+                                        text "[tid_label]" size 13
                                         textbutton _("Quitar") action Function(store.precombat_remove, "def", tid)
                                 if len((getattr(store, "precombat_loadout", {}) or {}).get("def", [])) == 0:
                                     text "-" size 12 color "#777777"
 
-                                text _("SPC (derivado)") size 14 color "#66CCFF"
+                                text _("SPC (derivado)") size 13 color "#66CCFF"
                                 for tid in store.precombat_special_ids_selected():
                                     $ tid_label = store.precombat_label_by_id(tid)
-                                    text "• [tid_label]" size 13
+                                    text "• [tid_label]" size 12
                                 if len(store.precombat_special_ids_selected()) == 0:
                                     text "-" size 12 color "#777777"
 
             hbox:
-                spacing 12
+                spacing 8
                 textbutton _("Validar") action Function(store.precombat_validate_feedback)
                 textbutton _("Confirmar loadout") action Function(store.precombat_confirm_selection)
                 textbutton _("Volver") action Return()
