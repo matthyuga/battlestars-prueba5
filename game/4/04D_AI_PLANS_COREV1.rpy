@@ -120,3 +120,126 @@ init -990 python:
             wm = {c: uniform for c in existing}
 
         return _weighted_choice(wm)
+
+
+    # ============================================================
+    # Bloqueo de técnicas por unidad (Fase 4)
+    # ============================================================
+    def _ai_block_store():
+        data = getattr(S, "ai_blocked_techniques_by_unit", None)
+        if not isinstance(data, dict):
+            data = {}
+            S.ai_blocked_techniques_by_unit = data
+        return data
+
+    def ai_block_tech_for_unit(unit_key, tech_id, turns=1, phase="any", reason=""):
+        uk = str(unit_key or "").strip() or str(getattr(S, "current_enemy_unit_key", "enemy:0") or "enemy:0")
+        tid = str(tech_id or "").strip()
+        if not tid:
+            return False
+
+        ph = str(phase or "any").strip().lower()
+        if ph not in ("any", "offense", "defense"):
+            ph = "any"
+
+        try:
+            rem = int(turns)
+        except:
+            rem = 1
+        if rem < 1:
+            rem = 1
+
+        st = _ai_block_store()
+        unit_map = st.get(uk, {})
+        if not isinstance(unit_map, dict):
+            unit_map = {}
+
+        unit_map[tid] = {
+            "remaining": rem,
+            "phase": ph,
+            "reason": str(reason or ""),
+        }
+        st[uk] = unit_map
+        S.ai_blocked_techniques_by_unit = st
+        return True
+
+    def ai_is_tech_blocked(unit_key, tech_id, phase="any", consume=False):
+        uk = str(unit_key or "").strip() or str(getattr(S, "current_enemy_unit_key", "enemy:0") or "enemy:0")
+        tid = str(tech_id or "").strip()
+        if not tid:
+            return False
+
+        ph = str(phase or "any").strip().lower()
+        if ph not in ("any", "offense", "defense"):
+            ph = "any"
+
+        st = _ai_block_store()
+        unit_map = st.get(uk, {})
+        if not isinstance(unit_map, dict):
+            return False
+
+        row = unit_map.get(tid, None)
+        if not isinstance(row, dict):
+            return False
+
+        remaining = int(row.get("remaining", 0) or 0)
+        if remaining <= 0:
+            try:
+                unit_map.pop(tid, None)
+                st[uk] = unit_map
+                S.ai_blocked_techniques_by_unit = st
+            except:
+                pass
+            return False
+
+        row_phase = str(row.get("phase", "any") or "any").strip().lower()
+        if row_phase not in ("any", "offense", "defense"):
+            row_phase = "any"
+
+        applies = (row_phase == "any") or (ph == "any") or (row_phase == ph)
+        if not applies:
+            return False
+
+        if consume:
+            row["remaining"] = max(0, remaining - 1)
+            if int(row.get("remaining", 0) or 0) <= 0:
+                unit_map.pop(tid, None)
+            else:
+                unit_map[tid] = row
+            st[uk] = unit_map
+            S.ai_blocked_techniques_by_unit = st
+
+        return True
+
+    def ai_filter_blocked_plan(plan, unit_key, forced=False, phase="any"):
+        p = list(plan or [])
+        out = []
+        for tid in p:
+            t = str(tid or "").strip()
+            if not t:
+                continue
+            blocked = False
+            try:
+                blocked = bool(ai_is_tech_blocked(unit_key, t, phase=phase, consume=False))
+            except:
+                blocked = False
+
+            # Regla: en forzado no reemplaza técnica bloqueada.
+            if forced:
+                out.append(t)
+                continue
+
+            # Regla: en normal/concat se omite la bloqueada y sigue con válidas.
+            if not blocked:
+                out.append(t)
+
+        return out
+
+
+
+    try:
+        S.ai_block_tech_for_unit = ai_block_tech_for_unit
+        S.ai_is_tech_blocked = ai_is_tech_blocked
+        S.ai_filter_blocked_plan = ai_filter_blocked_plan
+    except:
+        pass

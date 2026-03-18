@@ -32,6 +32,10 @@
    - Archivo: `docs/FASE2_UI_ESCALABILIDAD_2026-03-18.md`
    - Registra compactación de UI, paginación horizontal y vista íconos/fallback simple.
 
+7. **Fase 4 — IA y compatibilidad 1v1/2v2 (corte inicial)**
+   - Archivo: `docs/FASE4_IA_COMPAT_1V1_2V2_2026-03-18.md`
+   - Registra bloqueo por `unit_key`, reglas forzado/normal y ejecución IA con omisión de técnica bloqueada.
+
 ## Resumen funcional consolidado
 
 - Técnicas especiales de la iteración:

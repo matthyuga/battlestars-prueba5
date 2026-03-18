@@ -244,6 +244,9 @@ init -989 python:
             ratio = 0.0
 
         unit_key = _resolve_enemy_unit_key_for_plan()
+        mode = _effective_defense_mode_for_unit(unit_key)
+        forced_mode = str(mode or "").startswith("force_")
+
         concat = _effective_defense_concat_for_unit(unit_key)
         picked = _def_pick_one(ai, ratio, incoming_damage, unit_key=unit_key)
 
@@ -264,6 +267,11 @@ init -989 python:
                 plan.append(picked)
         else:
             plan.append(picked)
+
+        try:
+            plan = ai_filter_blocked_plan(plan, unit_key, forced=forced_mode, phase="defense")
+        except:
+            pass
 
         _safe_set_plan(
             ai,

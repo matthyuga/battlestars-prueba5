@@ -123,6 +123,16 @@ init -988 python:
             pass
         return bool(getattr(S, "ai_allow_focus", True))
 
+    def _ai_is_blocked_for_enemy(tech_id, phase="any", consume=False):
+        import renpy.store as S
+        try:
+            fn = getattr(S, "ai_is_tech_blocked", None)
+            if not callable(fn):
+                return False
+            return bool(fn(_ai_enemy_unit_key(), tech_id, phase=phase, consume=consume))
+        except:
+            return False
+
 
     # ------------------------------------------------------------
     # ⭐ EJECUCIÓN OFENSIVA IA (DAÑO) – con FocusCost real
@@ -132,6 +142,14 @@ init -988 python:
 
         key = ai.next_action()
         if key == "none":
+            return "none"
+
+        # Fase 4: bloqueo por unidad para ofensiva
+        if _ai_is_blocked_for_enemy(key, phase="offense", consume=True):
+            try:
+                S.battle_log_add("%s no puede usar %s (bloqueada por 1 turno)." % (ai.name, str(key)), "#FF8888")
+            except:
+                pass
             return "none"
 
         # ✅ BLINDAJE: si Focus IA está OFF, nunca debe quedar pending de costo
@@ -384,6 +402,14 @@ init -988 python:
 
         key = ai.next_action()
         if key == "none":
+            return "none"
+
+        # Fase 4: bloqueo por unidad para defensiva
+        if _ai_is_blocked_for_enemy(key, phase="defense", consume=True):
+            try:
+                S.battle_log_add("%s no puede usar %s (bloqueada por 1 turno)." % (ai.name, str(key)), "#FF8888")
+            except:
+                pass
             return "none"
 
         # --------------------------------------------------------
