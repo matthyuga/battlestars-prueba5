@@ -382,11 +382,12 @@ screen precombat_loadout_editor():
                         for sk in _slot_keys:
                             $ lim = (store.precombat_spc_limit() if sk == "spc" else int((getattr(store, "precombat_slots", {}) or {}).get(sk, 0) or 0))
                             $ used = int((store.precombat_usage_snapshot() or {}).get(sk, 0) or 0)
+                            $ sk_u = str(sk or "").upper()
                             frame:
                                 xpadding 8
                                 ypadding 6
                                 vbox:
-                                    text "[sk.upper()] [used]/[lim]" size 14
+                                    text "[sk_u] [used]/[lim]" size 14
                                     if sk in ("atk", "def", "spc"):
                                         hbox:
                                             spacing 4
