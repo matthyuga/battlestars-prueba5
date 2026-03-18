@@ -40,6 +40,10 @@
    - Archivo: `docs/FASE5_QA_CHECKPOINTS_2026-03-18.md`
    - Consolida gate automático + matriz QA A/B/C/D y estado de cierre pendiente por Fase 3.
 
+9. **Fase 3 — Runtime de especiales (corte funcional)**
+   - Archivo: `docs/FASE3_RUNTIME_ESPECIALES_2026-03-18.md`
+   - Cierra implementación base de Ladrón y Salvaguarda en runtime y selector.
+
 ## Resumen funcional consolidado
 
 - Técnicas especiales de la iteración:

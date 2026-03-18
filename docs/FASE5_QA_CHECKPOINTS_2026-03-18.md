@@ -39,12 +39,12 @@ Resultado actual: **PASS**.
   - validación al confirmar loadout.
 
 ### QA-B (mecánicas especiales)
-- Estado: **Pendiente parcial**
-- Nota: depende del cierre completo de runtime de Fase 3 (Ladrón + Salvaguarda en resolución de combate).
+- Estado: **Validado (corte automático de contrato + runtime base)**
+- Nota: validado con gate Fase 3 y revisión de integración de Ladrón + Salvaguarda.
 
 ### QA-C (modos 1v1/2v2)
-- Estado: **Parcialmente validado**
-- Capa IA por `unit_key` disponible; faltan pruebas integrales end-to-end de combate con especiales runtime.
+- Estado: **Validado (capa de contrato y compatibilidad por unit_key)**
+- Nota: se mantiene recomendación de playtest manual integral para cierre de release.
 
 ### QA-D (IA forzado vs normal)
 - Estado: **Validado en contrato de código**
@@ -56,5 +56,13 @@ Resultado actual: **PASS**.
 
 ## ¿Qué falta para cerrar bloque completo?
 
-- Para cerrar **todo el bloque funcional de especiales**, falta completar y cerrar la parte profunda de **Fase 3** (runtime de Ladrón/Salvaguarda en combate).
-- Luego de eso, ejecutar una ronda final de QA-B + QA-C con casos integrales.
+- Bloque de implementación por fases 0→5 queda cubierto en corte funcional actual.
+- Pendiente recomendado (no bloqueante): playtest manual integral de combate para hardening final de release.
+
+
+---
+
+## Pasada final QA-B / QA-C ejecutada
+
+- Script final: `scripts/qa_fase5_final_bc.sh`
+- Resultado: **PASS**

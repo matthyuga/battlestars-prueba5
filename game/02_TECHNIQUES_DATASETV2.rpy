@@ -89,6 +89,37 @@ init -991 python:
         },
 
 
+        "ladron_ofensivo": {
+            "id": "ladron_ofensivo",
+            "name": "Ladrón ofensivo",
+            "type": "offensive",
+            "special": "thief_offense",
+            "bonus_actions": 0,
+            "used": False,
+            "description": "Bloquea 1 técnica ofensiva rival por su siguiente turno."
+        },
+
+        "ladron_defensivo": {
+            "id": "ladron_defensivo",
+            "name": "Ladrón defensivo",
+            "type": "offensive",
+            "special": "thief_defense",
+            "bonus_actions": 0,
+            "used": False,
+            "description": "Bloquea 1 técnica defensiva rival por su siguiente turno."
+        },
+
+        "ladron_concentrar": {
+            "id": "ladron_concentrar",
+            "name": "Ladrón de concentrar",
+            "type": "offensive",
+            "special": "thief_focus",
+            "bonus_actions": 0,
+            "used": False,
+            "description": "Bloquea Concentrar del rival por su siguiente turno ofensivo."
+        },
+
+
         # =======================================================
         # ✨ TÉCNICAS ESPECIALES
         # =======================================================
@@ -109,6 +140,16 @@ init -991 python:
             "special": "boost",
             "used": False,
             "description": "Duplica la potencia de la próxima defensa."
+        },
+
+
+        "salvaguarda_principiante": {
+            "id": "salvaguarda_principiante",
+            "name": "Salvaguarda principiante",
+            "type": "defensive",
+            "special": "salvaguarda_basic",
+            "used": False,
+            "description": "Reduce 50% del daño defendible restante tras reducciones comunes."
         },
 
 
@@ -185,8 +226,9 @@ init -991 python:
             "stronger_attack",
             "focus", "defense_boost",
             "attack_reducer", "direct_attack", "noatk_attack",
+            "ladron_ofensivo", "ladron_defensivo", "ladron_concentrar",
             "defense_reflect", "defense_extra", "defense_reducer",
-            "defense_strong_block"
+            "defense_strong_block", "salvaguarda_principiante"
         ]
 
         missing = [k for k in required_modern if k not in battle_techniques]
@@ -214,7 +256,7 @@ init -991 python:
                 problems.append("tech '{}' type inválido ({})".format(key, ttype))
 
             sp = tech.get("special", None)
-            if sp is not None and sp not in ("focus", "boost", "direct", "noatk"):
+            if sp is not None and sp not in ("focus", "boost", "direct", "noatk", "thief_offense", "thief_defense", "thief_focus", "salvaguarda_basic"):
                 problems.append("tech '{}' special inválido ({})".format(key, sp))
 
             alias_of = tech.get("alias_of", None)

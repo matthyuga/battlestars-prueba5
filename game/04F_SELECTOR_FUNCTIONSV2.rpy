@@ -48,12 +48,16 @@ init -959 python:
         "Ataque Directo":    "direct_attack",
         "Ataque Negador":    "noatk_attack",
         "Ataque más fuerte": "stronger_attack",
+        "Ladrón ofensivo":   "ladron_ofensivo",
+        "Ladrón defensivo":  "ladron_defensivo",
+        "Ladrón de concentrar": "ladron_concentrar",
 
         # DEFENSIVAS
         "Defensa Extra":       "defense_extra",
         "Defensa Reductora":   "defense_reducer",
         "Defensa Reflectora":  "defense_reflect",
         "Defensa Fuerte":      "defense_strong_block",
+        "Salvaguarda principiante": "salvaguarda_principiante",
 
         # FOCUS (sin tech_id real)
         "Concentrar x2":     None,
@@ -71,6 +75,9 @@ init -959 python:
         "Ataque Negador":    {"cost": 1, "bonus": 0},
         "Ataque Reductor":   {"cost": 1, "bonus": 0},
         "Ataque más fuerte": {"cost": 1, "bonus": 0},
+        "Ladrón ofensivo":   {"cost": 1, "bonus": 0},
+        "Ladrón defensivo":  {"cost": 1, "bonus": 0},
+        "Ladrón de concentrar": {"cost": 1, "bonus": 0},
 
         "Ataque Extra":      {"cost": 1, "bonus": 1},
         "Técnica Extra":     {"cost": 1, "bonus": 1},
@@ -82,6 +89,7 @@ init -959 python:
         "Defensa Reductora":   {"cost": 1, "bonus": 0},
         "Defensa Reflectora":  {"cost": 1, "bonus": 0},
         "Defensa Fuerte":      {"cost": 1, "bonus": 0},
+        "Salvaguarda principiante": {"cost": 1, "bonus": 0},
     }
 
     def get_action_cost(name):

@@ -9,6 +9,7 @@ Implementar de forma incremental el sistema de **pre-combate** con selección de
 - **Fase 0:** cerrada en modalidad operativa (documentación consolidada).
 - **Fase 1:** implementada (UI pre-combate + validación + persistencia).
 - **Fase 2:** implementada (compactación, paginación horizontal, vista íconos/fallback simple).
+- **Fase 3:** implementada (runtime base de Ladrón + Salvaguarda en flujo de combate).
 - **Fase 4:** implementada (reglas IA forzado/normal con bloqueo por unit_key en plan y ejecución).
 - **Fase 5:** implementada (gate QA incremental inicial + matriz A/B/C/D).
 
