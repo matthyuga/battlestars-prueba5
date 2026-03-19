@@ -41,7 +41,7 @@ init -970 python:
     HP_FAKE_FX_ALPHA = 1.0
     HP_FAKE_FX_DELAY = 0.0
     HP_FAKE_FX_FADE_SECONDS = 1.0
-    HP_FAKE_PLAYER_PERSISTENT = False
+    HP_FAKE_PLAYER_PERSISTENT = True
 
     # === Nombres HUD (display) ===
     hud_player_name = "Jugador"
