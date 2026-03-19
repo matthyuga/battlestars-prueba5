@@ -37,9 +37,9 @@ init -970 python:
     hp_fake_player_delay = 0.0
     hp_fake_enemy_delay = 0.0
     HP_FAKE_FX_ALPHA = 1.0
-    HP_FAKE_FX_DELAY = 0.12
-    HP_FAKE_FX_FADE_SECONDS = 0.65
-    HP_FAKE_PLAYER_PERSISTENT = True
+    HP_FAKE_FX_DELAY = 0.0
+    HP_FAKE_FX_FADE_SECONDS = 1.0
+    HP_FAKE_PLAYER_PERSISTENT = False
 
     # === Nombres HUD (display) ===
     hud_player_name = "Jugador"
