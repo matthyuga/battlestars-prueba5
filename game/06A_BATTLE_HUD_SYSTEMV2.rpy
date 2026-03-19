@@ -39,7 +39,7 @@ init -970 python:
     hp_fake_last_player_hp = None
     hp_fake_last_enemy_hp = None
     HP_FAKE_FX_ALPHA = 1.0
-    HP_FAKE_FX_DELAY = 1.0
+    HP_FAKE_FX_DELAY = 1.5
     HP_FAKE_FX_FADE_SECONDS = 0.0
     HP_FAKE_PLAYER_PERSISTENT = False
 
@@ -247,7 +247,7 @@ init -970 python:
             hp_fake_player_delay = 0.0
             return
 
-        if new_ratio >= old_ratio:
+        if new_ratio > old_ratio:
             if side == "player":
                 hp_fake_player_ratio = new_ratio
                 hp_fake_player_alpha = 0.0
@@ -256,6 +256,8 @@ init -970 python:
                 hp_fake_enemy_ratio = new_ratio
                 hp_fake_enemy_alpha = 0.0
                 hp_fake_enemy_delay = 0.0
+            return
+        elif new_ratio == old_ratio:
             return
 
         if side == "player":
