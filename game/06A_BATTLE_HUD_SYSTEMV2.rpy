@@ -36,6 +36,8 @@ init -970 python:
     hp_fake_enemy_alpha = 0.0
     hp_fake_player_delay = 0.0
     hp_fake_enemy_delay = 0.0
+    hp_fake_last_player_hp = None
+    hp_fake_last_enemy_hp = None
     HP_FAKE_FX_ALPHA = 1.0
     HP_FAKE_FX_DELAY = 0.0
     HP_FAKE_FX_FADE_SECONDS = 1.0
@@ -216,6 +218,7 @@ init -970 python:
         global hp_fake_player_ratio, hp_fake_enemy_ratio
         global hp_fake_player_alpha, hp_fake_enemy_alpha
         global hp_fake_player_delay, hp_fake_enemy_delay
+        global hp_fake_last_player_hp, hp_fake_last_enemy_hp
         p_ratio = _battle_hp_ratio(battle_hp_player, battle_hp_player_max)
         hp_fake_enemy_ratio = _battle_hp_ratio(battle_hp_enemy, battle_hp_enemy_max)
         if HP_FAKE_PLAYER_PERSISTENT:
@@ -227,6 +230,8 @@ init -970 python:
         hp_fake_enemy_alpha = 0.0
         hp_fake_player_delay = 0.0
         hp_fake_enemy_delay = 0.0
+        hp_fake_last_player_hp = int(battle_hp_player)
+        hp_fake_last_enemy_hp = int(battle_hp_enemy)
 
     def _battle_hp_fake_register_hit(side, old_hp, new_hp, max_hp):
         global hp_fake_player_ratio, hp_fake_enemy_ratio
@@ -297,13 +302,22 @@ init -970 python:
         global battle_coating_player_durability, battle_coating_enemy_durability
         global battle_coating_player_durability_max, battle_coating_enemy_durability_max
         global battle_coating_player_active, battle_coating_enemy_active
+        global hp_fake_last_player_hp, hp_fake_last_enemy_hp
 
-        prev_player_hp = int(battle_hp_player)
-        prev_enemy_hp = int(battle_hp_enemy)
+        try:
+            prev_player_hp = int(hp_fake_last_player_hp)
+        except:
+            prev_player_hp = int(battle_hp_player)
+        try:
+            prev_enemy_hp = int(hp_fake_last_enemy_hp)
+        except:
+            prev_enemy_hp = int(battle_hp_enemy)
         battle_hp_player = int(player_hp)
         battle_hp_enemy = int(enemy_hp)
         _battle_hp_fake_register_hit("player", prev_player_hp, battle_hp_player, battle_hp_player_max)
         _battle_hp_fake_register_hit("enemy", prev_enemy_hp, battle_hp_enemy, battle_hp_enemy_max)
+        hp_fake_last_player_hp = int(battle_hp_player)
+        hp_fake_last_enemy_hp = int(battle_hp_enemy)
 
         try:
             fn_key = getattr(S, "bs_get_active_unit_key", None)
