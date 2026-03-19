@@ -53,7 +53,6 @@ default defense_for_attack_active = False
 # Permite ocultar/mostrar el panel con una tecla (U),
 # sin afectar la cola ni la simulación de recursos.
 default show_technique_selector = True
-default selector_panel_view = "both"   # both | off | def
 
 # -------------------------------
 # 🖼️ Config gráfico

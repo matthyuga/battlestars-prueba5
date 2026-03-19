@@ -333,9 +333,8 @@ screen battle_command_menu():
 
     $ _show_off = bool(getattr(store, "ui_show_offensive_techniques", True))
     $ _show_def = bool(getattr(store, "ui_show_defensive_techniques", True))
-    $ _panel_view = str(getattr(store, "selector_panel_view", "both") or "both").strip().lower()
-    $ _show_off_col = _show_off and (_panel_view in ("both", "off"))
-    $ _show_def_col = _show_def and (_panel_view in ("both", "def"))
+    $ _show_off_col = _show_off and (battle_mode == "offensive")
+    $ _show_def_col = _show_def and (battle_mode == "defensive")
     $ current = OFF if battle_mode == "offensive" else DEF
     $ current = current if ((battle_mode == "offensive" and _show_off) or (battle_mode == "defensive" and _show_def)) else []
     $ _off_cancel = bool(getattr(store, "offense_cancelled", False))
@@ -396,18 +395,6 @@ screen battle_command_menu():
             vbox spacing 6:
 
                 text "Panel técnicas · Tecla O Ofensivas: {}  |  Tecla D Defensivas: {}".format("ON" if _show_off else "OFF", "ON" if _show_def else "OFF") size 14 color "#C8C8C8"
-                hbox:
-                    spacing 8
-                    text "Vista:" size 13 color "#BBBBBB"
-                    textbutton "Ambas":
-                        action SetField(store, "selector_panel_view", "both")
-                        text_color ("#66CCFF" if _panel_view == "both" else "#FFFFFF")
-                    textbutton "Ofensivas":
-                        action SetField(store, "selector_panel_view", "off")
-                        text_color ("#66CCFF" if _panel_view == "off" else "#FFFFFF")
-                    textbutton "Defensivas":
-                        action SetField(store, "selector_panel_view", "def")
-                        text_color ("#66CCFF" if _panel_view == "def" else "#FFFFFF")
 
                 hbox:
                     spacing 14
