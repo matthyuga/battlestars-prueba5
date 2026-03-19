@@ -39,9 +39,9 @@ init -970 python:
     hp_fake_last_player_hp = None
     hp_fake_last_enemy_hp = None
     HP_FAKE_FX_ALPHA = 1.0
-    HP_FAKE_FX_DELAY = 0.0
-    HP_FAKE_FX_FADE_SECONDS = 1.0
-    HP_FAKE_PLAYER_PERSISTENT = True
+    HP_FAKE_FX_DELAY = 1.0
+    HP_FAKE_FX_FADE_SECONDS = 0.0
+    HP_FAKE_PLAYER_PERSISTENT = False
 
     # === Nombres HUD (display) ===
     hud_player_name = "Jugador"
@@ -271,7 +271,6 @@ init -970 python:
         global hp_fake_player_ratio, hp_fake_enemy_ratio
         global hp_fake_player_alpha, hp_fake_enemy_alpha
         global hp_fake_player_delay, hp_fake_enemy_delay
-        fade_total = max(0.08, float(HP_FAKE_FX_FADE_SECONDS))
 
         try:
             dt_f = max(0.0, float(dt))
@@ -283,17 +282,15 @@ init -970 python:
                 if hp_fake_player_delay > 0.0:
                     hp_fake_player_delay = max(0.0, float(hp_fake_player_delay) - dt_f)
                 else:
-                    hp_fake_player_alpha = max(0.0, float(hp_fake_player_alpha) - (dt_f / fade_total))
-                    if hp_fake_player_alpha <= 0.0:
-                        hp_fake_player_ratio = _battle_hp_ratio(battle_hp_player, battle_hp_player_max)
+                    hp_fake_player_alpha = 0.0
+                    hp_fake_player_ratio = _battle_hp_ratio(battle_hp_player, battle_hp_player_max)
 
         if hp_fake_enemy_alpha > 0.0:
             if hp_fake_enemy_delay > 0.0:
                 hp_fake_enemy_delay = max(0.0, float(hp_fake_enemy_delay) - dt_f)
             else:
-                hp_fake_enemy_alpha = max(0.0, float(hp_fake_enemy_alpha) - (dt_f / fade_total))
-                if hp_fake_enemy_alpha <= 0.0:
-                    hp_fake_enemy_ratio = _battle_hp_ratio(battle_hp_enemy, battle_hp_enemy_max)
+                hp_fake_enemy_alpha = 0.0
+                hp_fake_enemy_ratio = _battle_hp_ratio(battle_hp_enemy, battle_hp_enemy_max)
 
     def battle_update_hp_bars(player_hp, enemy_hp, flash_target=None, color=None):
         global battle_hp_player, battle_hp_enemy, hp_flash_timer, hp_flash_color
