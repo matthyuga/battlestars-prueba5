@@ -348,31 +348,37 @@ screen battle_command_menu():
             align (0.50, 0.65)
             padding (10, 10)
 
-            hbox spacing 14 at tech_btn_scale:
+            viewport:
+                draggable True
+                mousewheel True
+                scrollbars "vertical"
+                ymaximum 350
 
-                for tech_key in current:
+                vbox spacing 10 at tech_btn_scale:
 
-                    $ label = TECH_LABEL[tech_key]
-                    $ icon  = TECH_ICON[tech_key]
+                    for tech_key in current:
 
-                    $ tip   = tech_preview(tech_key, battle_mode)
-                    $ ok, fr, fe = tech_cost_check(tech_key)
-                    $ locked = bool(_only_defense)
-                    $ can_use = bool(ok and not locked)
-                    $ tooltip_text = tip + "\n\nTurno ofensivo cancelado: solo Defensa." if locked else tip
+                        $ label = TECH_LABEL[tech_key]
+                        $ icon  = TECH_ICON[tech_key]
 
-                    if can_use:
-                        imagebutton:
-                            idle icon
-                            hover icon
-                            action Function(add_technique_safe, label, tech_key)
-                            tooltip tooltip_text
-                    else:
-                        imagebutton:
-                            idle Transform(icon, alpha=0.40)
-                            hover Transform(icon, alpha=0.40)
-                            action NullAction()
-                            tooltip tooltip_text
+                        $ tip   = tech_preview(tech_key, battle_mode)
+                        $ ok, fr, fe = tech_cost_check(tech_key)
+                        $ locked = bool(_only_defense)
+                        $ can_use = bool(ok and not locked)
+                        $ tooltip_text = tip + "\n\nTurno ofensivo cancelado: solo Defensa." if locked else tip
+
+                        if can_use:
+                            imagebutton:
+                                idle icon
+                                hover icon
+                                action Function(add_technique_safe, label, tech_key)
+                                tooltip tooltip_text
+                        else:
+                            imagebutton:
+                                idle Transform(icon, alpha=0.40)
+                                hover Transform(icon, alpha=0.40)
+                                action NullAction()
+                                tooltip tooltip_text
 
 
     # ============================================================
@@ -384,30 +390,38 @@ screen battle_command_menu():
             background "#0000"
             align (0.08, 0.55)
 
-            vbox spacing 6 at tech_btn_scale:
+            vbox spacing 6:
 
                 text "Tecla O Ofensivas: {}  |  Tecla D Defensivas: {}".format("ON" if _show_off else "OFF", "ON" if _show_def else "OFF") size 14 color "#C8C8C8"
 
-                for tech_key in current:
+                viewport:
+                    draggable True
+                    mousewheel True
+                    scrollbars "vertical"
+                    ymaximum 410
 
-                    $ label = TECH_LABEL[tech_key]
-                    $ icon  = TECH_ICON[tech_key]
+                    vbox spacing 6 at tech_btn_scale:
 
-                    $ tip   = tech_preview(tech_key, battle_mode)
-                    $ ok, fr, fe = tech_cost_check(tech_key)
-                    $ locked = bool(_only_defense)
-                    $ can_use = bool(ok and not locked)
-                    $ tooltip_text = tip + "\n\nTurno ofensivo cancelado: solo Defensa." if locked else tip
+                        for tech_key in current:
 
-                    if can_use:
-                        imagebutton:
-                            idle icon
-                            hover icon
-                            action Function(add_technique_safe, label, tech_key)
-                            tooltip tooltip_text
-                    else:
-                        imagebutton:
-                            idle Transform(icon, alpha=0.40)
-                            hover Transform(icon, alpha=0.40)
-                            action NullAction()
-                            tooltip tooltip_text
+                            $ label = TECH_LABEL[tech_key]
+                            $ icon  = TECH_ICON[tech_key]
+
+                            $ tip   = tech_preview(tech_key, battle_mode)
+                            $ ok, fr, fe = tech_cost_check(tech_key)
+                            $ locked = bool(_only_defense)
+                            $ can_use = bool(ok and not locked)
+                            $ tooltip_text = tip + "\n\nTurno ofensivo cancelado: solo Defensa." if locked else tip
+
+                            if can_use:
+                                imagebutton:
+                                    idle icon
+                                    hover icon
+                                    action Function(add_technique_safe, label, tech_key)
+                                    tooltip tooltip_text
+                            else:
+                                imagebutton:
+                                    idle Transform(icon, alpha=0.40)
+                                    hover Transform(icon, alpha=0.40)
+                                    action NullAction()
+                                    tooltip tooltip_text
