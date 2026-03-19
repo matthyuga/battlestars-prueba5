@@ -58,7 +58,7 @@ default show_technique_selector = True
 # 🖼️ Config gráfico
 # -------------------------------
 init -961 python:
-    BTN_ZOOM = 0.60
+    BTN_ZOOM = 0.48
 
 transform tech_btn_scale:
     zoom BTN_ZOOM
