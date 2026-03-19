@@ -403,7 +403,8 @@ screen battle_command_menu():
                         frame:
                             background "#0006"
                             padding (8, 8)
-                            xmaximum 260
+                            xmaximum 460
+                            xminimum 460
                             ymaximum 430
 
                             vbox:
@@ -443,7 +444,8 @@ screen battle_command_menu():
                         frame:
                             background "#0006"
                             padding (8, 8)
-                            xmaximum 260
+                            xmaximum 460
+                            xminimum 460
                             ymaximum 430
 
                             vbox:
