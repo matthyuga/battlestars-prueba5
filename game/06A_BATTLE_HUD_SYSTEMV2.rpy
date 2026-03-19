@@ -40,7 +40,7 @@ init -970 python:
     hp_fake_last_enemy_hp = None
     HP_FAKE_FX_ALPHA = 1.0
     HP_FAKE_FX_DELAY = 1.5
-    HP_FAKE_FX_FADE_SECONDS = 0.0
+    HP_FAKE_FX_FADE_SECONDS = 0.25
     HP_FAKE_PLAYER_PERSISTENT = False
 
     # === Nombres HUD (display) ===
@@ -279,10 +279,17 @@ init -970 python:
         except:
             dt_f = 0.016
 
+        fade_window = max(0.0, min(float(HP_FAKE_FX_FADE_SECONDS), float(HP_FAKE_FX_DELAY)))
+
         if not HP_FAKE_PLAYER_PERSISTENT:
             if hp_fake_player_alpha > 0.0:
                 if hp_fake_player_delay > 0.0:
                     hp_fake_player_delay = max(0.0, float(hp_fake_player_delay) - dt_f)
+                    if fade_window > 0.0:
+                        if hp_fake_player_delay <= fade_window:
+                            hp_fake_player_alpha = max(0.0, min(float(HP_FAKE_FX_ALPHA), float(hp_fake_player_delay) / fade_window))
+                        else:
+                            hp_fake_player_alpha = float(HP_FAKE_FX_ALPHA)
                 else:
                     hp_fake_player_alpha = 0.0
                     hp_fake_player_ratio = _battle_hp_ratio(battle_hp_player, battle_hp_player_max)
@@ -290,6 +297,11 @@ init -970 python:
         if hp_fake_enemy_alpha > 0.0:
             if hp_fake_enemy_delay > 0.0:
                 hp_fake_enemy_delay = max(0.0, float(hp_fake_enemy_delay) - dt_f)
+                if fade_window > 0.0:
+                    if hp_fake_enemy_delay <= fade_window:
+                        hp_fake_enemy_alpha = max(0.0, min(float(HP_FAKE_FX_ALPHA), float(hp_fake_enemy_delay) / fade_window))
+                    else:
+                        hp_fake_enemy_alpha = float(HP_FAKE_FX_ALPHA)
             else:
                 hp_fake_enemy_alpha = 0.0
                 hp_fake_enemy_ratio = _battle_hp_ratio(battle_hp_enemy, battle_hp_enemy_max)
