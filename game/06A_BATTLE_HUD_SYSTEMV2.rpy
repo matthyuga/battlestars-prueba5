@@ -930,7 +930,7 @@ screen battle_hp_overlay():
                                                         xmaximum 112
                                                         ymaximum 14
                                                         left_bar "#00BFFF"
-                                                        right_bar "#222222"
+                                                        right_bar "#0000"
 
                                                 text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                                     xpos 18
@@ -1110,7 +1110,7 @@ screen battle_hp_overlay():
                                                 xmaximum 112
                                                 ymaximum 14
                                                 left_bar "#00BFFF"
-                                                right_bar "#222222"
+                                                right_bar "#0000"
 
                                         text "{} / {}".format(battle_fmt_num(_hp), battle_fmt_num(_mx)):
                                             xpos 18
@@ -1170,7 +1170,7 @@ screen battle_hp_overlay():
                                 xmaximum 280
                                 ymaximum 16
                                 left_bar "#00BFFF"
-                                right_bar "#222222"
+                                right_bar "#0000"
                         text "{} / {}".format(battle_fmt_num(battle_hp_player), battle_fmt_num(battle_hp_player_max)) color "#FFFFFF" size 16
                         bar:
                             value (float(battle_coating_player_durability) / max(1.0, float(battle_coating_player_durability_max)))
@@ -1223,7 +1223,7 @@ screen battle_hp_overlay():
                                 xmaximum 280
                                 ymaximum 16
                                 left_bar "#FF3333"
-                                right_bar "#222222"
+                                right_bar "#0000"
                         text "{} / {}".format(battle_fmt_num(battle_hp_enemy), battle_fmt_num(battle_hp_enemy_max)) color "#FFFFFF" size 16
                         bar:
                             value (float(battle_coating_enemy_durability) / max(1.0, float(battle_coating_enemy_durability_max)))
