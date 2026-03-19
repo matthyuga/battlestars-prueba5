@@ -41,6 +41,7 @@ init -970 python:
     HP_FAKE_FX_ALPHA = 1.0
     HP_FAKE_FX_DELAY = 1.5
     HP_FAKE_FX_FADE_SECONDS = 0.25
+    HP_FAKE_TICK_STEP = 0.05
     HP_FAKE_PLAYER_PERSISTENT = False
 
     # === Nombres HUD (display) ===
@@ -261,11 +262,11 @@ init -970 python:
             return
 
         if side == "player":
-            hp_fake_player_ratio = max(old_ratio, float(hp_fake_player_ratio))
+            hp_fake_player_ratio = old_ratio
             hp_fake_player_alpha = float(HP_FAKE_FX_ALPHA)
             hp_fake_player_delay = float(HP_FAKE_FX_DELAY)
         else:
-            hp_fake_enemy_ratio = max(old_ratio, float(hp_fake_enemy_ratio))
+            hp_fake_enemy_ratio = old_ratio
             hp_fake_enemy_alpha = float(HP_FAKE_FX_ALPHA)
             hp_fake_enemy_delay = float(HP_FAKE_FX_DELAY)
 
@@ -794,7 +795,7 @@ screen battle_hp_overlay():
         null
     else:
         if ((not HP_FAKE_PLAYER_PERSISTENT and (hp_fake_player_alpha > 0.0 or hp_fake_player_delay > 0.0)) or hp_fake_enemy_alpha > 0.0 or hp_fake_enemy_delay > 0.0):
-            timer 0.016 repeat True action Function(battle_hp_fake_tick, 0.016)
+            timer HP_FAKE_TICK_STEP repeat True action Function(battle_hp_fake_tick, HP_FAKE_TICK_STEP)
 
         if hp_flash_timer > 0:
             $ hp_flash_timer -= 1
