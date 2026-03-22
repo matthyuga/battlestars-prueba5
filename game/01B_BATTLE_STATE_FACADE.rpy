@@ -46,6 +46,56 @@ init -989 python:
         except:
             pass
 
+    def _bs_log_battle_line(text, color=None):
+        try:
+            fn_safe = getattr(S, "safe_battle_log_add", None)
+            if callable(fn_safe):
+                if color is None:
+                    fn_safe(str(text))
+                else:
+                    fn_safe(str(text), color=str(color))
+                return
+        except:
+            pass
+
+        try:
+            fn_log = getattr(S, "battle_log_add", None)
+            if callable(fn_log):
+                if color is None:
+                    fn_log(str(text))
+                else:
+                    fn_log(str(text), str(color))
+                return
+        except:
+            pass
+
+    def _bs_emit_stamina_shadow_log(
+        stamina_before,
+        incoming_after_coating,
+        stamina_after,
+        overflow_to_hp,
+        hp_before,
+        hp_after,
+        stamina_gain,
+        blocked_by_shadow,
+    ):
+        # 1) Resultado estamina (consumo / overflow)
+        if overflow_to_hp > 0:
+            _bs_log_battle_line("Estamina: {} - {} = -{}".format(int(stamina_before), int(incoming_after_coating), int(overflow_to_hp)))
+        else:
+            _bs_log_battle_line("Estamina: {} - {} = {}".format(int(stamina_before), int(incoming_after_coating), int(stamina_after)))
+
+        # 2) Resultado HP
+        _bs_log_battle_line("HP: {} - {} = {}".format(int(hp_before), int(overflow_to_hp), int(hp_after)))
+
+        # 3) Generación de estamina (si aplica)
+        if int(stamina_gain) > 0:
+            _bs_log_battle_line("HP genera {} de estamina".format(int(stamina_gain)))
+
+        # 4) Bloqueo por shadow (si limitó)
+        if int(blocked_by_shadow) > 0:
+            _bs_log_battle_line("Shadow bloquea {} de espacio para estamina".format(int(blocked_by_shadow)))
+
     def _bs_side_key(side):
         s = str(side or "").strip().lower()
         if s in ("player", "actor"):
@@ -1390,6 +1440,16 @@ init -989 python:
             stamina_gain = max(0, _bs_to_int(stamina_gain, 0))
 
         stamina_after = max(0, stamina_after_consume + stamina_gain)
+        gain_without_shadow = 0
+        if (not ko_now) and hp_damage_real > 0 and stamina_enabled:
+            free_without_shadow = max(0, missing_after_hp - stamina_after_consume)
+            gain_without_shadow = min(
+                hp_damage_real,
+                free_without_shadow,
+                max(0, stamina_cap - stamina_after_consume),
+            )
+            gain_without_shadow = max(0, _bs_to_int(gain_without_shadow, 0))
+        blocked_by_shadow = max(0, gain_without_shadow - stamina_gain)
 
         cur_unit["coating_durability_current"] = int(dura_after)
         cur_unit["coating_active"] = bool(cover > 0 and dura_after > 0)
@@ -1439,6 +1499,17 @@ init -989 python:
             except:
                 pass
 
+        _bs_emit_stamina_shadow_log(
+            stamina_before=stamina_before,
+            incoming_after_coating=incoming_after_coating,
+            stamina_after=stamina_after,
+            overflow_to_hp=overflow_to_hp,
+            hp_before=hp_before,
+            hp_after=hp_after,
+            stamina_gain=stamina_gain,
+            blocked_by_shadow=blocked_by_shadow,
+        )
+
         return {
             "ok": True,
             "target": side,
@@ -1479,6 +1550,7 @@ init -989 python:
             "space": {
                 "missing_hp_after": int(missing_after_hp),
                 "free_space_after": int(max(0, missing_after_hp - stamina_after - shadow_effective)),
+                "blocked_by_shadow": int(blocked_by_shadow),
             },
             "hp_before": hp_before,
             "hp_after": hp_after,

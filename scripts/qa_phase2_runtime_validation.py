@@ -41,6 +41,13 @@ def _bootstrap_facade():
     store_mod.battle_turn_owner = "player"
     store_mod._last_player_direct_damage = 0
     store_mod.enemy_direct_pending_damage = 0
+    store_mod._captured_logs = []
+
+    def _safe_battle_log_add(text, color=None, border=None):
+        store_mod._captured_logs.append(str(text))
+
+    store_mod.safe_battle_log_add = _safe_battle_log_add
+    store_mod.battle_log_add = _safe_battle_log_add
 
     def _get_character(char_id):
         return {
@@ -68,14 +75,27 @@ def _expect(name, condition, details=""):
 
 
 def case_absorb_and_overflow(S):
+    S._captured_logs[:] = []
     S.bs_init_single_teams(player_hp=7000, player_max_hp=10000, enemy_hp=10000, enemy_max_hp=10000)
     S.bs_set_unit_stamina_shadow("player:0", stamina_current=3000, stamina_cap=10000, stamina_enabled=True)
     r = S.bs_apply_damage_to_unit_key("player:0", 5000)
     st = S.bs_get_unit_stamina_shadow("player:0")
+    logs_ok = (
+        len(S._captured_logs) >= 3
+        and S._captured_logs[0].startswith("Estamina:")
+        and S._captured_logs[1].startswith("HP:")
+        and S._captured_logs[2].startswith("HP genera")
+    )
     return _expect(
         "coating->stamina->hp (absorbe + overflow)",
-        r.get("hp_after") == 5000 and st.get("stamina_current") == 2000 and r.get("stamina", {}).get("overflow_to_hp") == 2000 and r.get("stamina", {}).get("gain") == 2000,
-        details=f"hp_after={r.get('hp_after')} st={st.get('stamina_current')} overflow={r.get('stamina', {}).get('overflow_to_hp')}",
+        (
+            r.get("hp_after") == 5000
+            and st.get("stamina_current") == 2000
+            and r.get("stamina", {}).get("overflow_to_hp") == 2000
+            and r.get("stamina", {}).get("gain") == 2000
+            and logs_ok
+        ),
+        details=f"hp_after={r.get('hp_after')} st={st.get('stamina_current')} overflow={r.get('stamina', {}).get('overflow_to_hp')} logs={S._captured_logs[:3]}",
     )
 
 
