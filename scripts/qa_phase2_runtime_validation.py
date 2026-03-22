@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+import sys
+import types
+from pathlib import Path
+import textwrap
+
+
+def _bootstrap_facade():
+    repo = Path(__file__).resolve().parents[1]
+    src = (repo / "game/01B_BATTLE_STATE_FACADE.rpy").read_text(encoding="utf-8-sig")
+    marker = "init -989 python:\n"
+    idx = src.find(marker)
+    if idx < 0:
+        raise RuntimeError("No se encontró bloque init python en facade")
+    code = src[idx + len(marker):]
+    code = textwrap.dedent(code)
+
+    renpy_mod = types.ModuleType("renpy")
+    store_mod = types.ModuleType("renpy.store")
+
+    def _log(_msg):
+        return None
+
+    renpy_mod.log = _log
+    renpy_mod.store = store_mod
+
+    sys.modules["renpy"] = renpy_mod
+    sys.modules["renpy.store"] = store_mod
+
+    # Defaults mínimos esperados por el facade
+    store_mod.battle_player_id = "Harribel"
+    store_mod.battle_enemy_id = "Hollow"
+    store_mod.player_hp = 100
+    store_mod.enemy_hp = 100
+    store_mod.battle_hp_player_max = 100
+    store_mod.battle_hp_enemy_max = 100
+    store_mod.player_reiatsu = 0
+    store_mod.player_energy = 0
+    store_mod.enemy_reiatsu = 0
+    store_mod.enemy_energy = 0
+    store_mod.battle_turn_owner = "player"
+    store_mod._last_player_direct_damage = 0
+    store_mod.enemy_direct_pending_damage = 0
+
+    def _get_character(char_id):
+        return {
+            "id": str(char_id),
+            "race": "human",
+            "Reiatsu": 0,
+            "Energy": 0,
+            "coating_cover": 0,
+            "coating_durability": 0,
+        }
+
+    store_mod.get_character = _get_character
+
+    env = {}
+    exec(code, env, env)
+    return store_mod
+
+
+def _expect(name, condition, details=""):
+    if condition:
+        print(f"[OK] {name}")
+        return True
+    print(f"[FAIL] {name} :: {details}")
+    return False
+
+
+def case_absorb_and_overflow(S):
+    S.bs_init_single_teams(player_hp=7000, player_max_hp=10000, enemy_hp=10000, enemy_max_hp=10000)
+    S.bs_set_unit_stamina_shadow("player:0", stamina_current=3000, stamina_cap=10000, stamina_enabled=True)
+    r = S.bs_apply_damage_to_unit_key("player:0", 5000)
+    st = S.bs_get_unit_stamina_shadow("player:0")
+    return _expect(
+        "coating->stamina->hp (absorbe + overflow)",
+        r.get("hp_after") == 5000 and st.get("stamina_current") == 2000 and r.get("stamina", {}).get("overflow_to_hp") == 2000 and r.get("stamina", {}).get("gain") == 2000,
+        details=f"hp_after={r.get('hp_after')} st={st.get('stamina_current')} overflow={r.get('stamina', {}).get('overflow_to_hp')}",
+    )
+
+
+def case_ko_gate(S):
+    S.bs_init_single_teams(player_hp=3000, player_max_hp=3000, enemy_hp=10000, enemy_max_hp=10000)
+    S.bs_set_unit_stamina_shadow("player:0", stamina_current=2000, stamina_cap=3000, stamina_enabled=True)
+    r = S.bs_apply_damage_to_unit_key("player:0", 6000)
+    st = S.bs_get_unit_stamina_shadow("player:0")
+    return _expect(
+        "KO gate (sin generación)",
+        r.get("hp_after") == 0 and r.get("died") is True and st.get("stamina_current") == 0 and r.get("stamina", {}).get("gain") == 0,
+        details=f"hp_after={r.get('hp_after')} died={r.get('died')} st={st.get('stamina_current')} gain={r.get('stamina', {}).get('gain')}",
+    )
+
+
+def case_survive_gain_enabled(S):
+    S.bs_init_single_teams(player_hp=4001, player_max_hp=6001, enemy_hp=10000, enemy_max_hp=10000)
+    S.bs_set_unit_stamina_shadow("player:0", stamina_current=2000, stamina_cap=4001, stamina_enabled=True)
+    r = S.bs_apply_damage_to_unit_key("player:0", 6000)
+    st = S.bs_get_unit_stamina_shadow("player:0")
+    return _expect(
+        "sobrevive por 1 HP y genera estamina",
+        r.get("hp_after") == 1 and r.get("stamina", {}).get("gain") > 0 and st.get("stamina_current") == r.get("stamina", {}).get("after"),
+        details=f"hp_after={r.get('hp_after')} gain={r.get('stamina', {}).get('gain')} st={st.get('stamina_current')}",
+    )
+
+
+def case_no_gain_if_disabled(S):
+    S.bs_init_single_teams(player_hp=9000, player_max_hp=10000, enemy_hp=10000, enemy_max_hp=10000)
+    S.bs_set_unit_stamina_shadow("player:0", stamina_current=0, stamina_cap=10000, stamina_enabled=False)
+    r = S.bs_apply_damage_to_unit_key("player:0", 1000)
+    st = S.bs_get_unit_stamina_shadow("player:0")
+    return _expect(
+        "sin stamina_enabled no hay generación",
+        r.get("hp_after") == 8000 and r.get("stamina", {}).get("gain") == 0 and st.get("stamina_current") == 0,
+        details=f"hp_after={r.get('hp_after')} gain={r.get('stamina', {}).get('gain')} st={st.get('stamina_current')}",
+    )
+
+
+def main():
+    S = _bootstrap_facade()
+    checks = [
+        case_absorb_and_overflow(S),
+        case_ko_gate(S),
+        case_survive_gain_enabled(S),
+        case_no_gain_if_disabled(S),
+    ]
+    ok = all(checks)
+    print("\nRESULT:", "PASS" if ok else "FAIL")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

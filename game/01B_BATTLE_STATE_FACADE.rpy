@@ -1409,6 +1409,19 @@ init -989 python:
                 uu["shadow_active"] = bool(shadow_active)
                 t[slot] = uu
                 bs.setdefault("teams", {})[side] = t
+                active_uid = str(bs.get("active", {}).get(side, "") or "")
+                target_uid = str(uu.get("uid", "") or "")
+                if active_uid and target_uid and active_uid == target_uid:
+                    mu = dict(bs.get("units", {}).get(side, {}) or {})
+                    mu["hp"] = int(max(0, min(mx, hp_after)))
+                    mu["max_hp"] = int(mx)
+                    mu["stamina_current"] = int(stamina_after)
+                    mu["stamina_cap"] = int(stamina_cap)
+                    mu["stamina_enabled"] = bool(stamina_enabled)
+                    mu["shadow_current"] = int(max(0, min(shadow_before, shadow_cap)))
+                    mu["shadow_cap"] = int(shadow_cap)
+                    mu["shadow_active"] = bool(shadow_active)
+                    bs.setdefault("units", {})[side] = mu
                 S.battle_state = bs
         except:
             pass
