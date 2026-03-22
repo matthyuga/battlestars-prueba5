@@ -136,6 +136,7 @@ def case_no_gain_if_disabled(S):
 
 
 def case_shadow_applied_to_enemy_blocks_target(S):
+    S._captured_logs[:] = []
     S.bs_init_single_teams(player_hp=9000, player_max_hp=10000, enemy_hp=10000, enemy_max_hp=10000)
     S.bs_set_unit_stamina_shadow(
         "player:0",
@@ -154,8 +155,9 @@ def case_shadow_applied_to_enemy_blocks_target(S):
             and r.get("space", {}).get("blocked_by_shadow") == 1000
             and r.get("shadow", {}).get("source_effective_for_block") == 1000
             and r.get("shadow", {}).get("local_effective_for_block") == 0
+            and any(str(x).startswith("Efecto aplicado:") for x in list(S._captured_logs))
         ),
-        details=f"hp_after={r.get('hp_after')} gain={r.get('stamina', {}).get('gain')} blocked={r.get('space', {}).get('blocked_by_shadow')} shadow={r.get('shadow', {})}",
+        details=f"hp_after={r.get('hp_after')} gain={r.get('stamina', {}).get('gain')} blocked={r.get('space', {}).get('blocked_by_shadow')} shadow={r.get('shadow', {})} logs={S._captured_logs}",
     )
 
 

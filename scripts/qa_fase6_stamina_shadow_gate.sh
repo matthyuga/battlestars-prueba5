@@ -13,7 +13,7 @@ python3 ./scripts/qa_phase2_runtime_validation.py
 
 echo "[QA-F6] Verificando contrato facade (APIs y logs canónicos)..."
 rg -n "def bs_get_unit_stamina_shadow|def bs_set_unit_stamina_shadow|S\.bs_get_unit_stamina_shadow|S\.bs_set_unit_stamina_shadow" game/01B_BATTLE_STATE_FACADE.rpy >/dev/null
-rg -n "Estamina: \{\} - \{\} =|HP genera \{\} de estamina|Shadow bloquea \{\} de espacio para estamina" game/01B_BATTLE_STATE_FACADE.rpy >/dev/null
+rg -n "Estamina: \{\} - \{\} =|HP genera \{\} de estamina|Shadow bloquea \{\} de espacio para estamina|Efecto aplicado: \{\} source=\{\} target=\{\}" game/01B_BATTLE_STATE_FACADE.rpy >/dev/null
 rg -n "space\": \{|blocked_by_shadow" game/01B_BATTLE_STATE_FACADE.rpy >/dev/null
 
 echo "[QA-F6] Verificando activación de perks en pre-combate -> runtime..."

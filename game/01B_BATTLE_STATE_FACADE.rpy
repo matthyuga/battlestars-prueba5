@@ -78,6 +78,7 @@ init -989 python:
         hp_after,
         stamina_gain,
         blocked_by_shadow,
+        effect_applied=None,
     ):
         # 1) Resultado estamina (consumo / overflow)
         if overflow_to_hp > 0:
@@ -95,6 +96,14 @@ init -989 python:
         # 4) Bloqueo por shadow (si limitó)
         if int(blocked_by_shadow) > 0:
             _bs_log_battle_line("Shadow bloquea {} de espacio para estamina".format(int(blocked_by_shadow)))
+
+        # 5) Efecto aplicado (si hubo efecto extra)
+        if isinstance(effect_applied, dict):
+            ek = str(effect_applied.get("effect_kind", "") or "").strip()
+            sid = str(effect_applied.get("source_id", "") or "").strip()
+            tsc = str(effect_applied.get("target_scope", "") or "").strip()
+            if ek and sid and tsc:
+                _bs_log_battle_line("Efecto aplicado: {} source={} target={}".format(ek, sid, tsc))
 
     def _bs_side_key(side):
         s = str(side or "").strip().lower()
@@ -1484,6 +1493,13 @@ init -989 python:
             )
             gain_without_shadow = max(0, _bs_to_int(gain_without_shadow, 0))
         blocked_by_shadow = max(0, gain_without_shadow - stamina_gain)
+        effect_applied = None
+        if int(source_shadow_effective) > 0 and source_key is not None:
+            effect_applied = {
+                "effect_kind": "shadow_apply",
+                "source_id": str(bs_parse_unit_key(source_key).get("key", "") or "unknown"),
+                "target_scope": "enemy",
+            }
 
         cur_unit["coating_durability_current"] = int(dura_after)
         cur_unit["coating_active"] = bool(cover > 0 and dura_after > 0)
@@ -1544,6 +1560,7 @@ init -989 python:
             hp_after=hp_after,
             stamina_gain=stamina_gain,
             blocked_by_shadow=blocked_by_shadow,
+            effect_applied=effect_applied,
         )
 
         return {
