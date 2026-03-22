@@ -365,6 +365,72 @@ label battle_start:
                     enemy_coating_durability=enemy_coating_durability,
                 )
 
+        # -------------------------------------------------------
+        # Fase 5 — Activación Estamina/Shadow por perks de pre-combate
+        # -------------------------------------------------------
+        cfg = dict(getattr(S, "precombat_confirmed_loadout", {}) or {})
+        perks = dict(cfg.get("resource_perks", {}) or {})
+        perks_current = dict(perks.get("current", {}) or {})
+        perks_by_side = dict(perks.get("by_side", {}) or {})
+        mode_now = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        fn_set_layers = getattr(S, "bs_set_unit_stamina_shadow", None)
+        fn_get_unit = getattr(S, "bs_get_unit_by_key", None)
+        fn_log = getattr(S, "battle_log_add", None)
+
+        def _apply_layer_flags(unit_key, perk_cfg):
+            if not callable(fn_set_layers):
+                return
+            if not isinstance(perk_cfg, dict):
+                perk_cfg = {}
+            try:
+                u = fn_get_unit(unit_key) if callable(fn_get_unit) else None
+            except Exception:
+                u = None
+            mx = 1
+            if isinstance(u, dict):
+                try:
+                    mx = max(1, int(u.get("max_hp", 1) or 1))
+                except Exception:
+                    mx = 1
+            seed_ratio = float(perk_cfg.get("shadow_seed_ratio", 0.0) or 0.0)
+            if seed_ratio < 0.0:
+                seed_ratio = 0.0
+            if seed_ratio > 1.0:
+                seed_ratio = 1.0
+            shadow_seed = int(mx * seed_ratio) if bool(perk_cfg.get("shadow_active", False)) else 0
+            fn_set_layers(
+                unit_key,
+                stamina_enabled=bool(perk_cfg.get("stamina_enabled", False)),
+                shadow_active=bool(perk_cfg.get("shadow_active", False)),
+                shadow_current=max(0, shadow_seed),
+                shadow_cap=mx,
+            )
+
+        if mode_now == "2v2":
+            _apply_layer_flags("player:0", perks_by_side.get("p1", perks_current))
+            _apply_layer_flags("player:1", perks_by_side.get("p2", perks_current))
+        else:
+            _apply_layer_flags("player:0", perks_current)
+
+        if callable(fn_log):
+            try:
+                if mode_now == "2v2":
+                    p1 = dict(perks_by_side.get("p1", perks_current) or {})
+                    p2 = dict(perks_by_side.get("p2", perks_current) or {})
+                    fn_log("{color=#A5D6A7}[PRECOMBAT] Recursos P1(stamina={}, shadow={}) | P2(stamina={}, shadow={}){/color}".format(
+                        int(bool(p1.get("stamina_enabled", False))),
+                        int(bool(p1.get("shadow_active", False))),
+                        int(bool(p2.get("stamina_enabled", False))),
+                        int(bool(p2.get("shadow_active", False))),
+                    ))
+                else:
+                    fn_log("{color=#A5D6A7}[PRECOMBAT] Recursos stamina={} shadow={}{/color}".format(
+                        int(bool(perks_current.get("stamina_enabled", False))),
+                        int(bool(perks_current.get("shadow_active", False))),
+                    ))
+            except Exception:
+                pass
+
     # =======================================================
     # 🏜️ Configuración inicial de ambiente y HUD
     # =======================================================

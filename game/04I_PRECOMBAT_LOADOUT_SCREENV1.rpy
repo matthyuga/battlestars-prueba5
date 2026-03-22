@@ -173,6 +173,53 @@ init -925 python:
         _precombat_diag_record("special_ids_selected", _precombat_now_ms() - t0)
         return out
 
+    def _precombat_special_ids_from_loadout(loadout_dict):
+        out = []
+        lo = dict(loadout_dict or {})
+        for category in ("atk", "def"):
+            for tid in list(lo.get(category, []) or []):
+                kind = precombat_kind_by_id(tid)
+                if kind.startswith("special_") and tid not in out:
+                    out.append(str(tid))
+        return out
+
+    def _precombat_resource_perks_from_specials(special_ids):
+        sids = set([str(x or "") for x in list(special_ids or [])])
+        stamina_enabled = bool(
+            ("focus" in sids) or
+            ("ladron_concentrar" in sids) or
+            ("ladron_ofensivo" in sids)
+        )
+        shadow_active = bool(
+            ("salvaguarda_principiante" in sids) or
+            ("defense_boost" in sids)
+        )
+        # Fase 5: Shadow persiste por defecto; seed inicial conservador.
+        shadow_seed_ratio = 0.15 if shadow_active else 0.0
+        return {
+            "stamina_enabled": bool(stamina_enabled),
+            "shadow_active": bool(shadow_active),
+            "shadow_seed_ratio": float(shadow_seed_ratio),
+        }
+
+    def precombat_resource_perks_snapshot():
+        # Global editor actual (compat 1v1)
+        current_specials = precombat_special_ids_selected()
+        perks_current = _precombat_resource_perks_from_specials(current_specials)
+
+        # Por unidad (p1/p2) para 2v2
+        by_side = dict(getattr(S, "precombat_unit_loadouts", {}) or {})
+        perks_by_side = {}
+        for side_key in ("p1", "p2"):
+            raw = dict(by_side.get(side_key, {"atk": [], "def": []}) or {"atk": [], "def": []})
+            sids = _precombat_special_ids_from_loadout(raw)
+            perks_by_side[side_key] = _precombat_resource_perks_from_specials(sids)
+
+        return {
+            "current": dict(perks_current),
+            "by_side": dict(perks_by_side),
+        }
+
     def precombat_spc_limit():
         slots = getattr(S, "precombat_slots", {}) or {}
         base = int(slots.get("spc", 1) or 1)
@@ -486,6 +533,7 @@ init -925 python:
             "loadout": dict(getattr(S, "precombat_loadout", {}) or {}),
             "specials": list(precombat_special_ids_selected()),
             "by_side": dict(getattr(S, "precombat_unit_loadouts", {}) or {}),
+            "resource_perks": dict(precombat_resource_perks_snapshot() or {}),
         }
         precombat_set_message("Loadout confirmado: {}".format(msg), "#66DD66")
         return True
