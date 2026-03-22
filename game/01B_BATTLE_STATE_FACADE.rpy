@@ -120,6 +120,38 @@ init -989 python:
         u["coating_active"] = bool(active)
         return u
 
+    def _bs_with_stamina_shadow_fields(unit):
+        u = dict(unit) if isinstance(unit, dict) else {}
+
+        hp = max(0, _bs_to_int(u.get("hp", 0), 0))
+        mx = max(1, _bs_to_int(u.get("max_hp", 1), 1))
+        missing_hp = max(0, mx - hp)
+
+        st_cap = max(0, _bs_to_int(u.get("stamina_cap", mx), mx))
+        sh_cap = max(0, _bs_to_int(u.get("shadow_cap", mx), mx))
+
+        st_cur = max(0, _bs_to_int(u.get("stamina_current", 0), 0))
+        sh_cur = max(0, _bs_to_int(u.get("shadow_current", 0), 0))
+        st_cur = min(st_cur, st_cap)
+        sh_cur = min(sh_cur, sh_cap)
+
+        # Invariante espacial Fase 1:
+        # stamina_current + shadow_current <= missing_hp
+        total = st_cur + sh_cur
+        if total > missing_hp:
+            sh_cur = min(sh_cur, missing_hp)
+            st_cur = min(st_cur, max(0, missing_hp - sh_cur))
+
+        u["stamina_cap"] = st_cap
+        u["shadow_cap"] = sh_cap
+        u["stamina_current"] = st_cur
+        u["shadow_current"] = sh_cur
+        u["stamina_enabled"] = bool(u.get("stamina_enabled", False))
+        u["shadow_active"] = bool(u.get("shadow_active", False))
+        u["missing_hp"] = missing_hp
+        u["free_space"] = max(0, missing_hp - st_cur - sh_cur)
+        return u
+
     def _bs_sync_active_unit_from_units(bs, side):
         side = _bs_side_key(side)
         units = bs.setdefault("units", {})
@@ -166,6 +198,7 @@ init -989 python:
         unit["hp"] = hp
         unit["alive"] = bool(hp > 0)
         unit = _bs_with_coating_fields(unit, unit.get("char_id", _bs_default_char_id(side)))
+        unit = _bs_with_stamina_shadow_fields(unit)
         team[idx] = unit
 
         teams[side] = team
@@ -181,6 +214,14 @@ init -989 python:
             "coating_durability_max": max(0, _bs_to_int(unit.get("coating_durability_max", 0), 0)),
             "coating_durability_current": max(0, _bs_to_int(unit.get("coating_durability_current", 0), 0)),
             "coating_active": bool(unit.get("coating_active", False)),
+            "stamina_current": max(0, _bs_to_int(unit.get("stamina_current", 0), 0)),
+            "stamina_cap": max(0, _bs_to_int(unit.get("stamina_cap", mx), mx)),
+            "stamina_enabled": bool(unit.get("stamina_enabled", False)),
+            "shadow_current": max(0, _bs_to_int(unit.get("shadow_current", 0), 0)),
+            "shadow_cap": max(0, _bs_to_int(unit.get("shadow_cap", mx), mx)),
+            "shadow_active": bool(unit.get("shadow_active", False)),
+            "missing_hp": max(0, _bs_to_int(unit.get("missing_hp", max(0, mx - hp)), max(0, mx - hp))),
+            "free_space": max(0, _bs_to_int(unit.get("free_space", 0), 0)),
         }
 
         bs["teams"] = teams
@@ -212,6 +253,7 @@ init -989 python:
             u["hp"] = hp
             u["max_hp"] = mx
             u = _bs_with_coating_fields(u, u.get("char_id", _bs_default_char_id(side)))
+            u = _bs_with_stamina_shadow_fields(u)
             units[side] = u
 
         bs["units"] = units
@@ -524,6 +566,98 @@ init -989 python:
             "energy": max(0, _bs_to_int(u.get("energy", 0), 0)),
         }
 
+    def bs_get_unit_stamina_shadow(unit_key):
+        info = bs_parse_unit_key(unit_key)
+        side = info.get("team", "player")
+        slot = max(0, _bs_to_int(info.get("slot", 0), 0))
+        u = bs_get_unit_by_key(bs_unit_key(side, slot))
+        if not isinstance(u, dict):
+            return {
+                "ok": False,
+                "reason": "invalid_unit",
+                "stamina_current": 0,
+                "stamina_cap": 0,
+                "stamina_enabled": False,
+                "shadow_current": 0,
+                "shadow_cap": 0,
+                "shadow_active": False,
+                "missing_hp": 0,
+                "free_space": 0,
+            }
+
+        uu = _bs_with_stamina_shadow_fields(u)
+        return {
+            "ok": True,
+            "reason": "ok",
+            "stamina_current": max(0, _bs_to_int(uu.get("stamina_current", 0), 0)),
+            "stamina_cap": max(0, _bs_to_int(uu.get("stamina_cap", uu.get("max_hp", 1)), uu.get("max_hp", 1))),
+            "stamina_enabled": bool(uu.get("stamina_enabled", False)),
+            "shadow_current": max(0, _bs_to_int(uu.get("shadow_current", 0), 0)),
+            "shadow_cap": max(0, _bs_to_int(uu.get("shadow_cap", uu.get("max_hp", 1)), uu.get("max_hp", 1))),
+            "shadow_active": bool(uu.get("shadow_active", False)),
+            "missing_hp": max(0, _bs_to_int(uu.get("missing_hp", 0), 0)),
+            "free_space": max(0, _bs_to_int(uu.get("free_space", 0), 0)),
+        }
+
+    def bs_set_unit_stamina_shadow(
+        unit_key,
+        stamina_current=None,
+        stamina_cap=None,
+        stamina_enabled=None,
+        shadow_current=None,
+        shadow_cap=None,
+        shadow_active=None,
+    ):
+        bs = battle_state_ensure()
+        info = bs_parse_unit_key(unit_key)
+        side = info.get("team", "player")
+        slot = max(0, _bs_to_int(info.get("slot", 0), 0))
+        teams = bs.get("teams", {}) if isinstance(bs.get("teams", {}), dict) else {}
+        arr = list(teams.get(side, []) or [])
+        if slot >= len(arr) or not isinstance(arr[slot], dict):
+            return {"ok": False, "reason": "invalid_unit"}
+
+        u = dict(arr[slot])
+        if stamina_current is not None:
+            u["stamina_current"] = max(0, _bs_to_int(stamina_current, u.get("stamina_current", 0)))
+        if stamina_cap is not None:
+            u["stamina_cap"] = max(0, _bs_to_int(stamina_cap, u.get("max_hp", 1)))
+        if stamina_enabled is not None:
+            u["stamina_enabled"] = bool(stamina_enabled)
+        if shadow_current is not None:
+            u["shadow_current"] = max(0, _bs_to_int(shadow_current, u.get("shadow_current", 0)))
+        if shadow_cap is not None:
+            u["shadow_cap"] = max(0, _bs_to_int(shadow_cap, u.get("max_hp", 1)))
+        if shadow_active is not None:
+            u["shadow_active"] = bool(shadow_active)
+
+        u = _bs_with_stamina_shadow_fields(u)
+        arr[slot] = u
+        teams[side] = arr
+        bs["teams"] = teams
+
+        active_slot = bs_get_active_slot(side)
+        if active_slot == slot:
+            mirror = dict(bs.get("units", {}).get(side, {}) or {})
+            mirror.update({
+                "uid": str(u.get("uid", mirror.get("uid", "{}_{}".format(side, slot + 1))) or "{}_{}".format(side, slot + 1)),
+                "char_id": str(u.get("char_id", mirror.get("char_id", _bs_default_char_id(side))) or _bs_default_char_id(side)),
+                "hp": max(0, _bs_to_int(u.get("hp", mirror.get("hp", 0)), mirror.get("hp", 0))),
+                "max_hp": max(1, _bs_to_int(u.get("max_hp", mirror.get("max_hp", 1)), mirror.get("max_hp", 1))),
+                "stamina_current": max(0, _bs_to_int(u.get("stamina_current", 0), 0)),
+                "stamina_cap": max(0, _bs_to_int(u.get("stamina_cap", u.get("max_hp", 1)), u.get("max_hp", 1))),
+                "stamina_enabled": bool(u.get("stamina_enabled", False)),
+                "shadow_current": max(0, _bs_to_int(u.get("shadow_current", 0), 0)),
+                "shadow_cap": max(0, _bs_to_int(u.get("shadow_cap", u.get("max_hp", 1)), u.get("max_hp", 1))),
+                "shadow_active": bool(u.get("shadow_active", False)),
+            })
+            bs.setdefault("units", {})[side] = _bs_with_stamina_shadow_fields(mirror)
+
+        S.battle_state = bs
+        out = bs_get_unit_stamina_shadow(bs_unit_key(side, slot))
+        out["unit_key"] = bs_unit_key(side, slot)
+        return out
+
     def bs_consume_unit_resources(unit_key, reiatsu_cost=0, energy_cost=0):
         bs = bs_ensure_unit_resources()
         info = bs_parse_unit_key(unit_key)
@@ -593,10 +727,17 @@ init -989 python:
             "alive": bool(p_hp > 0),
             "reiatsu": _bs_get_char_resource(p_char, "Reiatsu", getattr(S, "player_reiatsu", 0)),
             "energy": _bs_get_char_resource(p_char, "Energy", getattr(S, "player_energy", 0)),
+            "stamina_current": 0,
+            "stamina_cap": p_mx,
+            "stamina_enabled": False,
+            "shadow_current": 0,
+            "shadow_cap": p_mx,
+            "shadow_active": False,
             "coating_cover": p_cover,
             "coating_durability_current": p_dura,
             "coating_durability_max": p_dura,
         }]
+        bs["teams"]["player"][0] = _bs_with_stamina_shadow_fields(bs["teams"]["player"][0])
         bs.setdefault("teams", {})["enemy"] = [{
             "uid": "enemy_1",
             "char_id": e_char,
@@ -605,10 +746,17 @@ init -989 python:
             "alive": bool(e_hp > 0),
             "reiatsu": _bs_get_char_resource(e_char, "Reiatsu", getattr(S, "enemy_reiatsu", 0)),
             "energy": _bs_get_char_resource(e_char, "Energy", getattr(S, "enemy_energy", 0)),
+            "stamina_current": 0,
+            "stamina_cap": e_mx,
+            "stamina_enabled": False,
+            "shadow_current": 0,
+            "shadow_cap": e_mx,
+            "shadow_active": False,
             "coating_cover": e_cover,
             "coating_durability_current": e_dura,
             "coating_durability_max": e_dura,
         }]
+        bs["teams"]["enemy"][0] = _bs_with_stamina_shadow_fields(bs["teams"]["enemy"][0])
         bs.setdefault("active", {})["player"] = "player_1"
         bs.setdefault("active", {})["enemy"] = "enemy_1"
 
@@ -622,6 +770,7 @@ init -989 python:
             "coating_durability_max": p_dura,
         }
         bs["units"]["player"] = _bs_with_coating_fields(bs["units"]["player"], p_char)
+        bs["units"]["player"] = _bs_with_stamina_shadow_fields(bs["units"]["player"])
         bs.setdefault("units", {})["enemy"] = {
             "uid": "enemy_1",
             "char_id": e_char,
@@ -632,6 +781,7 @@ init -989 python:
             "coating_durability_max": e_dura,
         }
         bs["units"]["enemy"] = _bs_with_coating_fields(bs["units"]["enemy"], e_char)
+        bs["units"]["enemy"] = _bs_with_stamina_shadow_fields(bs["units"]["enemy"])
 
         S.battle_state = bs
         return bs
@@ -652,12 +802,24 @@ init -989 python:
                     mx_i = _bs_to_int(it.get("max_hp", _bs_legacy_max_hp(side)), _bs_legacy_max_hp(side))
                     rei_i = _bs_to_int(it.get("reiatsu", _bs_get_char_resource(cid, "Reiatsu", 0)), _bs_get_char_resource(cid, "Reiatsu", 0))
                     ene_i = _bs_to_int(it.get("energy", _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0))), _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0)))
+                    st_i = _bs_to_int(it.get("stamina_current", 0), 0)
+                    st_cap_i = _bs_to_int(it.get("stamina_cap", mx_i), mx_i)
+                    st_enabled_i = bool(it.get("stamina_enabled", False))
+                    sh_i = _bs_to_int(it.get("shadow_current", 0), 0)
+                    sh_cap_i = _bs_to_int(it.get("shadow_cap", mx_i), mx_i)
+                    sh_active_i = bool(it.get("shadow_active", False))
                 else:
                     cid = str(it or fallback_char)
                     hp_i = _bs_legacy_hp(side)
                     mx_i = _bs_legacy_max_hp(side)
                     rei_i = _bs_get_char_resource(cid, "Reiatsu", 0)
                     ene_i = _bs_get_char_resource(cid, "Energy", _bs_get_char_resource(cid, "Energía", 0))
+                    st_i = 0
+                    st_cap_i = mx_i
+                    st_enabled_i = False
+                    sh_i = 0
+                    sh_cap_i = mx_i
+                    sh_active_i = False
 
                 mx_i = max(1, mx_i)
                 hp_i = max(0, min(hp_i, mx_i))
@@ -670,8 +832,15 @@ init -989 python:
                     "alive": bool(hp_i > 0),
                     "reiatsu": max(0, _bs_to_int(rei_i, 0)),
                     "energy": max(0, _bs_to_int(ene_i, 0)),
+                    "stamina_current": max(0, _bs_to_int(st_i, 0)),
+                    "stamina_cap": max(0, _bs_to_int(st_cap_i, mx_i)),
+                    "stamina_enabled": bool(st_enabled_i),
+                    "shadow_current": max(0, _bs_to_int(sh_i, 0)),
+                    "shadow_cap": max(0, _bs_to_int(sh_cap_i, mx_i)),
+                    "shadow_active": bool(sh_active_i),
                 })
                 out[-1] = _bs_with_coating_fields(out[-1], cid)
+                out[-1] = _bs_with_stamina_shadow_fields(out[-1])
 
             while len(out) < 2:
                 i = len(out)
@@ -681,8 +850,15 @@ init -989 python:
                     "hp": 0,
                     "max_hp": max(1, _bs_legacy_max_hp(side)),
                     "alive": False,
+                    "stamina_current": 0,
+                    "stamina_cap": max(1, _bs_legacy_max_hp(side)),
+                    "stamina_enabled": False,
+                    "shadow_current": 0,
+                    "shadow_cap": max(1, _bs_legacy_max_hp(side)),
+                    "shadow_active": False,
                 })
                 out[-1] = _bs_with_coating_fields(out[-1], str(fallback_char))
+                out[-1] = _bs_with_stamina_shadow_fields(out[-1])
             return out
 
         p_fallback = _bs_default_char_id("player")
@@ -715,6 +891,7 @@ init -989 python:
             "max_hp": max(1, _bs_to_int(p_u.get("max_hp", 1), 1)),
         }
         bs["units"]["player"] = _bs_with_coating_fields(bs["units"]["player"], bs["units"]["player"].get("char_id", p_fallback))
+        bs["units"]["player"] = _bs_with_stamina_shadow_fields(bs["units"]["player"])
         bs.setdefault("units", {})["enemy"] = {
             "uid": str(e_u.get("uid", "enemy_1")),
             "char_id": str(e_u.get("char_id", e_fallback) or e_fallback),
@@ -722,6 +899,7 @@ init -989 python:
             "max_hp": max(1, _bs_to_int(e_u.get("max_hp", 1), 1)),
         }
         bs["units"]["enemy"] = _bs_with_coating_fields(bs["units"]["enemy"], bs["units"]["enemy"].get("char_id", e_fallback))
+        bs["units"]["enemy"] = _bs_with_stamina_shadow_fields(bs["units"]["enemy"])
 
         bs.setdefault("turn", {})["scheduler"] = "round_robin_slots"
         bs.setdefault("turn", {})["rr_last_slot"] = {"player": -1, "enemy": -1}
@@ -790,7 +968,7 @@ init -989 python:
         u = team[slot]
         if not isinstance(u, dict):
             return None
-        out = dict(u)
+        out = _bs_with_stamina_shadow_fields(dict(u))
         out["team"] = side
         out["slot"] = slot
         out["unit_key"] = parsed.get("key", bs_unit_key(side, slot))
@@ -849,12 +1027,20 @@ init -989 python:
             mx = max(1, _bs_to_int(unit.get("max_hp", _bs_legacy_max_hp(side)), _bs_legacy_max_hp(side)))
             if hp > mx:
                 hp = mx
-            bs.setdefault("units", {})[side] = {
+            mirror = {
                 "uid": str(unit.get("uid", "") or "{}_{}".format(side, idx + 1)),
                 "char_id": str(unit.get("char_id", _bs_default_char_id(side)) or _bs_default_char_id(side)),
                 "hp": hp,
                 "max_hp": mx,
             }
+            mirror = _bs_with_coating_fields(mirror, mirror.get("char_id", _bs_default_char_id(side)))
+            mirror["stamina_current"] = max(0, _bs_to_int(unit.get("stamina_current", 0), 0))
+            mirror["stamina_cap"] = max(0, _bs_to_int(unit.get("stamina_cap", mx), mx))
+            mirror["stamina_enabled"] = bool(unit.get("stamina_enabled", False))
+            mirror["shadow_current"] = max(0, _bs_to_int(unit.get("shadow_current", 0), 0))
+            mirror["shadow_cap"] = max(0, _bs_to_int(unit.get("shadow_cap", mx), mx))
+            mirror["shadow_active"] = bool(unit.get("shadow_active", False))
+            bs.setdefault("units", {})[side] = _bs_with_stamina_shadow_fields(mirror)
 
         S.battle_state = bs
         return bs_get_active_unit(side)
@@ -1741,6 +1927,8 @@ init -989 python:
     S.bs_get_unit_resources = bs_get_unit_resources
     S.bs_set_unit_resources = bs_set_unit_resources
     S.bs_consume_unit_resources = bs_consume_unit_resources
+    S.bs_get_unit_stamina_shadow = bs_get_unit_stamina_shadow
+    S.bs_set_unit_stamina_shadow = bs_set_unit_stamina_shadow
     S.bs_resolve_target_keys = bs_resolve_target_keys
     S.bs_apply_damage_to_unit_key = bs_apply_damage_to_unit_key
     S.bs_make_damage_plan = bs_make_damage_plan
