@@ -369,7 +369,9 @@ label battle_start:
         # Fase 5 — Activación Estamina/Shadow por perks de pre-combate
         # -------------------------------------------------------
         cfg = dict(getattr(S, "precombat_confirmed_loadout", {}) or {})
-        perks = dict(cfg.get("resource_perks", {}) or {})
+        perks_v2 = dict(cfg.get("resource_perks_v2", {}) or {})
+        perks_v1 = dict(cfg.get("resource_perks", {}) or {})
+        perks = dict(perks_v2 or perks_v1)
         perks_current = dict(perks.get("current", {}) or {})
         perks_by_side = dict(perks.get("by_side", {}) or {})
         mode_now = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
@@ -377,11 +379,32 @@ label battle_start:
         fn_get_unit = getattr(S, "bs_get_unit_by_key", None)
         fn_log = getattr(S, "battle_log_add", None)
 
-        def _apply_layer_flags(unit_key, perk_cfg):
+        def _norm_perk_cfg(perk_cfg):
+            p = dict(perk_cfg or {})
+            has_v2 = ("stamina_perk_enabled" in p) or ("shadow_perk_enabled" in p) or ("shadow_target_mode" in p)
+            if has_v2:
+                stamina_enabled = bool(p.get("stamina_perk_enabled", False))
+                shadow_active = bool(p.get("shadow_perk_enabled", False))
+                shadow_target_mode = str(p.get("shadow_target_mode", "local") or "local").strip().lower()
+                if shadow_target_mode not in ("local", "applied_to_enemy"):
+                    shadow_target_mode = "local"
+                seed_ratio = float(p.get("shadow_seed_ratio", 0.15 if shadow_active else 0.0) or 0.0)
+            else:
+                stamina_enabled = bool(p.get("stamina_enabled", False))
+                shadow_active = bool(p.get("shadow_active", False))
+                shadow_target_mode = "local"
+                seed_ratio = float(p.get("shadow_seed_ratio", 0.15 if shadow_active else 0.0) or 0.0)
+            return {
+                "stamina_enabled": bool(stamina_enabled),
+                "shadow_active": bool(shadow_active),
+                "shadow_target_mode": shadow_target_mode,
+                "shadow_seed_ratio": max(0.0, min(1.0, seed_ratio)),
+            }
+
+        def _apply_layer_flags(unit_key, perk_cfg, enemy_unit_key=None):
             if not callable(fn_set_layers):
                 return
-            if not isinstance(perk_cfg, dict):
-                perk_cfg = {}
+            p = _norm_perk_cfg(perk_cfg)
             try:
                 u = fn_get_unit(unit_key) if callable(fn_get_unit) else None
             except Exception:
@@ -392,41 +415,64 @@ label battle_start:
                     mx = max(1, int(u.get("max_hp", 1) or 1))
                 except Exception:
                     mx = 1
-            seed_ratio = float(perk_cfg.get("shadow_seed_ratio", 0.0) or 0.0)
+            seed_ratio = float(p.get("shadow_seed_ratio", 0.0) or 0.0)
             if seed_ratio < 0.0:
                 seed_ratio = 0.0
             if seed_ratio > 1.0:
                 seed_ratio = 1.0
-            shadow_seed = int(mx * seed_ratio) if bool(perk_cfg.get("shadow_active", False)) else 0
+            shadow_seed = int(mx * seed_ratio) if bool(p.get("shadow_active", False)) else 0
+            shadow_mode = str(p.get("shadow_target_mode", "local") or "local").strip().lower()
             fn_set_layers(
                 unit_key,
-                stamina_enabled=bool(perk_cfg.get("stamina_enabled", False)),
-                shadow_active=bool(perk_cfg.get("shadow_active", False)),
-                shadow_current=max(0, shadow_seed),
+                stamina_enabled=bool(p.get("stamina_enabled", False)),
+                shadow_active=bool(p.get("shadow_active", False)) and shadow_mode == "local",
+                shadow_current=max(0, shadow_seed) if shadow_mode == "local" else 0,
                 shadow_cap=mx,
             )
+            if bool(p.get("shadow_active", False)) and shadow_mode == "applied_to_enemy" and isinstance(enemy_unit_key, str):
+                try:
+                    enemy_u = fn_get_unit(enemy_unit_key) if callable(fn_get_unit) else None
+                except Exception:
+                    enemy_u = None
+                enemy_mx = 1
+                if isinstance(enemy_u, dict):
+                    try:
+                        enemy_mx = max(1, int(enemy_u.get("max_hp", 1) or 1))
+                    except Exception:
+                        enemy_mx = 1
+                enemy_seed = int(enemy_mx * seed_ratio)
+                fn_set_layers(
+                    enemy_unit_key,
+                    shadow_active=True,
+                    shadow_current=max(0, enemy_seed),
+                    shadow_cap=enemy_mx,
+                )
 
         if mode_now == "2v2":
-            _apply_layer_flags("player:0", perks_by_side.get("p1", perks_current))
-            _apply_layer_flags("player:1", perks_by_side.get("p2", perks_current))
+            _apply_layer_flags("player:0", perks_by_side.get("p1", perks_current), "enemy:0")
+            _apply_layer_flags("player:1", perks_by_side.get("p2", perks_current), "enemy:1")
         else:
-            _apply_layer_flags("player:0", perks_current)
+            _apply_layer_flags("player:0", perks_current, "enemy:0")
 
         if callable(fn_log):
             try:
                 if mode_now == "2v2":
-                    p1 = dict(perks_by_side.get("p1", perks_current) or {})
-                    p2 = dict(perks_by_side.get("p2", perks_current) or {})
-                    fn_log("{color=#A5D6A7}[PRECOMBAT] Recursos P1(stamina={}, shadow={}) | P2(stamina={}, shadow={}){/color}".format(
+                    p1 = _norm_perk_cfg(perks_by_side.get("p1", perks_current))
+                    p2 = _norm_perk_cfg(perks_by_side.get("p2", perks_current))
+                    fn_log("{color=#A5D6A7}[PRECOMBAT] Recursos P1(stamina={}, shadow={}, mode={}) | P2(stamina={}, shadow={}, mode={}){/color}".format(
                         int(bool(p1.get("stamina_enabled", False))),
                         int(bool(p1.get("shadow_active", False))),
+                        str(p1.get("shadow_target_mode", "local")),
                         int(bool(p2.get("stamina_enabled", False))),
                         int(bool(p2.get("shadow_active", False))),
+                        str(p2.get("shadow_target_mode", "local")),
                     ))
                 else:
-                    fn_log("{color=#A5D6A7}[PRECOMBAT] Recursos stamina={} shadow={}{/color}".format(
-                        int(bool(perks_current.get("stamina_enabled", False))),
-                        int(bool(perks_current.get("shadow_active", False))),
+                    pc = _norm_perk_cfg(perks_current)
+                    fn_log("{color=#A5D6A7}[PRECOMBAT] Recursos stamina={} shadow={} mode={}{/color}".format(
+                        int(bool(pc.get("stamina_enabled", False))),
+                        int(bool(pc.get("shadow_active", False))),
+                        str(pc.get("shadow_target_mode", "local")),
                     ))
             except Exception:
                 pass

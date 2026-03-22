@@ -17,6 +17,12 @@ default precombat_catalog_page = {"atk": 0, "def": 0}
 default precombat_catalog_per_page = 4
 default precombat_use_icons = True
 default precombat_unit_loadouts = {"p1": {"atk": [], "def": []}, "p2": {"atk": [], "def": []}}
+default precombat_resource_perks_v2 = {
+    "stamina_perk_enabled": False,
+    "shadow_perk_enabled": False,
+    "shadow_target_mode": "local",
+    "shadow_seed_ratio": 0.15,
+}
 default precombat_spa_profile_id = "A"
 default precombat_diag_enabled = False
 default precombat_diag_events = {}
@@ -200,6 +206,64 @@ init -925 python:
             "stamina_enabled": bool(stamina_enabled),
             "shadow_active": bool(shadow_active),
             "shadow_seed_ratio": float(shadow_seed_ratio),
+        }
+
+    def _precombat_resource_perks_v2_defaults():
+        return {
+            "stamina_perk_enabled": False,
+            "shadow_perk_enabled": False,
+            "shadow_target_mode": "local",
+            "shadow_seed_ratio": 0.15,
+        }
+
+    def _precombat_resource_perks_v2_norm(raw):
+        base = _precombat_resource_perks_v2_defaults()
+        cfg = dict(raw or {})
+        out = dict(base)
+        out["stamina_perk_enabled"] = bool(cfg.get("stamina_perk_enabled", base["stamina_perk_enabled"]))
+        out["shadow_perk_enabled"] = bool(cfg.get("shadow_perk_enabled", base["shadow_perk_enabled"]))
+        mode = str(cfg.get("shadow_target_mode", base["shadow_target_mode"]) or "local").strip().lower()
+        if mode not in ("local", "applied_to_enemy"):
+            mode = "local"
+        out["shadow_target_mode"] = mode
+        try:
+            ratio = float(cfg.get("shadow_seed_ratio", base["shadow_seed_ratio"]) or base["shadow_seed_ratio"])
+        except Exception:
+            ratio = float(base["shadow_seed_ratio"])
+        out["shadow_seed_ratio"] = max(0.0, min(1.0, ratio))
+        return out
+
+    def precombat_resource_perks_v2_get():
+        cur = getattr(S, "precombat_resource_perks_v2", None)
+        norm = _precombat_resource_perks_v2_norm(cur)
+        S.precombat_resource_perks_v2 = dict(norm)
+        return dict(norm)
+
+    def precombat_resource_perks_v2_set(toggle_key=None, value=None):
+        cur = precombat_resource_perks_v2_get()
+        k = str(toggle_key or "").strip().lower()
+        if k == "stamina":
+            cur["stamina_perk_enabled"] = bool(value)
+        elif k == "shadow":
+            cur["shadow_perk_enabled"] = bool(value)
+        elif k == "mode":
+            mode = str(value or "local").strip().lower()
+            if mode not in ("local", "applied_to_enemy"):
+                mode = "local"
+            cur["shadow_target_mode"] = mode
+        S.precombat_resource_perks_v2 = dict(_precombat_resource_perks_v2_norm(cur))
+        return None
+
+    def precombat_resource_perks_v2_snapshot():
+        # MVP: perks v2 son independientes de técnicas.
+        cur = precombat_resource_perks_v2_get()
+        by_side = {
+            "p1": dict(cur),
+            "p2": dict(cur),
+        }
+        return {
+            "current": dict(cur),
+            "by_side": dict(by_side),
         }
 
     def precombat_resource_perks_snapshot():
@@ -533,6 +597,7 @@ init -925 python:
             "loadout": dict(getattr(S, "precombat_loadout", {}) or {}),
             "specials": list(precombat_special_ids_selected()),
             "by_side": dict(getattr(S, "precombat_unit_loadouts", {}) or {}),
+            "resource_perks_v2": dict(precombat_resource_perks_v2_snapshot() or {}),
             "resource_perks": dict(precombat_resource_perks_snapshot() or {}),
         }
         precombat_set_message("Loadout confirmado: {}".format(msg), "#66DD66")
@@ -654,6 +719,30 @@ screen precombat_loadout_editor():
                 textbutton _("Cargar P2") action Function(store.precombat_apply_side_to_current, "p2")
                 textbutton _("Copiar P1 -> P2") action Function(store.precombat_copy_side_to_side, "p1", "p2")
                 textbutton _("Copiar P2 -> P1") action Function(store.precombat_copy_side_to_side, "p2", "p1")
+
+            frame:
+                xfill True
+                yminimum 72
+                xpadding 8
+                ypadding 6
+                $ _rp2 = store.precombat_resource_perks_v2_get()
+                vbox:
+                    spacing 4
+                    text _("Perks de Recursos (v2)") size 14 color "#9FE2FF"
+                    hbox:
+                        spacing 8
+                        text _("Perk Estamina:") size 12
+                        textbutton _("ON") action Function(store.precombat_resource_perks_v2_set, "stamina", True) text_color ("#66CCFF" if bool(_rp2.get("stamina_perk_enabled", False)) else "#FFFFFF")
+                        textbutton _("OFF") action Function(store.precombat_resource_perks_v2_set, "stamina", False) text_color ("#66CCFF" if not bool(_rp2.get("stamina_perk_enabled", False)) else "#FFFFFF")
+                        null width 10
+                        text _("Perk Shadow:") size 12
+                        textbutton _("ON") action Function(store.precombat_resource_perks_v2_set, "shadow", True) text_color ("#66CCFF" if bool(_rp2.get("shadow_perk_enabled", False)) else "#FFFFFF")
+                        textbutton _("OFF") action Function(store.precombat_resource_perks_v2_set, "shadow", False) text_color ("#66CCFF" if not bool(_rp2.get("shadow_perk_enabled", False)) else "#FFFFFF")
+                    hbox:
+                        spacing 8
+                        text _("Shadow target mode:") size 12
+                        textbutton _("local") action Function(store.precombat_resource_perks_v2_set, "mode", "local") text_color ("#66CCFF" if str(_rp2.get("shadow_target_mode", "local")) == "local" else "#FFFFFF")
+                        textbutton _("applied_to_enemy") action Function(store.precombat_resource_perks_v2_set, "mode", "applied_to_enemy") text_color ("#66CCFF" if str(_rp2.get("shadow_target_mode", "local")) == "applied_to_enemy" else "#FFFFFF")
 
             hbox:
                 spacing 10
