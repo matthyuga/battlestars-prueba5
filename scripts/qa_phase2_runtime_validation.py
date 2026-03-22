@@ -74,6 +74,17 @@ def _expect(name, condition, details=""):
     return False
 
 
+def _check_space_invariant(S, keys):
+    for k in list(keys or []):
+        ss = S.bs_get_unit_stamina_shadow(k)
+        st = int(ss.get("stamina_current", 0) or 0)
+        sh = int(ss.get("shadow_current", 0) or 0)
+        miss = int(ss.get("missing_hp", 0) or 0)
+        if st + sh > miss:
+            return False, f"{k}: stamina+shadow={st + sh} > missing_hp={miss}"
+    return True, ""
+
+
 def case_absorb_and_overflow(S):
     S._captured_logs[:] = []
     S.bs_init_single_teams(player_hp=7000, player_max_hp=10000, enemy_hp=10000, enemy_max_hp=10000)
@@ -94,6 +105,7 @@ def case_absorb_and_overflow(S):
             and r.get("stamina", {}).get("overflow_to_hp") == 2000
             and r.get("stamina", {}).get("gain") == 2000
             and logs_ok
+            and _check_space_invariant(S, ["player:0"])[0]
         ),
         details=f"hp_after={r.get('hp_after')} st={st.get('stamina_current')} overflow={r.get('stamina', {}).get('overflow_to_hp')} logs={S._captured_logs[:3]}",
     )
@@ -161,6 +173,32 @@ def case_shadow_applied_to_enemy_blocks_target(S):
     )
 
 
+def case_2v2_applied_shadow_and_invariant(S):
+    S.bs_init_teams(
+        player_units=[
+            {"char_id": "P1", "hp": 10000, "max_hp": 10000},
+            {"char_id": "P2", "hp": 9000, "max_hp": 10000},
+        ],
+        enemy_units=[
+            {"char_id": "E1", "hp": 10000, "max_hp": 10000},
+            {"char_id": "E2", "hp": 10000, "max_hp": 10000},
+        ],
+    )
+    S.bs_set_unit_stamina_shadow("player:1", shadow_active=True, shadow_current=1200, shadow_cap=10000, shadow_target_mode="applied_to_enemy")
+    S.bs_set_unit_stamina_shadow("enemy:1", stamina_current=0, stamina_cap=10000, stamina_enabled=True, shadow_active=False)
+    r = S.bs_apply_damage_to_unit_key("enemy:1", 1000, source_key="player:1")
+    inv_ok, inv_msg = _check_space_invariant(S, ["player:0", "player:1", "enemy:0", "enemy:1"])
+    return _expect(
+        "2v2 mantiene semántica + invariante espacial",
+        (
+            r.get("target_key") == "enemy:1"
+            and r.get("space", {}).get("blocked_by_shadow") >= 1000
+            and inv_ok
+        ),
+        details=f"target={r.get('target_key')} blocked={r.get('space', {}).get('blocked_by_shadow')} inv={inv_msg}",
+    )
+
+
 def main():
     S = _bootstrap_facade()
     checks = [
@@ -169,6 +207,7 @@ def main():
         case_survive_gain_enabled(S),
         case_no_gain_if_disabled(S),
         case_shadow_applied_to_enemy_blocks_target(S),
+        case_2v2_applied_shadow_and_invariant(S),
     ]
     ok = all(checks)
     print("\nRESULT:", "PASS" if ok else "FAIL")

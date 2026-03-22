@@ -23,6 +23,7 @@ default precombat_resource_perks_v2 = {
     "shadow_target_mode": "local",
     "shadow_seed_ratio": 0.15,
 }
+default precombat_legacy_specials_fallback_enabled = True
 default precombat_spa_profile_id = "A"
 default precombat_diag_enabled = False
 default precombat_diag_events = {}
@@ -267,6 +268,8 @@ init -925 python:
         }
 
     def precombat_resource_perks_snapshot():
+        if not bool(getattr(S, "precombat_legacy_specials_fallback_enabled", True)):
+            return {}
         # Global editor actual (compat 1v1)
         current_specials = precombat_special_ids_selected()
         perks_current = _precombat_resource_perks_from_specials(current_specials)
