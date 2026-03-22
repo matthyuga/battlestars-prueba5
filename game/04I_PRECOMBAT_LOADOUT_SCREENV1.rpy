@@ -23,7 +23,7 @@ default precombat_resource_perks_v2 = {
     "shadow_target_mode": "local",
     "shadow_seed_ratio": 0.15,
 }
-default precombat_legacy_specials_fallback_enabled = True
+default precombat_legacy_specials_fallback_enabled = False
 default precombat_spa_profile_id = "A"
 default precombat_diag_enabled = False
 default precombat_diag_events = {}

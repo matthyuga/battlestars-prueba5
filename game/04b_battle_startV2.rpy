@@ -372,6 +372,18 @@ label battle_start:
         perks_v2 = dict(cfg.get("resource_perks_v2", {}) or {})
         perks_v1 = dict(cfg.get("resource_perks", {}) or {})
         perks = dict(perks_v2 or perks_v1)
+        if not perks:
+            # Compat de migración: snapshots viejos pueden traer solo `specials`.
+            specials = [str(x or "") for x in list(cfg.get("specials", []) or [])]
+            sset = set(specials)
+            perks = {
+                "current": {
+                    "stamina_enabled": bool(("focus" in sset) or ("ladron_concentrar" in sset) or ("ladron_ofensivo" in sset)),
+                    "shadow_active": bool(("salvaguarda_principiante" in sset) or ("defense_boost" in sset)),
+                    "shadow_seed_ratio": 0.15 if bool(("salvaguarda_principiante" in sset) or ("defense_boost" in sset)) else 0.0,
+                },
+                "by_side": {},
+            }
         perks_current = dict(perks.get("current", {}) or {})
         perks_by_side = dict(perks.get("by_side", {}) or {})
         mode_now = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
