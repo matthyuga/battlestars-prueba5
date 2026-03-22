@@ -159,6 +159,49 @@ init -970 python:
 
         return "player:0"
 
+    def hud_get_stamina_shadow_view(unit_key=None, team=None):
+        import renpy.store as S
+
+        out = {
+            "stamina_current": 0,
+            "stamina_cap": 1,
+            "shadow_current": 0,
+            "shadow_cap": 1,
+            "stamina_ratio": 0.0,
+            "shadow_ratio": 0.0,
+        }
+
+        key = unit_key
+        if not key:
+            side = str(team or "player").strip().lower()
+            fn_ak = getattr(S, "bs_get_active_unit_key", None)
+            if callable(fn_ak):
+                try:
+                    key = fn_ak(side)
+                except:
+                    key = None
+
+        fn_get = getattr(S, "bs_get_unit_stamina_shadow", None)
+        if not callable(fn_get) or not key:
+            return out
+
+        try:
+            info = fn_get(key) or {}
+            st_cur = max(0, int(info.get("stamina_current", 0) or 0))
+            st_cap = max(1, int(info.get("stamina_cap", 1) or 1))
+            sh_cur = max(0, int(info.get("shadow_current", 0) or 0))
+            sh_cap = max(1, int(info.get("shadow_cap", 1) or 1))
+            out["stamina_current"] = st_cur
+            out["stamina_cap"] = st_cap
+            out["shadow_current"] = sh_cur
+            out["shadow_cap"] = sh_cap
+            out["stamina_ratio"] = max(0.0, min(1.0, float(st_cur) / float(st_cap)))
+            out["shadow_ratio"] = max(0.0, min(1.0, float(sh_cur) / float(sh_cap)))
+        except:
+            pass
+
+        return out
+
     # ===========================================================
     # 🔹 FUNCIÓN: Actualizar costos dinámicos simulados (HUD)
     # ===========================================================
@@ -937,6 +980,7 @@ screen battle_hp_overlay():
                                                 $ _hp_ratio_local = (float(_hp) / max(1.0, float(_mx)))
                                                 $ _hp_fake_ratio_local = max(_hp_ratio_local, float(hp_fake_enemy_ratio if _team == "enemy" else hp_fake_player_ratio))
                                                 $ _hp_fake_alpha_local = float(hp_fake_enemy_alpha if _team == "enemy" else hp_fake_player_alpha)
+                                                $ _layer = hud_get_stamina_shadow_view(unit_key=_uk, team=_team)
                                                 fixed:
                                                     xpos 18
                                                     ypos 202
@@ -967,6 +1011,44 @@ screen battle_hp_overlay():
                                                 bar:
                                                     xpos 18
                                                     ypos 245
+                                                    value float(_layer.get("stamina_ratio", 0.0))
+                                                    range 1.0
+                                                    xmaximum 112
+                                                    ymaximum 8
+                                                    left_bar "#9E9E9E"
+                                                    right_bar "#0000"
+
+                                                text "Estamina: {}/{}".format(
+                                                    battle_fmt_num(_layer.get("stamina_current", 0)),
+                                                    battle_fmt_num(_layer.get("stamina_cap", 0))
+                                                ):
+                                                    xpos 18
+                                                    ypos 254
+                                                    color "#BDBDBD"
+                                                    size int((_hud_layout.get("stat_size", 9) or 9) + 1)
+
+                                                bar:
+                                                    xpos 18
+                                                    ypos 267
+                                                    value float(_layer.get("shadow_ratio", 0.0))
+                                                    range 1.0
+                                                    xmaximum 112
+                                                    ymaximum 8
+                                                    left_bar "#101010"
+                                                    right_bar "#0000"
+
+                                                text "Shadow: {}/{}".format(
+                                                    battle_fmt_num(_layer.get("shadow_current", 0)),
+                                                    battle_fmt_num(_layer.get("shadow_cap", 0))
+                                                ):
+                                                    xpos 18
+                                                    ypos 276
+                                                    color "#777777"
+                                                    size int((_hud_layout.get("stat_size", 9) or 9) + 1)
+
+                                                bar:
+                                                    xpos 18
+                                                    ypos 289
                                                     value (float(_coat_dc) / max(1.0, float(_coat_dm)))
                                                     range 1.0
                                                     xmaximum 112
@@ -981,9 +1063,9 @@ screen battle_hp_overlay():
                                                     battle_fmt_num(_coat_cover)
                                                 ):
                                                     xpos 18
-                                                    ypos 259
+                                                    ypos 302
                                                     color ("#7EC8FF" if _coat_active else "#8AA0B3")
-                                                    size int((_hud_layout.get("stat_size", 9) or 9) + 1)
+                                                    size int((_hud_layout.get("stat_size", 8) or 8) + 1)
 
                                                 text "Reiatsu: {}/{}{}".format(
                                                     battle_fmt_num(hud_ai_res_value(_res, "reiatsu")),
@@ -991,9 +1073,9 @@ screen battle_hp_overlay():
                                                     " (-{})".format(battle_fmt_num(abs(_rei_diff))) if _rei_diff != 0 else ""
                                                 ):
                                                     xpos 18
-                                                    ypos 274
+                                                    ypos 314
                                                     color "#55FFFF"
-                                                    size int((_hud_layout.get("stat_size", 11) or 11) + 2)
+                                                    size int((_hud_layout.get("stat_size", 9) or 9) + 1)
 
                                                 text "Energía: {}/{}{}".format(
                                                     battle_fmt_num(hud_ai_res_value(_res, "energy")),
@@ -1001,9 +1083,9 @@ screen battle_hp_overlay():
                                                     " (-{})".format(battle_fmt_num(abs(_ene_diff))) if _ene_diff != 0 else ""
                                                 ):
                                                     xpos 18
-                                                    ypos 292
+                                                    ypos 326
                                                     color "#FFA500"
-                                                    size int((_hud_layout.get("stat_size", 11) or 11) + 2)
+                                                    size int((_hud_layout.get("stat_size", 9) or 9) + 1)
                                             else:
                                                 text "{}".format(_name):
                                                     xpos 12
@@ -1117,6 +1199,7 @@ screen battle_hp_overlay():
                                         $ _hp_ratio_local = (float(_hp) / max(1.0, float(_mx)))
                                         $ _hp_fake_ratio_local = max(_hp_ratio_local, float(hp_fake_enemy_ratio if _team == "enemy" else hp_fake_player_ratio))
                                         $ _hp_fake_alpha_local = float(hp_fake_enemy_alpha if _team == "enemy" else hp_fake_player_alpha)
+                                        $ _layer = hud_get_stamina_shadow_view(unit_key=_uk, team=_team)
                                         fixed:
                                             xpos 18
                                             ypos 203
@@ -1143,6 +1226,17 @@ screen battle_hp_overlay():
                                             ypos 222
                                             color "#FFFFFF"
                                             size int(_hud_layout.get("stat_size", 9) or 9)
+
+                                        text "ST {}/{} · SH {}/{}".format(
+                                            battle_fmt_num(_layer.get("stamina_current", 0)),
+                                            battle_fmt_num(_layer.get("stamina_cap", 0)),
+                                            battle_fmt_num(_layer.get("shadow_current", 0)),
+                                            battle_fmt_num(_layer.get("shadow_cap", 0))
+                                        ):
+                                            xpos 18
+                                            ypos 232
+                                            color "#B0B0B0"
+                                            size int(_hud_layout.get("stat_size", 8) or 8)
 
                                         text "Reiatsu: {}/{}".format(battle_fmt_num(hud_ai_res_value(_res, "reiatsu")), battle_fmt_num(_rei_base)):
                                             xpos 18
@@ -1179,6 +1273,7 @@ screen battle_hp_overlay():
                         text hud_player_name color "#88CCFF" size 22 bold True
                         $ _p_ratio = (float(battle_hp_player) / max(1.0, float(battle_hp_player_max)))
                         $ _p_fake_ratio = max(_p_ratio, float(hp_fake_player_ratio))
+                        $ _p_layer = hud_get_stamina_shadow_view(team="player")
                         fixed:
                             xmaximum 280
                             ymaximum 16
@@ -1198,6 +1293,20 @@ screen battle_hp_overlay():
                                 left_bar "#00BFFF"
                                 right_bar "#0000"
                         text "{} / {}".format(battle_fmt_num(battle_hp_player), battle_fmt_num(battle_hp_player_max)) color "#FFFFFF" size 16
+                        text "Estamina: {}/{} · Shadow: {}/{}".format(
+                            battle_fmt_num(_p_layer.get("stamina_current", 0)),
+                            battle_fmt_num(_p_layer.get("stamina_cap", 0)),
+                            battle_fmt_num(_p_layer.get("shadow_current", 0)),
+                            battle_fmt_num(_p_layer.get("shadow_cap", 0))
+                        ) color "#BDBDBD" size 13
+                        bar:
+                            value float(_p_layer.get("stamina_ratio", 0.0))
+                            range 1.0 xmaximum 280 ymaximum 8
+                            left_bar "#9E9E9E" right_bar "#0000"
+                        bar:
+                            value float(_p_layer.get("shadow_ratio", 0.0))
+                            range 1.0 xmaximum 280 ymaximum 8
+                            left_bar "#101010" right_bar "#0000"
                         bar:
                             value (float(battle_coating_player_durability) / max(1.0, float(battle_coating_player_durability_max)))
                             range 1.0 xmaximum 280 ymaximum 12
@@ -1232,6 +1341,7 @@ screen battle_hp_overlay():
                         text hud_enemy_name color "#FF7777" size 22 bold True
                         $ _e_ratio = (float(battle_hp_enemy) / max(1.0, float(battle_hp_enemy_max)))
                         $ _e_fake_ratio = max(_e_ratio, float(hp_fake_enemy_ratio))
+                        $ _e_layer = hud_get_stamina_shadow_view(team="enemy")
                         fixed:
                             xmaximum 280
                             ymaximum 16
@@ -1251,6 +1361,20 @@ screen battle_hp_overlay():
                                 left_bar "#FF3333"
                                 right_bar "#0000"
                         text "{} / {}".format(battle_fmt_num(battle_hp_enemy), battle_fmt_num(battle_hp_enemy_max)) color "#FFFFFF" size 16
+                        text "Estamina: {}/{} · Shadow: {}/{}".format(
+                            battle_fmt_num(_e_layer.get("stamina_current", 0)),
+                            battle_fmt_num(_e_layer.get("stamina_cap", 0)),
+                            battle_fmt_num(_e_layer.get("shadow_current", 0)),
+                            battle_fmt_num(_e_layer.get("shadow_cap", 0))
+                        ) color "#BDBDBD" size 13
+                        bar:
+                            value float(_e_layer.get("stamina_ratio", 0.0))
+                            range 1.0 xmaximum 280 ymaximum 8
+                            left_bar "#9E9E9E" right_bar "#0000"
+                        bar:
+                            value float(_e_layer.get("shadow_ratio", 0.0))
+                            range 1.0 xmaximum 280 ymaximum 8
+                            left_bar "#101010" right_bar "#0000"
                         bar:
                             value (float(battle_coating_enemy_durability) / max(1.0, float(battle_coating_enemy_durability_max)))
                             range 1.0 xmaximum 280 ymaximum 12
