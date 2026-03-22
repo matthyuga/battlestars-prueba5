@@ -1292,6 +1292,7 @@ init -989 python:
         unit["hp"] = hp
         unit["alive"] = bool(hp > 0)
         unit = _bs_with_coating_fields(unit, unit.get("char_id", _bs_default_char_id(side)))
+        unit = _bs_with_stamina_shadow_fields(unit)
         t[idx] = unit
         bs.setdefault("teams", {})[side] = t
 
@@ -1308,6 +1309,14 @@ init -989 python:
                 "coating_durability_max": max(0, _bs_to_int(unit.get("coating_durability_max", 0), 0)),
                 "coating_durability_current": max(0, _bs_to_int(unit.get("coating_durability_current", 0), 0)),
                 "coating_active": bool(unit.get("coating_active", False)),
+                "stamina_current": max(0, _bs_to_int(unit.get("stamina_current", 0), 0)),
+                "stamina_cap": max(0, _bs_to_int(unit.get("stamina_cap", mx), mx)),
+                "stamina_enabled": bool(unit.get("stamina_enabled", False)),
+                "shadow_current": max(0, _bs_to_int(unit.get("shadow_current", 0), 0)),
+                "shadow_cap": max(0, _bs_to_int(unit.get("shadow_cap", mx), mx)),
+                "shadow_active": bool(unit.get("shadow_active", False)),
+                "missing_hp": max(0, _bs_to_int(unit.get("missing_hp", max(0, mx - hp)), max(0, mx - hp))),
+                "free_space": max(0, _bs_to_int(unit.get("free_space", 0), 0)),
             }
 
         S.battle_state = bs
@@ -1335,6 +1344,7 @@ init -989 python:
         dmg_i = max(0, _bs_to_int(dmg, 0))
 
         cur_unit = _bs_with_coating_fields(cur_unit, cur_unit.get("char_id", _bs_default_char_id(side)))
+        cur_unit = _bs_with_stamina_shadow_fields(cur_unit)
         cover = max(0, _bs_to_int(cur_unit.get("coating_cover", 0), 0))
         dura_before = max(0, _bs_to_int(cur_unit.get("coating_durability_current", 0), 0))
         coating_active_before = bool(cur_unit.get("coating_active", False)) and cover > 0 and dura_before > 0
@@ -1350,7 +1360,36 @@ init -989 python:
             dura_after = max(0, dura_before - after_cover)
             spill_to_hp = max(0, after_cover - dura_before)
 
-        hp_after = max(0, min(mx, hp_before - spill_to_hp))
+        # Fase 2 (contrato): coating -> estamina -> HP -> KO gate -> generación de estamina
+        incoming_after_coating = max(0, _bs_to_int(spill_to_hp, 0))
+        stamina_before = max(0, _bs_to_int(cur_unit.get("stamina_current", 0), 0))
+        stamina_cap = max(0, _bs_to_int(cur_unit.get("stamina_cap", mx), mx))
+        stamina_enabled = bool(cur_unit.get("stamina_enabled", False))
+        shadow_before = max(0, _bs_to_int(cur_unit.get("shadow_current", 0), 0))
+        shadow_cap = max(0, _bs_to_int(cur_unit.get("shadow_cap", mx), mx))
+        shadow_active = bool(cur_unit.get("shadow_active", False))
+
+        stamina_absorbed = min(stamina_before, incoming_after_coating)
+        stamina_after_consume = max(0, stamina_before - stamina_absorbed)
+        overflow_to_hp = max(0, incoming_after_coating - stamina_absorbed)
+
+        hp_after = max(0, min(mx, hp_before - overflow_to_hp))
+        hp_damage_real = max(0, hp_before - hp_after)
+        ko_now = (hp_after <= 0)
+
+        shadow_effective = shadow_before if shadow_active else 0
+        missing_after_hp = max(0, mx - hp_after)
+        free_space_after = max(0, missing_after_hp - stamina_after_consume - shadow_effective)
+        stamina_gain = 0
+        if (not ko_now) and hp_damage_real > 0 and stamina_enabled and free_space_after > 0:
+            stamina_gain = min(
+                hp_damage_real,
+                free_space_after,
+                max(0, stamina_cap - stamina_after_consume),
+            )
+            stamina_gain = max(0, _bs_to_int(stamina_gain, 0))
+
+        stamina_after = max(0, stamina_after_consume + stamina_gain)
 
         cur_unit["coating_durability_current"] = int(dura_after)
         cur_unit["coating_active"] = bool(cover > 0 and dura_after > 0)
@@ -1362,6 +1401,12 @@ init -989 python:
                 uu = dict(t[slot])
                 uu["coating_durability_current"] = int(dura_after)
                 uu["coating_active"] = bool(cover > 0 and dura_after > 0)
+                uu["stamina_current"] = int(stamina_after)
+                uu["stamina_cap"] = int(stamina_cap)
+                uu["stamina_enabled"] = bool(stamina_enabled)
+                uu["shadow_current"] = int(max(0, min(shadow_before, shadow_cap)))
+                uu["shadow_cap"] = int(shadow_cap)
+                uu["shadow_active"] = bool(shadow_active)
                 t[slot] = uu
                 bs.setdefault("teams", {})[side] = t
                 S.battle_state = bs
@@ -1402,8 +1447,29 @@ init -989 python:
                 "durability_after": int(dura_after),
                 "hp_spill": int(spill_to_hp),
             },
+            "stamina": {
+                "before": int(stamina_before),
+                "absorbed": int(stamina_absorbed),
+                "after_consume": int(stamina_after_consume),
+                "gain": int(stamina_gain),
+                "after": int(stamina_after),
+                "cap": int(stamina_cap),
+                "enabled": bool(stamina_enabled),
+                "overflow_to_hp": int(overflow_to_hp),
+            },
+            "shadow": {
+                "before": int(shadow_before),
+                "cap": int(shadow_cap),
+                "active": bool(shadow_active),
+                "effective_for_block": int(shadow_effective),
+            },
+            "space": {
+                "missing_hp_after": int(missing_after_hp),
+                "free_space_after": int(max(0, missing_after_hp - stamina_after - shadow_effective)),
+            },
             "hp_before": hp_before,
             "hp_after": hp_after,
+            "hp_damage_real": int(hp_damage_real),
             "died": died,
             "auto_switched": switched,
             "new_active_key": new_active,
