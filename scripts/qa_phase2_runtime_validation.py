@@ -199,6 +199,31 @@ def case_2v2_applied_shadow_and_invariant(S):
     )
 
 
+def case_effect_stamina_drain_target(S):
+    S.bs_init_single_teams(player_hp=10000, player_max_hp=10000, enemy_hp=9000, enemy_max_hp=10000)
+    S.bs_set_unit_stamina_shadow("enemy:0", stamina_current=800, stamina_cap=10000, stamina_enabled=True)
+    r = S.bs_apply_advanced_resource_effect("stamina_drain_target", source_key="player:0", target_key="enemy:0", magnitude=500)
+    st = S.bs_get_unit_stamina_shadow("enemy:0")
+    return _expect(
+        "effect stamina_drain_target consume rival",
+        bool(r.get("ok", False)) and int(r.get("drained", 0) or 0) == 500 and int(st.get("stamina_current", 0) or 0) == 300,
+        details=f"result={r} enemy_stamina={st}",
+    )
+
+
+def case_effect_stamina_target_to_hp_self(S):
+    S.bs_init_single_teams(player_hp=7000, player_max_hp=10000, enemy_hp=9000, enemy_max_hp=10000)
+    S.bs_set_unit_stamina_shadow("enemy:0", stamina_current=900, stamina_cap=10000, stamina_enabled=True)
+    r = S.bs_apply_advanced_resource_effect("stamina_target_to_hp_self", source_key="player:0", target_key="enemy:0", magnitude=800)
+    src = S.bs_get_unit_by_key("player:0")
+    tgt = S.bs_get_unit_stamina_shadow("enemy:0")
+    return _expect(
+        "effect stamina_target_to_hp_self drena y cura",
+        bool(r.get("ok", False)) and int(r.get("drained", 0) or 0) == 800 and int(r.get("healed", 0) or 0) == 800 and int(src.get("hp", 0) or 0) == 7800 and int(tgt.get("stamina_current", 0) or 0) == 100,
+        details=f"result={r} source={src} target={tgt}",
+    )
+
+
 def main():
     S = _bootstrap_facade()
     checks = [
@@ -208,6 +233,8 @@ def main():
         case_no_gain_if_disabled(S),
         case_shadow_applied_to_enemy_blocks_target(S),
         case_2v2_applied_shadow_and_invariant(S),
+        case_effect_stamina_drain_target(S),
+        case_effect_stamina_target_to_hp_self(S),
     ]
     ok = all(checks)
     print("\nRESULT:", "PASS" if ok else "FAIL")

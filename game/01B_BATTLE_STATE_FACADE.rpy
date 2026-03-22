@@ -1618,6 +1618,61 @@ init -989 python:
             "unit": updated,
         }
 
+    def bs_apply_advanced_resource_effect(effect_kind, source_key=None, target_key=None, magnitude=0, ratio=0.0):
+        ek = str(effect_kind or "").strip().lower()
+        src_key = bs_parse_unit_key(source_key).get("key", "") if source_key is not None else ""
+        tgt_key = bs_parse_unit_key(target_key).get("key", "") if target_key is not None else ""
+        amt = max(0, _bs_to_int(magnitude, 0))
+        rr = max(0.0, min(1.0, float(ratio or 0.0)))
+
+        if ek == "stamina_drain_target":
+            tgt = bs_get_unit_stamina_shadow(tgt_key)
+            if not bool(tgt.get("ok", False)):
+                return {"ok": False, "error": "invalid_target", "effect_kind": ek}
+            drained = min(int(tgt.get("stamina_current", 0) or 0), amt)
+            bs_set_unit_stamina_shadow(tgt_key, stamina_current=max(0, int(tgt.get("stamina_current", 0) or 0) - drained))
+            _bs_log_battle_line("Efecto aplicado: stamina_drain_target source={} target=enemy".format(src_key or "unknown"))
+            return {"ok": True, "effect_kind": ek, "source_key": src_key, "target_key": tgt_key, "drained": int(drained)}
+
+        if ek == "stamina_target_to_hp_self":
+            tgt = bs_get_unit_stamina_shadow(tgt_key)
+            src_u = bs_get_unit_by_key(src_key)
+            if (not bool(tgt.get("ok", False))) or (not isinstance(src_u, dict)):
+                return {"ok": False, "error": "invalid_units", "effect_kind": ek}
+            drained = min(int(tgt.get("stamina_current", 0) or 0), amt)
+            bs_set_unit_stamina_shadow(tgt_key, stamina_current=max(0, int(tgt.get("stamina_current", 0) or 0) - drained))
+            src_u = _bs_with_stamina_shadow_fields(src_u)
+            src_hp = max(0, _bs_to_int(src_u.get("hp", 0), 0))
+            src_mx = max(1, _bs_to_int(src_u.get("max_hp", 1), 1))
+            healed = min(drained, max(0, src_mx - src_hp))
+            info = bs_parse_unit_key(src_key)
+            _bs_apply_unit_hp(info.get("team", "player"), max(0, _bs_to_int(info.get("slot", 0), 0)), src_hp + healed, mirror_units=True)
+            _bs_log_battle_line("Efecto aplicado: stamina_target_to_hp_self source={} target=enemy".format(src_key or "unknown"))
+            return {"ok": True, "effect_kind": ek, "source_key": src_key, "target_key": tgt_key, "drained": int(drained), "healed": int(healed)}
+
+        if ek == "hp_to_stamina_target":
+            tgt_u = bs_get_unit_by_key(tgt_key)
+            tgt = bs_get_unit_stamina_shadow(tgt_key)
+            if (not isinstance(tgt_u, dict)) or (not bool(tgt.get("ok", False))):
+                return {"ok": False, "error": "invalid_target", "effect_kind": ek}
+            tgt_u = _bs_with_stamina_shadow_fields(tgt_u)
+            hp_now = max(0, _bs_to_int(tgt_u.get("hp", 0), 0))
+            hp_mx = max(1, _bs_to_int(tgt_u.get("max_hp", 1), 1))
+            hp_spent = min(hp_now, amt)
+            missing_after = max(0, hp_mx - (hp_now - hp_spent))
+            st_now = int(tgt.get("stamina_current", 0) or 0)
+            sh_now = int(tgt.get("shadow_current", 0) or 0)
+            st_cap = int(tgt.get("stamina_cap", hp_mx) or hp_mx)
+            room = max(0, min(st_cap - st_now, missing_after - st_now - sh_now))
+            st_gain = min(hp_spent, room)
+            info = bs_parse_unit_key(tgt_key)
+            _bs_apply_unit_hp(info.get("team", "enemy"), max(0, _bs_to_int(info.get("slot", 0), 0)), hp_now - hp_spent, mirror_units=True)
+            bs_set_unit_stamina_shadow(tgt_key, stamina_current=st_now + st_gain)
+            _bs_log_battle_line("Efecto aplicado: hp_to_stamina_target source={} target=enemy".format(src_key or "unknown"))
+            return {"ok": True, "effect_kind": ek, "source_key": src_key, "target_key": tgt_key, "hp_spent": int(hp_spent), "stamina_gain": int(st_gain)}
+
+        return {"ok": False, "error": "effect_not_implemented", "effect_kind": ek, "source_key": src_key, "target_key": tgt_key, "magnitude": int(amt), "ratio": float(rr)}
+
     def bs_make_damage_plan(source_key=None, entries=None, mode="single_target", skill_id=None, effect_scope="primary", meta=None):
         src = bs_parse_unit_key(source_key).get("key", "") if source_key is not None else ""
         out_entries = []
@@ -2138,6 +2193,7 @@ init -989 python:
     S.bs_set_unit_stamina_shadow = bs_set_unit_stamina_shadow
     S.bs_resolve_target_keys = bs_resolve_target_keys
     S.bs_apply_damage_to_unit_key = bs_apply_damage_to_unit_key
+    S.bs_apply_advanced_resource_effect = bs_apply_advanced_resource_effect
     S.bs_make_damage_plan = bs_make_damage_plan
     S.bs_apply_damage_plan = bs_apply_damage_plan
     S.bs_effect_targets_from_plan = bs_effect_targets_from_plan
