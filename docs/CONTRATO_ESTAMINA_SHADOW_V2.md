@@ -188,7 +188,19 @@ Por hit, en orden:
 
 ## 12) Estado de implementación recomendado
 
+- **Paso 0 (MVP)**: congelar alcance mínimo antes de seguir con integración:
+  - perks independientes en pre-combate,
+  - `shadow_target_mode` (`local` / `applied_to_enemy`),
+  - pipeline base por hit + logging canónico,
+  - compatibilidad v1→v2.
+  - Referencia contractual: secciones 6, 7, 9 y 10.
 - **Fase A**: UI pre-combate perks v2 + persistencia `resource_perks_v2`.
 - **Fase B**: runtime apply v2 (self/enemy target mode).
 - **Fase C**: desactivar inferencia por specials.
 - **Fase D**: efectos avanzados de conversión/drenaje.
+
+### Límites explícitos del MVP (Paso 0)
+
+- No mezclar aún operaciones avanzadas de la sección 8.
+- Mantener foco en estabilizar semántica base, logs y migración.
+- Tratar la semántica de `shadow_local` / `shadow_applied_to_enemy` según sección 3.
