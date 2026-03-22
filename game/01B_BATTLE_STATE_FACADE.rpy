@@ -198,6 +198,10 @@ init -989 python:
         u["shadow_current"] = sh_cur
         u["stamina_enabled"] = bool(u.get("stamina_enabled", False))
         u["shadow_active"] = bool(u.get("shadow_active", False))
+        shadow_mode = str(u.get("shadow_target_mode", "local") or "local").strip().lower()
+        if shadow_mode not in ("local", "applied_to_enemy"):
+            shadow_mode = "local"
+        u["shadow_target_mode"] = shadow_mode
         u["missing_hp"] = missing_hp
         u["free_space"] = max(0, missing_hp - st_cur - sh_cur)
         return u
@@ -631,6 +635,7 @@ init -989 python:
                 "shadow_current": 0,
                 "shadow_cap": 0,
                 "shadow_active": False,
+                "shadow_target_mode": "local",
                 "missing_hp": 0,
                 "free_space": 0,
             }
@@ -645,6 +650,7 @@ init -989 python:
             "shadow_current": max(0, _bs_to_int(uu.get("shadow_current", 0), 0)),
             "shadow_cap": max(0, _bs_to_int(uu.get("shadow_cap", uu.get("max_hp", 1)), uu.get("max_hp", 1))),
             "shadow_active": bool(uu.get("shadow_active", False)),
+            "shadow_target_mode": str(uu.get("shadow_target_mode", "local") or "local"),
             "missing_hp": max(0, _bs_to_int(uu.get("missing_hp", 0), 0)),
             "free_space": max(0, _bs_to_int(uu.get("free_space", 0), 0)),
         }
@@ -657,6 +663,7 @@ init -989 python:
         shadow_current=None,
         shadow_cap=None,
         shadow_active=None,
+        shadow_target_mode=None,
     ):
         bs = battle_state_ensure()
         info = bs_parse_unit_key(unit_key)
@@ -680,6 +687,11 @@ init -989 python:
             u["shadow_cap"] = max(0, _bs_to_int(shadow_cap, u.get("max_hp", 1)))
         if shadow_active is not None:
             u["shadow_active"] = bool(shadow_active)
+        if shadow_target_mode is not None:
+            sm = str(shadow_target_mode or "local").strip().lower()
+            if sm not in ("local", "applied_to_enemy"):
+                sm = "local"
+            u["shadow_target_mode"] = sm
 
         u = _bs_with_stamina_shadow_fields(u)
         arr[slot] = u
@@ -700,6 +712,7 @@ init -989 python:
                 "shadow_current": max(0, _bs_to_int(u.get("shadow_current", 0), 0)),
                 "shadow_cap": max(0, _bs_to_int(u.get("shadow_cap", u.get("max_hp", 1)), u.get("max_hp", 1))),
                 "shadow_active": bool(u.get("shadow_active", False)),
+                "shadow_target_mode": str(u.get("shadow_target_mode", "local") or "local"),
             })
             bs.setdefault("units", {})[side] = _bs_with_stamina_shadow_fields(mirror)
 
@@ -1418,6 +1431,9 @@ init -989 python:
         shadow_before = max(0, _bs_to_int(cur_unit.get("shadow_current", 0), 0))
         shadow_cap = max(0, _bs_to_int(cur_unit.get("shadow_cap", mx), mx))
         shadow_active = bool(cur_unit.get("shadow_active", False))
+        shadow_mode_target = str(cur_unit.get("shadow_target_mode", "local") or "local").strip().lower()
+        if shadow_mode_target not in ("local", "applied_to_enemy"):
+            shadow_mode_target = "local"
 
         stamina_absorbed = min(stamina_before, incoming_after_coating)
         stamina_after_consume = max(0, stamina_before - stamina_absorbed)
@@ -1427,9 +1443,27 @@ init -989 python:
         hp_damage_real = max(0, hp_before - hp_after)
         ko_now = (hp_after <= 0)
 
-        shadow_effective = shadow_before if shadow_active else 0
+        source_shadow_effective = 0
+        if source_key is not None:
+            src = bs_parse_unit_key(source_key)
+            src_key = str(src.get("key", "") or "")
+            src_side = src.get("team", "")
+            if src_key:
+                src_unit = bs_get_unit_by_key(src_key)
+                if isinstance(src_unit, dict):
+                    src_unit = _bs_with_stamina_shadow_fields(src_unit)
+                    src_shadow_active = bool(src_unit.get("shadow_active", False))
+                    src_shadow_mode = str(src_unit.get("shadow_target_mode", "local") or "local").strip().lower()
+                    if src_shadow_mode not in ("local", "applied_to_enemy"):
+                        src_shadow_mode = "local"
+                    src_shadow_current = max(0, _bs_to_int(src_unit.get("shadow_current", 0), 0))
+                    if src_shadow_active and src_shadow_mode == "applied_to_enemy" and src_side and src_side != side:
+                        source_shadow_effective = src_shadow_current
+
+        local_shadow_effective = shadow_before if (shadow_active and shadow_mode_target == "local") else 0
+        shadow_effective = max(0, local_shadow_effective + source_shadow_effective)
         missing_after_hp = max(0, mx - hp_after)
-        free_space_after = max(0, missing_after_hp - stamina_after_consume - shadow_effective)
+        free_space_after = max(0, missing_after_hp - stamina_after_consume - min(shadow_effective, missing_after_hp))
         stamina_gain = 0
         if (not ko_now) and hp_damage_real > 0 and stamina_enabled and free_space_after > 0:
             stamina_gain = min(
@@ -1467,6 +1501,7 @@ init -989 python:
                 uu["shadow_current"] = int(max(0, min(shadow_before, shadow_cap)))
                 uu["shadow_cap"] = int(shadow_cap)
                 uu["shadow_active"] = bool(shadow_active)
+                uu["shadow_target_mode"] = str(shadow_mode_target)
                 t[slot] = uu
                 bs.setdefault("teams", {})[side] = t
                 active_uid = str(bs.get("active", {}).get(side, "") or "")
@@ -1481,6 +1516,7 @@ init -989 python:
                     mu["shadow_current"] = int(max(0, min(shadow_before, shadow_cap)))
                     mu["shadow_cap"] = int(shadow_cap)
                     mu["shadow_active"] = bool(shadow_active)
+                    mu["shadow_target_mode"] = str(shadow_mode_target)
                     bs.setdefault("units", {})[side] = mu
                 S.battle_state = bs
         except:
@@ -1545,6 +1581,9 @@ init -989 python:
                 "before": int(shadow_before),
                 "cap": int(shadow_cap),
                 "active": bool(shadow_active),
+                "target_mode": str(shadow_mode_target),
+                "local_effective_for_block": int(local_shadow_effective),
+                "source_effective_for_block": int(source_shadow_effective),
                 "effective_for_block": int(shadow_effective),
             },
             "space": {

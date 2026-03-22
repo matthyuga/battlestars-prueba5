@@ -425,28 +425,11 @@ label battle_start:
             fn_set_layers(
                 unit_key,
                 stamina_enabled=bool(p.get("stamina_enabled", False)),
-                shadow_active=bool(p.get("shadow_active", False)) and shadow_mode == "local",
-                shadow_current=max(0, shadow_seed) if shadow_mode == "local" else 0,
+                shadow_active=bool(p.get("shadow_active", False)),
+                shadow_current=max(0, shadow_seed),
                 shadow_cap=mx,
+                shadow_target_mode=shadow_mode,
             )
-            if bool(p.get("shadow_active", False)) and shadow_mode == "applied_to_enemy" and isinstance(enemy_unit_key, str):
-                try:
-                    enemy_u = fn_get_unit(enemy_unit_key) if callable(fn_get_unit) else None
-                except Exception:
-                    enemy_u = None
-                enemy_mx = 1
-                if isinstance(enemy_u, dict):
-                    try:
-                        enemy_mx = max(1, int(enemy_u.get("max_hp", 1) or 1))
-                    except Exception:
-                        enemy_mx = 1
-                enemy_seed = int(enemy_mx * seed_ratio)
-                fn_set_layers(
-                    enemy_unit_key,
-                    shadow_active=True,
-                    shadow_current=max(0, enemy_seed),
-                    shadow_cap=enemy_mx,
-                )
 
         if mode_now == "2v2":
             _apply_layer_flags("player:0", perks_by_side.get("p1", perks_current), "enemy:0")

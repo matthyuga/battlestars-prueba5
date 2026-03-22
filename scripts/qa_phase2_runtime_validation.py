@@ -135,6 +135,30 @@ def case_no_gain_if_disabled(S):
     )
 
 
+def case_shadow_applied_to_enemy_blocks_target(S):
+    S.bs_init_single_teams(player_hp=9000, player_max_hp=10000, enemy_hp=10000, enemy_max_hp=10000)
+    S.bs_set_unit_stamina_shadow(
+        "player:0",
+        shadow_active=True,
+        shadow_current=1500,
+        shadow_cap=10000,
+        shadow_target_mode="applied_to_enemy",
+    )
+    S.bs_set_unit_stamina_shadow("enemy:0", stamina_current=0, stamina_cap=10000, stamina_enabled=True, shadow_active=False)
+    r = S.bs_apply_damage_to_unit_key("enemy:0", 1000, source_key="player:0")
+    return _expect(
+        "shadow applied_to_enemy bloquea free_space rival",
+        (
+            r.get("hp_after") == 9000
+            and r.get("stamina", {}).get("gain") == 0
+            and r.get("space", {}).get("blocked_by_shadow") == 1000
+            and r.get("shadow", {}).get("source_effective_for_block") == 1000
+            and r.get("shadow", {}).get("local_effective_for_block") == 0
+        ),
+        details=f"hp_after={r.get('hp_after')} gain={r.get('stamina', {}).get('gain')} blocked={r.get('space', {}).get('blocked_by_shadow')} shadow={r.get('shadow', {})}",
+    )
+
+
 def main():
     S = _bootstrap_facade()
     checks = [
@@ -142,6 +166,7 @@ def main():
         case_ko_gate(S),
         case_survive_gain_enabled(S),
         case_no_gain_if_disabled(S),
+        case_shadow_applied_to_enemy_blocks_target(S),
     ]
     ok = all(checks)
     print("\nRESULT:", "PASS" if ok else "FAIL")
