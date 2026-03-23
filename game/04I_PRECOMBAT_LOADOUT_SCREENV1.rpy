@@ -654,7 +654,6 @@ screen precombat_loadout_editor():
     key "mouseup_3" action ShowMenu("main_menu")
     key "K_ESCAPE" action ShowMenu("main_menu")
     key "game_menu" action ShowMenu("main_menu")
-    key "K_F1" action ToggleScreen("precombat_design_perks_overlay")
 
     frame:
         style_prefix "game_menu"
@@ -887,33 +886,3 @@ screen precombat_loadout_editor():
                     Function(store.bs_prepare_quick_random_2v2, getattr(store, "precombat_spa_profile_id", "A")),
                     Start()
                 ]
-
-screen precombat_design_perks_overlay():
-    modal True
-    zorder 250
-    key "K_F1" action Hide("precombat_design_perks_overlay")
-    key "K_ESCAPE" action Hide("precombat_design_perks_overlay")
-
-    add Solid("#000C")
-    frame:
-        xalign 0.5
-        yalign 0.5
-        xsize min(1080, int(config.screen_width or 1280) - 80)
-        ysize min(680, int(config.screen_height or 720) - 60)
-        xpadding 14
-        ypadding 10
-        vbox:
-            spacing 8
-            text _("Perks de Diseño (F1)") size 34 color "#00BFFF"
-            text _("Referencia: técnica, efecto, lectura humana, lectura técnica, usos y límites.") size 14 color "#BBBBBB"
-            viewport:
-                draggable True
-                mousewheel True
-                scrollbars "vertical"
-                yfill True
-                text "[store.precombat_design_perks_notes_text()]" size 13 color "#C7E9FF"
-            hbox:
-                xfill True
-                text _("Pulsa F1 o ESC para cerrar.") size 12 color "#AAAAAA"
-                null width 20
-                textbutton _("Cerrar") action Hide("precombat_design_perks_overlay") xalign 1.0
