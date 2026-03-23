@@ -31,7 +31,6 @@ default precombat_diag_started_ms = 0
 default precombat_diag_frame_count = 0
 default precombat_diag_last_report_ms = 0
 default precombat_diag_overlay = True
-default precombat_show_design_perks_panel = False
 
 define PRECOMBAT_PROFILES_KEY = "precombat_profiles_v1"
 
@@ -655,6 +654,7 @@ screen precombat_loadout_editor():
     key "mouseup_3" action ShowMenu("main_menu")
     key "K_ESCAPE" action ShowMenu("main_menu")
     key "game_menu" action ShowMenu("main_menu")
+    key "K_F1" action ToggleScreen("precombat_design_perks_overlay")
 
     frame:
         style_prefix "game_menu"
@@ -709,23 +709,6 @@ screen precombat_loadout_editor():
                 textbutton _("OFF") action Function(store.precombat_diag_set_enabled, False) text_color ("#FFD966" if not bool(getattr(store, "precombat_diag_enabled", False)) else "#FFFFFF")
                 textbutton _("Reset") action Function(store.precombat_diag_reset)
                 textbutton _("Overlay") action ToggleVariable("precombat_diag_overlay")
-                null width 10
-                text _("Diseño perks:") size 14
-                textbutton _("Mostrar") action SetVariable("precombat_show_design_perks_panel", True) text_color ("#9FE2FF" if bool(getattr(store, "precombat_show_design_perks_panel", False)) else "#FFFFFF")
-                textbutton _("Ocultar") action SetVariable("precombat_show_design_perks_panel", False) text_color ("#9FE2FF" if not bool(getattr(store, "precombat_show_design_perks_panel", False)) else "#FFFFFF")
-
-            if bool(getattr(store, "precombat_show_design_perks_panel", False)):
-                frame:
-                    xfill True
-                    ymaximum 210
-                    xpadding 8
-                    ypadding 6
-                    viewport:
-                        draggable True
-                        mousewheel True
-                        scrollbars "vertical"
-                        ymaximum 196
-                        text "[store.precombat_design_perks_notes_text()]" size 11 color "#C7E9FF"
 
             if bool(getattr(store, "precombat_diag_enabled", False)) and bool(getattr(store, "precombat_diag_overlay", True)):
                 frame:
@@ -904,3 +887,33 @@ screen precombat_loadout_editor():
                     Function(store.bs_prepare_quick_random_2v2, getattr(store, "precombat_spa_profile_id", "A")),
                     Start()
                 ]
+
+screen precombat_design_perks_overlay():
+    modal True
+    zorder 250
+    key "K_F1" action Hide("precombat_design_perks_overlay")
+    key "K_ESCAPE" action Hide("precombat_design_perks_overlay")
+
+    add Solid("#000C")
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize min(1080, int(config.screen_width or 1280) - 80)
+        ysize min(680, int(config.screen_height or 720) - 60)
+        xpadding 14
+        ypadding 10
+        vbox:
+            spacing 8
+            text _("Perks de Diseño (F1)") size 34 color "#00BFFF"
+            text _("Referencia: técnica, efecto, lectura humana, lectura técnica, usos y límites.") size 14 color "#BBBBBB"
+            viewport:
+                draggable True
+                mousewheel True
+                scrollbars "vertical"
+                yfill True
+                text "[store.precombat_design_perks_notes_text()]" size 13 color "#C7E9FF"
+            hbox:
+                xfill True
+                text _("Pulsa F1 o ESC para cerrar.") size 12 color "#AAAAAA"
+                null width 20
+                textbutton _("Cerrar") action Hide("precombat_design_perks_overlay") xalign 1.0
