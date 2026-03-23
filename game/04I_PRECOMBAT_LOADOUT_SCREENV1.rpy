@@ -31,6 +31,7 @@ default precombat_diag_started_ms = 0
 default precombat_diag_frame_count = 0
 default precombat_diag_last_report_ms = 0
 default precombat_diag_overlay = True
+default precombat_show_design_perks_panel = False
 
 define PRECOMBAT_PROFILES_KEY = "precombat_profiles_v1"
 
@@ -266,6 +267,41 @@ init -925 python:
             "current": dict(cur),
             "by_side": dict(by_side),
         }
+
+    def precombat_design_perks_notes_text():
+        return (
+            "📘 Perks de Diseño (referencia rápida)\n"
+            "1) Sombra Hostil (shadow_apply)\n"
+            "   • Hace: bloquea free_space rival para reducir generación de estamina.\n"
+            "   • Percepción código: debuff de espacio, no daño HP directo en versión base.\n"
+            "   • Uso: on_hit (MVP) o aura por turnos (avanzado).\n"
+            "   • Límites: cap por hit/turno, no aplicar en KO.\n\n"
+            "2) Drenaje Vital (stamina_drain_target)\n"
+            "   • Hace: consume estamina rival.\n"
+            "   • Percepción código: control anti-colchón de estamina.\n"
+            "   • Uso: skill de 1 turno, técnica especial o efecto mantenido.\n"
+            "   • Límites: cap por hit/turno, opcional costo energía/dados.\n\n"
+            "3) Transfusión de Estamina (stamina_target_to_hp_self)\n"
+            "   • Hace: drena estamina rival y cura HP propio.\n"
+            "   • Percepción código: sustain ofensivo con cap de curación.\n"
+            "   • Uso: burst por skill o drenaje sostenido en baja proporción.\n"
+            "   • Límites: no overheal, cap por turno.\n\n"
+            "4) Conversión Forzada (hp_to_stamina_target)\n"
+            "   • Hace: convierte HP rival en estamina rival.\n"
+            "   • Percepción código: manipulación económica del objetivo.\n"
+            "   • Uso: efecto puntual de control en turno clave.\n"
+            "   • Límites: cap de HP convertido, opcional mínimo HP=1.\n\n"
+            "5) Reserva de Impacto (stamina_target_to_damage_bank)\n"
+            "   • Hace: transforma estamina rival en daño diferido.\n"
+            "   • Percepción código: burst retrasado / bank de daño.\n"
+            "   • Uso: 1 turno o acumulación temporal limitada.\n"
+            "   • Límites: cap de bank, expiración, ratio < 100% recomendado.\n\n"
+            "6) Refino Espiritual (stamina_target_to_reiatsu)\n"
+            "   • Hace: convierte estamina rival en reiatsu.\n"
+            "   • Percepción código: conversión de economía defensiva a recurso mágico.\n"
+            "   • Uso: puntual o mantenido en baja proporción.\n"
+            "   • Límites: cap por turno y por recurso máximo.\n"
+        )
 
     def precombat_resource_perks_snapshot():
         if not bool(getattr(S, "precombat_legacy_specials_fallback_enabled", True)):
@@ -673,6 +709,23 @@ screen precombat_loadout_editor():
                 textbutton _("OFF") action Function(store.precombat_diag_set_enabled, False) text_color ("#FFD966" if not bool(getattr(store, "precombat_diag_enabled", False)) else "#FFFFFF")
                 textbutton _("Reset") action Function(store.precombat_diag_reset)
                 textbutton _("Overlay") action ToggleVariable("precombat_diag_overlay")
+                null width 10
+                text _("Diseño perks:") size 14
+                textbutton _("Mostrar") action SetVariable("precombat_show_design_perks_panel", True) text_color ("#9FE2FF" if bool(getattr(store, "precombat_show_design_perks_panel", False)) else "#FFFFFF")
+                textbutton _("Ocultar") action SetVariable("precombat_show_design_perks_panel", False) text_color ("#9FE2FF" if not bool(getattr(store, "precombat_show_design_perks_panel", False)) else "#FFFFFF")
+
+            if bool(getattr(store, "precombat_show_design_perks_panel", False)):
+                frame:
+                    xfill True
+                    ymaximum 210
+                    xpadding 8
+                    ypadding 6
+                    viewport:
+                        draggable True
+                        mousewheel True
+                        scrollbars "vertical"
+                        ymaximum 196
+                        text "[store.precombat_design_perks_notes_text()]" size 11 color "#C7E9FF"
 
             if bool(getattr(store, "precombat_diag_enabled", False)) and bool(getattr(store, "precombat_diag_overlay", True)):
                 frame:
