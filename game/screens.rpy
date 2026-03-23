@@ -996,6 +996,7 @@ screen help():
                 textbutton _("Keyboard") action SetScreenVariable("device", "keyboard")
                 textbutton _("Mouse") action SetScreenVariable("device", "mouse")
                 textbutton _("Hotkeys") action SetScreenVariable("device", "hotkeys")
+                textbutton _("Design Perks") action SetScreenVariable("device", "design_perks")
 
                 if GamepadExists():
                     textbutton _("Gamepad") action SetScreenVariable("device", "gamepad")
@@ -1006,6 +1007,8 @@ screen help():
                 use mouse_help
             elif device == "hotkeys":
                 use hotkeys_help
+            elif device == "design_perks":
+                use design_perks_help
             elif device == "gamepad":
                 use gamepad_help
 
@@ -1121,6 +1124,43 @@ screen hotkeys_help():
     hbox:
         label "Ctrl+J"
         text _("En batalla: cuadro(s) de personaje(s).")
+
+    hbox:
+        label "F1"
+        text _("Abre Ayuda y el apartado de Perks de diseño.")
+
+
+screen design_perks_help():
+
+    vbox:
+        spacing 10
+
+        text _("Perks de Diseño (referencia)") style "help_text"
+        text _("Nombre de técnica · efecto · lectura humana · lectura técnica · formas de uso · límites.") style "help_text"
+
+        hbox:
+            label _("Sombra Hostil")
+            text _("shadow_apply. Bloquea free_space rival para reducir generación de estamina. Uso: on_hit o aura por turnos. Límite: cap por hit/turno, sin KO.")
+
+        hbox:
+            label _("Drenaje Vital")
+            text _("stamina_drain_target. Consume estamina rival. Uso: skill puntual, técnica especial o efecto mantenido. Límite: cap por hit/turno, opcional costo energía/dados.")
+
+        hbox:
+            label _("Transfusión")
+            text _("stamina_target_to_hp_self. Drena estamina rival y cura HP propio. Uso: burst o sostenido. Límite: no overheal y cap de curación por turno.")
+
+        hbox:
+            label _("Conversión Forzada")
+            text _("hp_to_stamina_target. Convierte HP rival en estamina rival. Uso: control económico puntual. Límite: cap de HP convertido y mínimo HP opcional.")
+
+        hbox:
+            label _("Reserva de Impacto")
+            text _("stamina_target_to_damage_bank. Convierte estamina rival en daño diferido. Uso: 1 turno o acumulación temporal. Límite: cap de bank, expiración y ratio controlado.")
+
+        hbox:
+            label _("Refino Espiritual")
+            text _("stamina_target_to_reiatsu. Convierte estamina rival en reiatsu. Uso: puntual o sostenido en baja proporción. Límite: cap por turno y por recurso máximo.")
 
 
 screen gamepad_help():
