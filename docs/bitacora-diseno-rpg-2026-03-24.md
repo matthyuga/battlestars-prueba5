@@ -123,6 +123,9 @@ Se toma inspiración de tabla por diferencia de registros (foro), adaptada a vid
 - Penalización por repetición de rival/encuentro.
 - Ajustes por ventanas horarias y bonos/eventos.
 
+### Documento derivado
+- Ver especificación operativa: `docs/PLANILLA_EXP_ORO_DESEMPENO_V1.md`.
+
 ---
 
 ## 7) Ítems y arquitectura de loot
