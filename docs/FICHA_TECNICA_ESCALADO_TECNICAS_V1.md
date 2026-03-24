@@ -226,6 +226,12 @@ Esto es **solo fallback** hasta que la técnica tenga su tabla propia en repo.
 - SS: 90,000
 - SSS: 240,000
 
+### 6.4 Aplicación PvP/PvE con misma base
+
+- La **base** de cap por registro es única.
+- El valor final por modo se muestra como `(PvP/PvE)`.
+- Detalle completo por registros en: `docs/PLANILLA_CAPS_TECNICAS_REGISTROS_V1.md`.
+
 ---
 
 ## 7) Eficiencia de energía por tier
