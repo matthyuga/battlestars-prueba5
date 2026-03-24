@@ -1,3 +1,4 @@
+#editado el 24 de marzo de 2026
 # Bitácora de Diseño — Progresión, Combate, Economía y Loot (2026-03-24)
 
 ## Estado
