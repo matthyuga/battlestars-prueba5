@@ -230,7 +230,8 @@ Esto es **solo fallback** hasta que la técnica tenga su tabla propia en repo.
 
 - La **base** de cap por registro es única.
 - El valor final por modo se muestra como `(PvP/PvE)`.
-- Detalle completo por registros en: `docs/PLANILLA_CAPS_TECNICAS_REGISTROS_V1.md`.
+- Detalle completo de caps por registros en: `docs/PLANILLA_CAPS_TECNICAS_REGISTROS_V1.md`.
+- Detalle de consumo (energía/reiatsu) por registros en: `docs/PLANILLA_CONSUMO_TECNICAS_REGISTROS_V1.md`.
 
 ---
 
