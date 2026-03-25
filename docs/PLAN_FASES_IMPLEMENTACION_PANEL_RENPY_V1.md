@@ -15,6 +15,14 @@ Implementar un panel funcional y auditado para:
 
 ---
 
+## Estado de avance
+
+- Fase 0: completada.
+- Fase 1: completada (ver `docs/FASE1_PANEL_RENPY_CORE_EJECUCION_2026-03-25.md`).
+- Fase 2: pendiente.
+
+---
+
 ## Fase 0 — Freeze de reglas (0.5 día)
 
 ### Tareas
