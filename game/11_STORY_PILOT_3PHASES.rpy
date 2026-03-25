@@ -26,6 +26,11 @@ init -100 python:
             "pool_principal_def": 0,
             "pool_principal_off_spent": 0,
             "pool_principal_def_spent": 0,
+            "tech_points": {
+                "stronger_attack": 0,
+                "direct_attack": 0,
+                "defense_strong_block": 0,
+            },
             "repertoire": [],
             "sealed": False,
         }
@@ -121,6 +126,54 @@ init -100 python:
         cfg["repertoire"] = rep
         cfg["sealed"] = False
 
+    def story_off_budget():
+        cfg = story_cfg_get()
+        return int(cfg.get("pool_general_off", 0) or 0) + int(cfg.get("pool_principal_off_spent", 0) or 0)
+
+    def story_def_budget():
+        cfg = story_cfg_get()
+        return int(cfg.get("pool_general_def", 0) or 0) + int(cfg.get("pool_principal_def_spent", 0) or 0)
+
+    def story_off_spent():
+        cfg = story_cfg_get()
+        tp = cfg.get("tech_points", {}) if isinstance(cfg.get("tech_points", {}), dict) else {}
+        return int(tp.get("stronger_attack", 0) or 0) + int(tp.get("direct_attack", 0) or 0)
+
+    def story_def_spent():
+        cfg = story_cfg_get()
+        tp = cfg.get("tech_points", {}) if isinstance(cfg.get("tech_points", {}), dict) else {}
+        return int(tp.get("defense_strong_block", 0) or 0)
+
+    def story_add_tech_points(tech_key, delta):
+        cfg = story_cfg_get()
+        tp = cfg.get("tech_points", {}) if isinstance(cfg.get("tech_points", {}), dict) else {}
+        if tech_key not in tp:
+            return
+        dd = int(delta or 0)
+        cur = int(tp.get(tech_key, 0) or 0)
+        nxt = max(0, cur + dd)
+
+        if tech_key in ("stronger_attack", "direct_attack"):
+            other = int(tp.get("direct_attack" if tech_key == "stronger_attack" else "stronger_attack", 0) or 0)
+            cap = max(0, story_off_budget() - other)
+            nxt = min(nxt, cap)
+        elif tech_key == "defense_strong_block":
+            cap = max(0, story_def_budget())
+            nxt = min(nxt, cap)
+
+        tp[tech_key] = nxt
+        cfg["tech_points"] = tp
+        cfg["sealed"] = False
+
+    def story_preview_resources():
+        st = story_build_preview_from_cfg()
+        prev = st.get("preview", {}) if isinstance(st.get("preview", {}), dict) else {}
+        return {
+            "hp": int(prev.get("hp_after", 1000) or 1000),
+            "reiatsu": int(prev.get("reiatsu_after", 1000) or 1000),
+            "energia": int(prev.get("energia_after", 100) or 100),
+        }
+
     def story_validate_cfg():
         cfg = story_cfg_get()
         errs = []
@@ -150,6 +203,11 @@ init -100 python:
             errs.append("Debes incluir al menos una técnica ofensiva inicial.")
         if "defense_strong_block" not in rep:
             errs.append("Debes incluir Defensa fuerte en repertorio.")
+
+        if story_off_spent() <= 0:
+            errs.append("Asigna puntos de ataque a Ataque más fuerte o Ataque directo.")
+        if story_def_spent() <= 0:
+            errs.append("Asigna puntos defensivos a Defensa fuerte.")
 
         return errs
 
@@ -305,55 +363,109 @@ screen story_panel_tech_and_confirm():
     $ cfg = story_cfg_get()
     $ errs = story_validate_cfg()
     $ rep = list(cfg.get("repertoire", []) or [])
+    $ tp = cfg.get("tech_points", {}) if isinstance(cfg.get("tech_points", {}), dict) else {}
+    $ hudp = story_preview_resources()
 
     frame:
         xfill True
         yfill True
         padding (28, 28)
-        vbox:
-            spacing 10
-            text "Paso 4/4 — Técnicas, repertorio y confirmación" size 36
+        hbox:
+            spacing 22
 
-            text "Pool general: %s | Off: %s | Def: %s" % (
-                cfg.get("pool_general_total", 200), cfg.get("pool_general_off", 0), cfg.get("pool_general_def", 0)
-            ) size 22
-            hbox:
-                spacing 8
-                textbutton "+Off 25" action Function(story_add_pool, "general_off", +25)
-                textbutton "-Off 25" action Function(story_add_pool, "general_off", -25)
-                textbutton "+Def 25" action Function(story_add_pool, "general_def", +25)
-                textbutton "-Def 25" action Function(story_add_pool, "general_def", -25)
-
-            text "Pool específico principal — Ataque: %s/%s | Defensa: %s/%s" % (
-                cfg.get("pool_principal_off_spent", 0), cfg.get("pool_principal_off", 0),
-                cfg.get("pool_principal_def_spent", 0), cfg.get("pool_principal_def", 0)
-            ) size 22
-            hbox:
-                spacing 8
-                textbutton "+Atk esp 25" action Function(story_add_pool, "principal_off", +25)
-                textbutton "-Atk esp 25" action Function(story_add_pool, "principal_off", -25)
-                textbutton "+Def esp 25" action Function(story_add_pool, "principal_def", +25)
-                textbutton "-Def esp 25" action Function(story_add_pool, "principal_def", -25)
-
-            text "Técnicas iniciales disponibles (sin concentrar por ahora):" size 22
-            hbox:
-                spacing 8
-                textbutton "Ataque más fuerte" action Function(story_toggle_tech, "stronger_attack")
-                textbutton "Ataque directo" action Function(story_toggle_tech, "direct_attack")
-                textbutton "Defensa fuerte" action Function(story_toggle_tech, "defense_strong_block")
-            text "Repertorio actual: %s" % (", ".join(rep) if rep else "(vacío)") size 20
-
-            if errs:
-                text "Requisitos pendientes:" size 22 color "#ffaaaa"
-                for e in errs:
-                    text "• [e]" color "#ffaaaa" size 18
-            else:
-                text "Configuración válida para duelo tutorial." size 22 color "#88ff88"
-
-            hbox:
+            vbox:
+                xsize 1180
                 spacing 10
-                textbutton "Confirmar configuración" action Function(story_seal_configuration)
-                textbutton "Iniciar duelo" action Return() sensitive bool(cfg.get("sealed", False))
+                text "Paso 4/4 — Técnicas, repertorio y confirmación" size 36
+
+                text "Pool general: %s | Off: %s | Def: %s" % (
+                    cfg.get("pool_general_total", 200), cfg.get("pool_general_off", 0), cfg.get("pool_general_def", 0)
+                ) size 22
+                hbox:
+                    spacing 8
+                    textbutton "+Off 25" action Function(story_add_pool, "general_off", +25)
+                    textbutton "-Off 25" action Function(story_add_pool, "general_off", -25)
+                    textbutton "+Def 25" action Function(story_add_pool, "general_def", +25)
+                    textbutton "-Def 25" action Function(story_add_pool, "general_def", -25)
+
+                text "Pool específico principal — Ataque: %s/%s | Defensa: %s/%s" % (
+                    cfg.get("pool_principal_off_spent", 0), cfg.get("pool_principal_off", 0),
+                    cfg.get("pool_principal_def_spent", 0), cfg.get("pool_principal_def", 0)
+                ) size 22
+                hbox:
+                    spacing 8
+                    textbutton "+Atk esp 25" action Function(story_add_pool, "principal_off", +25)
+                    textbutton "-Atk esp 25" action Function(story_add_pool, "principal_off", -25)
+                    textbutton "+Def esp 25" action Function(story_add_pool, "principal_def", +25)
+                    textbutton "-Def esp 25" action Function(story_add_pool, "principal_def", -25)
+
+                text "Asignación vertical de técnicas (base 100 por defecto):" size 22
+                hbox:
+                    spacing 18
+
+                    frame:
+                        padding (10, 10)
+                        vbox:
+                            spacing 6
+                            text "Ataque más fuerte" size 20
+                            text "Base: 100 | Bonus: %s | Total: %s" % (tp.get("stronger_attack", 0), 100 + int(tp.get("stronger_attack", 0) or 0)) size 18
+                            hbox:
+                                spacing 6
+                                textbutton "+25" action Function(story_add_tech_points, "stronger_attack", +25)
+                                textbutton "-25" action Function(story_add_tech_points, "stronger_attack", -25)
+                            textbutton ("Quitar" if "stronger_attack" in rep else "Añadir al repertorio") action Function(story_toggle_tech, "stronger_attack")
+
+                    frame:
+                        padding (10, 10)
+                        vbox:
+                            spacing 6
+                            text "Ataque directo" size 20
+                            text "Base: 100 | Bonus: %s | Total: %s" % (tp.get("direct_attack", 0), 100 + int(tp.get("direct_attack", 0) or 0)) size 18
+                            hbox:
+                                spacing 6
+                                textbutton "+25" action Function(story_add_tech_points, "direct_attack", +25)
+                                textbutton "-25" action Function(story_add_tech_points, "direct_attack", -25)
+                            textbutton ("Quitar" if "direct_attack" in rep else "Añadir al repertorio") action Function(story_toggle_tech, "direct_attack")
+
+                    frame:
+                        padding (10, 10)
+                        vbox:
+                            spacing 6
+                            text "Defensa fuerte" size 20
+                            text "Base: 100 | Bonus: %s | Total: %s" % (tp.get("defense_strong_block", 0), 100 + int(tp.get("defense_strong_block", 0) or 0)) size 18
+                            hbox:
+                                spacing 6
+                                textbutton "+25" action Function(story_add_tech_points, "defense_strong_block", +25)
+                                textbutton "-25" action Function(story_add_tech_points, "defense_strong_block", -25)
+                            textbutton ("Quitar" if "defense_strong_block" in rep else "Añadir al repertorio") action Function(story_toggle_tech, "defense_strong_block")
+
+                text "Off disponible/spent: %s / %s | Def disponible/spent: %s / %s" % (
+                    story_off_budget(), story_off_spent(), story_def_budget(), story_def_spent()
+                ) size 20
+                text "Repertorio actual: %s" % (", ".join(rep) if rep else "(vacío)") size 20
+
+                if errs:
+                    text "Requisitos pendientes:" size 22 color "#ffaaaa"
+                    for e in errs:
+                        text "• [e]" color "#ffaaaa" size 18
+                else:
+                    text "Configuración válida para duelo tutorial." size 22 color "#88ff88"
+
+                hbox:
+                    spacing 10
+                    textbutton "Confirmar configuración" action Function(story_seal_configuration)
+                    textbutton "Iniciar duelo" action Return() sensitive bool(cfg.get("sealed", False))
+
+            frame:
+                xsize 360
+                yfill True
+                padding (12, 12)
+                vbox:
+                    spacing 10
+                    text "HUD previo del personaje" size 24
+                    text "HP: %s" % hudp.get("hp", 1000) size 22
+                    text "Reiatsu: %s" % hudp.get("reiatsu", 1000) size 22
+                    text "Energía: %s" % hudp.get("energia", 100) size 22
 
 
 label story_phaseA_intro:
