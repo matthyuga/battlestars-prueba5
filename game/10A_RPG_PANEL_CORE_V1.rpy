@@ -5,6 +5,7 @@
 
 init -880 python:
     import copy
+    import time
 
     # -------------------------
     # Constantes de contrato v1
@@ -565,6 +566,60 @@ init -880 python:
             "errors": errors,
             "warnings": warnings,
         }
+
+    def rpgp_build_audit_snapshot(panel_state, source="panel_confirm"):
+        st = panel_state if isinstance(panel_state, dict) else _rpgp_default_state()
+        player = st.get("player", {}) if isinstance(st.get("player", {}), dict) else {}
+        principal = st.get("principal", {}) if isinstance(st.get("principal", {}), dict) else {}
+        pool = st.get("pool", {}) if isinstance(st.get("pool", {}), dict) else {}
+        preview = st.get("preview", {}) if isinstance(st.get("preview", {}), dict) else {}
+        validation = st.get("validation", {}) if isinstance(st.get("validation", {}), dict) else {}
+        reward_preview = st.get("reward_preview", {}) if isinstance(st.get("reward_preview", {}), dict) else {}
+
+        return {
+            "ts": int(time.time()),
+            "source": str(source or "panel_confirm"),
+            "level": _rpgp_to_int(player.get("level", 1), 1),
+            "register": _rpgp_to_int(player.get("register", 0), 0),
+            "principal": str(principal.get("selected", "")),
+            "distribution": dict(principal.get("distribution", {})) if isinstance(principal.get("distribution", {}), dict) else {},
+            "pool_total": _rpgp_to_int(pool.get("total", 0), 0),
+            "pool_offensive_spent": _rpgp_to_int(pool.get("offensive_spent", 0), 0),
+            "pool_defensive_spent": _rpgp_to_int(pool.get("defensive_spent", 0), 0),
+            "pool_available": _rpgp_to_int(pool.get("available", 0), 0),
+            "preview": {
+                "hp_before": _rpgp_to_int(preview.get("hp_before", 0), 0),
+                "hp_after": _rpgp_to_int(preview.get("hp_after", 0), 0),
+                "energia_before": _rpgp_to_int(preview.get("energia_before", 0), 0),
+                "energia_after": _rpgp_to_int(preview.get("energia_after", 0), 0),
+                "reiatsu_before": _rpgp_to_int(preview.get("reiatsu_before", 0), 0),
+                "reiatsu_after": _rpgp_to_int(preview.get("reiatsu_after", 0), 0),
+                "atk_before": _rpgp_to_int(preview.get("atk_before", 0), 0),
+                "atk_after": _rpgp_to_int(preview.get("atk_after", 0), 0),
+                "def_before": _rpgp_to_int(preview.get("def_before", 0), 0),
+                "def_after": _rpgp_to_int(preview.get("def_after", 0), 0),
+            },
+            "reward_preview": dict(reward_preview),
+            "is_valid": bool(validation.get("is_valid", False)),
+            "errors": list(validation.get("errors", [])) if isinstance(validation.get("errors", []), list) else [],
+            "warnings": list(validation.get("warnings", [])) if isinstance(validation.get("warnings", []), list) else [],
+        }
+
+    def rpgp_persist_audit_snapshot(snapshot, max_items=200):
+        try:
+            import renpy.store as S
+            if not hasattr(S, "persistent"):
+                return False
+            cur = getattr(S.persistent, "rpg_panel_audit_log_v1", None)
+            if not isinstance(cur, list):
+                cur = []
+            cur.append(dict(snapshot) if isinstance(snapshot, dict) else {"ts": int(time.time()), "source": "invalid_snapshot"})
+            if len(cur) > max_items:
+                cur = cur[-max_items:]
+            S.persistent.rpg_panel_audit_log_v1 = cur
+            return True
+        except:
+            return False
 
     # ------------------------
     # Helpers de semillas QA

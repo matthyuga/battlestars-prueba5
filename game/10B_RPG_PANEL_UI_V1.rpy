@@ -170,6 +170,8 @@ init -870 python:
     def rpgp_on_confirm_apply():
         st = rpgp_recompute_state()
         if st.get("validation", {}).get("is_valid", False):
+            snap = rpgp_build_audit_snapshot(st, source="panel_confirm_apply")
+            rpgp_persist_audit_snapshot(snap)
             S.rpg_panel_baseline_v1 = copy.deepcopy(st)
             S.rpg_panel_confirm_modal_open = False
 
