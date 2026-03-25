@@ -550,6 +550,19 @@ label battle_start:
     # Re-sincronizar máximos/overlays después de overrides de tutorial.
     $ battle_hp_player_max = max(1, int(player_hp or 1))
     $ battle_hp_enemy_max = max(1, int(enemy_hp or 1))
+    python:
+        import renpy.store as S
+        fn_set_max = getattr(S, "bs_set_max_hp", None)
+        fn_set_hp = getattr(S, "bs_set_hp", None)
+        fn_sync_legacy = getattr(S, "bs_sync_to_legacy", None)
+        if callable(fn_set_max):
+            fn_set_max("player", battle_hp_player_max)
+            fn_set_max("enemy", battle_hp_enemy_max)
+        if callable(fn_set_hp):
+            fn_set_hp("player", player_hp)
+            fn_set_hp("enemy", enemy_hp)
+        if callable(fn_sync_legacy):
+            fn_sync_legacy()
     $ battle_update_hp_bars(player_hp, enemy_hp)
     $ battle_update_damage_overlay(player_hp, battle_hp_player_max)
 
