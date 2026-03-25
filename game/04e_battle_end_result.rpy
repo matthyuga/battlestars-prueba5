@@ -55,9 +55,11 @@ label battle_end:
     $ battle_clear_turn_summary()
 
     if getattr(S, "story_mode_active", False) and renpy.has_label("story_phaseC_postbattle"):
+        $ S.battle_active = False
         jump story_phaseC_postbattle
 
     # --- Retorno al menú principal ---
+    $ S.battle_active = False
     $ renpy.full_restart()
     return
 

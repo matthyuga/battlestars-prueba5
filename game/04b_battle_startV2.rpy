@@ -167,6 +167,7 @@ label start:
 label battle_start:
     $ import random
     $ import renpy.store as S
+    $ S.battle_active = True
 
     # =======================================================
     # 🎯 Selección del enemigo (ID del sistema)
