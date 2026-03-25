@@ -294,14 +294,14 @@ screen rpg_panel_v1():
                         text "Resultado: [ 'Victoria' if reward_sim.get('is_victory', True) else 'Derrota' ] | EXP final: [reward_preview.get('exp_final', 0)] | Oro final: [reward_preview.get('oro_final', 0)]" size 16
                         hbox:
                             spacing 8
-                            textbutton \"ΔR -1\" action Function(rpgp_on_reward_set_rival_register, -1)
-                            textbutton \"ΔR +1\" action Function(rpgp_on_reward_set_rival_register, +1)
-                            textbutton \"Stars -1\" action Function(rpgp_on_reward_set_stars, -1)
-                            textbutton \"Stars +1\" action Function(rpgp_on_reward_set_stars, +1)
-                            textbutton \"Rep -1\" action Function(rpgp_on_reward_set_repetition, -1)
-                            textbutton \"Rep +1\" action Function(rpgp_on_reward_set_repetition, +1)
-                            textbutton \"Victoria\" action Function(rpgp_on_reward_set_result, True)
-                            textbutton \"Derrota\" action Function(rpgp_on_reward_set_result, False)
+                            textbutton "ΔR -1" action Function(rpgp_on_reward_set_rival_register, -1)
+                            textbutton "ΔR +1" action Function(rpgp_on_reward_set_rival_register, +1)
+                            textbutton "Stars -1" action Function(rpgp_on_reward_set_stars, -1)
+                            textbutton "Stars +1" action Function(rpgp_on_reward_set_stars, +1)
+                            textbutton "Rep -1" action Function(rpgp_on_reward_set_repetition, -1)
+                            textbutton "Rep +1" action Function(rpgp_on_reward_set_repetition, +1)
+                            textbutton "Victoria" action Function(rpgp_on_reward_set_result, True)
+                            textbutton "Derrota" action Function(rpgp_on_reward_set_result, False)
 
             frame:
                 xfill True
