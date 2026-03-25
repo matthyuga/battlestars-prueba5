@@ -371,7 +371,11 @@ screen rpg_panel_v1():
                 textbutton "Recalcular" action Function(rpgp_recompute_state)
                 textbutton "Reiniciar cambios" action Function(rpgp_on_reset_changes)
                 textbutton "Confirmar" action Function(rpgp_on_confirm_open_modal) sensitive valid.get("is_valid", False)
-                textbutton "Salir" action Return()
+                if getattr(store, "story_mode_active", False):
+                    $ _story_ready = callable(getattr(store, "story_pilot_is_panel_ready", None)) and story_pilot_is_panel_ready(st)
+                    textbutton "Confirmar Fase B" action Return() sensitive _story_ready
+                else:
+                    textbutton "Salir" action Return()
 
     if rpg_panel_confirm_modal_open:
         use rpg_panel_confirm_modal_v1

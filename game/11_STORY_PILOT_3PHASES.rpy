@@ -101,7 +101,7 @@ label story_phaseB_training_panel:
         if not story_pilot_is_panel_ready(_st):
             "Harribel" "Aún no. Debes cumplir todo:"
             "Harribel" "• Principal elegido."
-            "Harribel" "• Distribución 100% en hasta 4 parámetros."
+            "Harribel" "• Distribución 100 por ciento en hasta 4 parámetros."
             "Harribel" "• Gastar tu 1 punto de stat."
             "Harribel" "• Asignar puntos al pool técnico."
             jump story_phaseB_training_panel_loop
