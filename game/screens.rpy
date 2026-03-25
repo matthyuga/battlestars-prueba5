@@ -302,8 +302,16 @@ screen navigation():
         if main_menu:
 
             $ _quick_pid = str(getattr(store, "spa_editor_profile_id", "A") or "A")
-            textbutton _("Load & Start [[{}]]").format(_quick_pid) action [Function(store.spa_ui_load_profile_feedback, _quick_pid), Start()]
-            textbutton _("Start 1v1 random [[{}]]").format(_quick_pid) action [Function(store.bs_prepare_quick_random_1v1, _quick_pid), Start()]
+            $ _load_and_start_action = [Start()]
+            if hasattr(store, "spa_ui_load_profile_feedback"):
+                $ _load_and_start_action = [Function(store.spa_ui_load_profile_feedback, _quick_pid), Start()]
+
+            $ _quick_1v1_action = [Start()]
+            if hasattr(store, "bs_prepare_quick_random_1v1"):
+                $ _quick_1v1_action = [Function(store.bs_prepare_quick_random_1v1, _quick_pid), Start()]
+
+            textbutton _("Load & Start [[{}]]").format(_quick_pid) action _load_and_start_action
+            textbutton _("Start 1v1 random [[{}]]").format(_quick_pid) action _quick_1v1_action
 
             textbutton _("Start") action Start()
 
