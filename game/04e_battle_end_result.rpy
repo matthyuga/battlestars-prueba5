@@ -32,16 +32,20 @@ label battle_end:
         $ battle_set_atmosphere("void")
         $ battle_popup_turn("Has perdido…", "#FF5555", delay=0.9)
         "Has sido derrotada."
+        $ S.story_pilot_last_result = "defeat"
     elif _enemy_defeated and not _player_defeated:
         $ battle_set_atmosphere("desert")
         $ battle_popup_turn("¡Victoria!", "#00FFAA", delay=0.9)
         "¡El enemigo ha sido eliminado!"
+        $ S.story_pilot_last_result = "victory"
     elif _player_defeated and _enemy_defeated:
         $ battle_set_atmosphere("void")
         $ battle_popup_turn("Empate", "#CCCCCC", delay=0.9)
         "Ambos equipos han caído."
+        $ S.story_pilot_last_result = "draw"
     else:
         "El combate ha terminado."
+        $ S.story_pilot_last_result = "unknown"
 
     # --- Limpieza global de efectos visuales y HUD ---
     if renpy.has_label("battle_hide_hud"):
@@ -49,6 +53,9 @@ label battle_end:
     if renpy.has_label("battle_clear_visual_fx"):
         $ battle_clear_visual_fx()
     $ battle_clear_turn_summary()
+
+    if getattr(S, "story_mode_active", False) and renpy.has_label("story_phaseC_postbattle"):
+        jump story_phaseC_postbattle
 
     # --- Retorno al menú principal ---
     $ renpy.full_restart()

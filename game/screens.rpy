@@ -314,6 +314,7 @@ screen navigation():
             textbutton _("Start 1v1 random [[{}]]").format(_quick_pid) action _quick_1v1_action
 
             textbutton _("Start") action Start()
+            textbutton _("Start Historia (Piloto)") action Start("story_phaseA_intro")
 
         else:
 
