@@ -504,6 +504,15 @@ label battle_start:
             enemy_reiatsu = int(fn_pool("enemy:0", "reiatsu", enemy_reiatsu) or enemy_reiatsu)
             enemy_energy = int(fn_pool("enemy:0", "energy", enemy_energy) or enemy_energy)
 
+        # Modo historia piloto: calibración explícita de recursos para tutorial Lv1.
+        if bool(getattr(S, "story_mode_active", False)):
+            ovr = getattr(S, "story_pilot_resource_override", {}) or {}
+            if isinstance(ovr, dict):
+                player_reiatsu = int(ovr.get("player_reiatsu", player_reiatsu) or player_reiatsu)
+                player_energy = int(ovr.get("player_energy", player_energy) or player_energy)
+                enemy_reiatsu = int(ovr.get("enemy_reiatsu", enemy_reiatsu) or enemy_reiatsu)
+                enemy_energy = int(ovr.get("enemy_energy", enemy_energy) or enemy_energy)
+
         S.player_reiatsu_base = int(player_reiatsu or 0)
         S.player_energy_base = int(player_energy or 0)
         S.enemy_reiatsu_base = int(enemy_reiatsu or 0)
