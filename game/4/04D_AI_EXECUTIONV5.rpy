@@ -254,6 +254,10 @@ init -988 python:
         # Calcular daño REAL (con Focus de daño)
         # --------------------------------------------------------
         base, final = ai_get_base_and_final(key)
+        if bool(getattr(S, "story_mode_active", False)) and str(getattr(S, "battle_enemy_id", "") or "") == "Hollow":
+            if bool(getattr(S, "story_tutorial_enemy_force_strong_100", False)) and key == "stronger_attack":
+                base = 100
+                final = 100
         dmg = S.apply_offensive_focus(final, owner_team="enemy")
 
         # --------------------------------------------------------
@@ -477,6 +481,10 @@ init -988 python:
         # Bloqueo REAL
         # --------------------------------------------------------
         base_blk, final_blk = ai_get_base_and_final(key)
+        if bool(getattr(S, "story_mode_active", False)) and str(getattr(S, "battle_enemy_id", "") or "") == "Hollow":
+            if bool(getattr(S, "story_tutorial_enemy_force_def_strong_50", False)) and key == "defense_strong_block":
+                base_blk = 50
+                final_blk = 50
         blk = S.apply_defensive_focus(final_blk)
 
         S.total_block += blk

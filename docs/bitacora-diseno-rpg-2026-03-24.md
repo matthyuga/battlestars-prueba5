@@ -123,6 +123,9 @@ Se toma inspiración de tabla por diferencia de registros (foro), adaptada a vid
 - Penalización por repetición de rival/encuentro.
 - Ajustes por ventanas horarias y bonos/eventos.
 
+### Documento derivado
+- Ver especificación operativa: `docs/PLANILLA_EXP_ORO_DESEMPENO_V1.md`.
+
 ---
 
 ## 7) Ítems y arquitectura de loot
@@ -204,6 +207,17 @@ La combinación de orbe+gema+socket+ítem crea variabilidad alta y personalizaci
 ---
 
 ## 10) Roadmap inicial (alto nivel)
+
+
+### Documentos de implementación de panel (Ren'Py)
+- Contrato v1: `docs/CONTRATO_PANEL_ASIGNACION_RENPY_V1.md`.
+- Plan por fases: `docs/PLAN_FASES_IMPLEMENTACION_PANEL_RENPY_V1.md`.
+- Ejecución Fase 1: `docs/FASE1_PANEL_RENPY_CORE_EJECUCION_2026-03-25.md`.
+- Ejecución Fase 2: `docs/FASE2_PANEL_RENPY_UI_MINIMA_EJECUCION_2026-03-25.md`.
+- Ejecución Fase 3: `docs/FASE3_PANEL_RENPY_INTEGRACION_PLANILLAS_2026-03-25.md`.
+- Ejecución Fase 4: `docs/FASE4_PANEL_RENPY_RECOMPENSAS_EJECUCION_2026-03-25.md`.
+- Ejecución Fase 5: `docs/FASE5_PANEL_RENPY_QA_FUNCIONAL_EJECUCION_2026-03-25.md`.
+- Ejecución Fase 6: `docs/FASE6_PANEL_RENPY_CIERRE_V1_2026-03-25.md`.
 
 ### Fase 1 — MVP jugable
 - Sistema nivel/registro + tabla EXP/Oro + anti-abuso básico
