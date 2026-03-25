@@ -208,6 +208,11 @@ La combinación de orbe+gema+socket+ítem crea variabilidad alta y personalizaci
 
 ## 10) Roadmap inicial (alto nivel)
 
+
+### Documentos de implementación de panel (Ren'Py)
+- Contrato v1: `docs/CONTRATO_PANEL_ASIGNACION_RENPY_V1.md`.
+- Plan por fases: `docs/PLAN_FASES_IMPLEMENTACION_PANEL_RENPY_V1.md`.
+
 ### Fase 1 — MVP jugable
 - Sistema nivel/registro + tabla EXP/Oro + anti-abuso básico
 - Nueva partida nivel 1
