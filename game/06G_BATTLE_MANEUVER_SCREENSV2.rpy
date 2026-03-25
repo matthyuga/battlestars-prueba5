@@ -74,6 +74,8 @@ init -990 python:
         except:
             pass
 
+    S.battle_apply_rest_recovery = battle_apply_rest_recovery
+
     def _clamp_int(v, lo, hi):
         try:
             v = int(v)

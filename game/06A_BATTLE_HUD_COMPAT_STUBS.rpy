@@ -3,8 +3,27 @@
 # HUD simplificado para piloto (sin sistema HUD avanzado legacy).
 # ===========================================================
 
+init python:
+    def _hud_fake_hp_step(current, target):
+        try:
+            c = float(current or 0.0)
+            t = float(target or 0.0)
+        except:
+            return int(target or 0)
+        if c <= t:
+            return int(t)
+        d = c - t
+        step = max(1.0, d * 0.18)
+        n = c - step
+        if n < t:
+            n = t
+        return int(n)
+
+
 screen battle_hp_overlay():
     zorder 90
+    default _php_fake = 0
+    default _ehp_fake = 0
 
     if bool(getattr(store, "battle_active", False)):
         $ _php = int(getattr(store, "player_hp", 0) or 0)
@@ -28,6 +47,14 @@ screen battle_hp_overlay():
         $ _erei_show = max(0, min(_erei, _emax_rei))
         $ _eene_show = max(0, min(_eene, _emax_ene))
         $ _bar_w = 240
+        if _php_fake <= 0:
+            $ _php_fake = _php
+        if _ehp_fake <= 0:
+            $ _ehp_fake = _ehp
+        timer 0.08 repeat True action [
+            SetScreenVariable("_php_fake", _hud_fake_hp_step(_php_fake, _php)),
+            SetScreenVariable("_ehp_fake", _hud_fake_hp_step(_ehp_fake, _ehp))
+        ]
 
         frame:
             xalign 0.02
@@ -47,7 +74,11 @@ screen battle_hp_overlay():
                         text ("HP %s / %s" % (_php, _pmax)) size 15
                         text ("Reiatsu %s / %s" % (_prei_show, _pmax_rei)) size 14
                         text ("Energía %s / %s" % (_pene_show, _pmax_ene)) size 14
-                bar value StaticValue(max(0, _php), max(1, _pmax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#003847CC"
+                fixed:
+                    xmaximum _bar_w
+                    ymaximum 18
+                    bar value StaticValue(max(0, _php_fake), max(1, _pmax)) xmaximum _bar_w left_bar "#9E9E9E88" right_bar "#003847CC"
+                    bar value StaticValue(max(0, _php), max(1, _pmax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#00384700"
 
         frame:
             xalign 0.98
@@ -69,7 +100,12 @@ screen battle_hp_overlay():
                         text ("Reiatsu %s / %s" % (_erei_show, _emax_rei)) size 14 xalign 1.0
                         text ("Energía %s / %s" % (_eene_show, _emax_ene)) size 14 xalign 1.0
                     add im.Scale("gui/battle/hud_ai/portraits/portrait_hollow_head.png", 64, 64)
-                bar value StaticValue(max(0, _ehp), max(1, _emax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#003847CC" xalign 1.0
+                fixed:
+                    xmaximum _bar_w
+                    ymaximum 18
+                    xalign 1.0
+                    bar value StaticValue(max(0, _ehp_fake), max(1, _emax)) xmaximum _bar_w left_bar "#9E9E9E88" right_bar "#003847CC" xalign 1.0
+                    bar value StaticValue(max(0, _ehp), max(1, _emax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#00384700" xalign 1.0
 
 
 screen battle_ui_hotkeys():
