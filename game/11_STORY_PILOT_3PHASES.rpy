@@ -244,6 +244,7 @@ init -100 python:
         cfg = story_cfg_get()
         st = story_build_preview_from_cfg()
         prev = st.get("preview", {}) if isinstance(st.get("preview", {}), dict) else {}
+        tp = cfg.get("tech_points", {}) if isinstance(cfg.get("tech_points", {}), dict) else {}
 
         hp = int(prev.get("hp_after", 1000) or 1000)
         rei = int(prev.get("reiatsu_after", 1000) or 1000)
@@ -265,6 +266,18 @@ init -100 python:
         rep = list(cfg.get("repertoire", []) or [])
         S.story_pilot_allowed_offensive = [k for k in rep if k in ("stronger_attack", "direct_attack")]
         S.story_pilot_allowed_defensive = [k for k in rep if k in ("defense_strong_block",)]
+
+        # Sincronizar bonus de técnicas del tutorial con el motor real de combate.
+        fn_set_bonus = getattr(S, "spa_set_bonus", None)
+        if callable(fn_set_bonus):
+            fn_set_bonus("player:0", "stronger_attack", int(tp.get("stronger_attack", 0) or 0), save=False)
+            fn_set_bonus("player:0", "direct_attack", int(tp.get("direct_attack", 0) or 0), save=False)
+            fn_set_bonus("player:0", "defense_strong_block", int(tp.get("defense_strong_block", 0) or 0), save=False)
+
+            # Enemigo tutorial plano (100 base, sin bonus extra)
+            fn_set_bonus("enemy:0", "stronger_attack", 0, save=False)
+            fn_set_bonus("enemy:0", "direct_attack", 0, save=False)
+            fn_set_bonus("enemy:0", "defense_strong_block", 0, save=False)
 
 
 screen story_panel_tutorial_basics():

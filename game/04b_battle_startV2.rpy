@@ -547,6 +547,12 @@ label battle_start:
             fn_set_res("player:0", player_reiatsu, player_energy)
             fn_set_res("enemy:0", enemy_reiatsu, enemy_energy)
 
+    # Re-sincronizar máximos/overlays después de overrides de tutorial.
+    $ battle_hp_player_max = max(1, int(player_hp or 1))
+    $ battle_hp_enemy_max = max(1, int(enemy_hp or 1))
+    $ battle_update_hp_bars(player_hp, enemy_hp)
+    $ battle_update_damage_overlay(player_hp, battle_hp_player_max)
+
     # ⭐ Sincronizar simulación del enemigo
     $ simulated_enemy_reiatsu = enemy_reiatsu
     $ simulated_enemy_energy  = enemy_energy
