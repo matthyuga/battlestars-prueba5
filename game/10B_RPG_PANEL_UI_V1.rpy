@@ -122,6 +122,37 @@ init -870 python:
         st.setdefault("mode", {})["view"] = "pvp" if m == "pvp" else "pve"
         return rpgp_recompute_state()
 
+    def rpgp_on_reward_set_result(is_victory):
+        st = rpgp_get_state()
+        st.setdefault("reward_sim", {})["is_victory"] = bool(is_victory)
+        return rpgp_recompute_state()
+
+    def rpgp_on_reward_set_rival_register(delta):
+        st = rpgp_get_state()
+        player_reg = _rpgp_to_int(st.get("player", {}).get("register", 0), 0)
+        cur = _rpgp_to_int(st.setdefault("reward_sim", {}).get("rival_register", player_reg), player_reg)
+        nxt = _rpgp_clamp(cur + _rpgp_to_int(delta, 0), 0, RPGP_MAX_REGISTER)
+        st["reward_sim"]["rival_register"] = nxt
+        return rpgp_recompute_state()
+
+    def rpgp_on_reward_set_stars(delta):
+        st = rpgp_get_state()
+        cur = _rpgp_to_int(st.setdefault("reward_sim", {}).get("stars", 15), 15)
+        nxt = _rpgp_clamp(cur + _rpgp_to_int(delta, 0), 0, 30)
+        st["reward_sim"]["stars"] = nxt
+        return rpgp_recompute_state()
+
+    def rpgp_on_reward_set_repetition(delta):
+        st = rpgp_get_state()
+        cur = _rpgp_to_int(st.setdefault("reward_sim", {}).get("repetition_count", 1), 1)
+        nxt = cur + _rpgp_to_int(delta, 0)
+        if nxt < 1:
+            nxt = 1
+        if nxt > 10:
+            nxt = 10
+        st["reward_sim"]["repetition_count"] = nxt
+        return rpgp_recompute_state()
+
     def rpgp_on_reset_changes():
         base = getattr(S, "rpg_panel_baseline_v1", None)
         if isinstance(base, dict):
@@ -157,6 +188,8 @@ screen rpg_panel_v1():
     $ principal = st.get("principal", {})
     $ pool = st.get("pool", {})
     $ preview = st.get("preview", {})
+    $ reward_sim = st.get("reward_sim", {})
+    $ reward_preview = st.get("reward_preview", {})
     $ valid = st.get("validation", {})
     $ mode = st.get("mode", {}).get("view", "pve")
     $ caps = compute_caps_for_register(player.get("register", 0), mode)
@@ -252,6 +285,21 @@ screen rpg_panel_v1():
                         text "Ofensiva energía — Esc9 [consume.get('offensive', {}).get('energy_scale9', 0)] | TecExtra [consume.get('offensive', {}).get('energy_tecnica_extra', 0)] | Red [consume.get('offensive', {}).get('energy_reductor', 0)] | Dir/Neg [consume.get('offensive', {}).get('energy_directo_negador', 0)] | Esp [consume.get('offensive', {}).get('energy_efecto_especial', 0)]" size 15
                         text "Defensiva cap/reiatsu: [consume.get('defensive', {}).get('cap', 0)] / [consume.get('defensive', {}).get('reiatsu', 0)]" size 16
                         text "Defensiva energía — Esc9 [consume.get('defensive', {}).get('energy_scale9', 0)] | Red [consume.get('defensive', {}).get('energy_reductora', 0)] | Reflect [consume.get('defensive', {}).get('energy_reflectora', 0)] | Esp [consume.get('defensive', {}).get('energy_efecto_especial', 0)]" size 15
+
+                        null height 6
+                        text "Recompensa post-combate (integración Fase 4)" size 20
+                        text "Rival reg: [reward_sim.get('rival_register', player.get('register', 0))] | ΔR: [reward_preview.get('delta_register', 0)] | Estrellas: [reward_sim.get('stars', 15)] | Repetición: [reward_sim.get('repetition_count', 1)]" size 16
+                        text "Resultado: [ 'Victoria' if reward_sim.get('is_victory', True) else 'Derrota' ] | EXP final: [reward_preview.get('exp_final', 0)] | Oro final: [reward_preview.get('oro_final', 0)]" size 16
+                        hbox:
+                            spacing 8
+                            textbutton \"ΔR -1\" action Function(rpgp_on_reward_set_rival_register, -1)
+                            textbutton \"ΔR +1\" action Function(rpgp_on_reward_set_rival_register, +1)
+                            textbutton \"Stars -1\" action Function(rpgp_on_reward_set_stars, -1)
+                            textbutton \"Stars +1\" action Function(rpgp_on_reward_set_stars, +1)
+                            textbutton \"Rep -1\" action Function(rpgp_on_reward_set_repetition, -1)
+                            textbutton \"Rep +1\" action Function(rpgp_on_reward_set_repetition, +1)
+                            textbutton \"Victoria\" action Function(rpgp_on_reward_set_result, True)
+                            textbutton \"Derrota\" action Function(rpgp_on_reward_set_result, False)
 
             frame:
                 xfill True

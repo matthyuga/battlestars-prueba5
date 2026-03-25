@@ -215,6 +215,7 @@ La combinación de orbe+gema+socket+ítem crea variabilidad alta y personalizaci
 - Ejecución Fase 1: `docs/FASE1_PANEL_RENPY_CORE_EJECUCION_2026-03-25.md`.
 - Ejecución Fase 2: `docs/FASE2_PANEL_RENPY_UI_MINIMA_EJECUCION_2026-03-25.md`.
 - Ejecución Fase 3: `docs/FASE3_PANEL_RENPY_INTEGRACION_PLANILLAS_2026-03-25.md`.
+- Ejecución Fase 4: `docs/FASE4_PANEL_RENPY_RECOMPENSAS_EJECUCION_2026-03-25.md`.
 
 ### Fase 1 — MVP jugable
 - Sistema nivel/registro + tabla EXP/Oro + anti-abuso básico

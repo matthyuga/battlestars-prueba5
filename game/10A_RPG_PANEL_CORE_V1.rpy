@@ -16,6 +16,8 @@ init -880 python:
     RPGP_BASE_HP = 1000
     RPGP_BASE_ENERGY = 100
     RPGP_BASE_REIATSU = 1000
+    RPGP_BASE_EXP_DEFAULT = 100
+    RPGP_BASE_ORO_DEFAULT = 60
 
     RPGP_POOL_INITIAL = 200
     RPGP_POOL_PER_REGISTER = 100
@@ -38,6 +40,16 @@ init -880 python:
         "resistencia": "hp",
         "inteligencia": "energia",
         "espiritu": "reiatsu",
+    }
+
+    RPGP_EXP_RISK_TABLE = {
+        -5: 0.15, -4: 0.25, -3: 0.40, -2: 0.60, -1: 0.82,
+         0: 1.00,  1: 1.25,  2: 1.55,  3: 1.90,  4: 2.30, 5: 2.80,
+    }
+
+    RPGP_ORO_RISK_TABLE = {
+        -5: 0.25, -4: 0.40, -3: 0.55, -2: 0.72, -1: 0.88,
+         0: 1.00,  1: 1.12,  2: 1.28,  3: 1.45,  4: 1.65, 5: 1.85,
     }
 
     # Tier blocks para caps (idénticos a la planilla de registros)
@@ -121,6 +133,14 @@ init -880 python:
                 "atk_after": 0,
                 "def_before": 0,
                 "def_after": 0,
+            },
+            "reward_sim": {
+                "base_exp": RPGP_BASE_EXP_DEFAULT,
+                "base_oro": RPGP_BASE_ORO_DEFAULT,
+                "rival_register": register,
+                "is_victory": True,
+                "stars": 15,
+                "repetition_count": 1,
             },
             "validation": {
                 "is_valid": False,
@@ -238,6 +258,25 @@ init -880 python:
             return 500
         return 500 + 10 * (((vv - 101) // 500) + 1)
 
+    def _rpgp_risk_multiplier(delta_register, for_exp=True):
+        d = _rpgp_to_int(delta_register, 0)
+        if d < -5:
+            d = -5
+        if d > 5:
+            d = 5
+        table = RPGP_EXP_RISK_TABLE if for_exp else RPGP_ORO_RISK_TABLE
+        return float(table.get(d, 1.0))
+
+    def _rpgp_antiabuso_multiplier(repetition_count):
+        rep = _rpgp_to_int(repetition_count, 1)
+        if rep <= 1:
+            return 1.00
+        if rep == 2:
+            return 0.60
+        if rep == 3:
+            return 0.30
+        return 0.10
+
     # ===================================================
     # API pública de Fase 1 (según contrato documental)
     # ===================================================
@@ -333,6 +372,46 @@ init -880 python:
             "defensive": defensive,
         }
 
+    def compute_exp_oro_reward(base_exp, base_oro, player_register, rival_register, is_victory, stars, repetition_count=1):
+        """
+        Fase 4:
+        EXP/Oro = base * riesgo(ΔR) * resultado * desempeño * antiabuso
+        """
+        b_exp = max(0.0, float(base_exp))
+        b_oro = max(0.0, float(base_oro))
+        rj = _rpgp_clamp(player_register, 0, RPGP_MAX_REGISTER)
+        rr = _rpgp_clamp(rival_register, 0, RPGP_MAX_REGISTER)
+        dr = int(rr - rj)
+
+        s = _rpgp_clamp(stars, 0, 30)
+        m_des_exp = 0.70 + (0.02 * s)
+        m_des_oro = 0.80 + (0.01 * s)
+
+        m_res_exp = 1.00 if bool(is_victory) else 0.70
+        m_res_oro = 1.00 if bool(is_victory) else 0.50
+
+        m_risk_exp = _rpgp_risk_multiplier(dr, for_exp=True)
+        m_risk_oro = _rpgp_risk_multiplier(dr, for_exp=False)
+        m_anti = _rpgp_antiabuso_multiplier(repetition_count)
+
+        exp_raw = b_exp * m_risk_exp * m_res_exp * m_des_exp * m_anti
+        oro_raw = b_oro * m_risk_oro * m_res_oro * m_des_oro * m_anti
+
+        return {
+            "delta_register": dr,
+            "multipliers": {
+                "risk_exp": m_risk_exp,
+                "risk_oro": m_risk_oro,
+                "result_exp": m_res_exp,
+                "result_oro": m_res_oro,
+                "performance_exp": m_des_exp,
+                "performance_oro": m_des_oro,
+                "antiabuso": m_anti,
+            },
+            "exp_final": int(round(exp_raw)),
+            "oro_final": int(round(oro_raw)),
+        }
+
     def compute_preview(panel_state):
         st = copy.deepcopy(panel_state if isinstance(panel_state, dict) else _rpgp_default_state())
 
@@ -412,6 +491,16 @@ init -880 python:
         prev["atk_after"] = stat_bonus["ataque"] + principal_bonus["ataque"]
         prev["def_after"] = stat_bonus["defensa"] + principal_bonus["defensa"]
         st["preview"] = prev
+
+        # preview de recompensa (Fase 4)
+        rsim = st.get("reward_sim", {}) if isinstance(st.get("reward_sim", {}), dict) else {}
+        b_exp = _rpgp_to_int(rsim.get("base_exp", RPGP_BASE_EXP_DEFAULT), RPGP_BASE_EXP_DEFAULT)
+        b_oro = _rpgp_to_int(rsim.get("base_oro", RPGP_BASE_ORO_DEFAULT), RPGP_BASE_ORO_DEFAULT)
+        rr = _rpgp_to_int(rsim.get("rival_register", register), register)
+        is_victory = bool(rsim.get("is_victory", True))
+        stars = _rpgp_to_int(rsim.get("stars", 15), 15)
+        rep = _rpgp_to_int(rsim.get("repetition_count", 1), 1)
+        st["reward_preview"] = compute_exp_oro_reward(b_exp, b_oro, register, rr, is_victory, stars, rep)
 
         st["validation"] = validate_panel_state(st)
         return st
