@@ -206,7 +206,13 @@ screen rpg_panel_v1():
             spacing 12
 
             text "Panel RPG v1 — Asignación de puntos" size 34
-            text "Seed: [rpg_panel_state_seed_name] | Nivel [player.get('level', 1)] | Registro [player.get('register', 0)] | EXP [player.get('exp_current', 0)]/[player.get('exp_max', 100)]" size 20
+            text ("Seed: %s | Nivel %s | Registro %s | EXP %s/%s" % (
+                rpg_panel_state_seed_name,
+                player.get("level", 1),
+                player.get("register", 0),
+                player.get("exp_current", 0),
+                player.get("exp_max", 100),
+            )) size 20
 
             hbox:
                 spacing 16
@@ -219,8 +225,8 @@ screen rpg_panel_v1():
                     vbox:
                         spacing 10
                         text "Panel A — Identidad y Stats" size 24
-                        text "Principal: [principal.get('selected', 'None')]" size 18
-                        text "Puntos de stat pendientes: [st.get('pending', {}).get('stat_points', 0)]" size 18
+                        text ("Principal: %s" % principal.get("selected", "None")) size 18
+                        text ("Puntos de stat pendientes: %s" % st.get("pending", {}).get("stat_points", 0)) size 18
 
                         hbox:
                             spacing 8
@@ -234,7 +240,7 @@ screen rpg_panel_v1():
                                 spacing 8
                                 xfill True
                                 text "[s]" xsize 170
-                                text "[stats.get(s, 0)]" xsize 40
+                                text ("%s" % stats.get(s, 0)) xsize 40
                                 textbutton "+" action Function(rpgp_on_add_stat, s)
                                 textbutton "-" action Function(rpgp_on_remove_stat, s)
 
@@ -246,26 +252,40 @@ screen rpg_panel_v1():
                     vbox:
                         spacing 10
                         text "Panel B — Principal + Pool técnico" size 24
-                        text "Distribución principal: [principal.get('distribution_total', 0)]/100 | Slots activos: [principal.get('active_slots', 0)]/[principal.get('max_slots', 4)]" size 18
+                        text ("Distribución principal: %s/100 | Slots activos: %s/%s" % (
+                            principal.get("distribution_total", 0),
+                            principal.get("active_slots", 0),
+                            principal.get("max_slots", 4),
+                        )) size 18
 
                         for bucket in RPGP_PRINCIPAL_BUCKETS:
                             hbox:
                                 spacing 8
                                 text "[bucket]" xsize 120
-                                text "Actual: [principal.get('distribution', {}).get(bucket, 0)]" xsize 120
+                                text ("Actual: %s" % principal.get("distribution", {}).get(bucket, 0)) xsize 120
                                 for step in RPGP_PRINCIPAL_ALLOWED_STEPS:
                                     if step > 0:
                                         textbutton "[step]" action Function(rpgp_on_change_distribution, bucket, step)
                                 textbutton "0" action Function(rpgp_on_change_distribution, bucket, 0)
 
                         null height 6
-                        text "Modo de vista caps: [mode.upper()] | Tier [caps.get('tier', 'D')] | Cap Of [caps.get('offensive_cap', 0)] | Cap Def [caps.get('defensive_cap', 0)]" size 18
+                        text ("Modo de vista caps: %s | Tier %s | Cap Of %s | Cap Def %s" % (
+                            mode.upper(),
+                            caps.get("tier", "D"),
+                            caps.get("offensive_cap", 0),
+                            caps.get("defensive_cap", 0),
+                        )) size 18
                         hbox:
                             spacing 8
                             textbutton "PVE" action Function(rpgp_on_toggle_mode, "pve")
                             textbutton "PVP" action Function(rpgp_on_toggle_mode, "pvp")
 
-                        text "Pool total: [pool.get('total', 0)] | Of gastado: [pool.get('offensive_spent', 0)] | Def gastado: [pool.get('defensive_spent', 0)] | Disponible: [pool.get('available', 0)]" size 18
+                        text ("Pool total: %s | Of gastado: %s | Def gastado: %s | Disponible: %s" % (
+                            pool.get("total", 0),
+                            pool.get("offensive_spent", 0),
+                            pool.get("defensive_spent", 0),
+                            pool.get("available", 0),
+                        )) size 18
                         hbox:
                             spacing 8
                             textbutton "+Of 25" action Function(rpgp_on_add_pool, "ofensiva", 25)
@@ -275,23 +295,49 @@ screen rpg_panel_v1():
 
                         null height 6
                         text "Preview antes/después" size 20
-                        text "HP: [preview.get('hp_before', 0)] -> [preview.get('hp_after', 0)]" size 17
-                        text "Energía: [preview.get('energia_before', 0)] -> [preview.get('energia_after', 0)]" size 17
-                        text "Reiatsu: [preview.get('reiatsu_before', 0)] -> [preview.get('reiatsu_after', 0)]" size 17
-                        text "Ataque: [preview.get('atk_before', 0)] -> [preview.get('atk_after', 0)]" size 17
-                        text "Defensa: [preview.get('def_before', 0)] -> [preview.get('def_after', 0)]" size 17
+                        text ("HP: %s -> %s" % (preview.get("hp_before", 0), preview.get("hp_after", 0))) size 17
+                        text ("Energía: %s -> %s" % (preview.get("energia_before", 0), preview.get("energia_after", 0))) size 17
+                        text ("Reiatsu: %s -> %s" % (preview.get("reiatsu_before", 0), preview.get("reiatsu_after", 0))) size 17
+                        text ("Ataque: %s -> %s" % (preview.get("atk_before", 0), preview.get("atk_after", 0))) size 17
+                        text ("Defensa: %s -> %s" % (preview.get("def_before", 0), preview.get("def_after", 0))) size 17
 
                         null height 6
                         text "Consumo al cap (integración Fase 3)" size 20
-                        text "Ofensiva cap/reiatsu: [consume.get('offensive', {}).get('cap', 0)] / [consume.get('offensive', {}).get('reiatsu', 0)]" size 16
-                        text "Ofensiva energía — Esc9 [consume.get('offensive', {}).get('energy_scale9', 0)] | TecExtra [consume.get('offensive', {}).get('energy_tecnica_extra', 0)] | Red [consume.get('offensive', {}).get('energy_reductor', 0)] | Dir/Neg [consume.get('offensive', {}).get('energy_directo_negador', 0)] | Esp [consume.get('offensive', {}).get('energy_efecto_especial', 0)]" size 15
-                        text "Defensiva cap/reiatsu: [consume.get('defensive', {}).get('cap', 0)] / [consume.get('defensive', {}).get('reiatsu', 0)]" size 16
-                        text "Defensiva energía — Esc9 [consume.get('defensive', {}).get('energy_scale9', 0)] | Red [consume.get('defensive', {}).get('energy_reductora', 0)] | Reflect [consume.get('defensive', {}).get('energy_reflectora', 0)] | Esp [consume.get('defensive', {}).get('energy_efecto_especial', 0)]" size 15
+                        text ("Ofensiva cap/reiatsu: %s / %s" % (
+                            consume.get("offensive", {}).get("cap", 0),
+                            consume.get("offensive", {}).get("reiatsu", 0),
+                        )) size 16
+                        text ("Ofensiva energía — Esc9 %s | TecExtra %s | Red %s | Dir/Neg %s | Esp %s" % (
+                            consume.get("offensive", {}).get("energy_scale9", 0),
+                            consume.get("offensive", {}).get("energy_tecnica_extra", 0),
+                            consume.get("offensive", {}).get("energy_reductor", 0),
+                            consume.get("offensive", {}).get("energy_directo_negador", 0),
+                            consume.get("offensive", {}).get("energy_efecto_especial", 0),
+                        )) size 15
+                        text ("Defensiva cap/reiatsu: %s / %s" % (
+                            consume.get("defensive", {}).get("cap", 0),
+                            consume.get("defensive", {}).get("reiatsu", 0),
+                        )) size 16
+                        text ("Defensiva energía — Esc9 %s | Red %s | Reflect %s | Esp %s" % (
+                            consume.get("defensive", {}).get("energy_scale9", 0),
+                            consume.get("defensive", {}).get("energy_reductora", 0),
+                            consume.get("defensive", {}).get("energy_reflectora", 0),
+                            consume.get("defensive", {}).get("energy_efecto_especial", 0),
+                        )) size 15
 
                         null height 6
                         text "Recompensa post-combate (integración Fase 4)" size 20
-                        text "Rival reg: [reward_sim.get('rival_register', player.get('register', 0))] | ΔR: [reward_preview.get('delta_register', 0)] | Estrellas: [reward_sim.get('stars', 15)] | Repetición: [reward_sim.get('repetition_count', 1)]" size 16
-                        text "Resultado: [ 'Victoria' if reward_sim.get('is_victory', True) else 'Derrota' ] | EXP final: [reward_preview.get('exp_final', 0)] | Oro final: [reward_preview.get('oro_final', 0)]" size 16
+                        text ("Rival reg: %s | ΔR: %s | Estrellas: %s | Repetición: %s" % (
+                            reward_sim.get("rival_register", player.get("register", 0)),
+                            reward_preview.get("delta_register", 0),
+                            reward_sim.get("stars", 15),
+                            reward_sim.get("repetition_count", 1),
+                        )) size 16
+                        text ("Resultado: %s | EXP final: %s | Oro final: %s" % (
+                            ("Victoria" if reward_sim.get("is_victory", True) else "Derrota"),
+                            reward_preview.get("exp_final", 0),
+                            reward_preview.get("oro_final", 0),
+                        )) size 16
                         hbox:
                             spacing 8
                             textbutton "ΔR -1" action Function(rpgp_on_reward_set_rival_register, -1)
@@ -349,11 +395,11 @@ screen rpg_panel_confirm_modal_v1():
 
             $ st = rpg_panel_state_v1 if isinstance(rpg_panel_state_v1, dict) else rpgp_seed_new_player()
             $ preview = st.get("preview", {})
-            text "HP: [preview.get('hp_before', 0)] -> [preview.get('hp_after', 0)]"
-            text "Energía: [preview.get('energia_before', 0)] -> [preview.get('energia_after', 0)]"
-            text "Reiatsu: [preview.get('reiatsu_before', 0)] -> [preview.get('reiatsu_after', 0)]"
-            text "Ataque: [preview.get('atk_before', 0)] -> [preview.get('atk_after', 0)]"
-            text "Defensa: [preview.get('def_before', 0)] -> [preview.get('def_after', 0)]"
+            text ("HP: %s -> %s" % (preview.get("hp_before", 0), preview.get("hp_after", 0)))
+            text ("Energía: %s -> %s" % (preview.get("energia_before", 0), preview.get("energia_after", 0)))
+            text ("Reiatsu: %s -> %s" % (preview.get("reiatsu_before", 0), preview.get("reiatsu_after", 0)))
+            text ("Ataque: %s -> %s" % (preview.get("atk_before", 0), preview.get("atk_after", 0)))
+            text ("Defensa: %s -> %s" % (preview.get("def_before", 0), preview.get("def_after", 0)))
 
             hbox:
                 spacing 10
