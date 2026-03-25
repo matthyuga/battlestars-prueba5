@@ -198,6 +198,46 @@ init -880 python:
             "pvp_factor": 0.75,
         }
 
+    def _rpgp_energy_cost_scale9(v):
+        vv = max(1, _rpgp_to_int(v, 1))
+        return 10 + 10 * ((vv - 1) // 1000)
+
+    def _rpgp_energy_cost_tecnica_extra(v):
+        vv = max(1, _rpgp_to_int(v, 1))
+        if vv <= 100:
+            return 20
+        if vv <= 800:
+            return 30
+        if vv <= 1400:
+            return 40
+        if vv <= 2100:
+            return 50
+        return 50 + 10 * (((vv - 2101) // 700) + 1)
+
+    def _rpgp_energy_cost_reductor(v):
+        vv = max(1, _rpgp_to_int(v, 1))
+        if vv <= 100:
+            return 40
+        return 40 + 10 * (((vv - 101) // 500) + 1)
+
+    def _rpgp_energy_cost_directo_negador(v):
+        vv = max(1, _rpgp_to_int(v, 1))
+        if vv <= 100:
+            return 30
+        return 30 + 10 * (((vv - 101) // 600) + 1)
+
+    def _rpgp_energy_cost_reflectora(v):
+        vv = max(1, _rpgp_to_int(v, 1))
+        if vv <= 100:
+            return 50
+        return 50 + 10 * (((vv - 101) // 400) + 1)
+
+    def _rpgp_energy_cost_efecto_especial(v):
+        vv = max(1, _rpgp_to_int(v, 1))
+        if vv <= 100:
+            return 500
+        return 500 + 10 * (((vv - 101) // 500) + 1)
+
     # ===================================================
     # API pública de Fase 1 (según contrato documental)
     # ===================================================
@@ -255,6 +295,42 @@ init -880 python:
             "off_base": off_base,
             "def_base": def_base,
             "pvp_factor": float(base["pvp_factor"]),
+        }
+
+    def compute_consumption_at_cap(register, mode):
+        """
+        Integra planilla de consumo por registro:
+        - Cap y reiatsu: derivado de cap por modo
+        - Energía: por familia de técnica
+        """
+        caps = compute_caps_for_register(register, mode)
+        off_cap = int(caps.get("offensive_cap", 0))
+        def_cap = int(caps.get("defensive_cap", 0))
+
+        offensive = {
+            "cap": off_cap,
+            "reiatsu": off_cap,
+            "energy_scale9": _rpgp_energy_cost_scale9(off_cap),
+            "energy_tecnica_extra": _rpgp_energy_cost_tecnica_extra(off_cap),
+            "energy_reductor": _rpgp_energy_cost_reductor(off_cap),
+            "energy_directo_negador": _rpgp_energy_cost_directo_negador(off_cap),
+            "energy_efecto_especial": _rpgp_energy_cost_efecto_especial(off_cap),
+        }
+
+        defensive = {
+            "cap": def_cap,
+            "reiatsu": def_cap,
+            "energy_scale9": _rpgp_energy_cost_scale9(def_cap),
+            "energy_reductora": _rpgp_energy_cost_reductor(def_cap),
+            "energy_reflectora": _rpgp_energy_cost_reflectora(def_cap),
+            "energy_efecto_especial": _rpgp_energy_cost_efecto_especial(def_cap),
+        }
+
+        return {
+            "tier": caps.get("tier", "D"),
+            "mode": str(mode or "pve").lower(),
+            "offensive": offensive,
+            "defensive": defensive,
         }
 
     def compute_preview(panel_state):

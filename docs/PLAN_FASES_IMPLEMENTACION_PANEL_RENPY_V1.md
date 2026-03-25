@@ -20,7 +20,8 @@ Implementar un panel funcional y auditado para:
 - Fase 0: completada.
 - Fase 1: completada (ver `docs/FASE1_PANEL_RENPY_CORE_EJECUCION_2026-03-25.md`).
 - Fase 2: completada (ver `docs/FASE2_PANEL_RENPY_UI_MINIMA_EJECUCION_2026-03-25.md`).
-- Fase 3: pendiente.
+- Fase 3: completada (ver `docs/FASE3_PANEL_RENPY_INTEGRACION_PLANILLAS_2026-03-25.md`).
+- Fase 4: pendiente.
 
 ---
 

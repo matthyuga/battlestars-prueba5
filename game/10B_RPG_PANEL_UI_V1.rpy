@@ -160,6 +160,7 @@ screen rpg_panel_v1():
     $ valid = st.get("validation", {})
     $ mode = st.get("mode", {}).get("view", "pve")
     $ caps = compute_caps_for_register(player.get("register", 0), mode)
+    $ consume = compute_consumption_at_cap(player.get("register", 0), mode)
 
     frame:
         xfill True
@@ -244,6 +245,13 @@ screen rpg_panel_v1():
                         text "Reiatsu: [preview.get('reiatsu_before', 0)] -> [preview.get('reiatsu_after', 0)]" size 17
                         text "Ataque: [preview.get('atk_before', 0)] -> [preview.get('atk_after', 0)]" size 17
                         text "Defensa: [preview.get('def_before', 0)] -> [preview.get('def_after', 0)]" size 17
+
+                        null height 6
+                        text "Consumo al cap (integración Fase 3)" size 20
+                        text "Ofensiva cap/reiatsu: [consume.get('offensive', {}).get('cap', 0)] / [consume.get('offensive', {}).get('reiatsu', 0)]" size 16
+                        text "Ofensiva energía — Esc9 [consume.get('offensive', {}).get('energy_scale9', 0)] | TecExtra [consume.get('offensive', {}).get('energy_tecnica_extra', 0)] | Red [consume.get('offensive', {}).get('energy_reductor', 0)] | Dir/Neg [consume.get('offensive', {}).get('energy_directo_negador', 0)] | Esp [consume.get('offensive', {}).get('energy_efecto_especial', 0)]" size 15
+                        text "Defensiva cap/reiatsu: [consume.get('defensive', {}).get('cap', 0)] / [consume.get('defensive', {}).get('reiatsu', 0)]" size 16
+                        text "Defensiva energía — Esc9 [consume.get('defensive', {}).get('energy_scale9', 0)] | Red [consume.get('defensive', {}).get('energy_reductora', 0)] | Reflect [consume.get('defensive', {}).get('energy_reflectora', 0)] | Esp [consume.get('defensive', {}).get('energy_efecto_especial', 0)]" size 15
 
             frame:
                 xfill True
