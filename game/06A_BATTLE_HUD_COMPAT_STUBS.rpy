@@ -23,7 +23,7 @@ screen battle_hp_overlay():
             add "gui/battle/hud_ai/portraits/portrait_harribel_head.png" xalign 0.0
             text "Jugador (Harribel)" size 18 color "#00BFFF"
             bar value StaticValue(max(0, _php), max(1, _pmax)) xmaximum 470
-            text "HP [ _php ] / [ _pmax ]" size 16
+            text ("HP %s / %s" % (_php, _pmax)) size 16
 
     frame:
         xalign 0.98
@@ -37,7 +37,7 @@ screen battle_hp_overlay():
             add "gui/battle/hud_ai/portraits/portrait_hollow_head.png" xalign 1.0
             text "Enemigo (Hollow)" size 18 color "#FF7777" xalign 1.0
             bar value StaticValue(max(0, _ehp), max(1, _emax)) xmaximum 470 xalign 1.0
-            text "HP [ _ehp ] / [ _emax ]" size 16 xalign 1.0
+            text ("HP %s / %s" % (_ehp, _emax)) size 16 xalign 1.0
 
 
 screen battle_ui_hotkeys():
