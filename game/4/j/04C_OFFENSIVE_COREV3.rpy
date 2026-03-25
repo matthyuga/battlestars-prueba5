@@ -318,6 +318,26 @@ label battle_offensive_turn_legacy_entry:
                         S.deferred_defense_return_to_offense = False
                         S.deferred_defense_actor_key = ""
                         renpy.jump("battle_defensive_turn")
+                    elif msel == "rest_offense":
+                        fn_rest = getattr(S, "battle_apply_rest_recovery", None)
+                        if callable(fn_rest):
+                            fn_rest()
+                        S.offense_cancelled = True
+                        S.extra_offensive_actions = 0
+                        S.deferred_defense_return_to_offense = False
+                        S.deferred_defense_actor_key = ""
+                        if callable(getattr(S, "battle_popup_turn", None)):
+                            S.battle_popup_turn("Descansar: turno ofensivo sacrificado", "#A5D6A7", 0.5)
+                        renpy.jump("battle_enemy_turn")
+                    elif msel == "rest_defense":
+                        fn_rest = getattr(S, "battle_apply_rest_recovery", None)
+                        if callable(fn_rest):
+                            fn_rest()
+                        S.rest_skip_next_defensive_turn = True
+                        S.deferred_defense_return_to_offense = False
+                        S.deferred_defense_actor_key = ""
+                        if callable(getattr(S, "battle_log_add", None)):
+                            S.battle_log_add("{color=#A5D6A7}Descansar: tu próximo turno defensivo será sacrificado.{/color}")
                     else:
                         renpy.jump("battle_defensive_turn")
 

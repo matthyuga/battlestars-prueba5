@@ -31,6 +31,49 @@ init -990 python:
         S.show_maneuver_choice = not getattr(S, "show_maneuver_choice", True)
         R.restart_interaction()
 
+    def battle_apply_rest_recovery():
+        try:
+            rei_now = int(getattr(S, "player_reiatsu", 0) or 0)
+            ene_now = int(getattr(S, "player_energy", 0) or 0)
+            rei_cap = int(getattr(S, "player_reiatsu_base", rei_now) or rei_now)
+            ene_cap = int(getattr(S, "player_energy_base", ene_now) or ene_now)
+        except:
+            rei_now, ene_now, rei_cap, ene_cap = 0, 0, 0, 0
+
+        rei_cap = max(0, rei_cap)
+        ene_cap = max(0, ene_cap)
+        rei_gain = int(round(rei_cap * 0.35))
+        ene_gain = int(round(ene_cap * 0.35))
+
+        rei_after = min(rei_cap, max(0, rei_now + rei_gain))
+        ene_after = min(ene_cap, max(0, ene_now + ene_gain))
+
+        S.player_reiatsu = int(rei_after)
+        S.player_energy = int(ene_after)
+        S.simulated_reiatsu = int(rei_after)
+        S.simulated_energy = int(ene_after)
+
+        try:
+            fn_res = getattr(S, "bs_set_unit_resources", None)
+            if callable(fn_res):
+                fn_res("player:0", int(rei_after), int(ene_after))
+        except:
+            pass
+
+        try:
+            fn_fmt = getattr(S, "battle_fmt_num", None)
+            if callable(fn_fmt):
+                rg = fn_fmt(rei_after - rei_now)
+                eg = fn_fmt(ene_after - ene_now)
+            else:
+                rg = str(int(rei_after - rei_now))
+                eg = str(int(ene_after - ene_now))
+            fn_log = getattr(S, "battle_log_add", None)
+            if callable(fn_log):
+                fn_log("{color=#A5D6A7}Descansar: +%s Reiatsu y +%s Energía (35%% de base).{/color}" % (rg, eg))
+        except:
+            pass
+
     def _clamp_int(v, lo, hi):
         try:
             v = int(v)
@@ -334,6 +377,23 @@ screen battle_maneuver_choice(damage):
                                         selected local_choice == "sacrifice_request"
                                         text_size 19
 
+                                textbutton "Descansar (sacrificar turno ofensivo)":
+                                    action SetScreenVariable("local_choice", "rest_offense")
+                                    style "maneuver_option_button"
+                                    text_style "maneuver_option_button_text"
+                                    selected local_choice == "rest_offense"
+                                    text_size 19
+
+                                textbutton "Descansar (sacrificar turno defensivo)":
+                                    action SetScreenVariable("local_choice", "rest_defense")
+                                    style "maneuver_option_button"
+                                    text_style "maneuver_option_button_text"
+                                    selected local_choice == "rest_defense"
+                                    text_size 19
+
+                                if local_choice in ("rest_offense", "rest_defense"):
+                                    text "{color=#A5D6A7}Descansar: recupera 35% de Reiatsu y 35% de Energía.{/color}" size 16
+
                                 if _sac_reason == "used":
                                     text "{color=#FF8888}Sacrificio ya fue usado por tu equipo en esta batalla.{/color}"
                                 elif _sac_reason == "no_ally_available":
@@ -454,6 +514,26 @@ screen battle_maneuver_choice(damage):
                                         text_style "maneuver_option_button_text"
                                         selected local_choice == "sacrifice_request"
                                         text_size 19
+
+                                textbutton "Descansar (sacrificar turno ofensivo)":
+                                    action [
+                                        SetScreenVariable("local_choice", "rest_offense"),
+                                        SetScreenVariable("show_submenu", False)
+                                    ]
+                                    style "maneuver_option_button"
+                                    text_style "maneuver_option_button_text"
+                                    selected local_choice == "rest_offense"
+                                    text_size 19
+
+                                textbutton "Descansar (sacrificar turno defensivo)":
+                                    action [
+                                        SetScreenVariable("local_choice", "rest_defense"),
+                                        SetScreenVariable("show_submenu", False)
+                                    ]
+                                    style "maneuver_option_button"
+                                    text_style "maneuver_option_button_text"
+                                    selected local_choice == "rest_defense"
+                                    text_size 19
 
                                 textbutton "Cancelar":
                                     action SetScreenVariable("show_submenu", False)

@@ -84,6 +84,24 @@ label battle_defensive_turn_legacy_entry:
         $ battle_popup_turn("Turno ofensivo — {}".format(player_name), "#FFD700", delay=0.7)
         jump battle_offensive_turn
 
+    python:
+        import renpy.store as S
+        _skip_def_turn_by_rest = bool(getattr(S, "rest_skip_next_defensive_turn", False))
+        if _skip_def_turn_by_rest:
+            S.rest_skip_next_defensive_turn = False
+            if callable(getattr(S, "battle_log_add", None)):
+                S.battle_log_add("{color=#A5D6A7}Descansar: turno defensivo sacrificado, no puedes defender este impacto.{/color}")
+
+    if _skip_def_turn_by_rest:
+        $ selected = []
+        $ reduc_val = 0
+        $ blocks_list = []
+        $ reflected = 0
+        $ total_block = 0
+        call defensive_operation(incoming_damage, reduc_val, blocks_list, reflected)
+        call defensive_resolve(received_damage, hp_after, reflected)
+        return
+
     # ========================================================
     # 🔥 A partir de aquí: SIEMPRE hay daño real que defender
     # ========================================================

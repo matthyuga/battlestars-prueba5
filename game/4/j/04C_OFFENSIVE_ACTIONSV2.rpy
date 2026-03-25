@@ -519,6 +519,8 @@ label offensive_process_actions(selected):
 
                 S.direct_base_damage    = action.base_value
                 S.direct_pending_damage = dmg
+                total_damage += dmg
+                combo_count += 1
 
                 try:
                     if callable(fmt_red) and callable(fmt_white) and callable(fmt_orange):
