@@ -44,11 +44,61 @@ init python:
                 n = t
         return int(n)
 
+    def _hud_hp_fake_on_damage(fake_value, shown_hp, hp_now, hp_prev):
+        """
+        Barra fake gris: solo aparece al recibir daño y conserva el valor previo
+        para luego desvanecerse vía alpha.
+        """
+        try:
+            fake_v = float(fake_value or 0.0)
+            shown_v = float(shown_hp or 0.0)
+            hp_n = float(hp_now or 0.0)
+            hp_p = float(hp_prev or 0.0)
+        except:
+            return int(shown_hp or 0)
+
+        # Si hubo daño en HP real, congelamos la fake en el valor previo visible.
+        if hp_n < hp_p:
+            return int(max(fake_v, shown_v, hp_p))
+
+        # Si la fake quedó por debajo de la barra real (curación/reset), la corregimos.
+        if fake_v < shown_v:
+            return int(shown_v)
+
+        return int(fake_v)
+
+    def _hud_hp_fake_alpha_step(alpha_now, fake_value, shown_hp, hp_now, hp_prev):
+        try:
+            a = float(alpha_now or 0.0)
+            fake_v = float(fake_value or 0.0)
+            shown_v = float(shown_hp or 0.0)
+            hp_n = float(hp_now or 0.0)
+            hp_p = float(hp_prev or 0.0)
+        except:
+            return 0.0
+
+        # Recibir daño: reaparece fuerte.
+        if hp_n < hp_p:
+            return 0.8
+
+        # Si no hay diferencia visible, apagar.
+        if fake_v <= shown_v:
+            return 0.0
+
+        # Fade progresivo (sin perseguir a la barra real).
+        return max(0.0, a - 0.06)
+
 
 screen battle_hp_overlay():
     zorder 90
     default _php_fake = 0
     default _ehp_fake = 0
+    default _php_damage_fake = 0
+    default _ehp_damage_fake = 0
+    default _php_damage_alpha = 0.0
+    default _ehp_damage_alpha = 0.0
+    default _php_prev_real = 0
+    default _ehp_prev_real = 0
     default _prei_fake = 0
     default _pene_fake = 0
     default _erei_fake = 0
@@ -80,6 +130,14 @@ screen battle_hp_overlay():
             $ _php_fake = _php
         if _ehp_fake <= 0:
             $ _ehp_fake = _ehp
+        if _php_damage_fake <= 0:
+            $ _php_damage_fake = _php
+        if _ehp_damage_fake <= 0:
+            $ _ehp_damage_fake = _ehp
+        if _php_prev_real <= 0:
+            $ _php_prev_real = _php
+        if _ehp_prev_real <= 0:
+            $ _ehp_prev_real = _ehp
         if _prei_fake <= 0:
             $ _prei_fake = _prei_show
         if _pene_fake <= 0:
@@ -91,6 +149,12 @@ screen battle_hp_overlay():
         timer 0.08 repeat True action [
             SetScreenVariable("_php_fake", _hud_fake_hp_step(_php_fake, _php)),
             SetScreenVariable("_ehp_fake", _hud_fake_hp_step(_ehp_fake, _ehp)),
+            SetScreenVariable("_php_damage_fake", _hud_hp_fake_on_damage(_php_damage_fake, _php_fake, _php, _php_prev_real)),
+            SetScreenVariable("_ehp_damage_fake", _hud_hp_fake_on_damage(_ehp_damage_fake, _ehp_fake, _ehp, _ehp_prev_real)),
+            SetScreenVariable("_php_damage_alpha", _hud_hp_fake_alpha_step(_php_damage_alpha, _php_damage_fake, _php_fake, _php, _php_prev_real)),
+            SetScreenVariable("_ehp_damage_alpha", _hud_hp_fake_alpha_step(_ehp_damage_alpha, _ehp_damage_fake, _ehp_fake, _ehp, _ehp_prev_real)),
+            SetScreenVariable("_php_prev_real", _php),
+            SetScreenVariable("_ehp_prev_real", _ehp),
             SetScreenVariable("_prei_fake", _hud_fake_resource_step(_prei_fake, _prei_show)),
             SetScreenVariable("_pene_fake", _hud_fake_resource_step(_pene_fake, _pene_show)),
             SetScreenVariable("_erei_fake", _hud_fake_resource_step(_erei_fake, _erei_show)),
@@ -118,7 +182,10 @@ screen battle_hp_overlay():
                 fixed:
                     xmaximum _bar_w
                     ymaximum 18
-                    bar value StaticValue(max(0, _php_fake), max(1, _pmax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#003847CC"
+                    if _php_damage_fake > _php_fake and _php_damage_alpha > 0.0:
+                        bar value StaticValue(max(0, _php_damage_fake), max(1, _pmax)) xmaximum _bar_w left_bar "#9EA4AAFF" right_bar "#00000000" at Transform(alpha=_php_damage_alpha)
+                    # right_bar más transparente para no tapar el segmento fake gris.
+                    bar value StaticValue(max(0, _php_fake), max(1, _pmax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#00384722"
 
         frame:
             xalign 1.0
@@ -146,7 +213,10 @@ screen battle_hp_overlay():
                     xmaximum _bar_w
                     ymaximum 18
                     xalign 1.0
-                    bar value StaticValue(max(0, _ehp_fake), max(1, _emax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#003847CC" xalign 1.0
+                    if _ehp_damage_fake > _ehp_fake and _ehp_damage_alpha > 0.0:
+                        bar value StaticValue(max(0, _ehp_damage_fake), max(1, _emax)) xmaximum _bar_w left_bar "#9EA4AAFF" right_bar "#00000000" at Transform(alpha=_ehp_damage_alpha) xalign 1.0
+                    # right_bar más transparente para no tapar el segmento fake gris.
+                    bar value StaticValue(max(0, _ehp_fake), max(1, _emax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#00384722" xalign 1.0
 
 
 screen battle_ui_hotkeys():
