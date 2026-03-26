@@ -74,6 +74,21 @@ init -990 python:
         except:
             pass
 
+        try:
+            fn_fx = getattr(S, "battle_visual_float", None) or globals().get("battle_visual_float", None)
+            if callable(fn_fx):
+                if int(rei_after - rei_now) > 0:
+                    fn_fx("player", int(rei_after - rei_now), "#66CCFF", is_final=False)
+                if int(ene_after - ene_now) > 0:
+                    fn_fx("player", int(ene_after - ene_now), "#FFB366", is_final=False)
+        except:
+            pass
+
+        try:
+            R.restart_interaction()
+        except:
+            pass
+
     S.battle_apply_rest_recovery = battle_apply_rest_recovery
 
     def _clamp_int(v, lo, hi):

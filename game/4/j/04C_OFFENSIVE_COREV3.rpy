@@ -320,8 +320,12 @@ label battle_offensive_turn_legacy_entry:
                         renpy.jump("battle_defensive_turn")
                     elif msel == "rest_offense":
                         fn_rest = getattr(S, "battle_apply_rest_recovery", None)
+                        if not callable(fn_rest):
+                            fn_rest = globals().get("battle_apply_rest_recovery", None)
                         if callable(fn_rest):
                             fn_rest()
+                        elif callable(getattr(S, "battle_log_add", None)):
+                            S.battle_log_add("{color=#FF8888}[Descansar] No se encontró función de recuperación.{/color}")
                         S.offense_cancelled = True
                         S.extra_offensive_actions = 0
                         S.deferred_defense_return_to_offense = False
@@ -331,8 +335,12 @@ label battle_offensive_turn_legacy_entry:
                         renpy.jump("battle_enemy_turn")
                     elif msel == "rest_defense":
                         fn_rest = getattr(S, "battle_apply_rest_recovery", None)
+                        if not callable(fn_rest):
+                            fn_rest = globals().get("battle_apply_rest_recovery", None)
                         if callable(fn_rest):
                             fn_rest()
+                        elif callable(getattr(S, "battle_log_add", None)):
+                            S.battle_log_add("{color=#FF8888}[Descansar] No se encontró función de recuperación.{/color}")
                         S.rest_skip_next_defensive_turn = True
                         S.deferred_defense_return_to_offense = False
                         S.deferred_defense_actor_key = ""
