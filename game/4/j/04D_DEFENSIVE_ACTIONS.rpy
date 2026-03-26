@@ -94,6 +94,7 @@ init python:
             "Defensa Fuerte":      "defense_strong_block",
             "Salvaguarda principiante": "salvaguarda_principiante",
             "Potenciar":           "defense_boost",
+            "Descansar":           "rest_recovery",
         }
 
         tech_id = TECH_MAP.get(name, None)
@@ -212,6 +213,8 @@ label defensive_process_actions(selected, base_damage):
             if act.name == "Potenciar":
                 focus_seen = True
                 continue
+            if act.name == "Descansar":
+                continue
             if focus_seen:
                 act.after_focus = True
                 break
@@ -233,6 +236,27 @@ label defensive_process_actions(selected, base_damage):
                 else:
                     summary_lines.append(fmt_cyan("Potenciar") + fmt_white(" Activado → Próxima defensa ") + fmt_cyan("×2"))
 
+                continue
+
+            if action.name == "Descansar":
+                try:
+                    fn_rest = getattr(S, "battle_apply_rest_recovery", None)
+                    if not callable(fn_rest):
+                        fn_rest = globals().get("battle_apply_rest_recovery", None)
+                    if callable(fn_rest):
+                        _hp_before = int(getattr(S, "player_hp", 0) or 0)
+                        _rei_before = int(getattr(S, "player_reiatsu", 0) or 0)
+                        _ene_before = int(getattr(S, "player_energy", 0) or 0)
+                        fn_rest()
+                        _hp_gain = max(0, int(getattr(S, "player_hp", 0) or 0) - _hp_before)
+                        _rei_gain = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - _rei_before)
+                        _ene_gain = max(0, int(getattr(S, "player_energy", 0) or 0) - _ene_before)
+                        summary_lines.append(fmt_cyan("Descansar") + fmt_white(" → +{} HP / +{} Reiatsu / +{} Energía.".format(_fmt_num(_hp_gain), _fmt_num(_rei_gain), _fmt_num(_ene_gain))))
+                    else:
+                        summary_lines.append(fmt_pink("Descansar no disponible (falta helper)."))
+                except:
+                    summary_lines.append(fmt_pink("Descansar no disponible (error)."))
+                action.used = True
                 continue
 
             if action.used:
