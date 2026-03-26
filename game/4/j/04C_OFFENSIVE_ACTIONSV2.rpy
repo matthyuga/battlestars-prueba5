@@ -280,6 +280,7 @@ init python:
 
             "Concentrar":         "focus",
             "Concentrar x2":      "focus",
+            "Descansar":          "rest_recovery",
         }
 
         tech_id = TECH_MAP.get(name)
@@ -358,6 +359,32 @@ label offensive_process_actions(selected):
                     pass
 
                 can_focus = False
+                continue
+
+            # -------------------------
+            # 🔹 DESCANSAR (+5% HP base, +25% R/E base)
+            # -------------------------
+            if action.tech_id == "rest_recovery":
+                try:
+                    fn_rest = getattr(S, "battle_apply_rest_recovery", None)
+                    if not callable(fn_rest):
+                        fn_rest = globals().get("battle_apply_rest_recovery", None)
+                    if callable(fn_rest):
+                        prev_hp = int(getattr(S, "player_hp", 0) or 0)
+                        prev_rei = int(getattr(S, "player_reiatsu", 0) or 0)
+                        prev_ene = int(getattr(S, "player_energy", 0) or 0)
+                        fn_rest()
+                        gain_hp = max(0, int(getattr(S, "player_hp", 0) or 0) - prev_hp)
+                        gain_rei = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - prev_rei)
+                        gain_ene = max(0, int(getattr(S, "player_energy", 0) or 0) - prev_ene)
+                        _blog("Descansar → +{} HP / +{} Reiatsu / +{} Energía.".format(_fmt_num(gain_hp), _fmt_num(gain_rei), _fmt_num(gain_ene)), "#A5D6A7")
+                    else:
+                        _blog("Descansar no disponible (falta helper).", "#FF8888")
+                except:
+                    _blog("Descansar no disponible (error).", "#FF8888")
+                actions -= 1
+                action.used = True
+                can_focus = True
                 continue
 
             # Solo ofensivas
@@ -519,6 +546,8 @@ label offensive_process_actions(selected):
 
                 S.direct_base_damage    = action.base_value
                 S.direct_pending_damage = dmg
+                total_damage += dmg
+                combo_count += 1
 
                 try:
                     if callable(fmt_red) and callable(fmt_white) and callable(fmt_orange):
