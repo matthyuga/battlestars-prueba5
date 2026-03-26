@@ -31,6 +31,76 @@ init -990 python:
         S.show_maneuver_choice = not getattr(S, "show_maneuver_choice", True)
         R.restart_interaction()
 
+    def battle_apply_rest_recovery():
+        try:
+            hp_now = int(getattr(S, "player_hp", 0) or 0)
+            rei_now = int(getattr(S, "player_reiatsu", 0) or 0)
+            ene_now = int(getattr(S, "player_energy", 0) or 0)
+            hp_cap = int(getattr(S, "battle_hp_player_max", hp_now) or hp_now)
+            rei_cap = int(getattr(S, "player_reiatsu_base", rei_now) or rei_now)
+            ene_cap = int(getattr(S, "player_energy_base", ene_now) or ene_now)
+        except:
+            hp_now, rei_now, ene_now, hp_cap, rei_cap, ene_cap = 0, 0, 0, 0, 0, 0
+
+        hp_cap = max(0, hp_cap)
+        rei_cap = max(0, rei_cap)
+        ene_cap = max(0, ene_cap)
+        hp_gain = int(round(hp_cap * 0.05))
+        rei_gain = int(round(rei_cap * 0.25))
+        ene_gain = int(round(ene_cap * 0.25))
+
+        hp_after = min(hp_cap, max(0, hp_now + hp_gain))
+        rei_after = min(rei_cap, max(0, rei_now + rei_gain))
+        ene_after = min(ene_cap, max(0, ene_now + ene_gain))
+
+        S.player_hp = int(hp_after)
+        S.player_reiatsu = int(rei_after)
+        S.player_energy = int(ene_after)
+        S.simulated_reiatsu = int(rei_after)
+        S.simulated_energy = int(ene_after)
+
+        try:
+            fn_res = getattr(S, "bs_set_unit_resources", None)
+            if callable(fn_res):
+                fn_res("player:0", int(rei_after), int(ene_after))
+        except:
+            pass
+
+        try:
+            fn_fmt = getattr(S, "battle_fmt_num", None)
+            if callable(fn_fmt):
+                hg = fn_fmt(hp_after - hp_now)
+                rg = fn_fmt(rei_after - rei_now)
+                eg = fn_fmt(ene_after - ene_now)
+            else:
+                hg = str(int(hp_after - hp_now))
+                rg = str(int(rei_after - rei_now))
+                eg = str(int(ene_after - ene_now))
+            fn_log = getattr(S, "battle_log_add", None)
+            if callable(fn_log):
+                fn_log("{color=#A5D6A7}Descansar: +%s HP (5%% base), +%s Reiatsu y +%s Energía (25%% base).{/color}" % (hg, rg, eg))
+        except:
+            pass
+
+        try:
+            fn_fx = getattr(S, "battle_visual_float", None) or globals().get("battle_visual_float", None)
+            if callable(fn_fx):
+                if int(hp_after - hp_now) > 0:
+                    fn_fx("player", int(hp_after - hp_now), "#8BE28B", is_final=False)
+                if int(rei_after - rei_now) > 0:
+                    fn_fx("player", int(rei_after - rei_now), "#66CCFF", is_final=False)
+                if int(ene_after - ene_now) > 0:
+                    fn_fx("player", int(ene_after - ene_now), "#FFB366", is_final=False)
+        except:
+            pass
+
+        try:
+            R.restart_interaction()
+        except:
+            pass
+
+    S.battle_apply_rest_recovery = battle_apply_rest_recovery
+
     def _clamp_int(v, lo, hi):
         try:
             v = int(v)

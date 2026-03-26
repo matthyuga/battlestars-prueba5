@@ -167,6 +167,7 @@ label start:
 label battle_start:
     $ import random
     $ import renpy.store as S
+    $ S.battle_active = True
 
     # =======================================================
     # 🎯 Selección del enemigo (ID del sistema)
@@ -273,6 +274,12 @@ label battle_start:
             player_coating_durability = int(fn_pool("player:0", "coating_durability", player_coating_durability) or player_coating_durability)
             enemy_coating_durability = int(fn_pool("enemy:0", "coating_durability", enemy_coating_durability) or enemy_coating_durability)
 
+        if bool(getattr(S, "story_mode_active", False)):
+            player_coating_cover = 0
+            enemy_coating_cover = 0
+            player_coating_durability = 0
+            enemy_coating_durability = 0
+
         try:
             battle_player["HP"] = int(player_hp)
             battle_enemy["HP"] = int(enemy_hp)
@@ -319,6 +326,9 @@ label battle_start:
                 if callable(fn_pool):
                     ccover = int(fn_pool(ukey, "coating_cover", ccover) or ccover)
                     cdura = int(fn_pool(ukey, "coating_durability", cdura) or cdura)
+                if bool(getattr(S, "story_mode_active", False)):
+                    ccover = 0
+                    cdura = 0
                 p_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene, "max_reiatsu": rei, "max_energy": ene, "base_reiatsu": rei, "base_energy": ene, "coating_cover": ccover, "coating_durability_current": cdura, "coating_durability_max": cdura})
             for idx, cid in enumerate(e_ids[:2]):
                 hp = get_character_hp(cid)
@@ -334,6 +344,9 @@ label battle_start:
                 if callable(fn_pool):
                     ccover = int(fn_pool(ukey, "coating_cover", ccover) or ccover)
                     cdura = int(fn_pool(ukey, "coating_durability", cdura) or cdura)
+                if bool(getattr(S, "story_mode_active", False)):
+                    ccover = 0
+                    cdura = 0
                 e_units.append({"char_id": cid, "hp": hp, "max_hp": hp, "reiatsu": rei, "energy": ene, "max_reiatsu": rei, "max_energy": ene, "base_reiatsu": rei, "base_energy": ene, "coating_cover": ccover, "coating_durability_current": cdura, "coating_durability_max": cdura})
 
             S.bs_init_teams(player_units=p_units, enemy_units=e_units)
@@ -504,6 +517,17 @@ label battle_start:
             enemy_reiatsu = int(fn_pool("enemy:0", "reiatsu", enemy_reiatsu) or enemy_reiatsu)
             enemy_energy = int(fn_pool("enemy:0", "energy", enemy_energy) or enemy_energy)
 
+        # Modo historia piloto: calibración explícita de recursos para tutorial Lv1.
+        if bool(getattr(S, "story_mode_active", False)):
+            ovr = getattr(S, "story_pilot_resource_override", {}) or {}
+            if isinstance(ovr, dict):
+                player_hp = int(ovr.get("player_hp", player_hp) or player_hp)
+                enemy_hp = int(ovr.get("enemy_hp", enemy_hp) or enemy_hp)
+                player_reiatsu = int(ovr.get("player_reiatsu", player_reiatsu) or player_reiatsu)
+                player_energy = int(ovr.get("player_energy", player_energy) or player_energy)
+                enemy_reiatsu = int(ovr.get("enemy_reiatsu", enemy_reiatsu) or enemy_reiatsu)
+                enemy_energy = int(ovr.get("enemy_energy", enemy_energy) or enemy_energy)
+
         S.player_reiatsu_base = int(player_reiatsu or 0)
         S.player_energy_base = int(player_energy or 0)
         S.enemy_reiatsu_base = int(enemy_reiatsu or 0)
@@ -522,6 +546,25 @@ label battle_start:
         if callable(fn_set_res):
             fn_set_res("player:0", player_reiatsu, player_energy)
             fn_set_res("enemy:0", enemy_reiatsu, enemy_energy)
+
+    # Re-sincronizar máximos/overlays después de overrides de tutorial.
+    $ battle_hp_player_max = max(1, int(player_hp or 1))
+    $ battle_hp_enemy_max = max(1, int(enemy_hp or 1))
+    python:
+        import renpy.store as S
+        fn_set_max = getattr(S, "bs_set_max_hp", None)
+        fn_set_hp = getattr(S, "bs_set_hp", None)
+        fn_sync_legacy = getattr(S, "bs_sync_to_legacy", None)
+        if callable(fn_set_max):
+            fn_set_max("player", battle_hp_player_max)
+            fn_set_max("enemy", battle_hp_enemy_max)
+        if callable(fn_set_hp):
+            fn_set_hp("player", player_hp)
+            fn_set_hp("enemy", enemy_hp)
+        if callable(fn_sync_legacy):
+            fn_sync_legacy()
+    $ battle_update_hp_bars(player_hp, enemy_hp)
+    $ battle_update_damage_overlay(player_hp, battle_hp_player_max)
 
     # ⭐ Sincronizar simulación del enemigo
     $ simulated_enemy_reiatsu = enemy_reiatsu
