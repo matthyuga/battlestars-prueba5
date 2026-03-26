@@ -264,8 +264,18 @@ screen technique_selector():
 
                     vbox spacing 10:
 
+                        $ _sim_rei = int(getattr(store, "simulated_reiatsu", getattr(store, "player_reiatsu", 0)) or 0)
+                        $ _sim_ene = int(getattr(store, "simulated_energy", getattr(store, "player_energy", 0)) or 0)
+                        $ _cur_rei = int(getattr(store, "player_reiatsu", 0) or 0)
+                        $ _cur_ene = int(getattr(store, "player_energy", 0) or 0)
+                        $ _spent_rei = max(0, _cur_rei - _sim_rei)
+                        $ _spent_ene = max(0, _cur_ene - _sim_ene)
+
                         text "🌀 Técnicas en espera:" size 26 color "#FFFFFF" bold True
                         text "Acciones disponibles: [actions_available]" size 22 color "#FFD700"
+                        text "Recursos disponibles → Reiatsu %s | Energía %s" % (_sim_rei, _sim_ene) size 18 color "#88CCFF"
+                        text "Gasto proyectado → Reiatsu %s | Energía %s" % (_spent_rei, _spent_ene) size 17 color "#B8B8B8"
+                        text "Espacio libre: %s" % actions_available size 17 color "#A0A0A0"
                         null height 4
 
                         if player_action_queue:

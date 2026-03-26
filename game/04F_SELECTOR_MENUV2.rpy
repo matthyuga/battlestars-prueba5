@@ -331,6 +331,18 @@ screen battle_command_menu():
         "focus_defense",
     ]
 
+    if getattr(store, "story_mode_active", False):
+        $ _allowed_off = list(getattr(store, "story_pilot_allowed_offensive", []) or [])
+        $ _allowed_def = list(getattr(store, "story_pilot_allowed_defensive", []) or [])
+        if not _allowed_off:
+            $ _allowed_off = ["stronger_attack", "direct_attack"]
+        if not _allowed_def:
+            $ _allowed_def = ["defense_strong_block"]
+        if _allowed_off:
+            $ OFF = [k for k in OFF if k in _allowed_off]
+        if _allowed_def:
+            $ DEF = [k for k in DEF if k in _allowed_def]
+
     $ _show_off = bool(getattr(store, "ui_show_offensive_techniques", True))
     $ _show_def = bool(getattr(store, "ui_show_defensive_techniques", True))
     $ _show_off_col = _show_off and (battle_mode == "offensive")
