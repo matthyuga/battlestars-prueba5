@@ -184,7 +184,8 @@ screen battle_hp_overlay():
                     ymaximum 18
                     if _php_damage_fake > _php_fake and _php_damage_alpha > 0.0:
                         bar value StaticValue(max(0, _php_damage_fake), max(1, _pmax)) xmaximum _bar_w left_bar "#9EA4AAFF" right_bar "#00000000" at Transform(alpha=_php_damage_alpha)
-                    bar value StaticValue(max(0, _php_fake), max(1, _pmax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#003847CC"
+                    # right_bar más transparente para no tapar el segmento fake gris.
+                    bar value StaticValue(max(0, _php_fake), max(1, _pmax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#00384722"
 
         frame:
             xalign 1.0
@@ -214,7 +215,8 @@ screen battle_hp_overlay():
                     xalign 1.0
                     if _ehp_damage_fake > _ehp_fake and _ehp_damage_alpha > 0.0:
                         bar value StaticValue(max(0, _ehp_damage_fake), max(1, _emax)) xmaximum _bar_w left_bar "#9EA4AAFF" right_bar "#00000000" at Transform(alpha=_ehp_damage_alpha) xalign 1.0
-                    bar value StaticValue(max(0, _ehp_fake), max(1, _emax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#003847CC" xalign 1.0
+                    # right_bar más transparente para no tapar el segmento fake gris.
+                    bar value StaticValue(max(0, _ehp_fake), max(1, _emax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#00384722" xalign 1.0
 
 
 screen battle_ui_hotkeys():
