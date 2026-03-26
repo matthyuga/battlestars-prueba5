@@ -507,6 +507,9 @@ screen story_panel_tech_and_confirm():
             bar value XScrollValue("story_step4_vp") xfill True
 
 
+image story_harribel_pilot = im.Scale("images/characters/Harribel_a.png", 900, 675)
+
+
 label story_phaseA_intro:
     $ import renpy.store as S
     $ S.story_mode_active = True
@@ -530,7 +533,7 @@ label story_phaseA_intro:
     "Una luz te envuelve y el suelo desaparece bajo tus pies..."
     scene fondo3 with fade
 
-    show expression "gui/battle/hud_ai/portraits/portrait_harribel_full.png" at truecenter
+    show story_harribel_pilot at truecenter
     "Harribel" "Así que tú eres [S.story_player_name]. Camina conmigo."
     "Harribel" "Antes del duelo te enseñaré los fundamentos del sistema."
 
@@ -539,7 +542,7 @@ label story_phaseA_intro:
         "Estoy listo para aprender.":
             "Harribel" "Bien. Vamos paso por paso."
 
-    hide expression "gui/battle/hud_ai/portraits/portrait_harribel_full.png"
+    hide story_harribel_pilot
     jump story_phaseB_training_panel
 
 
@@ -576,7 +579,7 @@ label story_phaseC_postbattle:
     $ import renpy.store as S
 
     scene fondo3 with fade
-    show expression "gui/battle/hud_ai/portraits/portrait_harribel_full.png" at truecenter
+    show story_harribel_pilot at truecenter
 
     if S.story_pilot_last_result == "victory":
         "Harribel" "Buen trabajo, [S.story_player_name]. Ganaste tu primera lección."
@@ -589,7 +592,7 @@ label story_phaseC_postbattle:
 
     "Harribel" "Fin de la prueba piloto. La próxima vez, no te sostendré la mano."
 
-    hide expression "gui/battle/hud_ai/portraits/portrait_harribel_full.png"
+    hide story_harribel_pilot
     $ S.story_mode_active = False
     $ S.story_pilot_allowed_offensive = []
     $ S.story_pilot_allowed_defensive = []
