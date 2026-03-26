@@ -19,12 +19,13 @@ default selector_compact = False
 # ------------------------------------------------------------
 init python:
     import renpy.store as S
-    import renpy
 
     def _tech_icon_with_fallback(*candidates):
+        _renpy_api = getattr(S, "renpy", None)
+        _loadable = getattr(_renpy_api, "loadable", None)
         for p in (candidates or []):
             try:
-                if p and renpy.loadable(p):
+                if p and callable(_loadable) and _loadable(p):
                     return p
             except:
                 pass

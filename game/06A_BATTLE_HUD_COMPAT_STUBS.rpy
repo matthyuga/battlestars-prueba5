@@ -19,11 +19,35 @@ init python:
             n = t
         return int(n)
 
+    def _hud_fake_resource_step(current, target):
+        try:
+            c = float(current or 0.0)
+            t = float(target or 0.0)
+        except:
+            return int(target or 0)
+        if c == t:
+            return int(t)
+        d = abs(t - c)
+        step = max(1.0, d * 0.35)
+        if c < t:
+            n = c + step
+            if n > t:
+                n = t
+        else:
+            n = c - step
+            if n < t:
+                n = t
+        return int(n)
+
 
 screen battle_hp_overlay():
     zorder 90
     default _php_fake = 0
     default _ehp_fake = 0
+    default _prei_fake = 0
+    default _pene_fake = 0
+    default _erei_fake = 0
+    default _eene_fake = 0
 
     if bool(getattr(store, "battle_active", False)):
         $ _php = int(getattr(store, "player_hp", 0) or 0)
@@ -51,9 +75,21 @@ screen battle_hp_overlay():
             $ _php_fake = _php
         if _ehp_fake <= 0:
             $ _ehp_fake = _ehp
+        if _prei_fake <= 0:
+            $ _prei_fake = _prei_show
+        if _pene_fake <= 0:
+            $ _pene_fake = _pene_show
+        if _erei_fake <= 0:
+            $ _erei_fake = _erei_show
+        if _eene_fake <= 0:
+            $ _eene_fake = _eene_show
         timer 0.08 repeat True action [
             SetScreenVariable("_php_fake", _hud_fake_hp_step(_php_fake, _php)),
-            SetScreenVariable("_ehp_fake", _hud_fake_hp_step(_ehp_fake, _ehp))
+            SetScreenVariable("_ehp_fake", _hud_fake_hp_step(_ehp_fake, _ehp)),
+            SetScreenVariable("_prei_fake", _hud_fake_resource_step(_prei_fake, _prei_show)),
+            SetScreenVariable("_pene_fake", _hud_fake_resource_step(_pene_fake, _pene_show)),
+            SetScreenVariable("_erei_fake", _hud_fake_resource_step(_erei_fake, _erei_show)),
+            SetScreenVariable("_eene_fake", _hud_fake_resource_step(_eene_fake, _eene_show))
         ]
 
         frame:
@@ -72,8 +108,8 @@ screen battle_hp_overlay():
                         spacing 2
                         text "Jugador (Harribel)" size 17 color "#00BFFF"
                         text ("HP %s / %s" % (_php, _pmax)) size 15
-                        text ("Reiatsu %s / %s" % (_prei_show, _pmax_rei)) size 14
-                        text ("Energía %s / %s" % (_pene_show, _pmax_ene)) size 14
+                        text ("Reiatsu %s / %s" % (_prei_fake, _pmax_rei)) size 14
+                        text ("Energía %s / %s" % (_pene_fake, _pmax_ene)) size 14
                 fixed:
                     xmaximum _bar_w
                     ymaximum 18
@@ -97,8 +133,8 @@ screen battle_hp_overlay():
                         spacing 2
                         text "Enemigo (Hollow)" size 17 color "#FF7777" xalign 1.0
                         text ("HP %s / %s" % (_ehp, _emax)) size 15 xalign 1.0
-                        text ("Reiatsu %s / %s" % (_erei_show, _emax_rei)) size 14 xalign 1.0
-                        text ("Energía %s / %s" % (_eene_show, _emax_ene)) size 14 xalign 1.0
+                        text ("Reiatsu %s / %s" % (_erei_fake, _emax_rei)) size 14 xalign 1.0
+                        text ("Energía %s / %s" % (_eene_fake, _emax_ene)) size 14 xalign 1.0
                     add im.Scale("gui/battle/hud_ai/portraits/portrait_hollow_head.png", 64, 64)
                 fixed:
                     xmaximum _bar_w
