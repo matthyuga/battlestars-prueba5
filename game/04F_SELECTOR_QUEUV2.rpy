@@ -55,6 +55,7 @@ init python:
         "Concentrar":          "focus",
         "Concentrar x2":       "focus",
         "Potenciar":           "defense_boost",
+        "Descansar":           "rest_recovery",
     }
 
     # --------------------------------------------------------
@@ -64,6 +65,8 @@ init python:
         # Focus/Potenciar
         if name in ("Concentrar", "Concentrar x2", "Potenciar"):
             return "x2"
+        if name == "Descansar":
+            return "+25% R/E"
 
         if not tech_id:
             return "—"
@@ -264,8 +267,18 @@ screen technique_selector():
 
                     vbox spacing 10:
 
+                        $ _sim_rei = int(getattr(store, "simulated_reiatsu", getattr(store, "player_reiatsu", 0)) or 0)
+                        $ _sim_ene = int(getattr(store, "simulated_energy", getattr(store, "player_energy", 0)) or 0)
+                        $ _cur_rei = int(getattr(store, "player_reiatsu", 0) or 0)
+                        $ _cur_ene = int(getattr(store, "player_energy", 0) or 0)
+                        $ _spent_rei = max(0, _cur_rei - _sim_rei)
+                        $ _spent_ene = max(0, _cur_ene - _sim_ene)
+
                         text "🌀 Técnicas en espera:" size 26 color "#FFFFFF" bold True
                         text "Acciones disponibles: [actions_available]" size 22 color "#FFD700"
+                        text "Recursos disponibles → Reiatsu %s | Energía %s" % (_sim_rei, _sim_ene) size 18 color "#88CCFF"
+                        text "Gasto proyectado → Reiatsu %s | Energía %s" % (_spent_rei, _spent_ene) size 17 color "#B8B8B8"
+                        text "Espacio libre: %s" % actions_available size 17 color "#A0A0A0"
                         null height 4
 
                         if player_action_queue:
@@ -302,7 +315,8 @@ screen technique_selector():
 
                                             is_focus_tech = (tech in ("Concentrar", "Concentrar x2") and battle_mode == "offensive")
                                             is_boost_tech = (tech == "Potenciar" and battle_mode == "defensive")
-                                            is_focus = is_focus_tech or is_boost_tech
+                                            is_rest_tech = (tech == "Descansar")
+                                            is_focus = is_focus_tech or is_boost_tech or is_rest_tech
 
                                             tipo = "Daño" if battle_mode == "offensive" else "Bloqueo"
 
@@ -310,10 +324,10 @@ screen technique_selector():
                                             # CONCENTRAR / POTENCIAR
                                             # ---------------------------
                                             if is_focus:
-                                                base_val  = "x2"
+                                                base_val  = ("+25%" if is_rest_tech else "x2")
                                                 base_rei  = 0
                                                 base_ene  = 0
-                                                final_val = "x2"
+                                                final_val = ("+25%" if is_rest_tech else "x2")
                                                 final_rei = 0
                                                 final_ene = 0
 
