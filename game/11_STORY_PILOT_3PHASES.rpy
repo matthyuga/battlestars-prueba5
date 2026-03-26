@@ -507,7 +507,7 @@ screen story_panel_tech_and_confirm():
             bar value XScrollValue("story_step4_vp") xfill True
 
 
-image story_harribel_pilot = im.Scale("images/characters/Harribel_a.png", 900, 675)
+image story_harribel_pilot = im.Scale("images/character/Harribel_a.png", 1024, 576)
 
 
 label story_phaseA_intro:
