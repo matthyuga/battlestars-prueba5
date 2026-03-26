@@ -13,6 +13,7 @@ init -100 python:
     STORY_ATTRS = ("fuerza", "agilidad", "resistencia", "inteligencia", "espiritu")
     STORY_PARAMS = ("ataque", "defensa", "hp", "energia", "reiatsu")
     STORY_PRINCIPAL_OFF_BASE = 100
+    STORY_PRINCIPAL_DEF_BASE = 100
 
     def story_reset_cfg():
         S.story_cfg = {
@@ -25,7 +26,7 @@ init -100 python:
             "pool_general_def": 0,
             # Regla: el pool ofensivo específico principal tiene base fija.
             "pool_principal_off": STORY_PRINCIPAL_OFF_BASE,
-            "pool_principal_def": 0,
+            "pool_principal_def": STORY_PRINCIPAL_DEF_BASE,
             "pool_principal_off_spent": 0,
             "pool_principal_def_spent": 0,
             "tech_points": {
@@ -50,9 +51,14 @@ init -100 python:
             cfg["principal"] = attr
             # Mantener el ataque específico principal con base fija.
             cfg["pool_principal_off"] = STORY_PRINCIPAL_OFF_BASE
+            cfg["pool_principal_def"] = STORY_PRINCIPAL_DEF_BASE
             cfg["pool_principal_off_spent"] = min(
                 int(cfg.get("pool_principal_off_spent", 0) or 0),
                 int(cfg.get("pool_principal_off", STORY_PRINCIPAL_OFF_BASE) or STORY_PRINCIPAL_OFF_BASE),
+            )
+            cfg["pool_principal_def_spent"] = min(
+                int(cfg.get("pool_principal_def_spent", 0) or 0),
+                int(cfg.get("pool_principal_def", STORY_PRINCIPAL_DEF_BASE) or STORY_PRINCIPAL_DEF_BASE),
             )
             cfg["sealed"] = False
 
@@ -80,9 +86,9 @@ init -100 python:
             return
         cfg["distribution"][param] = vv
 
-        # Ataque específico principal: base fija independiente de la distribución.
-        cfg["pool_principal_off"] = STORY_PRINCIPAL_OFF_BASE
-        cfg["pool_principal_def"] = int(cfg["distribution"].get("defensa", 0) or 0)
+        # Ataque/Defensa específicos principales: base fija + distribución aplicada.
+        cfg["pool_principal_off"] = STORY_PRINCIPAL_OFF_BASE + int(cfg["distribution"].get("ataque", 0) or 0)
+        cfg["pool_principal_def"] = STORY_PRINCIPAL_DEF_BASE + int(cfg["distribution"].get("defensa", 0) or 0)
 
         cfg["pool_principal_off_spent"] = min(int(cfg.get("pool_principal_off_spent", 0) or 0), int(cfg["pool_principal_off"]))
         cfg["pool_principal_def_spent"] = min(int(cfg.get("pool_principal_def_spent", 0) or 0), int(cfg["pool_principal_def"]))
