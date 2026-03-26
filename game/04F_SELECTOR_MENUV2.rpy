@@ -19,6 +19,16 @@ default selector_compact = False
 # ------------------------------------------------------------
 init python:
     import renpy.store as S
+    import renpy
+
+    def _tech_icon_with_fallback(*candidates):
+        for p in (candidates or []):
+            try:
+                if p and renpy.loadable(p):
+                    return p
+            except:
+                pass
+        return "gui/tech_buttons/concentrar_x2.png"
 
     # ÍCONOS para cada técnica
     TECH_ICON = {
@@ -40,6 +50,12 @@ init python:
 
         "focus_attack":         "gui/tech_buttons/concentrar_x2.png",
         "focus_defense":        "gui/tech_buttons/potenciar_x2.png",
+        "rest_recovery":        _tech_icon_with_fallback(
+                                    "gui/tech_buttons/descansar.png",
+                                    "gui/tech_buttons/DESCANSAR.png",
+                                    "gui/tech_buttons/rest.png",
+                                    "gui/tech_buttons/TOT.png"
+                                ),
     }
 
     # Etiquetas visibles (lo que viaja a la cola del selector)
@@ -62,10 +78,11 @@ init python:
 
         "focus_attack": "Concentrar x2",
         "focus_defense": "Potenciar",
+        "rest_recovery": "Descansar",
     }
 
     # Keys que NO son técnicas reales (son "special buttons")
-    _FOCUS_KEYS = ("focus_attack", "focus_defense")
+    _SPECIAL_ZERO_COST_KEYS = ("focus_attack", "focus_defense", "rest_recovery")
 
 
     # ============================================================
@@ -75,7 +92,7 @@ init python:
     def tech_cost_check(tech_key):
 
         # Focus/Potenciar → siempre seleccionable por recursos
-        if (tech_key is None) or (tech_key in _FOCUS_KEYS):
+        if (tech_key is None) or (tech_key in _SPECIAL_ZERO_COST_KEYS):
             return True, 0, 0
 
         # Label visible → get_real_cost trabaja por NOMBRE
@@ -169,7 +186,14 @@ init python:
         # ---------------------------
         # FOCUS / POTENCIAR
         # ---------------------------
-        if tech_key in _FOCUS_KEYS:
+        if tech_key in _SPECIAL_ZERO_COST_KEYS:
+            if tech_key == "rest_recovery":
+                return (
+                    "Descansar\n"
+                    "Recupera 25% de Reiatsu y 25% de Energía base.\n"
+                    "Consume 1 acción del turno actual.\n"
+                    "No inflige daño ni bloquea."
+                )
 
             already = _queue_has_focus(mode)
             target  = _queue_focus_target(mode)
@@ -279,7 +303,7 @@ init python:
     def add_technique_safe(label, tech_key):
 
         # Focus/Potenciar: se agregan por label, sin costo
-        if tech_key in _FOCUS_KEYS:
+        if tech_key in _SPECIAL_ZERO_COST_KEYS:
             add_technique_to_queue(label)
             return
 
@@ -320,6 +344,7 @@ screen battle_command_menu():
         "ladron_defensivo",
         "ladron_concentrar",
         "focus_attack",
+        "rest_recovery",
     ]
 
     $ DEF = [
@@ -329,7 +354,20 @@ screen battle_command_menu():
         "defense_strong_block",
         "salvaguarda_principiante",
         "focus_defense",
+        "rest_recovery",
     ]
+
+    if getattr(store, "story_mode_active", False):
+        $ _allowed_off = list(getattr(store, "story_pilot_allowed_offensive", []) or [])
+        $ _allowed_def = list(getattr(store, "story_pilot_allowed_defensive", []) or [])
+        if not _allowed_off:
+            $ _allowed_off = ["stronger_attack", "direct_attack"]
+        if not _allowed_def:
+            $ _allowed_def = ["defense_strong_block"]
+        if _allowed_off:
+            $ OFF = [k for k in OFF if (k in _allowed_off) or (k == "rest_recovery")]
+        if _allowed_def:
+            $ DEF = [k for k in DEF if (k in _allowed_def) or (k == "rest_recovery")]
 
     $ _show_off = bool(getattr(store, "ui_show_offensive_techniques", True))
     $ _show_def = bool(getattr(store, "ui_show_defensive_techniques", True))

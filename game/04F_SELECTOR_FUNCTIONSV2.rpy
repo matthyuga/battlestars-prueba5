@@ -62,6 +62,7 @@ init -959 python:
         # FOCUS (sin tech_id real)
         "Concentrar x2":     None,
         "Potenciar":         None,
+        "Descansar":         None,
     }
 
     def get_tech_id(name):
@@ -84,6 +85,7 @@ init -959 python:
 
         "Concentrar x2":     {"cost": 0, "bonus": 0},
         "Potenciar":         {"cost": 0, "bonus": 0},
+        "Descansar":         {"cost": 1, "bonus": 0},
 
         "Defensa Extra":       {"cost": 1, "bonus": 1},
         "Defensa Reductora":   {"cost": 1, "bonus": 0},
@@ -202,7 +204,7 @@ init -959 python:
         if mode is None:
             mode = getattr(S, "battle_mode", "offensive")
 
-        if tech_name in ("Concentrar x2", "Potenciar"):
+        if tech_name in ("Concentrar x2", "Potenciar", "Descansar"):
             return 0, 0, 0
 
         rei, ene, val = get_real_cost_raw(tech_name)
