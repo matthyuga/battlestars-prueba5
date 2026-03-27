@@ -63,6 +63,7 @@ init -959 python:
         "Concentrar x2":     None,
         "Potenciar":         None,
         "Descansar":         None,
+        "Dados de furia":    "fury_dice",
     }
 
     def get_tech_id(name):
@@ -478,6 +479,23 @@ init -959 python:
             _can_now = False
         if not _can_now:
             _rn_notify("⚠ Dados de furia solo disponible con HP ≤ 25% (o ítem).")
+            return
+
+        try:
+            _fn_pay = getattr(S, "can_pay_fury_activation", None)
+            _pay_ok = bool(_fn_pay("player")) if callable(_fn_pay) else True
+        except:
+            _pay_ok = True
+        if not _pay_ok:
+            try:
+                _fn_cost = getattr(S, "fury_activation_costs", None)
+                _ci = _fn_cost("player") if callable(_fn_cost) else {}
+            except:
+                _ci = {}
+            _rn_notify("⚠ Furia requiere 10% total: Reiatsu %s / Energía %s." % (
+                str(int((_ci or {}).get("reiatsu_need", 0) or 0)),
+                str(int((_ci or {}).get("energy_need", 0) or 0))
+            ))
             return
 
         _fury_sel_set(idx, tech_name, tech_id, True)
