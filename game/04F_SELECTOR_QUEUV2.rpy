@@ -54,6 +54,7 @@ init python:
         # especiales (no consumen recursos directos)
         "Concentrar":          "focus",
         "Concentrar x2":       "focus",
+        "Dados de furia":      "fury_dice",
         "Potenciar":           "defense_boost",
         "Descansar":           "rest_recovery",
     }
@@ -65,6 +66,8 @@ init python:
         # Focus/Potenciar
         if name in ("Concentrar", "Concentrar x2", "Potenciar"):
             return "x2"
+        if name == "Dados de furia":
+            return "x1/x2/x3"
         if name == "Descansar":
             return "+25% R/E"
 
@@ -81,6 +84,17 @@ init python:
             return "Reflect {}%".format(int(tech["attack_reflect"] * 100))
 
         return "—"
+
+    def selector_find_next_offensive_index(queue, start_idx):
+        for j in range(int(start_idx) + 1, len(queue)):
+            nm = str(queue[j] or "")
+            tid = TECH_MAP_GLOBAL.get(nm)
+            if not tid:
+                continue
+            t = store.battle_techniques.get(tid, {}).get("type", "")
+            if t == "offensive":
+                return j
+        return None
 
 
     # --------------------------------------------------------
@@ -319,8 +333,9 @@ screen technique_selector():
 
                                             is_focus_tech = (tech in ("Concentrar", "Concentrar x2") and battle_mode == "offensive")
                                             is_boost_tech = (tech == "Potenciar" and battle_mode == "defensive")
+                                            is_fury_tech = (tech == "Dados de furia" and battle_mode == "offensive")
                                             is_rest_tech = (tech == "Descansar")
-                                            is_focus = is_focus_tech or is_boost_tech or is_rest_tech
+                                            is_focus = is_focus_tech or is_boost_tech or is_rest_tech or is_fury_tech
 
                                             tipo = "Daño" if battle_mode == "offensive" else "Bloqueo"
 
@@ -328,10 +343,25 @@ screen technique_selector():
                                             # CONCENTRAR / POTENCIAR
                                             # ---------------------------
                                             if is_focus:
-                                                base_val  = ("+25%" if is_rest_tech else "x2")
+                                                if is_rest_tech:
+                                                    base_val = "+25%"
+                                                    final_val = "+25%"
+                                                elif is_fury_tech:
+                                                    _nxt = selector_find_next_offensive_index(player_action_queue, i)
+                                                    if _nxt is not None:
+                                                        _nxt_name = str(player_action_queue[_nxt] or "")
+                                                        _rei_n, _ene_n, _val_n = get_real_cost(_nxt_name)
+                                                        _v = int(_val_n or 0)
+                                                        base_val = "x1/x2/x3"
+                                                        final_val = "{} / {} / {}".format(_v, int(_v * 2), int(_v * 3))
+                                                    else:
+                                                        base_val = "x1/x2/x3"
+                                                        final_val = "— / — / —"
+                                                else:
+                                                    base_val  = "x2"
+                                                    final_val = "x2"
                                                 base_rei  = 0
                                                 base_ene  = 0
-                                                final_val = ("+25%" if is_rest_tech else "x2")
                                                 final_rei = 0
                                                 final_ene = 0
 
@@ -410,7 +440,11 @@ screen technique_selector():
                                                         action SetScreenVariable("_tech_opts_index", (-1 if _tech_opts_index == i else i))
 
                                         if _is_fury_selected and battle_mode == "offensive" and (not is_focus):
-                                            text "🔥 Furia cargada" size 14 color "#FF9966"
+                                            frame:
+                                                background "#FF6A0030"
+                                                padding (8, 4)
+                                                xmaximum 240
+                                                text "🔥 Dados de furia cargados" size 14 color "#FFC080"
                                             if not _fury_can_now:
                                                 text "Se ejecuta cuando HP ≤ 25% o con ítem." size 12 color "#BBBBBB"
 
@@ -421,14 +455,7 @@ screen technique_selector():
                                                 xfill True
                                                 hbox:
                                                     spacing 8
-                                                    if _fury_can_now:
-                                                        textbutton ("🔥 Dados de furia ✓" if _is_fury_selected else "🔥 Dados de furia"):
-                                                            text_size 15
-                                                            action Function(toggle_fury_target_queue_index, i)
-                                                    else:
-                                                        textbutton "🔥 Dados de furia (HP <= 25%)":
-                                                            text_size 15
-                                                            sensitive False
+                                                    text "Opciones (placeholder)" size 14 color "#AABBDD"
 
                         else:
                             text "Ninguna técnica seleccionada." size 20 color "#AAAAAA"
@@ -465,6 +492,9 @@ screen technique_selector():
                                         spacing 6
                                         text "🔥 Furia cargada" size 15 color "#B9FFB9"
                                         text "[_fury_name_side]" size 14 color "#D5FFD5"
+                                        $ _fn_fc = getattr(store, "fury_activation_costs", None)
+                                        $ _fc = _fn_fc("player") if callable(_fn_fc) else {}
+                                        text "Coste: Reiatsu [int((_fc or {}).get('reiatsu_need', 0) or 0)] | Energía [int((_fc or {}).get('energy_need', 0) or 0)]" size 12 color "#DDEECC"
                                         textbutton "✖ Cancelar furia":
                                             text_size 15
                                             action Function(toggle_fury_target_queue_index, _fury_idx_side)

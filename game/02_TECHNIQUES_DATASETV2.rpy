@@ -142,6 +142,16 @@ init -991 python:
             "description": "Duplica la potencia de la próxima defensa."
         },
 
+        "fury_dice": {
+            "id": "fury_dice",
+            "name": "Dados de furia",
+            "type": "special",
+            "special": "fury_dice",
+            "used": False,
+            "implicit_selector_option": True,
+            "description": "Técnica especial implícita. Al activarse sobre una técnica ofensiva, tira 5 dados y aplica x1/x2/x3 según éxitos."
+        },
+
 
         "salvaguarda_principiante": {
             "id": "salvaguarda_principiante",
@@ -256,7 +266,7 @@ init -991 python:
                 problems.append("tech '{}' type inválido ({})".format(key, ttype))
 
             sp = tech.get("special", None)
-            if sp is not None and sp not in ("focus", "boost", "direct", "noatk", "thief_offense", "thief_defense", "thief_focus", "salvaguarda_basic"):
+            if sp is not None and sp not in ("focus", "boost", "fury_dice", "direct", "noatk", "thief_offense", "thief_defense", "thief_focus", "salvaguarda_basic"):
                 problems.append("tech '{}' special inválido ({})".format(key, sp))
 
             alias_of = tech.get("alias_of", None)
