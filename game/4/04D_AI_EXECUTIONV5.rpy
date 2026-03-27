@@ -182,6 +182,13 @@ init -988 python:
         S.simulated_enemy_energy = int(ene_after)
 
         try:
+            fn_bars = getattr(S, "battle_update_hp_bars", None)
+            if callable(fn_bars):
+                fn_bars(int(getattr(S, "player_hp", 0) or 0), int(hp_after or 0))
+        except:
+            pass
+
+        try:
             fn_fmt = getattr(S, "battle_fmt_num", None)
             hg = fn_fmt(hp_after - hp_now) if callable(fn_fmt) else str(int(hp_after - hp_now))
             rg = fn_fmt(rei_after - rei_now) if callable(fn_fmt) else str(int(rei_after - rei_now))
@@ -283,8 +290,14 @@ init -988 python:
         # Chequeo de recursos (ya contempla FocusCost)
         # --------------------------------------------------------
         ok, fr, fe = ai_can_pay(key, "enemy")
+        _is_story_hollow = bool(getattr(S, "story_mode_active", False)) and str(getattr(S, "battle_enemy_id", "") or "") == "Hollow"
+        if _is_story_hollow and key == "stronger_attack":
+            _rei_now = int(getattr(S, "enemy_reiatsu", 0) or 0)
+            if _rei_now < 150:
+                ok = False
+                fr = max(int(fr or 0), 150 - _rei_now)
+                fe = int(fe or 0)
         if not ok:
-            _is_story_hollow = bool(getattr(S, "story_mode_active", False)) and str(getattr(S, "battle_enemy_id", "") or "") == "Hollow"
             if _is_story_hollow:
                 _ai_enemy_apply_rest_recovery(log_prefix="Descansar (sin recursos)")
                 return "rest_recovery"
@@ -330,7 +343,7 @@ init -988 python:
         # --------------------------------------------------------
         base, final = ai_get_base_and_final(key)
         if bool(getattr(S, "story_mode_active", False)) and str(getattr(S, "battle_enemy_id", "") or "") == "Hollow":
-            if bool(getattr(S, "story_tutorial_enemy_force_strong_100", False)) and key == "stronger_attack":
+            if key == "stronger_attack":
                 base = 150
                 final = 150
         dmg = S.apply_offensive_focus(final, owner_team="enemy")

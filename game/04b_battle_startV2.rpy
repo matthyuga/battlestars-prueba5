@@ -538,6 +538,8 @@ label battle_start:
         S.enemy_energy_base = int(enemy_energy or 0)
 
         try:
+            battle_player["HP"] = int(player_hp)
+            battle_enemy["HP"] = int(enemy_hp)
             battle_player["Reiatsu"] = int(player_reiatsu)
             battle_player["Energy"] = int(player_energy)
             battle_enemy["Reiatsu"] = int(enemy_reiatsu)
