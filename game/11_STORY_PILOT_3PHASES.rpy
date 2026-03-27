@@ -261,11 +261,11 @@ init -100 python:
         prev = st.get("preview", {}) if isinstance(st.get("preview", {}), dict) else {}
         tp = cfg.get("tech_points", {}) if isinstance(cfg.get("tech_points", {}), dict) else {}
 
-        hp = int(prev.get("hp_after", 1000) or 1000)
+        hp = 500
         rei = int(prev.get("reiatsu_after", 1000) or 1000)
         ene = int(prev.get("energia_after", 100) or 100)
 
-        e_hp = 900
+        e_hp = 450
         e_rei = 900
         e_ene = 90
 
