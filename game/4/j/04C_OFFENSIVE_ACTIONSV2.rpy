@@ -280,6 +280,7 @@ init python:
 
             "Concentrar":         "focus",
             "Concentrar x2":      "focus",
+            "Dados de furia":     "fury_dice",
             "Descansar":          "rest_recovery",
         }
 
@@ -359,6 +360,71 @@ label offensive_process_actions(selected):
                 except:
                     pass
 
+                can_focus = False
+                continue
+
+            # -------------------------
+            # 🔹 DADOS DE FURIA (especial implícita tipo Concentrar)
+            # -------------------------
+            if action.tech_id == "fury_dice":
+                try:
+                    fn_can_f = getattr(S, "can_use_fury_dice", None)
+                    _can_f = bool(fn_can_f("player")) if callable(fn_can_f) else False
+                except:
+                    _can_f = False
+
+                if not _can_f:
+                    _blog("Dados de furia no disponible: requiere HP ≤ 25% (o ítem).", "#FF8888")
+                    action.used = True
+                    continue
+
+                try:
+                    fn_pay_f = getattr(S, "can_pay_fury_activation", None)
+                    _pay_f = bool(fn_pay_f("player")) if callable(fn_pay_f) else True
+                except:
+                    _pay_f = True
+
+                if not _pay_f:
+                    try:
+                        fn_fc = getattr(S, "fury_activation_costs", None)
+                        _fc = fn_fc("player") if callable(fn_fc) else {}
+                    except:
+                        _fc = {}
+                    _blog("Dados de furia no disponible: coste base R {} / E {}.".format(
+                        _fmt_num(int((_fc or {}).get("reiatsu_need", 0) or 0)),
+                        _fmt_num(int((_fc or {}).get("energy_need", 0) or 0)),
+                    ), "#FF8888")
+                    action.used = True
+                    continue
+
+                _target_pos = -1
+                _target_name = ""
+                for _nx in selected_actions:
+                    if int(getattr(_nx, "position", -1) or -1) <= int(action.position or 0):
+                        continue
+                    if str(getattr(_nx, "type", "") or "") == "offensive":
+                        _target_pos = int(getattr(_nx, "position", -1) or -1)
+                        _target_name = str(getattr(_nx, "name", "") or "")
+                        break
+
+                if _target_pos < 0:
+                    _blog("Dados de furia requiere una técnica ofensiva posterior en la cola.", "#FF8888")
+                    action.used = True
+                    continue
+
+                try:
+                    S.fury_selected_turn_index = int(_target_pos)
+                    S.fury_selection = {
+                        "queue_index": int(_target_pos),
+                        "tech_name": str(_target_name),
+                        "tech_id": str(getattr(_nx, "tech_id", "") or ""),
+                        "armed": True,
+                    }
+                except:
+                    pass
+
+                _blog("🔥 Dados de furia cargados sobre '{}' (posibles: x1 / x2 / x3).".format(_target_name), "#FF9966")
+                action.used = True
                 can_focus = False
                 continue
 

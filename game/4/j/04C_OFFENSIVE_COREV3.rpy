@@ -733,6 +733,21 @@ label battle_offensive_turn_legacy_entry:
                     _target = dict(_r)
                     break
 
+            # Fallback: si el índice no matchea por drift, buscar por nombre de técnica.
+            if not isinstance(_target, dict):
+                try:
+                    _fsel = getattr(S, "fury_selection", {}) if isinstance(getattr(S, "fury_selection", {}), dict) else {}
+                    _fname = str(_fsel.get("tech_name", "") or "")
+                except:
+                    _fname = ""
+                if _fname:
+                    for _r in _rows:
+                        if not isinstance(_r, dict):
+                            continue
+                        if str(_r.get("tech_name", "") or "") == _fname:
+                            _target = dict(_r)
+                            break
+
             if isinstance(_target, dict):
                 if not _can_fury:
                     try:
@@ -745,6 +760,35 @@ label battle_offensive_turn_legacy_entry:
                     except:
                         pass
                 else:
+                    _consume = None
+                    try:
+                        _fn_consume_fury = getattr(S, "consume_fury_activation_cost", None)
+                        if callable(_fn_consume_fury):
+                            _consume = _fn_consume_fury("player")
+                    except:
+                        _consume = None
+
+                    if isinstance(_consume, dict) and not bool(_consume.get("consumed", False)):
+                        try:
+                            _blog("{color=#BBBBBB}Furia cancelada: recursos insuficientes para activar (10% total).{/color}")
+                            _blog("Requiere Reiatsu %s / Energía %s. Actual: Reiatsu %s / Energía %s." % (
+                                str(int(_consume.get("reiatsu_need", 0) or 0)),
+                                str(int(_consume.get("energy_need", 0) or 0)),
+                                str(int(_consume.get("reiatsu_current", 0) or 0)),
+                                str(int(_consume.get("energy_current", 0) or 0)),
+                            ))
+                        except:
+                            pass
+                    else:
+                        if isinstance(_consume, dict) and bool(_consume.get("consumed", False)):
+                            try:
+                                _blog("{color=#FFBB66}Furia consume recursos base (10%): Reiatsu %s | Energía %s.{/color}" % (
+                                    str(int(_consume.get("reiatsu_need", 0) or 0)),
+                                    str(int(_consume.get("energy_need", 0) or 0)),
+                                ))
+                            except:
+                                pass
+
                     _roll = None
                     try:
                         _fn_roll5 = getattr(S, "roll_5d_fury", None)
@@ -753,7 +797,7 @@ label battle_offensive_turn_legacy_entry:
                     except:
                         _roll = None
 
-                    if isinstance(_roll, dict):
+                    if ((not isinstance(_consume, dict)) or bool(_consume.get("consumed", True))) and isinstance(_roll, dict):
                         _mult = int(_roll.get("multiplier", 1) or 1)
                         _succ = int(_roll.get("successes", 0) or 0)
                         _dmg_before = max(0, int(_target.get("damage", 0) or 0))
