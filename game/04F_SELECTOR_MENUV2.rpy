@@ -56,7 +56,6 @@ init python:
                                     "gui/tech_buttons/dados_furia.webp",
                                     "gui/tech_buttons/dados_furia.jpg",
                                     "gui/tech_buttons/dados_furia",
-                                    "gui/panel_buttons/P_dados.png",
                                     "gui/tech_buttons/concentrar_x2.png"
                                 ),
         "rest_recovery":        "gui/tech_buttons/desc.png",
