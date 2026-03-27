@@ -170,6 +170,25 @@ label offensive_formula(dmg, attack_records):
         total_with_reflect = dmg_int  # 👈 ya no se suma reflect acá
 
         # ----------------------------------------------------
+        # 2.1) Separación DIRECTO vs DEFENDIBLE
+        # - En este punto `dmg` puede incluir Ataque Directo.
+        # - Si Directo salió exitoso, su daño NO debe quedar en
+        #   `total_damage` (defendible), porque se aplica aparte
+        #   en battle_offensive_resolve_enemy.
+        # ----------------------------------------------------
+        dmg_directo = 0
+        try:
+            if bool(getattr(S, "direct_success", False)):
+                dmg_directo = _clamp0(getattr(S, "direct_pending_damage", 0))
+        except:
+            dmg_directo = 0
+
+        if dmg_directo > total_with_reflect:
+            dmg_directo = total_with_reflect
+
+        defendible_total = max(0, int(total_with_reflect) - int(dmg_directo))
+
+        # ----------------------------------------------------
         # 3) Debuff defensivo (Ataque Reductor) — normalizado 0..1
         # ----------------------------------------------------
         reduction = getattr(S, "next_defense_reduction", 0)
@@ -226,34 +245,27 @@ label offensive_formula(dmg, attack_records):
             if not callable(tot_fn):
                 tot_fn = globals().get("log_total", None)
 
-            dmg_directo = 0
-            try:
-                dmg_directo = int(getattr(S, "direct_pending_damage", 0) or 0)
-            except:
-                dmg_directo = 0
-            if dmg_directo < 0:
-                dmg_directo = 0
-
             if callable(tot_fn):
                 _blog(tot_fn(
-                    total_with_reflect + dmg_directo,
+                    defendible_total + dmg_directo,
                     reduction_pct_display,
-                    defendible=total_with_reflect,
+                    defendible=defendible_total,
                     directo=dmg_directo
                 ))
             else:
                 if dmg_directo > 0:
                     _blog("TOTAL: {} defendibles + {} directos = {}".format(
-                        _fmt(total_with_reflect), _fmt(dmg_directo), _fmt(total_with_reflect + dmg_directo)
+                        _fmt(defendible_total), _fmt(dmg_directo), _fmt(defendible_total + dmg_directo)
                     ))
                 else:
-                    _blog("TOTAL: {} defendibles".format(_fmt(total_with_reflect)))
+                    _blog("TOTAL: {} defendibles".format(_fmt(defendible_total)))
         except:
             pass
 
         # ----------------------------------------------------
         # 5) Resultado final hacia el resolutor
         # ----------------------------------------------------
-        total_damage = total_with_reflect
+        # `total_damage` sigue hacia defensa reactiva => solo defendible.
+        total_damage = defendible_total
 
     return
