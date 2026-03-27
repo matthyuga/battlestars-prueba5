@@ -238,46 +238,107 @@ label defensive_resolve(received_damage, hp_after, reflected):
             _player_defeated = (int(player_hp or 0) <= 0)
 
     if _player_defeated:
-
         python:
             import renpy.store as S
+            _allow_recovery = (not bool(getattr(S, "recovery_dice_used_in_battle", False)))
+        if _allow_recovery:
+            $ _rec_choice = renpy.call_screen("recovery_dice_prompt")
+        else:
+            $ _rec_choice = "defeat"
 
-            # Reset total de focus y maniobras
-            S.concentrar_activo = False
-            S.can_focus = True
-            S.skip_focus_reset = False
-            S.maneuver_selected = "none"
-            S.defense_for_attack_active = False
+        if _rec_choice == "roll":
+            python:
+                import renpy.store as S
+                _roll = None
+                try:
+                    fn_roll = getattr(S, "roll_recovery_die", None)
+                    if callable(fn_roll):
+                        _roll = fn_roll()
+                except:
+                    _roll = None
 
-            # Si muere, cualquier potenciar pendiente se pierde
-            if hasattr(S, "def_boost_pending"):
-                S.def_boost_pending = False
+                _pct = int(_roll.get("value_pct", 0) or 0) if isinstance(_roll, dict) else 0
+                S.recovery_dice_used_in_battle = True
+                S.recovery_dice_last_pct = int(_pct)
 
-            # ✅ Limpiar reflect acumulado (FIX: antes llamaba clear() sin args)
-            try:
-                reflect_obj = getattr(S, "reflect", None) or globals().get("reflect", None)
-                if reflect_obj:
-                    # preferimos clear_all si existe
-                    if hasattr(reflect_obj, "clear_all"):
-                        reflect_obj.clear_all()
-                    else:
-                        # fallback: intentar limpiar target + source actuales
-                        try:
-                            reflect_obj.clear(getattr(S, "current_actor_id", "player"))
-                        except:
-                            pass
-                        try:
-                            reflect_obj.clear(getattr(S, "current_enemy_id", "enemy"))
-                        except:
-                            pass
-            except:
-                pass
+                if _pct <= 0:
+                    S.player_hp = 0
+                    try:
+                        if callable(getattr(S, "battle_log_add", None)):
+                            S.battle_log_add("{color=#FF4444}Dado de recuperación: 0% → KO definitivo.{/color}")
+                    except:
+                        pass
+                else:
+                    _max_hp = max(1, int(getattr(S, "battle_hp_player_max", getattr(S, "player_hp", 1)) or 1))
+                    _heal = max(1, int(round((_max_hp * _pct) / 100.0)))
+                    _new_hp = min(_max_hp, _heal)
+                    S.player_hp = int(_new_hp)
 
-            if hasattr(S, "next_defense_reduction"):
-                S.next_defense_reduction = 0.0
+                    try:
+                        fn_set = getattr(S, "bs_set_hp", None)
+                        if callable(fn_set):
+                            fn_set("player", int(_new_hp))
+                    except:
+                        pass
 
-        $ battle_log_add("{color=#FF4444}Derrota{/color}")
-        jump battle_end
+                    try:
+                        if callable(getattr(S, "battle_update_damage_overlay", None)):
+                            S.battle_update_damage_overlay(int(S.player_hp), int(_max_hp))
+                    except:
+                        pass
+
+                    try:
+                        if callable(getattr(S, "battle_log_add", None)):
+                            S.battle_log_add("{color=#88FF88}Dado de recuperación: %s%% → HP restaurado a %s.{/color}" % (str(int(_pct)), str(int(_new_hp))))
+                    except:
+                        pass
+
+            if int(getattr(store, "player_hp", 0) or 0) <= 0:
+                $ battle_log_add("{color=#FF4444}Derrota{/color}")
+                jump battle_end
+            else:
+                $ battle_popup_turn("Recuperación activada", "#88FF88", 0.7)
+
+        if int(getattr(store, "player_hp", 0) or 0) <= 0:
+            python:
+                import renpy.store as S
+
+                # Reset total de focus y maniobras
+                S.concentrar_activo = False
+                S.can_focus = True
+                S.skip_focus_reset = False
+                S.maneuver_selected = "none"
+                S.defense_for_attack_active = False
+
+                # Si muere, cualquier potenciar pendiente se pierde
+                if hasattr(S, "def_boost_pending"):
+                    S.def_boost_pending = False
+
+                # ✅ Limpiar reflect acumulado (FIX: antes llamaba clear() sin args)
+                try:
+                    reflect_obj = getattr(S, "reflect", None) or globals().get("reflect", None)
+                    if reflect_obj:
+                        # preferimos clear_all si existe
+                        if hasattr(reflect_obj, "clear_all"):
+                            reflect_obj.clear_all()
+                        else:
+                            # fallback: intentar limpiar target + source actuales
+                            try:
+                                reflect_obj.clear(getattr(S, "current_actor_id", "player"))
+                            except:
+                                pass
+                            try:
+                                reflect_obj.clear(getattr(S, "current_enemy_id", "enemy"))
+                            except:
+                                pass
+                except:
+                    pass
+
+                if hasattr(S, "next_defense_reduction"):
+                    S.next_defense_reduction = 0.0
+
+            $ battle_log_add("{color=#FF4444}Derrota{/color}")
+            jump battle_end
 
     # --------------------------------------------------------
     # (5) Decidir el próximo turno

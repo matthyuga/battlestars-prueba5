@@ -356,6 +356,16 @@ init -959 python:
         except:
             return
 
+        try:
+            idx = int(index)
+            cur = int(getattr(S, "fury_selected_queue_index", -1) or -1)
+            if cur == idx:
+                S.fury_selected_queue_index = -1
+            elif cur > idx:
+                S.fury_selected_queue_index = cur - 1
+        except:
+            pass
+
         rebuild_selector_simulation()
 
         _rn_notify("❌ '%s' eliminado." % tech)
@@ -368,6 +378,7 @@ init -959 python:
 
         q = getattr(S, "player_action_queue", [])
         q[:] = []
+        S.fury_selected_queue_index = -1
 
         S.actions_available = int(getattr(S, "actions_available_start", 1) or 1)
         S.simulated_reiatsu = int(getattr(S, "player_reiatsu", 0) or 0)
@@ -383,6 +394,34 @@ init -959 python:
         _rn_restart()
 
     # ============================================================
+    # 🔥 Selección de técnica para Dados de Furia
+    # ============================================================
+    def toggle_fury_target_queue_index(index):
+        q = list(getattr(S, "player_action_queue", []))
+        try:
+            idx = int(index)
+        except:
+            return
+        if idx < 0 or idx >= len(q):
+            return
+
+        tech_name = str(q[idx] or "")
+        tech_id = get_tech_id(tech_name)
+        tech = getattr(S, "battle_techniques", {}).get(tech_id, {}) if tech_id else {}
+        if str(tech.get("type", "") or "") != "offensive":
+            _rn_notify("⚠ Solo puedes asignar furia a técnicas ofensivas.")
+            return
+
+        cur = int(getattr(S, "fury_selected_queue_index", -1) or -1)
+        if cur == idx:
+            S.fury_selected_queue_index = -1
+            _rn_notify("🔥 Furia desasignada.")
+        else:
+            S.fury_selected_queue_index = idx
+            _rn_notify("🔥 Furia asignada a '%s'." % tech_name)
+        _rn_restart()
+
+    # ============================================================
     # ✅ CONFIRMAR TURNO (no descuenta recursos reales)
     # ============================================================
     def confirm_turn_actions():
@@ -392,6 +431,10 @@ init -959 python:
             return
 
         S.turn_confirmed = True
+        try:
+            S.fury_selected_turn_index = int(getattr(S, "fury_selected_queue_index", -1) or -1)
+        except:
+            S.fury_selected_turn_index = -1
 
         try:
             S.pending_tech_list = []

@@ -234,6 +234,10 @@ label battle_start:
     $ S.sacrifice_used_in_battle = False
     $ S.sacrifice_receiver_key = ""
     $ S.counterattack_resolution_mode = "dice"
+    $ S.fury_selected_turn_index = -1
+    $ S.fury_last_result = {}
+    $ S.recovery_dice_used_in_battle = False
+    $ S.recovery_dice_last_pct = -1
 
 
     # =======================================================

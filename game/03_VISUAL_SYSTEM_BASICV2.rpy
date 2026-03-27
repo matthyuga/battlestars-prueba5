@@ -527,3 +527,33 @@ screen dice_roll_result_multi(entries):
                                     add "dice_fail_icon"
 
     timer 2.4 action Hide("dice_roll_result_multi")
+
+
+screen recovery_dice_prompt():
+    modal True
+    zorder 550
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        background "#000C"
+        padding (24, 20)
+        xmaximum 900
+
+        vbox:
+            spacing 14
+            text "Has caído en combate" size 36 color "#FF8888" bold True xalign 0.5
+            text "Puedes lanzar 1 dado de recuperación (solo 1 vez por combate)." size 24 color "#DDDDDD" xalign 0.5
+            text "Resultado: 0% = KO definitivo | 25/50/75/100% = HP restaurado." size 21 color "#FFD700" xalign 0.5
+
+            hbox:
+                spacing 20
+                xalign 0.5
+
+                textbutton "🎲 Tirar dado de recuperación":
+                    text_size 24
+                    action Return("roll")
+
+                textbutton "☠ Caer derrotado":
+                    text_size 24
+                    action Return("defeat")

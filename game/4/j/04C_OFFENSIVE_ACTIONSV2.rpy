@@ -313,6 +313,7 @@ label offensive_process_actions(selected):
         S.turn_off_ene_before = int(getattr(S, "player_energy", 0) or 0)
         S.turn_off_rei_tech_sum = 0
         S.turn_off_ene_tech_sum = 0
+        S.turn_offensive_damage_records = []
 
         # ----------------------------------------------------
         # 1) Strings → OffAction
@@ -530,6 +531,14 @@ label offensive_process_actions(selected):
             # Guardar para fórmula
             try:
                 attack_records.append((action.base_value, action.final_value))
+                S.turn_offensive_damage_records.append({
+                    "queue_index": int(action.position or 0),
+                    "tech_id": str(action.tech_id or ""),
+                    "tech_name": str(action.name or ""),
+                    "base": int(action.base_value or 0),
+                    "damage": int(action.final_value or 0),
+                    "attack_record_index": int(len(attack_records) - 1),
+                })
             except:
                 pass
 

@@ -674,6 +674,112 @@ label battle_offensive_turn_legacy_entry:
                 pass
 
     # ============================================================
+    # 🔥 Dados de Furia (jugador): multiplicador final por técnica
+    # Reglas actuales:
+    # - Disponible con HP <= 10% (o ítem, aún placeholder).
+    # - 5 éxitos => x3 | 3-4 éxitos => x2 | 0-2 => x1.
+    # ============================================================
+    python:
+        import renpy.store as S
+
+        try:
+            S.fury_last_result = {}
+        except:
+            pass
+
+        _fury_idx = int(getattr(S, "fury_selected_turn_index", -1) or -1)
+        _can_fury = False
+        try:
+            fn_can_fury = getattr(S, "can_use_fury_dice", None)
+            if callable(fn_can_fury):
+                _can_fury = bool(fn_can_fury("player"))
+        except:
+            _can_fury = False
+
+        if _fury_idx >= 0 and _can_fury:
+            _rows = list(getattr(S, "turn_offensive_damage_records", []) or [])
+            _target = None
+            for _r in _rows:
+                if not isinstance(_r, dict):
+                    continue
+                if int(_r.get("queue_index", -1) or -1) == _fury_idx:
+                    _target = dict(_r)
+                    break
+
+            if isinstance(_target, dict):
+                _roll = None
+                try:
+                    _fn_roll5 = getattr(S, "roll_5d_fury", None)
+                    if callable(_fn_roll5):
+                        _roll = _fn_roll5()
+                except:
+                    _roll = None
+
+                if isinstance(_roll, dict):
+                    _mult = int(_roll.get("multiplier", 1) or 1)
+                    _succ = int(_roll.get("successes", 0) or 0)
+                    _dmg_before = max(0, int(_target.get("damage", 0) or 0))
+                    _extra = max(0, int(_dmg_before * max(0, _mult - 1)))
+
+                    try:
+                        fn_show = getattr(S, "show_dice_result", None)
+                        if callable(fn_show):
+                            fn_show({"rolls": list(_roll.get("rolls", []) or [])}, label_text="Dados de Furia")
+                        else:
+                            bs_ui_show("dice_roll_result", rolls=list(_roll.get("rolls", []) or []), label_text="Dados de Furia")
+                    except:
+                        pass
+
+                    try:
+                        bs_ui_pause(0.8, hard=True)
+                    except:
+                        pass
+
+                    if _extra > 0:
+                        total_damage = int(total_damage or 0) + int(_extra)
+
+                        _ar_idx = int(_target.get("attack_record_index", -1) or -1)
+                        if _ar_idx >= 0 and _ar_idx < len(attack_records):
+                            try:
+                                _b, _d = attack_records[_ar_idx]
+                                attack_records[_ar_idx] = (int(_b or 0), int(_d or 0) * int(_mult))
+                            except:
+                                pass
+
+                        if str(_target.get("tech_id", "") or "") == "direct_attack":
+                            try:
+                                S.direct_pending_damage = int(max(0, int(getattr(S, "direct_pending_damage", 0) or 0)) * int(_mult))
+                            except:
+                                pass
+
+                    try:
+                        if _mult >= 3:
+                            _blog("{color=#FF6633}🔥 Furia ({}/5): x{} en '{}'.{/color}".format(_succ, _mult, str(_target.get("tech_name", "técnica"))))
+                        elif _mult >= 2:
+                            _blog("{color=#FF9966}🔥 Furia ({}/5): x{} en '{}'.{/color}".format(_succ, _mult, str(_target.get("tech_name", "técnica"))))
+                        else:
+                            _blog("{color=#BBBBBB}Furia ({}/5): sin multiplicador.{/color}".format(_succ))
+                    except:
+                        pass
+
+                    try:
+                        S.fury_last_result = {
+                            "used": True,
+                            "queue_index": int(_fury_idx),
+                            "tech_name": str(_target.get("tech_name", "")),
+                            "successes": int(_succ),
+                            "multiplier": int(_mult),
+                        }
+                    except:
+                        pass
+
+        # consumir selección del turno para evitar arrastre
+        try:
+            S.fury_selected_turn_index = -1
+        except:
+            pass
+
+    # ============================================================
     # Fórmula final (reflect + total defendible)
     # ============================================================
     python:

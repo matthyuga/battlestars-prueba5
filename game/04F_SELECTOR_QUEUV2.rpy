@@ -384,10 +384,16 @@ screen technique_selector():
                                             unhovered SetScreenVariable("tooltip_data", None)
 
                                             hbox spacing 18:
+                                                $ _is_fury_selected = (int(getattr(store, "fury_selected_queue_index", -1) or -1) == i)
                                                 text label_txt size 20 color "#40BFFF" xminimum 160
                                                 text str(final_val) size 20 color "#FFDADA" xminimum 70
                                                 text "{} / {}".format(final_rei, final_ene) size 18 color "#CCCCCC" xminimum 110
                                                 text effect_txt size 18 color "#AAAAFF"
+
+                                                if battle_mode == "offensive" and (not is_focus):
+                                                    textbutton ("🔥Furia ✓" if _is_fury_selected else "🔥Furia"):
+                                                        text_size 16
+                                                        action Function(toggle_fury_target_queue_index, i)
 
                                                 textbutton "✖":
                                                     text_size 18
