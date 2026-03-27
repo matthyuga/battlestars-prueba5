@@ -416,9 +416,20 @@ init -959 python:
         if cur == idx:
             S.fury_selected_queue_index = -1
             _rn_notify("🔥 Furia desasignada.")
-        else:
-            S.fury_selected_queue_index = idx
-            _rn_notify("🔥 Furia asignada a '%s'." % tech_name)
+            _rn_restart()
+            return
+
+        try:
+            _fn_can = getattr(S, "can_use_fury_dice", None)
+            _can_now = bool(_fn_can("player")) if callable(_fn_can) else False
+        except:
+            _can_now = False
+        if not _can_now:
+            _rn_notify("⚠ Dados de furia solo disponible con HP ≤ 25% (o ítem).")
+            return
+
+        S.fury_selected_queue_index = idx
+        _rn_notify("🔥 Furia asignada a '%s'." % tech_name)
         _rn_restart()
 
     # ============================================================
