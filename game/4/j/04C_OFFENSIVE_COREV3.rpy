@@ -779,6 +779,38 @@ label battle_offensive_turn_legacy_entry:
         except:
             pass
 
+        # ------------------------------------------------------------
+        # 🔥👹 Placeholder: Furia Infernal (multiplica daño total)
+        # Requiere ítem + feature flag (actualmente OFF por defecto).
+        # ------------------------------------------------------------
+        try:
+            fn_inf = getattr(S, "bs_try_apply_infernal_fury", None)
+            _inf = fn_inf(total_damage, side="player") if callable(fn_inf) else None
+        except:
+            _inf = None
+
+        if isinstance(_inf, dict) and bool(_inf.get("used", False)):
+            _inf_mult = int(_inf.get("multiplier", 1) or 1)
+            _inf_succ = int(_inf.get("successes", 0) or 0)
+            total_damage = int(_inf.get("damage_out", total_damage) or total_damage)
+
+            try:
+                _rolls_inf = list(_inf.get("rolls", []) or [])
+                if _rolls_inf:
+                    fn_show = getattr(S, "show_dice_result", None)
+                    if callable(fn_show):
+                        fn_show({"rolls": _rolls_inf}, label_text="Furia Infernal")
+                    else:
+                        bs_ui_show("dice_roll_result", rolls=_rolls_inf, label_text="Furia Infernal")
+                    bs_ui_pause(0.8, hard=True)
+            except:
+                pass
+
+            try:
+                _blog("{color=#FF3300}👹 Furia Infernal ({}/5): x{} al daño total.{/color}".format(_inf_succ, _inf_mult))
+            except:
+                pass
+
     # ============================================================
     # Fórmula final (reflect + total defendible)
     # ============================================================
