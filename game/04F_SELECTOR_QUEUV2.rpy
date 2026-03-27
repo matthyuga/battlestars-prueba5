@@ -393,14 +393,18 @@ screen technique_selector():
                                                 text "{} / {}".format(final_rei, final_ene) size 18 color "#CCCCCC" xminimum 110
                                                 text effect_txt size 18 color "#AAAAFF"
 
+                                                textbutton "✖":
+                                                    text_size 18
+                                                    xminimum 24
+                                                    action Function(remove_technique_from_queue, i)
+
                                                 if battle_mode == "offensive" and (not is_focus):
                                                     textbutton "⚙ Opciones":
                                                         text_size 16
                                                         action SetScreenVariable("_tech_opts_index", (-1 if _tech_opts_index == i else i))
 
-                                                textbutton "✖":
-                                                    text_size 18
-                                                    action Function(remove_technique_from_queue, i)
+                                        if _is_fury_selected and battle_mode == "offensive" and (not is_focus):
+                                            text "🔥 Furia activada" size 14 color "#FF9966"
 
                                         if _tech_opts_index == i and battle_mode == "offensive" and (not is_focus):
                                             frame:
@@ -417,14 +421,6 @@ screen technique_selector():
                                                         textbutton "🔥 Dados de furia (HP <= 25%)":
                                                             text_size 15
                                                             sensitive False
-
-                                                    textbutton "🧪 Poción fuerza (Próx.)":
-                                                        text_size 15
-                                                        sensitive False
-
-                                                    textbutton "🧪 Poción agilidad (Próx.)":
-                                                        text_size 15
-                                                        sensitive False
 
                         else:
                             text "Ninguna técnica seleccionada." size 20 color "#AAAAAA"

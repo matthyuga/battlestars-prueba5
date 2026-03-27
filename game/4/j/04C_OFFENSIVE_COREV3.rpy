@@ -641,21 +641,48 @@ label battle_offensive_turn_legacy_entry:
                         except:
                             pass
 
+            try:
+                S._offense_success_dice_panels = list(_dice_panels or [])
+            except:
+                pass
+
+            _defer_direct_popup_for_fury = False
+            try:
+                _fidx = int(getattr(S, "fury_selected_turn_index", -1) or -1)
+                _can_f = False
+                _fn_cf = getattr(S, "can_use_fury_dice", None)
+                if callable(_fn_cf):
+                    _can_f = bool(_fn_cf("player"))
+                if _fidx >= 0 and _can_f:
+                    _rows_tmp = list(getattr(S, "turn_offensive_damage_records", []) or [])
+                    for _rr in _rows_tmp:
+                        if not isinstance(_rr, dict):
+                            continue
+                        if int(_rr.get("queue_index", -1) or -1) == _fidx and str(_rr.get("tech_id", "") or "") == "direct_attack":
+                            _defer_direct_popup_for_fury = True
+                            break
+            except:
+                _defer_direct_popup_for_fury = False
+
+            _dice_panels_now = list(_dice_panels or [])
+            if _defer_direct_popup_for_fury:
+                _dice_panels_now = [p for p in _dice_panels_now if str((p or {}).get("label", "") or "") != "Ataque Directo"]
+
             # Mostrar tiradas en centro:
             # - 1 técnica => 1 tarjeta centrada.
             # - 2 técnicas => 2 tarjetas lado a lado.
             try:
                 fn_show = getattr(S, "show_dice_result", None)
                 if callable(fn_show):
-                    if len(_dice_panels) >= 2:
-                        fn_show(_dice_panels)
-                    elif len(_dice_panels) == 1:
-                        fn_show({"rolls": list(_dice_panels[0].get("rolls", []) or [])}, label_text=str(_dice_panels[0].get("label", "Tirada") or "Tirada"))
+                    if len(_dice_panels_now) >= 2:
+                        fn_show(_dice_panels_now)
+                    elif len(_dice_panels_now) == 1:
+                        fn_show({"rolls": list(_dice_panels_now[0].get("rolls", []) or [])}, label_text=str(_dice_panels_now[0].get("label", "Tirada") or "Tirada"))
                 else:
-                    if len(_dice_panels) >= 2:
-                        bs_ui_show("dice_roll_result_multi", entries=_dice_panels)
-                    elif len(_dice_panels) == 1:
-                        bs_ui_show("dice_roll_result", rolls=list(_dice_panels[0].get("rolls", []) or []), label_text=str(_dice_panels[0].get("label", "Tirada") or "Tirada"))
+                    if len(_dice_panels_now) >= 2:
+                        bs_ui_show("dice_roll_result_multi", entries=_dice_panels_now)
+                    elif len(_dice_panels_now) == 1:
+                        bs_ui_show("dice_roll_result", rolls=list(_dice_panels_now[0].get("rolls", []) or []), label_text=str(_dice_panels_now[0].get("label", "Tirada") or "Tirada"))
             except:
                 pass
 
@@ -725,10 +752,33 @@ label battle_offensive_turn_legacy_entry:
 
                     try:
                         fn_show = getattr(S, "show_dice_result", None)
-                        if callable(fn_show):
-                            fn_show({"rolls": _rolls_f}, label_text="Dados de Furia")
+                        _combo_direct = False
+                        _direct_panel = None
+                        try:
+                            _prev_panels = list(getattr(S, "_offense_success_dice_panels", []) or [])
+                            if str(_target.get("tech_id", "") or "") == "direct_attack":
+                                for _pp in _prev_panels:
+                                    if isinstance(_pp, dict) and str(_pp.get("label", "") or "") == "Ataque Directo":
+                                        _direct_panel = {"label": "Ataque Directo", "rolls": list(_pp.get("rolls", []) or [])}
+                                        _combo_direct = True
+                                        break
+                        except:
+                            _combo_direct = False
+                            _direct_panel = None
+
+                        if _combo_direct and _direct_panel is not None:
+                            _f_label = "Dados de Furia — Potenció Ataque Directo"
+                            _stack = [
+                                _direct_panel,
+                                {"label": _f_label, "rolls": _rolls_f},
+                            ]
+                            bs_ui_show("dice_roll_result_stack", entries=_stack)
+                        elif callable(fn_show):
+                            _f_label = "Dados de Furia — Potenció %s" % str(_target.get("tech_name", "técnica"))
+                            fn_show({"rolls": _rolls_f}, label_text=_f_label)
                         else:
-                            bs_ui_show("dice_roll_result", rolls=_rolls_f, label_text="Dados de Furia")
+                            _f_label = "Dados de Furia — Potenció %s" % str(_target.get("tech_name", "técnica"))
+                            bs_ui_show("dice_roll_result", rolls=_rolls_f, label_text=_f_label)
                     except:
                         pass
 
@@ -759,7 +809,11 @@ label battle_offensive_turn_legacy_entry:
 
                     try:
                         _blog("{color=#FF9966}dados de furia activado. resultado de tirada:{/color}")
-                        _blog("Resultados de tirada: %s" % (" | ".join(_fury_slots) if _fury_slots else "(sin datos)"))
+                        _fn_slots = getattr(S, "log_dice_slots", None)
+                        if callable(_fn_slots):
+                            _blog(_fn_slots(_rolls_f))
+                        else:
+                            _blog("Resultados de tirada: %s" % (" | ".join(_fury_slots) if _fury_slots else "(sin datos)"))
                         _blog("Exitofuria: %s  |  Fracasofuria: %s" % (str(int(_succ)), str(int(max(0, 5 - _succ)))))
                         _blog("Daño técnica: %s -> %s" % (str(int(_dmg_before or 0)), str(int(_dmg_after or 0))))
                         if _mult >= 3:
