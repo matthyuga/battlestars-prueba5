@@ -274,25 +274,12 @@ screen technique_selector():
                         $ _cur_ene = int(getattr(store, "player_energy", 0) or 0)
                         $ _spent_rei = max(0, _cur_rei - _sim_rei)
                         $ _spent_ene = max(0, _cur_ene - _sim_ene)
-                        $ _fury_idx_global = int(getattr(store, "fury_selected_queue_index", -1) or -1)
-                        $ _fury_name_global = player_action_queue[_fury_idx_global] if (_fury_idx_global >= 0 and _fury_idx_global < len(player_action_queue)) else ""
 
                         text "🌀 Técnicas en espera:" size 26 color "#FFFFFF" bold True
                         text "Acciones disponibles: [actions_available]" size 22 color "#FFD700"
                         text "Recursos disponibles → Reiatsu %s | Energía %s" % (_sim_rei, _sim_ene) size 18 color "#88CCFF"
                         text "Gasto proyectado → Reiatsu %s | Energía %s" % (_spent_rei, _spent_ene) size 17 color "#B8B8B8"
                         text "Espacio libre: %s" % actions_available size 17 color "#A0A0A0"
-                        if battle_mode == "offensive" and _fury_name_global:
-                            frame:
-                                background "#1E3D2A"
-                                padding (8, 6)
-                                xfill True
-                                hbox:
-                                    spacing 8
-                                    text "🔥 Furia en espera: [_fury_name_global]" size 15 color "#B9FFB9"
-                                    textbutton "✖":
-                                        text_size 13
-                                        action Function(toggle_fury_target_queue_index, _fury_idx_global)
                         null height 4
 
                         if player_action_queue:
@@ -454,8 +441,23 @@ screen technique_selector():
                             $ _sel = str(getattr(store, "offensive_selected_target_key", "") or "")
                             $ _sel_txt = selector_target_preview_text("enemy")
                             $ _dmg_mode_txt = "Dividir x2" if _policy == "split_equal" else "Foco único"
+                            $ _fury_idx_side = int(getattr(store, "fury_selected_queue_index", -1) or -1)
+                            $ _fury_name_side = player_action_queue[_fury_idx_side] if (_fury_idx_side >= 0 and _fury_idx_side < len(player_action_queue)) else ""
                             text "Objetivo: [_sel_txt]" size 18 color "#88DDFF"
                             text "Daño: [_dmg_mode_txt]" size 17 color "#FFDDAA"
+
+                            if _fury_name_side:
+                                frame:
+                                    background "#1E3D2A"
+                                    padding (8, 6)
+                                    xfill True
+                                    vbox:
+                                        spacing 6
+                                        text "🔥 Furia cargada" size 15 color "#B9FFB9"
+                                        text "[_fury_name_side]" size 14 color "#D5FFD5"
+                                        textbutton "✖ Cancelar furia":
+                                            text_size 15
+                                            action Function(toggle_fury_target_queue_index, _fury_idx_side)
 
                             textbutton "🎯 Seleccionar objetivo":
                                 text_size 20
