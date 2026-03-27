@@ -455,14 +455,7 @@ screen technique_selector():
                                                 xfill True
                                                 hbox:
                                                     spacing 8
-                                                    if _fury_can_now:
-                                                        textbutton ("🔥 Dados de furia ✓" if _is_fury_selected else "🔥 Dados de furia"):
-                                                            text_size 15
-                                                            action Function(toggle_fury_target_queue_index, i)
-                                                    else:
-                                                        textbutton "🔥 Dados de furia (HP <= 25%)":
-                                                            text_size 15
-                                                            sensitive False
+                                                    text "Opciones (placeholder)" size 14 color "#AABBDD"
 
                         else:
                             text "Ninguna técnica seleccionada." size 20 color "#AAAAAA"

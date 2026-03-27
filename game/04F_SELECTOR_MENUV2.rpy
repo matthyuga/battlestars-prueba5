@@ -393,8 +393,8 @@ screen battle_command_menu():
         "ladron_defensivo",
         "ladron_concentrar",
         "focus_attack",
-        "fury_attack",
         "rest_recovery",
+        "fury_attack",
     ]
 
     $ DEF = [
@@ -415,7 +415,7 @@ screen battle_command_menu():
         if not _allowed_def:
             $ _allowed_def = ["defense_strong_block"]
         if _allowed_off:
-            $ OFF = [k for k in OFF if (k in _allowed_off) or (k == "rest_recovery")]
+            $ OFF = [k for k in OFF if (k in _allowed_off) or (k == "rest_recovery") or (k == "fury_attack")]
         if _allowed_def:
             $ DEF = [k for k in DEF if (k in _allowed_def) or (k == "rest_recovery")]
 
