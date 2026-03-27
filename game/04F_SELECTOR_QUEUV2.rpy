@@ -385,7 +385,10 @@ screen technique_selector():
                                             unhovered SetScreenVariable("tooltip_data", None)
 
                                             hbox spacing 18:
-                                                $ _is_fury_selected = (int(getattr(store, "fury_selected_queue_index", -1) or -1) == i)
+                                                $ _fs = getattr(store, "fury_selection", {}) if isinstance(getattr(store, "fury_selection", {}), dict) else {}
+                                                $ _fidx_current = int(_fs.get("queue_index", getattr(store, "fury_selected_queue_index", -1)) or -1)
+                                                $ _farmed_current = bool(_fs.get("armed", (_fidx_current >= 0)))
+                                                $ _is_fury_selected = (_farmed_current and _fidx_current == i)
                                                 $ _fn_can_fury = getattr(store, "can_use_fury_dice", None)
                                                 $ _fury_can_now = bool(_fn_can_fury("player")) if callable(_fn_can_fury) else False
                                                 text label_txt size 20 color "#40BFFF" xminimum 160
@@ -441,12 +444,16 @@ screen technique_selector():
                             $ _sel = str(getattr(store, "offensive_selected_target_key", "") or "")
                             $ _sel_txt = selector_target_preview_text("enemy")
                             $ _dmg_mode_txt = "Dividir x2" if _policy == "split_equal" else "Foco único"
-                            $ _fury_idx_side = int(getattr(store, "fury_selected_queue_index", -1) or -1)
-                            $ _fury_name_side = player_action_queue[_fury_idx_side] if (_fury_idx_side >= 0 and _fury_idx_side < len(player_action_queue)) else ""
+                            $ _fs_side = getattr(store, "fury_selection", {}) if isinstance(getattr(store, "fury_selection", {}), dict) else {}
+                            $ _fury_idx_side = int(_fs_side.get("queue_index", getattr(store, "fury_selected_queue_index", -1)) or -1)
+                            $ _fury_armed_side = bool(_fs_side.get("armed", (_fury_idx_side >= 0)))
+                            $ _fury_name_side = str(_fs_side.get("tech_name", "") or "")
+                            if (not _fury_name_side) and _fury_idx_side >= 0 and _fury_idx_side < len(player_action_queue):
+                                $ _fury_name_side = player_action_queue[_fury_idx_side]
                             text "Objetivo: [_sel_txt]" size 18 color "#88DDFF"
                             text "Daño: [_dmg_mode_txt]" size 17 color "#FFDDAA"
 
-                            if _fury_name_side:
+                            if _fury_armed_side and _fury_name_side:
                                 frame:
                                     background "#1E3D2A"
                                     padding (8, 6)

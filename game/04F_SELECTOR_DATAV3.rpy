@@ -54,6 +54,7 @@ default defense_for_attack_active = False
 # sin afectar la cola ni la simulación de recursos.
 default show_technique_selector = True
 default fury_selected_queue_index = -1
+default fury_selection = {"queue_index": -1, "tech_name": "", "tech_id": "", "armed": False}
 
 # -------------------------------
 # 🖼️ Config gráfico
@@ -80,6 +81,7 @@ init -960 python:
             if hasattr(S, "player_action_queue"):
                 S.player_action_queue[:] = []
             S.fury_selected_queue_index = -1
+            S.fury_selection = {"queue_index": -1, "tech_name": "", "tech_id": "", "armed": False}
         except:
             pass
 
