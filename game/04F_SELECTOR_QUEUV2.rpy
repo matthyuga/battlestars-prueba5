@@ -404,7 +404,9 @@ screen technique_selector():
                                                         action SetScreenVariable("_tech_opts_index", (-1 if _tech_opts_index == i else i))
 
                                         if _is_fury_selected and battle_mode == "offensive" and (not is_focus):
-                                            text "🔥 Furia activada" size 14 color "#FF9966"
+                                            text "🔥 Furia cargada" size 14 color "#FF9966"
+                                            if not _fury_can_now:
+                                                text "Se ejecuta cuando HP ≤ 25% o con ítem." size 12 color "#BBBBBB"
 
                                         if _tech_opts_index == i and battle_mode == "offensive" and (not is_focus):
                                             frame:
@@ -413,14 +415,9 @@ screen technique_selector():
                                                 xfill True
                                                 hbox:
                                                     spacing 8
-                                                    if _fury_can_now:
-                                                        textbutton ("🔥 Dados de furia ✓" if _is_fury_selected else "🔥 Dados de furia"):
-                                                            text_size 15
-                                                            action Function(toggle_fury_target_queue_index, i)
-                                                    else:
-                                                        textbutton "🔥 Dados de furia (HP <= 25%)":
-                                                            text_size 15
-                                                            sensitive False
+                                                    textbutton ("🔥 Dados de furia ✓" if _is_fury_selected else "🔥 Dados de furia"):
+                                                        text_size 15
+                                                        action Function(toggle_fury_target_queue_index, i)
 
                         else:
                             text "Ninguna técnica seleccionada." size 20 color "#AAAAAA"
