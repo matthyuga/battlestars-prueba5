@@ -720,13 +720,15 @@ label battle_offensive_turn_legacy_entry:
                     _succ = int(_roll.get("successes", 0) or 0)
                     _dmg_before = max(0, int(_target.get("damage", 0) or 0))
                     _extra = max(0, int(_dmg_before * max(0, _mult - 1)))
+                    _rolls_f = list(_roll.get("rolls", []) or [])
+                    _fury_slots = [("Exitofuria" if bool(r) else "Fracasofuria") for r in _rolls_f]
 
                     try:
                         fn_show = getattr(S, "show_dice_result", None)
                         if callable(fn_show):
-                            fn_show({"rolls": list(_roll.get("rolls", []) or [])}, label_text="Dados de Furia")
+                            fn_show({"rolls": _rolls_f}, label_text="Dados de Furia")
                         else:
-                            bs_ui_show("dice_roll_result", rolls=list(_roll.get("rolls", []) or []), label_text="Dados de Furia")
+                            bs_ui_show("dice_roll_result", rolls=_rolls_f, label_text="Dados de Furia")
                     except:
                         pass
 
@@ -753,6 +755,9 @@ label battle_offensive_turn_legacy_entry:
                                 pass
 
                     try:
+                        _blog("{color=#FF9966}dados de furia activado. resultado de tirada:{/color}")
+                        _blog("Resultados de tirada: %s" % (" | ".join(_fury_slots) if _fury_slots else "(sin datos)"))
+                        _blog("Exitofuria: %s  |  Fracasofuria: %s" % (str(int(_succ)), str(int(max(0, 5 - _succ)))))
                         if _mult >= 3:
                             _blog("{color=#FF6633}🔥 Furia ({}/5): x{} en '{}'.{/color}".format(_succ, _mult, str(_target.get("tech_name", "técnica"))))
                         elif _mult >= 2:

@@ -261,6 +261,19 @@ label defensive_resolve(received_damage, hp_after, reflected):
                 S.recovery_dice_used_in_battle = True
                 S.recovery_dice_last_pct = int(_pct)
 
+                try:
+                    if callable(getattr(S, "battle_log_add", None)):
+                        S.battle_log_add("{color=#FFD700}dados de recuperacion activado. resultado de tirada:{/color}")
+                        S.battle_log_add("Dado de recuperación: %s" % str(int(_pct)))
+                except:
+                    pass
+
+                try:
+                    renpy.show_screen("recovery_dice_result", value_pct=int(_pct))
+                    renpy.pause(0.9, hard=True)
+                except:
+                    pass
+
                 if _pct <= 0:
                     S.player_hp = 0
                     try:

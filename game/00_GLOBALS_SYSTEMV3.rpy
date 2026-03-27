@@ -255,7 +255,7 @@ init -990 python:
         hp_max = int(getattr(S, "battle_hp_player_max", 1) or 1) if side_s == "player" else int(getattr(S, "battle_hp_enemy_max", 1) or 1)
         hp_max = max(1, hp_max)
 
-        threshold = int(round(hp_max * 0.10))
+        threshold = int(round(hp_max * 0.25))
         if threshold < 1:
             threshold = 1
 
@@ -269,7 +269,8 @@ init -990 python:
 
     def roll_recovery_die():
         import random
-        pct = random.choice([0, 25, 50, 75, 100])
+        # Placeholder v1 solicitado: rango completo 0..100.
+        pct = random.randint(0, 100)
         return {
             "value_pct": int(pct),
             "is_ko": bool(int(pct) == 0),

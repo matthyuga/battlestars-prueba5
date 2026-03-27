@@ -557,3 +557,22 @@ screen recovery_dice_prompt():
                 textbutton "☠ Caer derrotado":
                     text_size 24
                     action Return("defeat")
+
+
+screen recovery_dice_result(value_pct=0):
+    tag dice_result
+    modal True
+    zorder 560
+
+    frame:
+        xalign 0.5
+        yalign 0.45
+        background "#0008"
+        padding (26, 20)
+
+        vbox:
+            spacing 10
+            text "Dados de recuperación" size 30 color "#FFD700" bold True xalign 0.5
+            text "Resultado de tirada: [value_pct]" size 38 color "#88FF88" bold True xalign 0.5
+
+    timer 1.8 action Hide("recovery_dice_result")

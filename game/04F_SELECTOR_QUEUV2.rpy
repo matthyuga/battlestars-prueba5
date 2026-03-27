@@ -235,6 +235,7 @@ screen technique_selector():
     zorder 60
 
     default _target_preview = ""
+    default _tech_opts_index = -1
 
     # Toggle con tecla Ctrl+U (no bloquea otros paneles)
     key "ctrl_K_u" action Function(toggle_technique_selector)
@@ -385,19 +386,44 @@ screen technique_selector():
 
                                             hbox spacing 18:
                                                 $ _is_fury_selected = (int(getattr(store, "fury_selected_queue_index", -1) or -1) == i)
+                                                $ _fury_can_now = bool(getattr(store, "can_use_fury_dice", lambda side=\"player\": False)(\"player\"))
                                                 text label_txt size 20 color "#40BFFF" xminimum 160
                                                 text str(final_val) size 20 color "#FFDADA" xminimum 70
                                                 text "{} / {}".format(final_rei, final_ene) size 18 color "#CCCCCC" xminimum 110
                                                 text effect_txt size 18 color "#AAAAFF"
 
                                                 if battle_mode == "offensive" and (not is_focus):
-                                                    textbutton ("🔥Furia ✓" if _is_fury_selected else "🔥Furia"):
+                                                    textbutton "⚙ Opciones":
                                                         text_size 16
-                                                        action Function(toggle_fury_target_queue_index, i)
+                                                        action SetScreenVariable("_tech_opts_index", (-1 if _tech_opts_index == i else i))
 
                                                 textbutton "✖":
                                                     text_size 18
                                                     action Function(remove_technique_from_queue, i)
+
+                                        if _tech_opts_index == i and battle_mode == "offensive" and (not is_focus):
+                                            frame:
+                                                background "#11223388"
+                                                padding (8, 6)
+                                                xfill True
+                                                hbox:
+                                                    spacing 8
+                                                    if _fury_can_now:
+                                                        textbutton ("🔥 Dados de furia ✓" if _is_fury_selected else "🔥 Dados de furia"):
+                                                            text_size 15
+                                                            action Function(toggle_fury_target_queue_index, i)
+                                                    else:
+                                                        textbutton "🔥 Dados de furia (HP <= 25%)":
+                                                            text_size 15
+                                                            sensitive False
+
+                                                    textbutton "🧪 Poción fuerza (Próx.)":
+                                                        text_size 15
+                                                        sensitive False
+
+                                                    textbutton "🧪 Poción agilidad (Próx.)":
+                                                        text_size 15
+                                                        sensitive False
 
                         else:
                             text "Ninguna técnica seleccionada." size 20 color "#AAAAAA"
