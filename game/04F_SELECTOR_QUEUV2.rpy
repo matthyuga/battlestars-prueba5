@@ -418,6 +418,17 @@ screen technique_selector():
                                                     textbutton ("🔥 Dados de furia ✓" if _is_fury_selected else "🔥 Dados de furia"):
                                                         text_size 15
                                                         action Function(toggle_fury_target_queue_index, i)
+                                                    if _is_fury_selected:
+                                                        frame:
+                                                            background "#1E3D2A"
+                                                            padding (8, 4)
+                                                            xminimum 210
+                                                            hbox:
+                                                                spacing 6
+                                                                text "🔥 Furia en espera" size 14 color "#B9FFB9"
+                                                                textbutton "✖":
+                                                                    text_size 13
+                                                                    action Function(toggle_fury_target_queue_index, i)
 
                         else:
                             text "Ninguna técnica seleccionada." size 20 color "#AAAAAA"
