@@ -641,21 +641,48 @@ label battle_offensive_turn_legacy_entry:
                         except:
                             pass
 
+            try:
+                S._offense_success_dice_panels = list(_dice_panels or [])
+            except:
+                pass
+
+            _defer_direct_popup_for_fury = False
+            try:
+                _fidx = int(getattr(S, "fury_selected_turn_index", -1) or -1)
+                _can_f = False
+                _fn_cf = getattr(S, "can_use_fury_dice", None)
+                if callable(_fn_cf):
+                    _can_f = bool(_fn_cf("player"))
+                if _fidx >= 0 and _can_f:
+                    _rows_tmp = list(getattr(S, "turn_offensive_damage_records", []) or [])
+                    for _rr in _rows_tmp:
+                        if not isinstance(_rr, dict):
+                            continue
+                        if int(_rr.get("queue_index", -1) or -1) == _fidx and str(_rr.get("tech_id", "") or "") == "direct_attack":
+                            _defer_direct_popup_for_fury = True
+                            break
+            except:
+                _defer_direct_popup_for_fury = False
+
+            _dice_panels_now = list(_dice_panels or [])
+            if _defer_direct_popup_for_fury:
+                _dice_panels_now = [p for p in _dice_panels_now if str((p or {}).get("label", "") or "") != "Ataque Directo"]
+
             # Mostrar tiradas en centro:
             # - 1 técnica => 1 tarjeta centrada.
             # - 2 técnicas => 2 tarjetas lado a lado.
             try:
                 fn_show = getattr(S, "show_dice_result", None)
                 if callable(fn_show):
-                    if len(_dice_panels) >= 2:
-                        fn_show(_dice_panels)
-                    elif len(_dice_panels) == 1:
-                        fn_show({"rolls": list(_dice_panels[0].get("rolls", []) or [])}, label_text=str(_dice_panels[0].get("label", "Tirada") or "Tirada"))
+                    if len(_dice_panels_now) >= 2:
+                        fn_show(_dice_panels_now)
+                    elif len(_dice_panels_now) == 1:
+                        fn_show({"rolls": list(_dice_panels_now[0].get("rolls", []) or [])}, label_text=str(_dice_panels_now[0].get("label", "Tirada") or "Tirada"))
                 else:
-                    if len(_dice_panels) >= 2:
-                        bs_ui_show("dice_roll_result_multi", entries=_dice_panels)
-                    elif len(_dice_panels) == 1:
-                        bs_ui_show("dice_roll_result", rolls=list(_dice_panels[0].get("rolls", []) or []), label_text=str(_dice_panels[0].get("label", "Tirada") or "Tirada"))
+                    if len(_dice_panels_now) >= 2:
+                        bs_ui_show("dice_roll_result_multi", entries=_dice_panels_now)
+                    elif len(_dice_panels_now) == 1:
+                        bs_ui_show("dice_roll_result", rolls=list(_dice_panels_now[0].get("rolls", []) or []), label_text=str(_dice_panels_now[0].get("label", "Tirada") or "Tirada"))
             except:
                 pass
 
@@ -670,6 +697,202 @@ label battle_offensive_turn_legacy_entry:
 
             try:
                 bs_ui_pause(0.8, hard=True)
+            except:
+                pass
+
+    # ============================================================
+    # 🔥 Dados de Furia (jugador): multiplicador final por técnica
+    # Reglas actuales:
+    # - Disponible con HP <= 10% (o ítem, aún placeholder).
+    # - 5 éxitos => x3 | 3-4 éxitos => x2 | 0-2 => x1.
+    # ============================================================
+    python:
+        import renpy.store as S
+
+        try:
+            S.fury_last_result = {}
+        except:
+            pass
+
+        _fury_idx = int(getattr(S, "fury_selected_turn_index", -1) or -1)
+        _can_fury = False
+        try:
+            fn_can_fury = getattr(S, "can_use_fury_dice", None)
+            if callable(fn_can_fury):
+                _can_fury = bool(fn_can_fury("player"))
+        except:
+            _can_fury = False
+
+        if _fury_idx >= 0:
+            _rows = list(getattr(S, "turn_offensive_damage_records", []) or [])
+            _target = None
+            for _r in _rows:
+                if not isinstance(_r, dict):
+                    continue
+                if int(_r.get("queue_index", -1) or -1) == _fury_idx:
+                    _target = dict(_r)
+                    break
+
+            if isinstance(_target, dict):
+                if not _can_fury:
+                    try:
+                        _blog("{color=#BBBBBB}Furia cargada pero no elegible este turno (HP > 25% y sin ítem).{/color}")
+                        _blog("Furia debug: idx=%s | tecnica='%s' | daño base=%s" % (
+                            str(int(_fury_idx)),
+                            str(_target.get("tech_name", "")),
+                            str(int(max(0, int(_target.get("damage", 0) or 0))))
+                        ))
+                    except:
+                        pass
+                else:
+                    _roll = None
+                    try:
+                        _fn_roll5 = getattr(S, "roll_5d_fury", None)
+                        if callable(_fn_roll5):
+                            _roll = _fn_roll5()
+                    except:
+                        _roll = None
+
+                    if isinstance(_roll, dict):
+                        _mult = int(_roll.get("multiplier", 1) or 1)
+                        _succ = int(_roll.get("successes", 0) or 0)
+                        _dmg_before = max(0, int(_target.get("damage", 0) or 0))
+                        _extra = max(0, int(_dmg_before * max(0, _mult - 1)))
+                        _rolls_f = list(_roll.get("rolls", []) or [])
+                        _fury_slots = [("Exitofuria" if bool(r) else "Fracasofuria") for r in _rolls_f]
+
+                        try:
+                            fn_show = getattr(S, "show_dice_result", None)
+                            _combo_direct = False
+                            _direct_panel = None
+                            try:
+                                _prev_panels = list(getattr(S, "_offense_success_dice_panels", []) or [])
+                                if str(_target.get("tech_id", "") or "") == "direct_attack":
+                                    for _pp in _prev_panels:
+                                        if isinstance(_pp, dict) and str(_pp.get("label", "") or "") == "Ataque Directo":
+                                            _direct_panel = {"label": "Ataque Directo", "rolls": list(_pp.get("rolls", []) or [])}
+                                            _combo_direct = True
+                                            break
+                            except:
+                                _combo_direct = False
+                                _direct_panel = None
+
+                            if _combo_direct and _direct_panel is not None:
+                                _f_label = "Dados de Furia — Potenció Ataque Directo"
+                                _stack = [
+                                    _direct_panel,
+                                    {"label": _f_label, "rolls": _rolls_f},
+                                ]
+                                bs_ui_show("dice_roll_result_stack", entries=_stack)
+                            elif callable(fn_show):
+                                _f_label = "Dados de Furia — Potenció %s" % str(_target.get("tech_name", "técnica"))
+                                fn_show({"rolls": _rolls_f}, label_text=_f_label)
+                            else:
+                                _f_label = "Dados de Furia — Potenció %s" % str(_target.get("tech_name", "técnica"))
+                                bs_ui_show("dice_roll_result", rolls=_rolls_f, label_text=_f_label)
+                        except:
+                            pass
+
+                        try:
+                            bs_ui_pause(0.8, hard=True)
+                        except:
+                            pass
+
+                        if _extra > 0:
+                            total_damage = int(total_damage or 0) + int(_extra)
+                            _dmg_after = int(_dmg_before * int(_mult))
+
+                            _ar_idx = int(_target.get("attack_record_index", -1) or -1)
+                            if _ar_idx >= 0 and _ar_idx < len(attack_records):
+                                try:
+                                    _b, _d = attack_records[_ar_idx]
+                                    attack_records[_ar_idx] = (int(_b or 0), int(_d or 0) * int(_mult))
+                                except:
+                                    pass
+
+                            if str(_target.get("tech_id", "") or "") == "direct_attack":
+                                try:
+                                    S.direct_pending_damage = int(max(0, int(getattr(S, "direct_pending_damage", 0) or 0)) * int(_mult))
+                                except:
+                                    pass
+                        else:
+                            _dmg_after = int(_dmg_before or 0)
+
+                        try:
+                            _blog("{color=#FF9966}dados de furia activado. resultado de tirada:{/color}")
+                            _fn_slots = getattr(S, "log_dice_slots", None)
+                            if callable(_fn_slots):
+                                _blog(_fn_slots(_rolls_f))
+                            else:
+                                _blog("Resultados de tirada: %s" % (" | ".join(_fury_slots) if _fury_slots else "(sin datos)"))
+                            _blog("Exitofuria: %s  |  Fracasofuria: %s" % (str(int(_succ)), str(int(max(0, 5 - _succ)))))
+                            _blog("Daño técnica: %s -> %s" % (str(int(_dmg_before or 0)), str(int(_dmg_after or 0))))
+                            _blog("Furia debug: idx=%s | tecnica='%s' | multiplicador=x%s" % (
+                                str(int(_fury_idx)),
+                                str(_target.get("tech_name", "")),
+                                str(int(_mult))
+                            ))
+                            if _mult >= 3:
+                                _blog("{color=#FF6633}🔥 Furia ({}/5): x{} en '{}'.{/color}".format(_succ, _mult, str(_target.get("tech_name", "técnica"))))
+                            elif _mult >= 2:
+                                _blog("{color=#FF9966}🔥 Furia ({}/5): x{} en '{}'.{/color}".format(_succ, _mult, str(_target.get("tech_name", "técnica"))))
+                            else:
+                                _blog("{color=#BBBBBB}Furia ({}/5): sin multiplicador.{/color}".format(_succ))
+                        except:
+                            pass
+
+                        try:
+                            S.fury_last_result = {
+                                "used": True,
+                                "queue_index": int(_fury_idx),
+                                "tech_name": str(_target.get("tech_name", "")),
+                                "successes": int(_succ),
+                                "multiplier": int(_mult),
+                            }
+                        except:
+                            pass
+            else:
+                try:
+                    _blog("{color=#BBBBBB}Furia cargada pero no se encontró técnica objetivo en este turno.{/color}")
+                    _blog("Furia debug: idx=%s | registros=%s" % (str(int(_fury_idx)), str(len(_rows))))
+                except:
+                    pass
+
+        # consumir selección del turno para evitar arrastre
+        try:
+            S.fury_selected_turn_index = -1
+        except:
+            pass
+
+        # ------------------------------------------------------------
+        # 🔥👹 Placeholder: Furia Infernal (multiplica daño total)
+        # Requiere ítem + feature flag (actualmente OFF por defecto).
+        # ------------------------------------------------------------
+        try:
+            fn_inf = getattr(S, "bs_try_apply_infernal_fury", None)
+            _inf = fn_inf(total_damage, side="player") if callable(fn_inf) else None
+        except:
+            _inf = None
+
+        if isinstance(_inf, dict) and bool(_inf.get("used", False)):
+            _inf_mult = int(_inf.get("multiplier", 1) or 1)
+            _inf_succ = int(_inf.get("successes", 0) or 0)
+            total_damage = int(_inf.get("damage_out", total_damage) or total_damage)
+
+            try:
+                _rolls_inf = list(_inf.get("rolls", []) or [])
+                if _rolls_inf:
+                    fn_show = getattr(S, "show_dice_result", None)
+                    if callable(fn_show):
+                        fn_show({"rolls": _rolls_inf}, label_text="Furia Infernal")
+                    else:
+                        bs_ui_show("dice_roll_result", rolls=_rolls_inf, label_text="Furia Infernal")
+                    bs_ui_pause(0.8, hard=True)
+            except:
+                pass
+
+            try:
+                _blog("{color=#FF3300}👹 Furia Infernal ({}/5): x{} al daño total.{/color}".format(_inf_succ, _inf_mult))
             except:
                 pass
 

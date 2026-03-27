@@ -69,6 +69,54 @@ init -959 python:
         return TECH_NAME_TO_ID.get(name, None)
 
     # ============================================================
+    # Fury selection state (estable + compat legacy)
+    # ============================================================
+    def _fury_sel_get():
+        fs = getattr(S, "fury_selection", None)
+        if not isinstance(fs, dict):
+            fs = {"queue_index": -1, "tech_name": "", "tech_id": "", "armed": False}
+            S.fury_selection = dict(fs)
+        return dict(fs)
+
+    def _fury_sel_set(idx=-1, tech_name="", tech_id="", armed=False):
+        try:
+            _idx = int(idx)
+        except:
+            _idx = -1
+        S.fury_selection = {
+            "queue_index": int(_idx),
+            "tech_name": str(tech_name or ""),
+            "tech_id": str(tech_id or ""),
+            "armed": bool(armed),
+        }
+        S.fury_selected_queue_index = int(_idx if bool(armed) else -1)
+
+    def _fury_sel_clear():
+        _fury_sel_set(-1, "", "", False)
+
+    def selector_reconcile_fury_selection():
+        """
+        Auto-saneamiento del estado Fury contra la cola actual.
+        Si la referencia quedó stale, limpia selección.
+        """
+        fs = _fury_sel_get()
+        if not bool(fs.get("armed", False)):
+            return False
+
+        q = list(getattr(S, "player_action_queue", []) or [])
+        idx = int(fs.get("queue_index", -1) or -1)
+        if idx < 0 or idx >= len(q):
+            _fury_sel_clear()
+            return False
+
+        q_name = str(q[idx] or "")
+        fs_name = str(fs.get("tech_name", "") or "")
+        if fs_name and q_name != fs_name:
+            _fury_sel_clear()
+            return False
+        return True
+
+    # ============================================================
     # COSTO DE ACCIÓN (acciones y bonus)
     # ============================================================
     TECH_ACTION_RULES = {
@@ -356,6 +404,17 @@ init -959 python:
         except:
             return
 
+        try:
+            idx = int(index)
+            fs = _fury_sel_get()
+            cur = int(fs.get("queue_index", -1) or -1)
+            if cur == idx:
+                _fury_sel_clear()
+            elif cur > idx:
+                _fury_sel_set(cur - 1, fs.get("tech_name", ""), fs.get("tech_id", ""), bool(fs.get("armed", False)))
+        except:
+            pass
+
         rebuild_selector_simulation()
 
         _rn_notify("❌ '%s' eliminado." % tech)
@@ -368,6 +427,7 @@ init -959 python:
 
         q = getattr(S, "player_action_queue", [])
         q[:] = []
+        _fury_sel_clear()
 
         S.actions_available = int(getattr(S, "actions_available_start", 1) or 1)
         S.simulated_reiatsu = int(getattr(S, "player_reiatsu", 0) or 0)
@@ -383,6 +443,48 @@ init -959 python:
         _rn_restart()
 
     # ============================================================
+    # 🔥 Selección de técnica para Dados de Furia
+    # ============================================================
+    def toggle_fury_target_queue_index(index):
+        q = list(getattr(S, "player_action_queue", []))
+        try:
+            idx = int(index)
+        except:
+            return
+        if idx < 0 or idx >= len(q):
+            return
+
+        selector_reconcile_fury_selection()
+        fs = _fury_sel_get()
+        cur = int(fs.get("queue_index", -1) or -1)
+        # FIX A: priorizar desasignación (aunque la cola haya cambiado de tipo)
+        if cur == idx:
+            _fury_sel_clear()
+            _rn_notify("🔥 Furia desasignada.")
+            _rn_restart()
+            return
+
+        tech_name = str(q[idx] or "")
+        tech_id = get_tech_id(tech_name)
+        tech = getattr(S, "battle_techniques", {}).get(tech_id, {}) if tech_id else {}
+        if str(tech.get("type", "") or "") != "offensive":
+            _rn_notify("⚠ Solo puedes asignar furia a técnicas ofensivas.")
+            return
+
+        try:
+            _fn_can = getattr(S, "can_use_fury_dice", None)
+            _can_now = bool(_fn_can("player")) if callable(_fn_can) else False
+        except:
+            _can_now = False
+        if not _can_now:
+            _rn_notify("⚠ Dados de furia solo disponible con HP ≤ 25% (o ítem).")
+            return
+
+        _fury_sel_set(idx, tech_name, tech_id, True)
+        _rn_notify("🔥 Furia asignada a '%s'." % tech_name)
+        _rn_restart()
+
+    # ============================================================
     # ✅ CONFIRMAR TURNO (no descuenta recursos reales)
     # ============================================================
     def confirm_turn_actions():
@@ -392,6 +494,21 @@ init -959 python:
             return
 
         S.turn_confirmed = True
+        try:
+            selector_reconcile_fury_selection()
+            fs = _fury_sel_get()
+            _idx = int(fs.get("queue_index", -1) or -1)
+            _armed = bool(fs.get("armed", False))
+            q = list(getattr(S, "player_action_queue", []) or [])
+            _q_name = str(q[_idx] or "") if (_idx >= 0 and _idx < len(q)) else ""
+            _fs_name = str(fs.get("tech_name", "") or "")
+            if _armed and _idx >= 0 and _idx < len(q) and (not _fs_name or _q_name == _fs_name):
+                S.fury_selected_turn_index = int(_idx)
+            else:
+                _fury_sel_clear()
+                S.fury_selected_turn_index = -1
+        except:
+            S.fury_selected_turn_index = -1
 
         try:
             S.pending_tech_list = []
@@ -404,3 +521,9 @@ init -959 python:
 
         _rn_notify("✅ Turno confirmado.")
         _rn_restart()
+
+    # Export helper para screens (reconciliación visual/estado)
+    try:
+        S.selector_reconcile_fury_selection = selector_reconcile_fury_selection
+    except:
+        pass

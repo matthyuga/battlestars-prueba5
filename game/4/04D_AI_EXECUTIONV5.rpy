@@ -133,6 +133,80 @@ init -988 python:
         except:
             return False
 
+    def _ai_enemy_apply_rest_recovery(log_prefix="Descansar"):
+        import renpy.store as S
+
+        _uk = str(_ai_enemy_unit_key() or "enemy:0")
+        try:
+            hp_now = int(getattr(S, "enemy_hp", 0) or 0)
+            rei_now = int(getattr(S, "enemy_reiatsu", 0) or 0)
+            ene_now = int(getattr(S, "enemy_energy", 0) or 0)
+            hp_cap = int(getattr(S, "battle_hp_enemy_max", hp_now) or hp_now)
+            rei_cap = int(getattr(S, "enemy_reiatsu_base", rei_now) or rei_now)
+            ene_cap = int(getattr(S, "enemy_energy_base", ene_now) or ene_now)
+        except:
+            hp_now, rei_now, ene_now = 0, 0, 0
+            hp_cap, rei_cap, ene_cap = 1, 1, 1
+
+        hp_cap = max(1, int(hp_cap or 1))
+        rei_cap = max(1, int(rei_cap or 1))
+        ene_cap = max(1, int(ene_cap or 1))
+
+        hp_gain = max(0, int(round(hp_cap * 0.05)))
+        rei_gain = max(0, int(round(rei_cap * 0.25)))
+        ene_gain = max(0, int(round(ene_cap * 0.25)))
+
+        hp_after = min(hp_cap, max(0, hp_now + hp_gain))
+        rei_after = min(rei_cap, max(0, rei_now + rei_gain))
+        ene_after = min(ene_cap, max(0, ene_now + ene_gain))
+
+        # Estado por unidad
+        try:
+            fn_set_hp = getattr(S, "bs_set_hp", None)
+            if callable(fn_set_hp):
+                fn_set_hp("enemy", int(hp_after))
+        except:
+            pass
+        try:
+            fn_set_res = getattr(S, "bs_set_unit_resources", None)
+            if callable(fn_set_res):
+                fn_set_res(_uk, int(rei_after), int(ene_after))
+        except:
+            pass
+
+        # Espejo legacy/HUD
+        S.enemy_hp = int(hp_after)
+        S.enemy_reiatsu = int(rei_after)
+        S.enemy_energy = int(ene_after)
+        S.simulated_enemy_reiatsu = int(rei_after)
+        S.simulated_enemy_energy = int(ene_after)
+
+        try:
+            fn_bars = getattr(S, "battle_update_hp_bars", None)
+            if callable(fn_bars):
+                fn_bars(int(getattr(S, "player_hp", 0) or 0), int(hp_after or 0))
+        except:
+            pass
+
+        try:
+            fn_fmt = getattr(S, "battle_fmt_num", None)
+            hg = fn_fmt(hp_after - hp_now) if callable(fn_fmt) else str(int(hp_after - hp_now))
+            rg = fn_fmt(rei_after - rei_now) if callable(fn_fmt) else str(int(rei_after - rei_now))
+            eg = fn_fmt(ene_after - ene_now) if callable(fn_fmt) else str(int(ene_after - ene_now))
+            if callable(getattr(S, "battle_log_add", None)):
+                S.battle_log_add("{color=#A5D6A7}%s (IA): +%s HP (5%%), +%s Reiatsu y +%s Energía (25%%).{/color}" % (str(log_prefix or "Descansar"), str(hg), str(rg), str(eg)))
+        except:
+            pass
+
+        return {
+            "hp_before": int(hp_now),
+            "hp_after": int(hp_after),
+            "rei_before": int(rei_now),
+            "rei_after": int(rei_after),
+            "ene_before": int(ene_now),
+            "ene_after": int(ene_after),
+        }
+
 
     # ------------------------------------------------------------
     # ⭐ EJECUCIÓN OFENSIVA IA (DAÑO) – con FocusCost real
@@ -216,7 +290,17 @@ init -988 python:
         # Chequeo de recursos (ya contempla FocusCost)
         # --------------------------------------------------------
         ok, fr, fe = ai_can_pay(key, "enemy")
+        _is_story_hollow = bool(getattr(S, "story_mode_active", False)) and str(getattr(S, "battle_enemy_id", "") or "") == "Hollow"
+        if _is_story_hollow and key == "stronger_attack":
+            _rei_now = int(getattr(S, "enemy_reiatsu", 0) or 0)
+            if _rei_now < 150:
+                ok = False
+                fr = max(int(fr or 0), 150 - _rei_now)
+                fe = int(fe or 0)
         if not ok:
+            if _is_story_hollow:
+                _ai_enemy_apply_rest_recovery(log_prefix="Descansar (sin recursos)")
+                return "rest_recovery"
             msg = "%s no puede usar %s (" % (ai.name, tech.get("name", key))
             if fr > 0 and fe > 0:
                 msg += "falta Reiatsu y Energía)"
@@ -246,6 +330,10 @@ init -988 python:
             S.enemy_focus_cost_pending = False
             focus_cost_applied = True
 
+        if bool(getattr(S, "story_mode_active", False)) and str(getattr(S, "battle_enemy_id", "") or "") == "Hollow":
+            if key == "stronger_attack":
+                rei_cost = max(int(rei_cost or 0), 150)
+
         S.consume_resources(rei_cost, ene_cost, "enemy")
         S.turn_enemy_off_rei_tech_sum = int(getattr(S, "turn_enemy_off_rei_tech_sum", 0) or 0) + int(rei_cost or 0)
         S.turn_enemy_off_ene_tech_sum = int(getattr(S, "turn_enemy_off_ene_tech_sum", 0) or 0) + int(ene_cost or 0)
@@ -255,9 +343,9 @@ init -988 python:
         # --------------------------------------------------------
         base, final = ai_get_base_and_final(key)
         if bool(getattr(S, "story_mode_active", False)) and str(getattr(S, "battle_enemy_id", "") or "") == "Hollow":
-            if bool(getattr(S, "story_tutorial_enemy_force_strong_100", False)) and key == "stronger_attack":
-                base = 100
-                final = 100
+            if key == "stronger_attack":
+                base = 150
+                final = 150
         dmg = S.apply_offensive_focus(final, owner_team="enemy")
 
         # --------------------------------------------------------
@@ -451,6 +539,10 @@ init -988 python:
         # --------------------------------------------------------
         ok, fr, fe = ai_can_pay(key, "enemy")
         if not ok:
+            _is_story_hollow = bool(getattr(S, "story_mode_active", False)) and str(getattr(S, "battle_enemy_id", "") or "") == "Hollow"
+            if _is_story_hollow:
+                _ai_enemy_apply_rest_recovery(log_prefix="Descansar (sacrifica defensa)")
+                return "rest_recovery"
             msg = "%s no puede usar %s (" % (ai.name, tech.get("name", key))
             if fr > 0 and fe > 0:
                 msg += "falta Reiatsu y Energía)"

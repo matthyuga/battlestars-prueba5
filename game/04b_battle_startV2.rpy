@@ -234,6 +234,10 @@ label battle_start:
     $ S.sacrifice_used_in_battle = False
     $ S.sacrifice_receiver_key = ""
     $ S.counterattack_resolution_mode = "dice"
+    $ S.fury_selected_turn_index = -1
+    $ S.fury_last_result = {}
+    $ S.recovery_dice_used_in_battle = False
+    $ S.recovery_dice_last_pct = -1
 
 
     # =======================================================
@@ -279,6 +283,11 @@ label battle_start:
             enemy_coating_cover = 0
             player_coating_durability = 0
             enemy_coating_durability = 0
+            # Aplicar overrides de historia ANTES de sincronizar HUD/teams
+            ovr = getattr(S, "story_pilot_resource_override", {}) or {}
+            if isinstance(ovr, dict):
+                player_hp = int(ovr.get("player_hp", player_hp) or player_hp)
+                enemy_hp = int(ovr.get("enemy_hp", enemy_hp) or enemy_hp)
 
         try:
             battle_player["HP"] = int(player_hp)
@@ -521,8 +530,6 @@ label battle_start:
         if bool(getattr(S, "story_mode_active", False)):
             ovr = getattr(S, "story_pilot_resource_override", {}) or {}
             if isinstance(ovr, dict):
-                player_hp = int(ovr.get("player_hp", player_hp) or player_hp)
-                enemy_hp = int(ovr.get("enemy_hp", enemy_hp) or enemy_hp)
                 player_reiatsu = int(ovr.get("player_reiatsu", player_reiatsu) or player_reiatsu)
                 player_energy = int(ovr.get("player_energy", player_energy) or player_energy)
                 enemy_reiatsu = int(ovr.get("enemy_reiatsu", enemy_reiatsu) or enemy_reiatsu)
@@ -534,6 +541,8 @@ label battle_start:
         S.enemy_energy_base = int(enemy_energy or 0)
 
         try:
+            battle_player["HP"] = int(player_hp)
+            battle_enemy["HP"] = int(enemy_hp)
             battle_player["Reiatsu"] = int(player_reiatsu)
             battle_player["Energy"] = int(player_energy)
             battle_enemy["Reiatsu"] = int(enemy_reiatsu)

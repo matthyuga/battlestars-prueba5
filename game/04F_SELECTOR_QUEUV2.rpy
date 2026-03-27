@@ -235,6 +235,7 @@ screen technique_selector():
     zorder 60
 
     default _target_preview = ""
+    default _tech_opts_index = -1
 
     # Toggle con tecla Ctrl+U (no bloquea otros paneles)
     key "ctrl_K_u" action Function(toggle_technique_selector)
@@ -266,6 +267,9 @@ screen technique_selector():
                     xmaximum 540
 
                     vbox spacing 10:
+                        $ _fn_reconcile_fury = getattr(store, "selector_reconcile_fury_selection", None)
+                        if callable(_fn_reconcile_fury):
+                            $ _fn_reconcile_fury()
 
                         $ _sim_rei = int(getattr(store, "simulated_reiatsu", getattr(store, "player_reiatsu", 0)) or 0)
                         $ _sim_ene = int(getattr(store, "simulated_energy", getattr(store, "player_energy", 0)) or 0)
@@ -384,6 +388,12 @@ screen technique_selector():
                                             unhovered SetScreenVariable("tooltip_data", None)
 
                                             hbox spacing 18:
+                                                $ _fs = getattr(store, "fury_selection", {}) if isinstance(getattr(store, "fury_selection", {}), dict) else {}
+                                                $ _fidx_current = int(_fs.get("queue_index", getattr(store, "fury_selected_queue_index", -1)) or -1)
+                                                $ _farmed_current = bool(_fs.get("armed", (_fidx_current >= 0)))
+                                                $ _is_fury_selected = (_farmed_current and _fidx_current == i)
+                                                $ _fn_can_fury = getattr(store, "can_use_fury_dice", None)
+                                                $ _fury_can_now = bool(_fn_can_fury("player")) if callable(_fn_can_fury) else False
                                                 text label_txt size 20 color "#40BFFF" xminimum 160
                                                 text str(final_val) size 20 color "#FFDADA" xminimum 70
                                                 text "{} / {}".format(final_rei, final_ene) size 18 color "#CCCCCC" xminimum 110
@@ -391,7 +401,34 @@ screen technique_selector():
 
                                                 textbutton "✖":
                                                     text_size 18
+                                                    xminimum 24
                                                     action Function(remove_technique_from_queue, i)
+
+                                                if battle_mode == "offensive" and (not is_focus):
+                                                    textbutton "⚙ Opciones":
+                                                        text_size 16
+                                                        action SetScreenVariable("_tech_opts_index", (-1 if _tech_opts_index == i else i))
+
+                                        if _is_fury_selected and battle_mode == "offensive" and (not is_focus):
+                                            text "🔥 Furia cargada" size 14 color "#FF9966"
+                                            if not _fury_can_now:
+                                                text "Se ejecuta cuando HP ≤ 25% o con ítem." size 12 color "#BBBBBB"
+
+                                        if _tech_opts_index == i and battle_mode == "offensive" and (not is_focus):
+                                            frame:
+                                                background "#11223388"
+                                                padding (8, 6)
+                                                xfill True
+                                                hbox:
+                                                    spacing 8
+                                                    if _fury_can_now:
+                                                        textbutton ("🔥 Dados de furia ✓" if _is_fury_selected else "🔥 Dados de furia"):
+                                                            text_size 15
+                                                            action Function(toggle_fury_target_queue_index, i)
+                                                    else:
+                                                        textbutton "🔥 Dados de furia (HP <= 25%)":
+                                                            text_size 15
+                                                            sensitive False
 
                         else:
                             text "Ninguna técnica seleccionada." size 20 color "#AAAAAA"
@@ -410,8 +447,27 @@ screen technique_selector():
                             $ _sel = str(getattr(store, "offensive_selected_target_key", "") or "")
                             $ _sel_txt = selector_target_preview_text("enemy")
                             $ _dmg_mode_txt = "Dividir x2" if _policy == "split_equal" else "Foco único"
+                            $ _fs_side = getattr(store, "fury_selection", {}) if isinstance(getattr(store, "fury_selection", {}), dict) else {}
+                            $ _fury_idx_side = int(_fs_side.get("queue_index", getattr(store, "fury_selected_queue_index", -1)) or -1)
+                            $ _fury_armed_side = bool(_fs_side.get("armed", (_fury_idx_side >= 0)))
+                            $ _fury_name_side = str(_fs_side.get("tech_name", "") or "")
+                            if (not _fury_name_side) and _fury_idx_side >= 0 and _fury_idx_side < len(player_action_queue):
+                                $ _fury_name_side = player_action_queue[_fury_idx_side]
                             text "Objetivo: [_sel_txt]" size 18 color "#88DDFF"
                             text "Daño: [_dmg_mode_txt]" size 17 color "#FFDDAA"
+
+                            if _fury_armed_side and _fury_name_side:
+                                frame:
+                                    background "#1E3D2A"
+                                    padding (8, 6)
+                                    xfill True
+                                    vbox:
+                                        spacing 6
+                                        text "🔥 Furia cargada" size 15 color "#B9FFB9"
+                                        text "[_fury_name_side]" size 14 color "#D5FFD5"
+                                        textbutton "✖ Cancelar furia":
+                                            text_size 15
+                                            action Function(toggle_fury_target_queue_index, _fury_idx_side)
 
                             textbutton "🎯 Seleccionar objetivo":
                                 text_size 20

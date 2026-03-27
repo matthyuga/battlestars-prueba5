@@ -189,6 +189,41 @@ init -100 python:
             "energia": int(prev.get("energia_after", 100) or 100),
         }
 
+    def story_compute_pilot_overrides():
+        """
+        Fuente única de verdad para recursos del duelo piloto.
+        Cualquier panel previo y el runtime usan este mismo cálculo.
+        """
+        st = story_build_preview_from_cfg()
+        prev = st.get("preview", {}) if isinstance(st.get("preview", {}), dict) else {}
+        return {
+            "player_hp": 500,
+            "player_reiatsu": int(prev.get("reiatsu_after", 1000) or 1000),
+            "player_energy": int(prev.get("energia_after", 100) or 100),
+            "enemy_hp": 450,
+            "enemy_reiatsu": 900,
+            "enemy_energy": 90,
+        }
+
+    def story_preview_node_map():
+        """
+        Mapa de nodos/dependencias para visualizar cómo repercuten cambios.
+        """
+        cfg = story_cfg_get()
+        ovr = story_compute_pilot_overrides()
+        rep = list(cfg.get("repertoire", []) or [])
+        return [
+            "Nodo A (Atributos/Distribución) -> Reiatsu/Energía jugador",
+            "Nodo B (Regla Piloto) -> HP jugador=500, HP Hollow=450",
+            "Nodo C (Repertorio) -> Técnicas permitidas runtime",
+            "Nodo D (Técnicas+bonus) -> daño/costo final en combate",
+            "Salida -> P:%s/%s/%s | E:%s/%s/%s | Rep:%s" % (
+                int(ovr.get("player_hp", 0)), int(ovr.get("player_reiatsu", 0)), int(ovr.get("player_energy", 0)),
+                int(ovr.get("enemy_hp", 0)), int(ovr.get("enemy_reiatsu", 0)), int(ovr.get("enemy_energy", 0)),
+                (", ".join(rep) if rep else "(vacío)")
+            ),
+        ]
+
     def story_validate_cfg():
         cfg = story_cfg_get()
         errs = []
@@ -258,25 +293,8 @@ init -100 python:
     def story_apply_combat_overrides_from_cfg():
         cfg = story_cfg_get()
         st = story_build_preview_from_cfg()
-        prev = st.get("preview", {}) if isinstance(st.get("preview", {}), dict) else {}
         tp = cfg.get("tech_points", {}) if isinstance(cfg.get("tech_points", {}), dict) else {}
-
-        hp = int(prev.get("hp_after", 1000) or 1000)
-        rei = int(prev.get("reiatsu_after", 1000) or 1000)
-        ene = int(prev.get("energia_after", 100) or 100)
-
-        e_hp = 900
-        e_rei = 900
-        e_ene = 90
-
-        S.story_pilot_resource_override = {
-            "player_hp": hp,
-            "player_reiatsu": rei,
-            "player_energy": ene,
-            "enemy_hp": e_hp,
-            "enemy_reiatsu": e_rei,
-            "enemy_energy": e_ene,
-        }
+        S.story_pilot_resource_override = story_compute_pilot_overrides()
 
         rep = list(cfg.get("repertoire", []) or [])
         S.story_pilot_allowed_offensive = [k for k in rep if k in ("stronger_attack", "direct_attack")]
@@ -392,7 +410,8 @@ screen story_panel_tech_and_confirm():
     $ errs = story_validate_cfg()
     $ rep = list(cfg.get("repertoire", []) or [])
     $ tp = cfg.get("tech_points", {}) if isinstance(cfg.get("tech_points", {}), dict) else {}
-    $ hudp = story_preview_resources()
+    $ hudp = story_compute_pilot_overrides()
+    $ _node_map = story_preview_node_map()
 
     frame:
         xfill True
@@ -499,15 +518,25 @@ screen story_panel_tech_and_confirm():
                         padding (9, 9)
                         vbox:
                             spacing 8
-                            text "HUD previo del personaje" size 18
-                            text "HP: %s" % hudp.get("hp", 1000) size 17
-                            text "Reiatsu: %s" % hudp.get("reiatsu", 1000) size 17
-                            text "Energía: %s" % hudp.get("energia", 100) size 17
+                            text "HUD previo (runtime real)" size 18
+                            text "Jugador" size 17 color "#88CCFF"
+                            text "HP: %s" % hudp.get("player_hp", 500) size 16
+                            text "Reiatsu: %s" % hudp.get("player_reiatsu", 1000) size 16
+                            text "Energía: %s" % hudp.get("player_energy", 100) size 16
+                            null height 4
+                            text "Hollow" size 17 color "#FF8888"
+                            text "HP: %s" % hudp.get("enemy_hp", 450) size 16
+                            text "Reiatsu: %s" % hudp.get("enemy_reiatsu", 900) size 16
+                            text "Energía: %s" % hudp.get("enemy_energy", 90) size 16
+                            null height 8
+                            text "Mapa de nodos" size 16 color "#FFD700"
+                            for ln in _node_map:
+                                text "• %s" % ln size 13 color "#AAAAAA"
 
             bar value XScrollValue("story_step4_vp") xfill True
 
 
-image story_harribel_pilot = im.Scale("images/characters/Harribel_a.png", 900, 675)
+image story_harribel_pilot = im.Scale("images/character/Harribel_a.png", 1024, 576)
 
 
 label story_phaseA_intro:

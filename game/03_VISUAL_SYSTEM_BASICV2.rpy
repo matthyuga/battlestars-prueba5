@@ -527,3 +527,95 @@ screen dice_roll_result_multi(entries):
                                     add "dice_fail_icon"
 
     timer 2.4 action Hide("dice_roll_result_multi")
+
+
+screen dice_roll_result_stack(entries):
+    tag dice_result
+    modal True
+    zorder 500
+
+    frame:
+        xalign 0.5
+        yalign 0.45
+        background "#0008"
+        padding (20, 18)
+
+        vbox:
+            spacing 12
+            for e in (entries or []):
+                $ _lbl = str(e.get("label", "") or "") if isinstance(e, dict) else ""
+                $ _rolls = list(e.get("rolls", []) or []) if isinstance(e, dict) else []
+
+                frame:
+                    background "#0006"
+                    padding (14, 10)
+
+                    vbox:
+                        spacing 8
+                        if _lbl:
+                            text "[_lbl]" size 24 color "#FFD700" bold True xalign 0.5
+
+                        hbox:
+                            spacing 14
+                            xalign 0.5
+                            for r in _rolls:
+                                if r:
+                                    add "dice_success_icon"
+                                else:
+                                    add "dice_fail_icon"
+
+    timer 2.7 action Hide("dice_roll_result_stack")
+
+
+screen recovery_dice_prompt():
+    modal True
+    zorder 550
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        background "#000C"
+        padding (24, 20)
+        xmaximum 900
+
+        vbox:
+            spacing 14
+            text "Has caído en combate" size 36 color "#FF8888" bold True xalign 0.5
+            text "Puedes lanzar 1 dado de recuperación (solo 1 vez por combate)." size 24 color "#DDDDDD" xalign 0.5
+            text "Resultado: 0% = KO definitivo | 25/50/75/100% = HP restaurado." size 21 color "#FFD700" xalign 0.5
+
+            hbox:
+                spacing 20
+                xalign 0.5
+
+                textbutton "🎲 Tirar dado de recuperación":
+                    text_size 24
+                    action Return("roll")
+
+                textbutton "☠ Caer derrotado":
+                    text_size 24
+                    action Return("defeat")
+
+
+screen recovery_dice_result(value_pct=0):
+    tag dice_result
+    modal True
+    zorder 560
+
+    frame:
+        xalign 0.5
+        yalign 0.45
+        background "#0008"
+        padding (26, 20)
+
+        vbox:
+            spacing 10
+            text "Dados de recuperación" size 30 color "#FFD700" bold True xalign 0.5
+            text "Resultado de tirada: [value_pct]" size 38 color "#88FF88" bold True xalign 0.5
+            $ _dv = int(value_pct or 0)
+            if _dv not in (0, 25, 50, 75, 100):
+                $ _dv = 0
+            $ _dice_img = "gui/dice/dt%d.png" % int(_dv)
+            add im.Scale(_dice_img, 200, 200) xalign 0.5
+
+    timer 1.8 action Hide("recovery_dice_result")

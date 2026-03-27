@@ -226,6 +226,113 @@ init -990 python:
             "success": (successes >= 4)
         }
 
+    def roll_5d_fury():
+        import random
+        rolls = [random.choice([True, False]) for _ in range(5)]
+        successes = sum(1 for r in rolls if r)
+        mult = 1
+        if successes >= 5:
+            mult = 3
+        elif successes >= 3:
+            mult = 2
+        return {
+            "rolls": rolls,
+            "successes": successes,
+            "multiplier": int(mult),
+            "success": (mult > 1),
+        }
+
+    def can_use_fury_dice(side="player"):
+        try:
+            side_s = str(side or "player").strip().lower()
+        except:
+            side_s = "player"
+
+        if side_s not in ("player", "enemy"):
+            side_s = "player"
+
+        hp_now = int(getattr(S, "player_hp", 0) or 0) if side_s == "player" else int(getattr(S, "enemy_hp", 0) or 0)
+        hp_max = int(getattr(S, "battle_hp_player_max", 1) or 1) if side_s == "player" else int(getattr(S, "battle_hp_enemy_max", 1) or 1)
+        hp_max = max(1, hp_max)
+
+        threshold = int(round(hp_max * 0.25))
+        if threshold < 1:
+            threshold = 1
+
+        has_item = False
+        if side_s == "player":
+            has_item = bool(getattr(S, "player_has_fury_dice_item", False))
+        else:
+            has_item = bool(getattr(S, "enemy_has_fury_dice_item", False))
+
+        return bool(hp_now > 0 and (hp_now <= threshold or has_item))
+
+    def roll_recovery_die():
+        import random
+        # Dado discreto de recuperación: 0 / 25 / 50 / 75 / 100
+        pct = random.choice([0, 25, 50, 75, 100])
+        return {
+            "value_pct": int(pct),
+            "is_ko": bool(int(pct) == 0),
+        }
+
+    def roll_5d_infernal_fury():
+        """
+        Placeholder v1:
+        misma tabla base de furia (5d) pero su aplicación objetivo será
+        multiplicar daño TOTAL del turno (no una técnica puntual).
+        """
+        return roll_5d_fury()
+
+    def can_use_infernal_fury_dice(side="player"):
+        try:
+            side_s = str(side or "player").strip().lower()
+        except:
+            side_s = "player"
+        if side_s not in ("player", "enemy"):
+            side_s = "player"
+
+        feature_on = bool(getattr(S, "fury_infernal_feature_enabled", False))
+        if not feature_on:
+            return False
+
+        if side_s == "player":
+            return bool(getattr(S, "player_has_infernal_fury_item", False))
+        return bool(getattr(S, "enemy_has_infernal_fury_item", False))
+
+    def bs_try_apply_infernal_fury(total_damage, side="player"):
+        """
+        Placeholder listo para futura integración con ítems.
+        - Si no hay ítem/feature: no-op.
+        - Cuando esté activo: aplica multiplicador al daño total del turno.
+        """
+        dmg_in = max(0, int(total_damage or 0))
+        out = {
+            "used": False,
+            "damage_in": int(dmg_in),
+            "damage_out": int(dmg_in),
+            "successes": 0,
+            "multiplier": 1,
+            "rolls": [],
+        }
+
+        if dmg_in <= 0:
+            return out
+
+        if not can_use_infernal_fury_dice(side=side):
+            return out
+
+        roll = roll_5d_infernal_fury()
+        mult = int(roll.get("multiplier", 1) or 1) if isinstance(roll, dict) else 1
+        dmg_out = int(dmg_in * max(1, mult))
+
+        out["used"] = True
+        out["damage_out"] = int(dmg_out)
+        out["successes"] = int(roll.get("successes", 0) or 0) if isinstance(roll, dict) else 0
+        out["multiplier"] = int(mult)
+        out["rolls"] = list(roll.get("rolls", []) or []) if isinstance(roll, dict) else []
+        return out
+
     def bs_counterattack_can_use(unit_key="player:0", incoming_damage=0):
         try:
             in_dmg = max(0, int(incoming_damage or 0))
@@ -380,6 +487,12 @@ init -990 python:
 
     store.roll_3d = roll_3d
     store.roll_4d = roll_4d
+    store.roll_5d_fury = roll_5d_fury
+    store.roll_5d_infernal_fury = roll_5d_infernal_fury
+    store.can_use_fury_dice = can_use_fury_dice
+    store.can_use_infernal_fury_dice = can_use_infernal_fury_dice
+    store.bs_try_apply_infernal_fury = bs_try_apply_infernal_fury
+    store.roll_recovery_die = roll_recovery_die
     store.bs_counterattack_can_use = bs_counterattack_can_use
     store.bs_counterattack_execute = bs_counterattack_execute
     store.show_dice_result = show_dice_result
@@ -479,6 +592,15 @@ default enemy_energy   = 0
 default enemy_direct_pending_damage = 0
 default enemy_direct_base_damage = 0
 default player_skip_attack = False
+default player_has_fury_dice_item = False
+default enemy_has_fury_dice_item = False
+default player_has_infernal_fury_item = False
+default enemy_has_infernal_fury_item = False
+default fury_infernal_feature_enabled = False
+default fury_selected_turn_index = -1
+default fury_last_result = {}
+default recovery_dice_used_in_battle = False
+default recovery_dice_last_pct = -1
 
 # visibilidad UI de combate (toggles por hotkey)
 default ui_show_options_panel = True
