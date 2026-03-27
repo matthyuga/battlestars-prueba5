@@ -386,7 +386,8 @@ screen technique_selector():
 
                                             hbox spacing 18:
                                                 $ _is_fury_selected = (int(getattr(store, "fury_selected_queue_index", -1) or -1) == i)
-                                                $ _fury_can_now = bool(getattr(store, "can_use_fury_dice", lambda side=\"player\": False)(\"player\"))
+                                                $ _fn_can_fury = getattr(store, "can_use_fury_dice", None)
+                                                $ _fury_can_now = bool(_fn_can_fury("player")) if callable(_fn_can_fury) else False
                                                 text label_txt size 20 color "#40BFFF" xminimum 160
                                                 text str(final_val) size 20 color "#FFDADA" xminimum 70
                                                 text "{} / {}".format(final_rei, final_ene) size 18 color "#CCCCCC" xminimum 110
