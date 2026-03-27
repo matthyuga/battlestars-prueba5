@@ -51,6 +51,7 @@ init python:
 
         "focus_attack":         "gui/tech_buttons/concentrar_x2.png",
         "focus_defense":        "gui/tech_buttons/potenciar_x2.png",
+        "fury_attack":          _tech_icon_with_fallback("gui/tech_buttons/dados_furia.png", "gui/tech_buttons/concentrar_x2.png"),
         "rest_recovery":        "gui/tech_buttons/desc.png",
     }
 
@@ -74,11 +75,12 @@ init python:
 
         "focus_attack": "Concentrar x2",
         "focus_defense": "Potenciar",
+        "fury_attack": "Dados de furia",
         "rest_recovery": "Descansar",
     }
 
     # Keys que NO son técnicas reales (son "special buttons")
-    _SPECIAL_ZERO_COST_KEYS = ("focus_attack", "focus_defense", "rest_recovery")
+    _SPECIAL_ZERO_COST_KEYS = ("focus_attack", "focus_defense", "rest_recovery", "fury_attack")
 
 
     # ============================================================
@@ -87,9 +89,31 @@ init python:
     # ============================================================
     def tech_cost_check(tech_key):
 
-        # Focus/Potenciar → siempre seleccionable por recursos
-        if (tech_key is None) or (tech_key in _SPECIAL_ZERO_COST_KEYS):
+        # Focus/Potenciar/Descansar → siempre seleccionable por recursos
+        if (tech_key is None) or (tech_key in ("focus_attack", "focus_defense", "rest_recovery")):
             return True, 0, 0
+
+        if tech_key == "fury_attack":
+            try:
+                _fn_can = getattr(S, "can_use_fury_dice", None)
+                can_now = bool(_fn_can("player")) if callable(_fn_can) else False
+            except:
+                can_now = False
+            if not can_now:
+                return False, 0, 0
+
+            try:
+                _fn_cost = getattr(S, "fury_activation_costs", None)
+                _ci = _fn_cost("player") if callable(_fn_cost) else {}
+            except:
+                _ci = {}
+            _need_r = int((_ci or {}).get("reiatsu_need", 0) or 0)
+            _need_e = int((_ci or {}).get("energy_need", 0) or 0)
+            _cur_r = int((_ci or {}).get("reiatsu_current", 0) or 0)
+            _cur_e = int((_ci or {}).get("energy_current", 0) or 0)
+            _fr = max(0, _need_r - _cur_r)
+            _fe = max(0, _need_e - _cur_e)
+            return (_fr == 0 and _fe == 0), _fr, _fe
 
         # Label visible → get_real_cost trabaja por NOMBRE
         name = TECH_LABEL.get(tech_key, None)
@@ -190,6 +214,35 @@ init python:
                     "Consume 1 acción del turno actual.\n"
                     "No inflige daño ni bloquea."
                 )
+
+            if tech_key == "fury_attack":
+                txt = (
+                    "Dados de furia (x1/x2/x3)\n"
+                    "Técnica especial implícita tipo Concentrar.\n"
+                    "Al resolverse, tira 5 dados:\n"
+                    "- 5 éxitos: x3\n"
+                    "- 3-4 éxitos: x2\n"
+                    "- 0-2 éxitos: x1\n"
+                    "Requiere HP ≤ 25% (o ítem).\n"
+                    "Consume 10% del Reiatsu/Energía TOTAL."
+                )
+                try:
+                    _fn_cost = getattr(S, "fury_activation_costs", None)
+                    _ci = _fn_cost("player") if callable(_fn_cost) else {}
+                except:
+                    _ci = {}
+                txt += "\nCosto actual: R {} / E {}".format(
+                    int((_ci or {}).get("reiatsu_need", 0) or 0),
+                    int((_ci or {}).get("energy_need", 0) or 0),
+                )
+                try:
+                    _fn_can = getattr(S, "can_use_fury_dice", None)
+                    _can_now = bool(_fn_can("player")) if callable(_fn_can) else False
+                except:
+                    _can_now = False
+                if not _can_now:
+                    txt += "\n\n⚠ No disponible aún: requiere HP ≤ 25%."
+                return txt
 
             already = _queue_has_focus(mode)
             target  = _queue_focus_target(mode)
@@ -299,7 +352,7 @@ init python:
     def add_technique_safe(label, tech_key):
 
         # Focus/Potenciar: se agregan por label, sin costo
-        if tech_key in _SPECIAL_ZERO_COST_KEYS:
+        if tech_key in ("focus_attack", "focus_defense", "rest_recovery"):
             add_technique_to_queue(label)
             return
 
@@ -341,6 +394,7 @@ screen battle_command_menu():
         "ladron_concentrar",
         "focus_attack",
         "rest_recovery",
+        "fury_attack",
     ]
 
     $ DEF = [
@@ -361,7 +415,7 @@ screen battle_command_menu():
         if not _allowed_def:
             $ _allowed_def = ["defense_strong_block"]
         if _allowed_off:
-            $ OFF = [k for k in OFF if (k in _allowed_off) or (k == "rest_recovery")]
+            $ OFF = [k for k in OFF if (k in _allowed_off) or (k == "rest_recovery") or (k == "fury_attack")]
         if _allowed_def:
             $ DEF = [k for k in DEF if (k in _allowed_def) or (k == "rest_recovery")]
 
