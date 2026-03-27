@@ -283,6 +283,11 @@ label battle_start:
             enemy_coating_cover = 0
             player_coating_durability = 0
             enemy_coating_durability = 0
+            # Aplicar overrides de historia ANTES de sincronizar HUD/teams
+            ovr = getattr(S, "story_pilot_resource_override", {}) or {}
+            if isinstance(ovr, dict):
+                player_hp = int(ovr.get("player_hp", player_hp) or player_hp)
+                enemy_hp = int(ovr.get("enemy_hp", enemy_hp) or enemy_hp)
 
         try:
             battle_player["HP"] = int(player_hp)
@@ -525,8 +530,6 @@ label battle_start:
         if bool(getattr(S, "story_mode_active", False)):
             ovr = getattr(S, "story_pilot_resource_override", {}) or {}
             if isinstance(ovr, dict):
-                player_hp = int(ovr.get("player_hp", player_hp) or player_hp)
-                enemy_hp = int(ovr.get("enemy_hp", enemy_hp) or enemy_hp)
                 player_reiatsu = int(ovr.get("player_reiatsu", player_reiatsu) or player_reiatsu)
                 player_energy = int(ovr.get("player_energy", player_energy) or player_energy)
                 enemy_reiatsu = int(ovr.get("enemy_reiatsu", enemy_reiatsu) or enemy_reiatsu)

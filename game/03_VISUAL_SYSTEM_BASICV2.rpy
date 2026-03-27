@@ -574,5 +574,10 @@ screen recovery_dice_result(value_pct=0):
             spacing 10
             text "Dados de recuperación" size 30 color "#FFD700" bold True xalign 0.5
             text "Resultado de tirada: [value_pct]" size 38 color "#88FF88" bold True xalign 0.5
+            $ _dv = int(value_pct or 0)
+            if _dv not in (0, 25, 50, 75, 100):
+                $ _dv = 0
+            $ _dice_img = "gui/dice/dt%d.png" % int(_dv)
+            add im.Scale(_dice_img, 200, 200) xalign 0.5
 
     timer 1.8 action Hide("recovery_dice_result")

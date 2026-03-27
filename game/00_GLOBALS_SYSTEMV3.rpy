@@ -269,8 +269,8 @@ init -990 python:
 
     def roll_recovery_die():
         import random
-        # Placeholder v1 solicitado: rango completo 0..100.
-        pct = random.randint(0, 100)
+        # Dado discreto de recuperación: 0 / 25 / 50 / 75 / 100
+        pct = random.choice([0, 25, 50, 75, 100])
         return {
             "value_pct": int(pct),
             "is_ko": bool(int(pct) == 0),

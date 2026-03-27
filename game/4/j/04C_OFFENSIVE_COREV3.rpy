@@ -739,6 +739,7 @@ label battle_offensive_turn_legacy_entry:
 
                     if _extra > 0:
                         total_damage = int(total_damage or 0) + int(_extra)
+                        _dmg_after = int(_dmg_before * int(_mult))
 
                         _ar_idx = int(_target.get("attack_record_index", -1) or -1)
                         if _ar_idx >= 0 and _ar_idx < len(attack_records):
@@ -753,11 +754,14 @@ label battle_offensive_turn_legacy_entry:
                                 S.direct_pending_damage = int(max(0, int(getattr(S, "direct_pending_damage", 0) or 0)) * int(_mult))
                             except:
                                 pass
+                    else:
+                        _dmg_after = int(_dmg_before or 0)
 
                     try:
                         _blog("{color=#FF9966}dados de furia activado. resultado de tirada:{/color}")
                         _blog("Resultados de tirada: %s" % (" | ".join(_fury_slots) if _fury_slots else "(sin datos)"))
                         _blog("Exitofuria: %s  |  Fracasofuria: %s" % (str(int(_succ)), str(int(max(0, 5 - _succ)))))
+                        _blog("Daño técnica: %s -> %s" % (str(int(_dmg_before or 0)), str(int(_dmg_after or 0))))
                         if _mult >= 3:
                             _blog("{color=#FF6633}🔥 Furia ({}/5): x{} en '{}'.{/color}".format(_succ, _mult, str(_target.get("tech_name", "técnica"))))
                         elif _mult >= 2:
