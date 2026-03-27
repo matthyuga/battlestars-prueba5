@@ -458,6 +458,16 @@ init python:
         else:
             renpy.show_screen("battle_log_screen")
 
+    def _dice_icon_pair_for_label(label_text=""):
+        try:
+            _lbl = str(label_text or "").strip().lower()
+        except:
+            _lbl = ""
+        # Solo Dados de Furia usa las variantes de furia.
+        if "furia" in _lbl:
+            return "dice_success_fury_icon", "dice_fail_fury_icon"
+        return "dice_success_icon", "dice_fail_icon"
+
 screen battle_keymap_layer():
     key "ctrl_K_k" action Function(toggle_battle_log)
     key "ctrl_K_c" action Function(battle_log_clear)
@@ -482,15 +492,16 @@ screen dice_roll_result(rolls, label_text=""):
         padding (20, 20)
 
         vbox spacing 10:
+            $ _ok_icon, _ko_icon = _dice_icon_pair_for_label(label_text)
             if label_text:
                 text "[label_text]" size 28 color "#FFD700" bold True xalign 0.5
 
             hbox spacing 20:
                 for r in rolls:
                     if r:
-                        add "dice_success_icon"
+                        add _ok_icon
                     else:
-                        add "dice_fail_icon"
+                        add _ko_icon
 
     timer 2.2 action Hide("dice_roll_result")
 
@@ -510,6 +521,7 @@ screen dice_roll_result_multi(entries):
             for e in (entries or []):
                 $ _lbl = str(e.get("label", "") or "") if isinstance(e, dict) else ""
                 $ _rolls = list(e.get("rolls", []) or []) if isinstance(e, dict) else []
+                $ _ok_icon, _ko_icon = _dice_icon_pair_for_label(_lbl)
 
                 frame:
                     background "#0006"
@@ -522,9 +534,9 @@ screen dice_roll_result_multi(entries):
                         hbox spacing 14:
                             for r in _rolls:
                                 if r:
-                                    add "dice_success_icon"
+                                    add _ok_icon
                                 else:
-                                    add "dice_fail_icon"
+                                    add _ko_icon
 
     timer 2.4 action Hide("dice_roll_result_multi")
 
@@ -545,6 +557,7 @@ screen dice_roll_result_stack(entries):
             for e in (entries or []):
                 $ _lbl = str(e.get("label", "") or "") if isinstance(e, dict) else ""
                 $ _rolls = list(e.get("rolls", []) or []) if isinstance(e, dict) else []
+                $ _ok_icon, _ko_icon = _dice_icon_pair_for_label(_lbl)
 
                 frame:
                     background "#0006"
@@ -560,9 +573,9 @@ screen dice_roll_result_stack(entries):
                             xalign 0.5
                             for r in _rolls:
                                 if r:
-                                    add "dice_success_icon"
+                                    add _ok_icon
                                 else:
-                                    add "dice_fail_icon"
+                                    add _ko_icon
 
     timer 2.7 action Hide("dice_roll_result_stack")
 
