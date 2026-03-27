@@ -267,6 +267,9 @@ screen technique_selector():
                     xmaximum 540
 
                     vbox spacing 10:
+                        $ _fn_reconcile_fury = getattr(store, "selector_reconcile_fury_selection", None)
+                        if callable(_fn_reconcile_fury):
+                            $ _fn_reconcile_fury()
 
                         $ _sim_rei = int(getattr(store, "simulated_reiatsu", getattr(store, "player_reiatsu", 0)) or 0)
                         $ _sim_ene = int(getattr(store, "simulated_energy", getattr(store, "player_energy", 0)) or 0)

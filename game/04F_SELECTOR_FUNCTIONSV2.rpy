@@ -94,6 +94,28 @@ init -959 python:
     def _fury_sel_clear():
         _fury_sel_set(-1, "", "", False)
 
+    def selector_reconcile_fury_selection():
+        """
+        Auto-saneamiento del estado Fury contra la cola actual.
+        Si la referencia quedó stale, limpia selección.
+        """
+        fs = _fury_sel_get()
+        if not bool(fs.get("armed", False)):
+            return False
+
+        q = list(getattr(S, "player_action_queue", []) or [])
+        idx = int(fs.get("queue_index", -1) or -1)
+        if idx < 0 or idx >= len(q):
+            _fury_sel_clear()
+            return False
+
+        q_name = str(q[idx] or "")
+        fs_name = str(fs.get("tech_name", "") or "")
+        if fs_name and q_name != fs_name:
+            _fury_sel_clear()
+            return False
+        return True
+
     # ============================================================
     # COSTO DE ACCIÓN (acciones y bonus)
     # ============================================================
@@ -432,19 +454,21 @@ init -959 python:
         if idx < 0 or idx >= len(q):
             return
 
+        selector_reconcile_fury_selection()
+        fs = _fury_sel_get()
+        cur = int(fs.get("queue_index", -1) or -1)
+        # FIX A: priorizar desasignación (aunque la cola haya cambiado de tipo)
+        if cur == idx:
+            _fury_sel_clear()
+            _rn_notify("🔥 Furia desasignada.")
+            _rn_restart()
+            return
+
         tech_name = str(q[idx] or "")
         tech_id = get_tech_id(tech_name)
         tech = getattr(S, "battle_techniques", {}).get(tech_id, {}) if tech_id else {}
         if str(tech.get("type", "") or "") != "offensive":
             _rn_notify("⚠ Solo puedes asignar furia a técnicas ofensivas.")
-            return
-
-        fs = _fury_sel_get()
-        cur = int(fs.get("queue_index", -1) or -1)
-        if cur == idx:
-            _fury_sel_clear()
-            _rn_notify("🔥 Furia desasignada.")
-            _rn_restart()
             return
 
         try:
@@ -471,13 +495,17 @@ init -959 python:
 
         S.turn_confirmed = True
         try:
+            selector_reconcile_fury_selection()
             fs = _fury_sel_get()
             _idx = int(fs.get("queue_index", -1) or -1)
             _armed = bool(fs.get("armed", False))
             q = list(getattr(S, "player_action_queue", []) or [])
-            if _armed and _idx >= 0 and _idx < len(q):
+            _q_name = str(q[_idx] or "") if (_idx >= 0 and _idx < len(q)) else ""
+            _fs_name = str(fs.get("tech_name", "") or "")
+            if _armed and _idx >= 0 and _idx < len(q) and (not _fs_name or _q_name == _fs_name):
                 S.fury_selected_turn_index = int(_idx)
             else:
+                _fury_sel_clear()
                 S.fury_selected_turn_index = -1
         except:
             S.fury_selected_turn_index = -1
@@ -493,3 +521,9 @@ init -959 python:
 
         _rn_notify("✅ Turno confirmado.")
         _rn_restart()
+
+    # Export helper para screens (reconciliación visual/estado)
+    try:
+        S.selector_reconcile_fury_selection = selector_reconcile_fury_selection
+    except:
+        pass
