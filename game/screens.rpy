@@ -1232,7 +1232,7 @@ screen exp_grid_help():
         text _("Regla simple: ΔR jugador = promedio_reg_rivales - reg_jugador.") style "help_text"
         text _("Factor numérico sugerido: m_multi = clamp((enemigos/aliados)^0.5, 0.85, 1.35).") style "help_text"
         text _("2v1: dúo penaliza (≈0.85), solo bonifica (≈1.35). 2v2: factor ≈1.00.") style "help_text"
-        text _("Ejemplo A: lvl1(reg0)+lvl30(reg3) vs lvl30(reg3)+lvl10(reg1): ΔR individuales {+2,-1} y {-1,+1}.") style "help_text"
+        text _("Ejemplo A: lvl1(reg0)+lvl30(reg3) vs lvl30(reg3)+lvl10(reg1): ΔR individuales (+2,-1) y (-1,+1).") style "help_text"
         text _("Ejemplo B (abuso): lvl20(reg2)+lvl30(reg3) vs lvl10(reg1): dúo recibe menos por ΔR negativo + penalización numérica.") style "help_text"
 
 
