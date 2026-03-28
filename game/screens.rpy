@@ -1003,6 +1003,7 @@ screen help():
                 textbutton _("Hotkeys") action SetScreenVariable("device", "hotkeys")
                 textbutton _("Design Perks") action SetScreenVariable("device", "design_perks")
                 textbutton _("RPG Caps") action SetScreenVariable("device", "rpg_caps")
+                textbutton _("RPG Rewards") action SetScreenVariable("device", "rpg_rewards")
 
                 if GamepadExists():
                     textbutton _("Gamepad") action SetScreenVariable("device", "gamepad")
@@ -1017,6 +1018,8 @@ screen help():
                 use design_perks_help
             elif device == "rpg_caps":
                 use rpg_caps_help
+            elif device == "rpg_rewards":
+                use rpg_rewards_help
             elif device == "gamepad":
                 use gamepad_help
 
@@ -1206,6 +1209,30 @@ screen rpg_caps_help():
         hbox:
             label _("Tier SSS (Reg 30–50)")
             text _("PvE Of 80001→200000 | Def 90001→240000 · PvP factor 0.75 (Of 60001→150000 | Def 67501→180000)")
+
+
+screen rpg_rewards_help():
+
+    vbox:
+        spacing 10
+
+        text _("RPG Rewards (desempeño 0–30 estrellas)") style "help_text"
+        text _("Sistema sugerido: 6 parámetros de 0–5. Total = 0..30 y alimenta la fórmula de EXP/Oro.") style "help_text"
+
+        text _("Parámetros (0–5 cada uno):") style "help_text"
+        text _("1) Ofensiva · 2) Defensa · 3) Control · 4) Eficiencia · 5) Técnica · 6) Impacto") style "help_text"
+
+        text _("Rúbrica corta (aplica en cada parámetro):") style "help_text"
+        text _("0 nulo | 1 bajo | 2 aceptable | 3 bueno | 4 alto | 5 sobresaliente") style "help_text"
+
+        text _("Ejemplo objetivo por porcentaje (Ofensiva):") style "help_text"
+        text _("0: 0–10% HP rival | 1: 11–25% | 2: 26–40% | 3: 41–60% | 4: 61–85% | 5: 86–100%+") style "help_text"
+
+        text _("Multiplicador por estrellas (actual):") style "help_text"
+        text _("EXP: 0.70 + 0.02×stars | Oro: 0.80 + 0.01×stars | stars clamped 0..30") style "help_text"
+
+        text _("Otros factores de recompensa (actual):") style "help_text"
+        text _("Riesgo ΔR + Resultado (Victoria/Derrota) + Antiabuso por repetición.") style "help_text"
 
 
 screen gamepad_help():
