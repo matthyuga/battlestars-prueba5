@@ -1002,6 +1002,7 @@ screen help():
                 textbutton _("Mouse") action SetScreenVariable("device", "mouse")
                 textbutton _("Hotkeys") action SetScreenVariable("device", "hotkeys")
                 textbutton _("Design Perks") action SetScreenVariable("device", "design_perks")
+                textbutton _("RPG Caps") action SetScreenVariable("device", "rpg_caps")
 
                 if GamepadExists():
                     textbutton _("Gamepad") action SetScreenVariable("device", "gamepad")
@@ -1014,6 +1015,8 @@ screen help():
                 use hotkeys_help
             elif device == "design_perks":
                 use design_perks_help
+            elif device == "rpg_caps":
+                use rpg_caps_help
             elif device == "gamepad":
                 use gamepad_help
 
@@ -1166,6 +1169,43 @@ screen design_perks_help():
         hbox:
             label _("Refino Espiritual")
             text _("stamina_target_to_reiatsu. Convierte estamina rival en reiatsu. Uso: puntual o sostenido en baja proporción. Límite: cap por turno y por recurso máximo.")
+
+
+screen rpg_caps_help():
+
+    vbox:
+        spacing 10
+
+        text _("RPG Caps por Registro (referencia rápida)") style "help_text"
+        text _("PvE usa cap base del tier. PvP aplica factor por tier sobre Of/Def.") style "help_text"
+
+        hbox:
+            label _("Tier D (Reg 0–1)")
+            text _("PvE Of 401→900 | Def 451→1000 · PvP factor 1.00")
+
+        hbox:
+            label _("Tier C (Reg 2–3)")
+            text _("PvE Of 901→2000 | Def 1001→2300 · PvP factor 1.00")
+
+        hbox:
+            label _("Tier B (Reg 4–5)")
+            text _("PvE Of 2001→5000 | Def 2301→5500 · PvP factor 1.00")
+
+        hbox:
+            label _("Tier A (Reg 6–7)")
+            text _("PvE Of 5001→12000 | Def 5501→13000 · PvP factor 1.00")
+
+        hbox:
+            label _("Tier S (Reg 8–9)")
+            text _("PvE Of 12001→25000 | Def 13001→27000 · PvP factor 0.95 (Of 11401→23750 | Def 12351→25650)")
+
+        hbox:
+            label _("Tier SS (Reg 10–29)")
+            text _("PvE Of 25001→80000 | Def 27001→90000 · PvP factor 0.85 (Of 21251→68000 | Def 22951→76500)")
+
+        hbox:
+            label _("Tier SSS (Reg 30–50)")
+            text _("PvE Of 80001→200000 | Def 90001→240000 · PvP factor 0.75 (Of 60001→150000 | Def 67501→180000)")
 
 
 screen gamepad_help():
