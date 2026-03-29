@@ -80,21 +80,23 @@ init -989 python:
         blocked_by_shadow,
         effect_applied=None,
     ):
-        # 1) Resultado estamina (consumo / overflow)
-        if overflow_to_hp > 0:
-            _bs_log_battle_line("Estamina: {} - {} = -{}".format(int(stamina_before), int(incoming_after_coating), int(overflow_to_hp)))
-        else:
-            _bs_log_battle_line("Estamina: {} - {} = {}".format(int(stamina_before), int(incoming_after_coating), int(stamina_after)))
+        show_stamina_lines = bool(getattr(S, "bs_show_stamina_log_lines", False))
+        # 1) Resultado estamina (consumo / overflow) [opcional]
+        if show_stamina_lines:
+            if overflow_to_hp > 0:
+                _bs_log_battle_line("Estamina: {} - {} = -{}".format(int(stamina_before), int(incoming_after_coating), int(overflow_to_hp)))
+            else:
+                _bs_log_battle_line("Estamina: {} - {} = {}".format(int(stamina_before), int(incoming_after_coating), int(stamina_after)))
 
         # 2) Resultado HP
         _bs_log_battle_line("HP: {} - {} = {}".format(int(hp_before), int(overflow_to_hp), int(hp_after)))
 
-        # 3) Generación de estamina (si aplica)
-        if int(stamina_gain) > 0:
+        # 3) Generación de estamina (si aplica) [opcional]
+        if show_stamina_lines and int(stamina_gain) > 0:
             _bs_log_battle_line("HP genera {} de estamina".format(int(stamina_gain)))
 
-        # 4) Bloqueo por shadow (si limitó)
-        if int(blocked_by_shadow) > 0:
+        # 4) Bloqueo por shadow (si limitó) [opcional]
+        if show_stamina_lines and int(blocked_by_shadow) > 0:
             _bs_log_battle_line("Shadow bloquea {} de espacio para estamina".format(int(blocked_by_shadow)))
 
         # 5) Efecto aplicado (si hubo efecto extra)
