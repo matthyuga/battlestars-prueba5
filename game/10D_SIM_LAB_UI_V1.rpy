@@ -1,9 +1,9 @@
 # ===============================================================
 # 10D_SIM_LAB_UI_V1.rpy
-# Fase B Incremento 1 (B1 + B2 + B3)
-# - EntryPoint + UI base
-# - Estado local del request
-# - Editor modo/ganador/config
+# Fase B Incremento 2 (B4 + B5 + B6)
+# - Editor de actores/equipos
+# - Editor de estrellas 6x0..5
+# - Integración run_simulation
 # ===============================================================
 
 default sim_lab_state_v1 = {}
@@ -12,6 +12,38 @@ default sim_lab_last_result_v1 = None
 init -870 python:
     import copy
     import renpy.store as S
+
+    def sim_lab_make_actor(idx=1):
+        n = int(idx or 1)
+        if n < 1:
+            n = 1
+        return {
+            "actor_id": "actor_%d" % n,
+            "actor_type": "PLAYER" if n == 1 else "ALPHA",
+            "team": "A" if (n % 2 == 1) else "B",
+            "level": 1,
+            "register": 0,
+            "exp_current": 0,
+            "exp_max": 100,
+            "oro_current": 0,
+            "stars": {
+                "ofensiva": 0, "defensiva": 0, "control": 0,
+                "eficiencia": 0, "tecnica": 0, "impacto": 0
+            },
+            "flags": {
+                "eligible_rewards": True,
+                "allow_level_up": True,
+                "allow_inventory_rewards": True,
+            },
+        }
+
+    def sim_lab_ensure_min_actor(st):
+        req = st if isinstance(st, dict) else {}
+        actors = req.get("actors", []) if isinstance(req.get("actors", []), list) else []
+        if len(actors) < 1:
+            actors = [sim_lab_make_actor(1)]
+        req["actors"] = actors
+        return req
 
     def sim_lab_clone_request(req):
         return copy.deepcopy(req if isinstance(req, dict) else {})
@@ -38,7 +70,7 @@ init -870 python:
                         "multi_factor_enabled": True,
                     },
                 }
-            S.sim_lab_state_v1 = sim_lab_clone_request(st)
+            S.sim_lab_state_v1 = sim_lab_clone_request(sim_lab_ensure_min_actor(st))
         return S.sim_lab_state_v1
 
     def sim_lab_reset_state():
@@ -61,6 +93,7 @@ init -870 python:
                     "multi_factor_enabled": True,
                 },
             }
+        S.sim_lab_state_v1 = sim_lab_ensure_min_actor(S.sim_lab_state_v1)
         S.sim_lab_last_result_v1 = None
         return S.sim_lab_state_v1
 
@@ -133,25 +166,7 @@ init -870 python:
         st = sim_lab_get_state()
         actors = st.get("actors", []) if isinstance(st.get("actors", []), list) else []
         idx = len(actors) + 1
-        actors.append({
-            "actor_id": "actor_%d" % idx,
-            "actor_type": "ALPHA",
-            "team": "A" if (idx % 2 == 1) else "B",
-            "level": 1,
-            "register": 0,
-            "exp_current": 0,
-            "exp_max": 100,
-            "oro_current": 0,
-            "stars": {
-                "ofensiva": 0, "defensiva": 0, "control": 0,
-                "eficiencia": 0, "tecnica": 0, "impacto": 0
-            },
-            "flags": {
-                "eligible_rewards": True,
-                "allow_level_up": True,
-                "allow_inventory_rewards": True,
-            },
-        })
+        actors.append(sim_lab_make_actor(idx))
         st["actors"] = actors
         S.sim_lab_state_v1 = st
         return st
@@ -225,6 +240,19 @@ init -870 python:
         S.sim_lab_state_v1 = st
         return st
 
+    def sim_lab_set_actor_id(index, actor_id):
+        st, actors, i, a = _sim_lab_get_actor(index)
+        if a is None:
+            return st
+        aid = str(actor_id or "").strip()
+        if len(aid) == 0:
+            aid = "actor_%d" % (i + 1)
+        a["actor_id"] = aid
+        actors[i] = a
+        st["actors"] = actors
+        S.sim_lab_state_v1 = st
+        return st
+
     def sim_lab_toggle_actor_eligible(index):
         st, actors, i, a = _sim_lab_get_actor(index)
         if a is None:
@@ -292,7 +320,7 @@ screen sim_lab_v1():
         vbox:
             spacing 10
 
-            text "SIM LAB V1 — Incremento 1 (B1+B2+B3)" size 34
+            text "SIM LAB V1 — Incremento 2 (B4+B5+B6)" size 34
             text "Contrato: [st.get('sim_contract_version', 'v1')] | Simulation ID: [st.get('simulation_id', 'sim_unknown')]" size 18
 
             frame:
@@ -346,7 +374,7 @@ screen sim_lab_v1():
                         textbutton "Preset medium_v2" action Function(sim_lab_set_preset, "medium_v2")
                         textbutton "Rep -1" action Function(sim_lab_shift_repetition, -1)
                         textbutton "Rep +1" action Function(sim_lab_shift_repetition, +1)
-                        textbutton "Toggle m_multi" action Function(sim_lab_toggle_multi_factor)
+                        textbutton "Toggle multi_factor" action Function(sim_lab_toggle_multi_factor)
                         textbutton "Toggle mid grants" action Function(sim_lab_toggle_mid_battle_grants)
 
             frame:
@@ -385,6 +413,8 @@ screen sim_lab_v1():
                                         )) size 16
                                         hbox:
                                             spacing 8
+                                            textbutton "ID Auto" action Function(sim_lab_set_actor_id, i, "")
+                                            textbutton "ID +Sfx" action Function(sim_lab_set_actor_id, i, ("%s_x" % a.get("actor_id", ("actor_%d" % (i + 1)))))
                                             text ("Lvl %s | Reg %s | EXP %s | Oro %s" % (
                                                 a.get("level", 1),
                                                 a.get("register", 0),
