@@ -6,6 +6,7 @@
 init -875 python:
 
     import copy
+    import json
 
     SIM_CONTRACT_VERSION = "v1"
 
@@ -485,6 +486,14 @@ init -875 python:
             rr = compute_actor_reward(a, rivals, winner_team, cfg_local)
             results.append(rr)
 
+        # A5 - idempotencia por reward_event_id
+        idem = sim_apply_reward_event_idempotency(req, results)
+        results = idem["results"]
+        if idem["warnings"]:
+            warnings.extend(idem["warnings"])
+        if idem["errors"]:
+            errors.extend(idem["errors"])
+
         return {
             "sim_contract_version": SIM_CONTRACT_VERSION,
             "simulation_id": str(req.get("simulation_id", "sim_unknown")),
@@ -494,6 +503,228 @@ init -875 python:
             "audit": {
                 "warnings": warnings,
                 "errors": errors,
+                "idempotency": idem["audit"],
                 "sim_contract_version": SIM_CONTRACT_VERSION,
             },
         }
+
+    def sim_apply_reward_event_idempotency(normalized_request, results):
+        """
+        A5 - Anti-duplicación por reward_event_id.
+        No muta estado externo: devuelve registry_out para que caller lo persista.
+        """
+        req = normalized_request if isinstance(normalized_request, dict) else {}
+        r_in = results if isinstance(results, list) else []
+        out_results = copy.deepcopy(r_in)
+
+        warnings = []
+        errors = []
+        statuses = []
+
+        event_id = str(req.get("reward_event_id", "") or "").strip()
+        source = str(req.get("source", "lab_manual") or "lab_manual")
+        cfg = req.get("config", {}) if isinstance(req.get("config", {}), dict) else {}
+        registry_in = cfg.get("idempotency_registry", {})
+        registry = copy.deepcopy(registry_in if isinstance(registry_in, dict) else {})
+
+        if event_id == "":
+            return {
+                "results": out_results,
+                "warnings": warnings,
+                "errors": errors,
+                "audit": {
+                    "enabled": False,
+                    "reason": "missing_reward_event_id",
+                    "statuses": [],
+                    "registry_out": registry,
+                },
+            }
+
+        for rr in out_results:
+            actor_id = str(rr.get("actor_id", "unknown") or "unknown")
+            key = "%s|%s|%s" % (event_id, actor_id, source)
+            fp = "%s|%s|%s|%s|%s" % (
+                int(rr.get("final", {}).get("exp_gain", 0) or 0),
+                int(rr.get("final", {}).get("oro_gain", 0) or 0),
+                str(rr.get("outcome", "unknown") or "unknown"),
+                int(rr.get("stars_total", 0) or 0),
+                int(rr.get("delta_register", 0) or 0),
+            )
+
+            if key not in registry:
+                registry[key] = fp
+                statuses.append({"key": key, "status": "APPLY_OK"})
+                continue
+
+            prev = str(registry.get(key, "") or "")
+            if prev == fp:
+                # duplicado exacto: no volver a pagar
+                statuses.append({"key": key, "status": "DUPLICATE_IGNORED"})
+                warnings.append("reward_event_id duplicado ignorado para actor_id=%s." % actor_id)
+            else:
+                # mismo id, payload distinto
+                statuses.append({"key": key, "status": "DUPLICATE_CONFLICT"})
+                errors.append("reward_event_id en conflicto para actor_id=%s." % actor_id)
+
+            ff = rr.get("final", {}) if isinstance(rr.get("final", {}), dict) else {}
+            exp_before = max(0, _sim_to_int(ff.get("exp_after", 0), 0) - _sim_to_int(ff.get("exp_gain", 0), 0))
+            oro_before = max(0, _sim_to_int(ff.get("oro_after", 0), 0) - _sim_to_int(ff.get("oro_gain", 0), 0))
+            ff["exp_gain"] = 0
+            ff["oro_gain"] = 0
+            ff["exp_after"] = exp_before
+            ff["oro_after"] = oro_before
+            rr["final"] = ff
+            notes = rr.get("notes", []) if isinstance(rr.get("notes", []), list) else []
+            notes.append("duplicate_reward_event_id")
+            rr["notes"] = notes
+
+        return {
+            "results": out_results,
+            "warnings": warnings,
+            "errors": errors,
+            "audit": {
+                "enabled": True,
+                "event_id": event_id,
+                "statuses": statuses,
+                "registry_out": registry,
+            },
+        }
+
+    # ======================================
+    # A6 + A7 helpers (tests y fixtures base)
+    # ======================================
+
+    def sim_phaseA_fixture_requests():
+        """
+        A7 - Fixtures reproducibles base.
+        """
+        base = sim_build_min_request()
+        base["event_type"] = "victory"
+        base["winner_team"] = "A"
+        base["reward_event_id"] = "fixture::c::1v1::dr0"
+
+        fix_a = {
+            "sim_contract_version": SIM_CONTRACT_VERSION,
+            "simulation_id": "fixture_a_2v2",
+            "mode": "2v2",
+            "source": "lab_manual",
+            "event_type": "victory",
+            "winner_team": "A",
+            "reward_event_id": "fixture::a::2v2::1",
+            "actors": [
+                {"actor_id": "a_l1", "actor_type": "PLAYER", "team": "A", "level": 1, "register": 0, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 4, "defensiva": 4, "control": 4, "eficiencia": 4, "tecnica": 3, "impacto": 3}, "flags": {"eligible_rewards": True, "allow_level_up": True, "allow_inventory_rewards": True}},
+                {"actor_id": "a_l30", "actor_type": "ALPHA", "team": "A", "level": 30, "register": 3, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 3, "defensiva": 3, "control": 3, "eficiencia": 3, "tecnica": 3, "impacto": 3}, "flags": {"eligible_rewards": True, "allow_level_up": True, "allow_inventory_rewards": True}},
+                {"actor_id": "b_l30", "actor_type": "ALPHA", "team": "B", "level": 30, "register": 3, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 2, "defensiva": 2, "control": 2, "eficiencia": 2, "tecnica": 2, "impacto": 2}, "flags": {"eligible_rewards": True, "allow_level_up": True, "allow_inventory_rewards": True}},
+                {"actor_id": "b_l10", "actor_type": "ALPHA", "team": "B", "level": 10, "register": 1, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 1, "defensiva": 1, "control": 1, "eficiencia": 1, "tecnica": 1, "impacto": 1}, "flags": {"eligible_rewards": True, "allow_level_up": True, "allow_inventory_rewards": True}},
+            ],
+            "config": {"preset": "medium_v2", "allow_mid_battle_grants": True, "repetition_count": 1, "multi_factor_enabled": True},
+        }
+
+        fix_b = {
+            "sim_contract_version": SIM_CONTRACT_VERSION,
+            "simulation_id": "fixture_b_2v1",
+            "mode": "2v1",
+            "source": "lab_manual",
+            "event_type": "victory",
+            "winner_team": "B",
+            "reward_event_id": "fixture::b::2v1::1",
+            "actors": [
+                {"actor_id": "a_l20", "actor_type": "ALPHA", "team": "A", "level": 20, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 3, "defensiva": 3, "control": 2, "eficiencia": 2, "tecnica": 2, "impacto": 2}, "flags": {"eligible_rewards": True, "allow_level_up": True, "allow_inventory_rewards": True}},
+                {"actor_id": "a_l30", "actor_type": "ALPHA", "team": "A", "level": 30, "register": 3, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 3, "defensiva": 3, "control": 2, "eficiencia": 2, "tecnica": 2, "impacto": 2}, "flags": {"eligible_rewards": True, "allow_level_up": True, "allow_inventory_rewards": True}},
+                {"actor_id": "b_l10", "actor_type": "PLAYER", "team": "B", "level": 10, "register": 1, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 5, "defensiva": 4, "control": 4, "eficiencia": 4, "tecnica": 4, "impacto": 5}, "flags": {"eligible_rewards": True, "allow_level_up": True, "allow_inventory_rewards": True}},
+            ],
+            "config": {"preset": "medium_v2", "allow_mid_battle_grants": True, "repetition_count": 1, "multi_factor_enabled": True},
+        }
+
+        return {
+            "fixture_a_2v2": fix_a,
+            "fixture_b_2v1": fix_b,
+            "fixture_c_1v1_dr0": base,
+        }
+
+    def sim_run_phaseA_tests():
+        """
+        A6 - Batería mínima de tests unitarios (runtime helper).
+        Retorna lista de resultados {name, ok, detail}.
+        """
+        out = []
+
+        def _push(name, ok, detail=""):
+            out.append({"name": name, "ok": bool(ok), "detail": str(detail or "")})
+
+        # Caso feliz 1v1
+        r1 = sim_build_min_request()
+        r1["event_type"] = "victory"
+        r1["winner_team"] = "A"
+        r1["reward_event_id"] = "t::1"
+        s1 = run_simulation(r1)
+        _push("1v1_victory_ok", len(s1.get("results", [])) == 1 and s1["results"][0]["final"]["exp_gain"] >= 0)
+
+        # Derrota parcial
+        r2 = sim_build_min_request()
+        r2["event_type"] = "defeat"
+        r2["winner_team"] = "B"
+        r2["reward_event_id"] = "t::2"
+        s2 = run_simulation(r2)
+        _push("defeat_partial_reward", len(s2.get("results", [])) == 1 and s2["results"][0]["outcome"] == "defeat")
+
+        # Empate
+        r3 = sim_build_min_request()
+        r3["event_type"] = "draw"
+        r3["winner_team"] = "DRAW"
+        r3["reward_event_id"] = "t::3"
+        s3 = run_simulation(r3)
+        _push("draw_reward", len(s3.get("results", [])) == 1 and s3["results"][0]["outcome"] == "draw")
+
+        # 2v1 multi factor
+        fx = sim_phaseA_fixture_requests()["fixture_b_2v1"]
+        s4 = run_simulation(fx)
+        ok4 = (len(s4.get("results", [])) == 3)
+        _push("2v1_multi_factor_shape", ok4)
+
+        # GAMMA no elegible
+        r5 = sim_build_min_request()
+        r5["actors"][0]["actor_type"] = "GAMMA"
+        r5["actors"][0]["flags"]["eligible_rewards"] = True
+        r5["reward_event_id"] = "t::5"
+        s5 = run_simulation(r5)
+        ok5 = (len(s5.get("results", [])) == 1 and not bool(s5["results"][0].get("eligible", True)))
+        _push("gamma_not_eligible", ok5)
+
+        # Clamp estrellas
+        r6 = sim_build_min_request()
+        r6["actors"][0]["stars"] = {k: 99 for k in SIM_STAR_KEYS}
+        r6["reward_event_id"] = "t::6"
+        v6 = sim_validate_request(r6)
+        ok6 = bool(v6.get("normalized", {}).get("actors", [{}])[0].get("stars_total", 0) == 30)
+        _push("stars_clamp_0_30", ok6)
+
+        # Duplicado reward_event_id
+        r7 = sim_build_min_request()
+        r7["event_type"] = "victory"
+        r7["winner_team"] = "A"
+        r7["reward_event_id"] = "t::7"
+        r7["config"]["idempotency_registry"] = {}
+        s7a = run_simulation(r7)
+        reg = s7a.get("audit", {}).get("idempotency", {}).get("registry_out", {})
+        r7b = copy.deepcopy(r7)
+        r7b["config"]["idempotency_registry"] = reg
+        s7b = run_simulation(r7b)
+        ok7 = (s7b.get("results", [{}])[0].get("final", {}).get("exp_gain", -1) == 0)
+        _push("duplicate_reward_event_id", ok7)
+
+        return out
+
+    def sim_export_phaseA_fixtures_json():
+        """
+        A7 - Export en memoria de fixtures + outputs para diff de versión.
+        """
+        fx = sim_phaseA_fixture_requests()
+        out = {}
+        for k, req in fx.items():
+            out[k] = run_simulation(req)
+        return json.dumps({
+            "sim_contract_version": SIM_CONTRACT_VERSION,
+            "fixtures": fx,
+            "outputs": out,
+        }, ensure_ascii=False, sort_keys=True, indent=2)
