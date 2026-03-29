@@ -728,3 +728,55 @@ init -875 python:
             "fixtures": fx,
             "outputs": out,
         }, ensure_ascii=False, sort_keys=True, indent=2)
+
+    def sim_phaseA_checkpoint_report():
+        """
+        A8 - Reporte consolidado de cierre de Fase A.
+        """
+        tests = sim_run_phaseA_tests()
+        total = len(tests)
+        passed = 0
+        failed_names = []
+        for t in tests:
+            ok = bool((t or {}).get("ok", False))
+            if ok:
+                passed += 1
+            else:
+                failed_names.append(str((t or {}).get("name", "unknown")))
+
+        return {
+            "phase": "A",
+            "sim_contract_version": SIM_CONTRACT_VERSION,
+            "deliverables": {
+                "contract_v1_stable": True,
+                "run_simulation_available": True,
+                "fixtures_available": True,
+                "tests_available": True,
+                "params_changelog_available": True,
+            },
+            "tests": {
+                "total": total,
+                "passed": passed,
+                "failed": (total - passed),
+                "failed_names": failed_names,
+                "results": tests,
+            },
+            "params_changelog": {
+                "preset_default": "medium_v2",
+                "stars_range_per_category": "0..5",
+                "stars_total_range": "0..30",
+                "register_range": "0..50",
+                "risk_tables": {
+                    "exp": copy.deepcopy(SIM_RISK_EXP_TABLE),
+                    "oro": copy.deepcopy(SIM_RISK_ORO_TABLE),
+                },
+                "multi_factor_formula": "clamp((enemies/allies)^0.5, 0.85, 1.35)",
+                "antiabuso_repetition": {
+                    "1": 1.00,
+                    "2": 0.60,
+                    "3": 0.30,
+                    "4_plus": 0.10,
+                },
+                "idempotency_key": "reward_event_id|actor_id|source",
+            },
+        }
