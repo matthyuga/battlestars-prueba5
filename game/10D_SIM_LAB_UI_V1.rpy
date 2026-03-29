@@ -1,16 +1,19 @@
 # ===============================================================
 # 10D_SIM_LAB_UI_V1.rpy
-# Fase B Incremento 2 (B4 + B5 + B6)
-# - Editor de actores/equipos
-# - Editor de estrellas 6x0..5
-# - Integración run_simulation
+# Fase B Incremento 3 (B7 + B8 + B9 + B10 + B11)
+# - Resultados por actor + auditoría/idempotencia
+# - Carga de fixtures + export QA
+# - Smoke checklist
 # ===============================================================
 
 default sim_lab_state_v1 = {}
 default sim_lab_last_result_v1 = None
+default sim_lab_export_text_v1 = ""
+default sim_lab_smoke_results_v1 = []
 
 init -870 python:
     import copy
+    import json
     import renpy.store as S
 
     def sim_lab_make_actor(idx=1):
@@ -298,6 +301,55 @@ init -870 python:
             }
         return S.sim_lab_last_result_v1
 
+    def sim_lab_load_fixture(fixture_key):
+        key = str(fixture_key or "").strip()
+        fn = getattr(S, "sim_phaseA_fixture_requests", None)
+        if not callable(fn):
+            return None
+        fixtures = fn()
+        if not isinstance(fixtures, dict):
+            return None
+        req = fixtures.get(key)
+        if not isinstance(req, dict):
+            return None
+        S.sim_lab_state_v1 = sim_lab_clone_request(sim_lab_ensure_min_actor(req))
+        S.sim_lab_last_result_v1 = None
+        return S.sim_lab_state_v1
+
+    def sim_lab_export_last_result_json():
+        payload = {
+            "request": sim_lab_get_state(),
+            "last_result": S.sim_lab_last_result_v1 if isinstance(S.sim_lab_last_result_v1, dict) else None,
+        }
+        S.sim_lab_export_text_v1 = json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2)
+        return S.sim_lab_export_text_v1
+
+    def sim_lab_export_phaseA_json():
+        fn = getattr(S, "sim_export_phaseA_fixtures_json", None)
+        if callable(fn):
+            S.sim_lab_export_text_v1 = str(fn() or "")
+        else:
+            S.sim_lab_export_text_v1 = json.dumps({
+                "error": "sim_export_phaseA_fixtures_json no disponible.",
+            }, ensure_ascii=False, indent=2)
+        return S.sim_lab_export_text_v1
+
+    def sim_lab_run_smoke_checklist():
+        fn = getattr(S, "sim_run_phaseA_tests", None)
+        if callable(fn):
+            raw = fn()
+            if isinstance(raw, list):
+                S.sim_lab_smoke_results_v1 = raw
+            else:
+                S.sim_lab_smoke_results_v1 = []
+        else:
+            S.sim_lab_smoke_results_v1 = [{
+                "name": "phaseA_tests_unavailable",
+                "ok": False,
+                "detail": "sim_run_phaseA_tests no disponible.",
+            }]
+        return S.sim_lab_smoke_results_v1
+
 
 label sim_lab_open:
     call screen sim_lab_v1
@@ -311,6 +363,8 @@ screen sim_lab_v1():
     $ cfg = st.get("config", {}) if isinstance(st.get("config", {}), dict) else {}
     $ actors = st.get("actors", []) if isinstance(st.get("actors", []), list) else []
     $ last = sim_lab_last_result_v1 if isinstance(sim_lab_last_result_v1, dict) else None
+    $ smoke = sim_lab_smoke_results_v1 if isinstance(sim_lab_smoke_results_v1, list) else []
+    $ export_text = sim_lab_export_text_v1 if isinstance(sim_lab_export_text_v1, str) else ""
 
     frame:
         xfill True
@@ -320,7 +374,7 @@ screen sim_lab_v1():
         vbox:
             spacing 10
 
-            text "SIM LAB V1 — Incremento 2 (B4+B5+B6)" size 34
+            text "SIM LAB V1 — Incremento 3 (B7+B8+B9+B10+B11)" size 34
             text "Contrato: [st.get('sim_contract_version', 'v1')] | Simulation ID: [st.get('simulation_id', 'sim_unknown')]" size 18
 
             frame:
@@ -466,6 +520,18 @@ screen sim_lab_v1():
                 padding (12, 12)
                 vbox:
                     spacing 8
+                    text "Fixtures (B9)" size 24
+                    hbox:
+                        spacing 8
+                        textbutton "fixture_a_2v2" action Function(sim_lab_load_fixture, "fixture_a_2v2")
+                        textbutton "fixture_b_2v1" action Function(sim_lab_load_fixture, "fixture_b_2v1")
+                        textbutton "fixture_c_1v1_dr0" action Function(sim_lab_load_fixture, "fixture_c_1v1_dr0")
+
+            frame:
+                xfill True
+                padding (12, 12)
+                vbox:
+                    spacing 8
                     text "Simulación (B6)" size 24
                     hbox:
                         spacing 8
@@ -477,6 +543,119 @@ screen sim_lab_v1():
                         text ("Última corrida: actors=%s | warnings=%s | errors=%s" % (ac, wa, er)) size 16
                     else:
                         text "Aún no se ejecutó simulación." size 16
+
+            if last:
+                frame:
+                    xfill True
+                    ymaximum 300
+                    padding (12, 12)
+                    vbox:
+                        spacing 8
+                        text "Resultados por actor (B7)" size 24
+                        viewport:
+                            draggable True
+                            mousewheel True
+                            scrollbars "vertical"
+                            ymaximum 230
+                            vbox:
+                                spacing 8
+                                for rr in last.get("results", []):
+                                    $ final = rr.get("final", {}) if isinstance(rr.get("final", {}), dict) else {}
+                                    $ mult = rr.get("multipliers", {}) if isinstance(rr.get("multipliers", {}), dict) else {}
+                                    frame:
+                                        xfill True
+                                        padding (8, 8)
+                                        vbox:
+                                            spacing 4
+                                            text ("actor_id=%s | outcome=%s | eligible=%s" % (
+                                                rr.get("actor_id", "n/a"),
+                                                rr.get("outcome", "n/a"),
+                                                "YES" if rr.get("eligible", False) else "NO",
+                                            )) size 15
+                                            text ("stars_total=%s | delta_register=%s | base_exp/oro=%s/%s" % (
+                                                rr.get("stars_total", 0),
+                                                rr.get("delta_register", 0),
+                                                rr.get("base_exp", 0),
+                                                rr.get("base_oro", 0),
+                                            )) size 14
+                                            text ("exp_gain/oro_gain=%s/%s | exp_after/oro_after=%s/%s" % (
+                                                final.get("exp_gain", 0),
+                                                final.get("oro_gain", 0),
+                                                final.get("exp_after", 0),
+                                                final.get("oro_after", 0),
+                                            )) size 14
+                                            text ("multipliers: result=%.2f m_multi=%.2f final=%.2f" % (
+                                                float(mult.get("result_multiplier", 1.0) or 1.0),
+                                                float(mult.get("m_multi", 1.0) or 1.0),
+                                                float(mult.get("final_multiplier", 1.0) or 1.0),
+                                            )) size 14
+
+            if last:
+                frame:
+                    xfill True
+                    ymaximum 260
+                    padding (12, 12)
+                    vbox:
+                        spacing 8
+                        text "Auditoría + Idempotencia (B8)" size 24
+                        $ audit = last.get("audit", {}) if isinstance(last.get("audit", {}), dict) else {}
+                        $ errs = audit.get("errors", []) if isinstance(audit.get("errors", []), list) else []
+                        $ warns = audit.get("warnings", []) if isinstance(audit.get("warnings", []), list) else []
+                        $ idem = audit.get("idempotency", {}) if isinstance(audit.get("idempotency", {}), dict) else {}
+                        text ("errors=%d | warnings=%d | idempotency.enabled=%s | event_id=%s" % (
+                            len(errs), len(warns), "YES" if idem.get("enabled", False) else "NO", idem.get("event_id", "n/a")
+                        )) size 15
+                        if len(errs) > 0:
+                            text "Errores:" size 14
+                            for ee in errs:
+                                text ("- %s" % ee) size 13
+                        if len(warns) > 0:
+                            text "Warnings:" size 14
+                            for ww in warns:
+                                text ("- %s" % ww) size 13
+                        $ statuses = idem.get("statuses", {}) if isinstance(idem.get("statuses", {}), dict) else {}
+                        if len(statuses) > 0:
+                            text "Idempotency statuses por actor_id:" size 14
+                            for kk, vv in statuses.items():
+                                text ("- %s: %s" % (kk, vv)) size 13
+
+            frame:
+                xfill True
+                ymaximum 320
+                padding (12, 12)
+                vbox:
+                    spacing 8
+                    text "Export QA (B10)" size 24
+                    hbox:
+                        spacing 8
+                        textbutton "Export last result JSON" action Function(sim_lab_export_last_result_json)
+                        textbutton "Export fixtures JSON" action Function(sim_lab_export_phaseA_json)
+                    viewport:
+                        draggable True
+                        mousewheel True
+                        scrollbars "vertical"
+                        ymaximum 230
+                        text (export_text if len(export_text) > 0 else "Sin export aún.") size 12
+
+            frame:
+                xfill True
+                padding (12, 12)
+                vbox:
+                    spacing 8
+                    text "Smoke checklist (B11)" size 24
+                    hbox:
+                        spacing 8
+                        textbutton "Run smoke tests" action Function(sim_lab_run_smoke_checklist)
+                    if len(smoke) > 0:
+                        for t in smoke:
+                            $ ok = bool((t or {}).get("ok", False))
+                            text ("[%s] %s — %s" % (
+                                "OK" if ok else "FAIL",
+                                (t or {}).get("name", "unknown"),
+                                (t or {}).get("detail", "")
+                            )) size 14
+                    else:
+                        text "Sin ejecución de smoke checklist." size 14
 
             hbox:
                 spacing 8
