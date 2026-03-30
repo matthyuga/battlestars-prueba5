@@ -120,3 +120,30 @@ Fecha: 2026-03-30
 
 ### Próximo paso recomendado
 - Subir una segunda versión de la misma escena (v1/v2) y una segunda carta (v1/v2). Con eso se puede generar diff técnico (qué cambió en materiales, luces y parámetros) y convertirlo en receta reproducible.
+
+## Verificación solicitada: carga de plugins en rama `codex/locate-repositories-of-manlymarco`
+
+Fecha: 2026-03-30
+
+- Sí, los plugins son accesibles desde esta rama en la carpeta `plugins/`.
+- Recuento actual detectado por escaneo local: **16 DLLs**.
+- Lista detectada:
+  - `AAAAAAAAAAAA.Koikatu.dll`
+  - `AccMover.Koikatu.dll`
+  - `AnimationCurveEditor.Old.dll`
+  - `AnimationLoader.Koikatu.dll`
+  - `AnimeAssAssistant.Koikatu.dll`
+  - `AxisUnlocker.Koikatu.dll`
+  - `BepInEx.CatchUnityEventExceptions.dll`
+  - `BepInEx.EnableFullScreenToggle.dll`
+  - `BepInEx.EnableResize.dll`
+  - `BepInEx.InputHotkeyBlock.dll`
+  - `BepInEx.MessageCenter.dll`
+  - `BepInEx.MuteInBackground.dll`
+  - `BepInEx.OptimizeIMGUI.dll`
+  - `BetterScaling.Koikatu.dll`
+  - `BetterSceneLoader.Koikatu.dll`
+  - `BreastPhysicsController.dll`
+
+### Nota
+Si en GitHub ves más de 16, puede haber diferencia entre lo que quedó en esta copia de trabajo y lo último pushado al remoto. En ese caso, conviene sincronizar y volver a correr el inventario.
