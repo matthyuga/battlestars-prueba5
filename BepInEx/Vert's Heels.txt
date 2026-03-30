@@ -1,0 +1,3 @@
+angleAnkle=9.000004
+angleLeg=9.000004
+height=0.044

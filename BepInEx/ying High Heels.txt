@@ -1,0 +1,3 @@
+angleAnkle=0
+angleLeg=17
+height=0.026
