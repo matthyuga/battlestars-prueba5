@@ -1,0 +1,65 @@
+<ShaderSwapper>
+  <Mapping From="Shader Forge/main_skin">
+    <Rule Name="xukmi/SkinPlusTess" />
+  </Mapping>
+  <Mapping From="Koikano/main_skin">
+    <Rule Name="xukmi/SkinPlusTess" />
+  </Mapping>
+  <Mapping From="Shader Forge/main_hair">
+    <Rule Name="xukmi/HairPlus" />
+  </Mapping>
+  <Mapping From="Koikano/hair_main_sun">
+    <Rule Name="xukmi/HairPlus" />
+  </Mapping>
+  <Mapping From="Shader Forge/main_hair_front">
+    <Rule Name="xukmi/HairFrontPlus" />
+  </Mapping>
+  <Mapping From="Koikano/hair_main_sun_front">
+    <Rule Name="xukmi/HairFrontPlus" />
+  </Mapping>
+  <Mapping From="Shader Forge/toon_eye_lod0">
+    <Rule Name="xukmi/EyePlus" />
+  </Mapping>
+  <Mapping From="Koikano/main_eye">
+    <Rule Name="xukmi/EyePlus" />
+  </Mapping>
+  <Mapping From="Shader Forge/toon_eyew_lod0">
+    <Rule Name="xukmi/EyeWPlus" />
+  </Mapping>
+  <Mapping From="Koikano/main_eyew">
+    <Rule Name="xukmi/EyeWPlus" />
+  </Mapping>
+  <Mapping From="Shader Forge/main_opaque">
+    <Rule Name="xukmi/MainOpaquePlusTess" />
+  </Mapping>
+  <Mapping From="Shader Forge/main_opaque2">
+    <Rule Name="xukmi/MainOpaquePlusTess" />
+  </Mapping>
+  <Mapping From="Koikano/main_clothes_opaque">
+    <Rule Name="xukmi/MainOpaquePlusTess" />
+  </Mapping>
+  <Mapping From="Shader Forge/main_alpha">
+    <Rule Name="xukmi/MainAlphaPlusTess" />
+  </Mapping>
+  <Mapping From="Koikano/main_clothes_alpha">
+    <Rule Name="xukmi/MainAlphaPlusTess" />
+  </Mapping>
+  <Mapping From="Shader Forge/main_item">
+    <Rule Name="xukmi/MainItemPlus" />
+  </Mapping>
+  <Mapping From="Koikano/main_clothes_item">
+    <Rule Name="xukmi/MainItemPlus" />
+  </Mapping>
+  <Mapping From="Shader Forge/main_item_studio">
+    <Rule Name="xukmi/MainOpaquePlusTess" />
+  </Mapping>
+  <Mapping From="Shader Forge/main_item_studio_alpha">
+    <Rule Name="xkumi/MainAlphaPlusTess" />
+  </Mapping>
+  <Mapping From="ShaderForge/main_StandardMDK_studio">
+    <Rule Name="xukmi/MainOpaquePlusTess" />
+  </Mapping>
+  <Mapping From="Standard">
+    <Rule Name="xukmi/MainOpaquePlusTess" />
+  </Mapping>
+</ShaderSwapper>
