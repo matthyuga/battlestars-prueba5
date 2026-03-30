@@ -29,6 +29,16 @@ public static class CompositionRoot
     }
 
     /// <summary>
+    /// Step 7 helper to wire controller + view around an existing orchestrator.
+    /// </summary>
+    public static ExpressionEditorController CreateUiController(
+        ExpressionLayerEditorOrchestrator orchestrator,
+        IExpressionEditorView view)
+    {
+        return new ExpressionEditorController(orchestrator, view);
+    }
+
+    /// <summary>
     /// Step 3 production-ready factory shape.
     /// Provide concrete BepInEx/KKAPI/Timeline adapters from plugin host.
     /// </summary>
@@ -49,5 +59,20 @@ public static class CompositionRoot
             timeline,
             logger,
             resolvedOptions);
+    }
+
+    /// <summary>
+    /// Step 7 full production bundle for host UI wiring.
+    /// </summary>
+    public static (ExpressionLayerEditorOrchestrator orchestrator, ExpressionEditorController controller) CreateProductionUi(
+        ICharacterRuntimeAdapter runtime,
+        ITimelineBridge timeline,
+        ILogger logger,
+        IExpressionEditorView view,
+        PluginOptions? options = null)
+    {
+        var orchestrator = CreateProduction(runtime, timeline, logger, options);
+        var controller = CreateUiController(orchestrator, view);
+        return (orchestrator, controller);
     }
 }
