@@ -1,38 +1,38 @@
-# Expression Layer Editor - Skeleton v0.3 (Paso 2)
+# Expression Layer Editor - Skeleton v0.4 (Paso 3)
 
 Este directorio contiene una base C# orientada a un plugin BepInEx/Koikatsu para edición de expresiones faciales con arquitectura preparada para escalar.
 
-## Qué incluye Paso 2
-- Continúa la arquitectura limpia del Paso 1 (runtime adapter, preset repository, logger, composition root).
-- Añade capacidades de timeline para flujo de animación:
-  - `SetTimelineFrame(int frame)`
-  - `AutoKeyModified(...)`
-  - `ApplySnapshotBlendToRange(TimelineRange, smoothStep)`
-  - `ApplyPresetAcrossRange(preset, TimelineRange, intensity)`
-- Incorpora `InMemoryTimelineBridge` para prototipar keyframes por frame y rangos con interpolación lineal.
+## Qué incluye Paso 3
+- Mantiene todo el Paso 2 (macros, presets, snapshots, timeline por rango).
+- Añade capa de **presentación/controlador** para desacoplar UI del dominio:
+  - `ExpressionEditorController` para callbacks de botones/acciones IMGUI.
+  - `IExpressionEditorView` para mostrar info, warnings, errores y refrescar presets.
+- Añade stubs de integración productiva para host/plugin real:
+  - `BepInExLogger`
+  - `BepInExCharacterRuntimeAdapter`
+  - `TimelinePluginBridge`
+- Añade `CompositionRoot.CreateProduction(...)` para inyectar adapters reales desde el plugin host.
 
 ## Estado actual
-- MVP cubre:
-  - personaje activo,
-  - macros,
-  - presets,
-  - snapshots A/B,
-  - autokey y operaciones por rango temporal.
+- El core ya soporta:
+  - edición por macro,
+  - guardado/carga de presets,
+  - snapshots A/B y blend,
+  - autokey,
+  - operaciones de rango temporal.
+- Paso 3 deja preparada la entrada a plugin real sin acoplar la lógica a IMGUI/BepInEx directamente.
 
 ## Estructura
-- `src/Models.cs`: modelos + `PluginOptions` + `TimelineRange`.
-- `src/Interfaces.cs`: contratos escalables.
-- `src/Services.cs`: servicios base y stubs (`JsonFilePresetRepository`, `InMemoryCharacterRuntimeAdapter`, `InMemoryTimelineBridge`, etc.).
-- `src/ExpressionLayerEditorOrchestrator.cs`: lógica principal de aplicación.
-- `src/CompositionRoot.cs`: bootstrap por defecto.
+- `src/Models.cs`: modelos + `TimelineRange`.
+- `src/Interfaces.cs`: contratos de dominio e interfaz de vista.
+- `src/Services.cs`: servicios y adapters in-memory.
+- `src/ExpressionLayerEditorOrchestrator.cs`: lógica principal.
+- `src/Presentation/ExpressionEditorController.cs`: controlador de UI.
+- `src/Adapters/BepInExAdapterStubs.cs`: stubs de integración real.
+- `src/CompositionRoot.cs`: bootstrap para prototipado y producción.
 
-## Próximo paso recomendado (Paso 3)
-1. Implementar adapters reales:
-   - `BepInExCharacterRuntimeAdapter`
-   - `TimelinePluginBridge`
-   - `BepInExLogger`
-2. Agregar UI IMGUI para:
-   - selector de presets,
-   - snapshot A/B + slider t,
-   - acciones de rango temporal.
-3. Añadir pruebas unitarias para `SnapshotService`, `InMemoryTimelineBridge` y `ExpressionLayerEditorOrchestrator`.
+## Próximo paso sugerido
+1. Crear plugin BepInEx real que llame `CreateProduction(...)`.
+2. Implementar `IExpressionEditorView` con IMGUI.
+3. Reemplazar stubs de `Adapters/` con llamadas reales a KKAPI/Timeline.
+4. Agregar tests unitarios del controlador y orquestador.

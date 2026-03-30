@@ -3,9 +3,7 @@ namespace ExpressionLayerEditorSkeleton;
 public static class CompositionRoot
 {
     /// <summary>
-    /// Step 2 clean bootstrap.
-    /// - InMemoryTimelineBridge now enabled for range/keyframe prototyping.
-    /// - Replace with BepInEx/KKAPI/Timeline implementations in production.
+    /// Step 2/3 clean bootstrap for local prototyping.
     /// </summary>
     public static ExpressionLayerEditorOrchestrator CreateDefault(PluginOptions? options = null)
     {
@@ -25,6 +23,29 @@ public static class CompositionRoot
             constraints,
             presets,
             snapshots,
+            timeline,
+            logger,
+            resolvedOptions);
+    }
+
+    /// <summary>
+    /// Step 3 production-ready factory shape.
+    /// Provide concrete BepInEx/KKAPI/Timeline adapters from plugin host.
+    /// </summary>
+    public static ExpressionLayerEditorOrchestrator CreateProduction(
+        ICharacterRuntimeAdapter runtime,
+        ITimelineBridge timeline,
+        ILogger logger,
+        PluginOptions? options = null)
+    {
+        var resolvedOptions = options ?? new PluginOptions();
+
+        return new ExpressionLayerEditorOrchestrator(
+            runtime,
+            new ExpressionComposer(),
+            new ConstraintEngine(),
+            new JsonFilePresetRepository(resolvedOptions.PresetDirectory),
+            new SnapshotService(),
             timeline,
             logger,
             resolvedOptions);

@@ -50,3 +50,11 @@ public interface ITimelineBridge
     void SetKey(string paramKey, float value, int frame);
     void SetKeysForRange(Dictionary<string, float> fromValues, Dictionary<string, float> toValues, int frameStart, int frameEnd);
 }
+
+public interface IExpressionEditorView
+{
+    void ShowInfo(string message);
+    void ShowWarning(string message);
+    void ShowError(string message);
+    void RefreshPresetList(IReadOnlyCollection<string> presetNames);
+}
