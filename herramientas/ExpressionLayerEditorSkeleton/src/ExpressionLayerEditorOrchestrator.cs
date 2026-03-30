@@ -54,8 +54,39 @@ public sealed class ExpressionLayerEditorOrchestrator
     public CharacterContext GetActiveCharacter() => _runtime.GetActiveCharacter();
 
     public IReadOnlyCollection<string> ListPresets() => _presetRepository.ListPresetNames();
+    public IReadOnlyCollection<string> GetMacroNames() => _macros.Keys.ToArray();
+    public ExpressionState GetCurrentState()
+    {
+        var ctx = _runtime.GetActiveCharacter();
+        EnsureValidCharacter(ctx);
+        return _runtime.ReadCurrentState(ctx);
+    }
+
+    public bool PresetExists(string presetName) => _presetRepository.Exists(presetName);
+    public void DeletePreset(string presetName) => _presetRepository.Delete(presetName);
+    public void DuplicatePreset(string sourcePresetName, string targetPresetName, bool overwrite = false)
+    {
+        var preset = _presetRepository.Load(sourcePresetName);
+        preset.Name = targetPresetName;
+
+        if (_presetRepository.Exists(targetPresetName) && !overwrite)
+            throw new InvalidOperationException($"Preset '{targetPresetName}' already exists.");
+
+        if (overwrite && _presetRepository.Exists(targetPresetName))
+            _presetRepository.Delete(targetPresetName);
+
+        _presetRepository.Save(preset);
+    }
 
     public void SetTimelineFrame(int frame) => _timelineBridge.SetCurrentFrame(frame);
+
+    public IReadOnlyCollection<BlendshapeParam> GetParametersForLayer(FaceLayer layer)
+    {
+        var ctx = _runtime.GetActiveCharacter();
+        EnsureValidCharacter(ctx);
+        var all = _runtime.GetBlendshapeRegistry(ctx);
+        return all.Where(x => x.Layer == layer).ToArray();
+    }
 
     public void ApplyMacro(string macroName, float intensity, float? globalIntensityOverride = null)
     {
@@ -146,6 +177,64 @@ public sealed class ExpressionLayerEditorOrchestrator
 
         var blended = _snapshotService.Interpolate(t, smoothStep);
         var fixedState = ApplyConstraintsIfNeeded(blended);
+        _runtime.ApplyState(ctx, fixedState);
+        _lastApplied = fixedState.Clone();
+    }
+
+    public void ApplyLayerValues(FaceLayer layer, IReadOnlyDictionary<string, float> values, float intensity = 1f)
+    {
+        var ctx = _runtime.GetActiveCharacter();
+        EnsureValidCharacter(ctx);
+
+        var current = _runtime.ReadCurrentState(ctx);
+        var registry = _runtime.GetBlendshapeRegistry(ctx).Where(x => x.Layer == layer).ToArray();
+        var validKeys = registry.Select(x => x.Key).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var kv in values)
+        {
+            if (!validKeys.Contains(kv.Key))
+                continue;
+
+            current.Values[kv.Key] = kv.Value * intensity;
+        }
+
+        var fixedState = ApplyConstraintsIfNeeded(current);
+        _runtime.ApplyState(ctx, fixedState);
+        _lastApplied = fixedState.Clone();
+    }
+
+    public void ResetLayer(FaceLayer layer)
+    {
+        var ctx = _runtime.GetActiveCharacter();
+        EnsureValidCharacter(ctx);
+
+        var current = _runtime.ReadCurrentState(ctx);
+        var keys = _runtime
+            .GetBlendshapeRegistry(ctx)
+            .Where(x => x.Layer == layer)
+            .Select(x => x.Key)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        foreach (var key in keys)
+            current.Values[key] = 0f;
+
+        var fixedState = ApplyConstraintsIfNeeded(current);
+        _runtime.ApplyState(ctx, fixedState);
+        _lastApplied = fixedState.Clone();
+    }
+
+    public void ResetAll()
+    {
+        var ctx = _runtime.GetActiveCharacter();
+        EnsureValidCharacter(ctx);
+
+        var current = _runtime.ReadCurrentState(ctx);
+        var keys = current.Values.Keys.ToArray();
+        foreach (var key in keys)
+            current.Values[key] = 0f;
+
+        var fixedState = ApplyConstraintsIfNeeded(current);
         _runtime.ApplyState(ctx, fixedState);
         _lastApplied = fixedState.Clone();
     }
