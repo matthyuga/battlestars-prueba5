@@ -1,38 +1,64 @@
-# Expression Layer Editor - Skeleton v0.4 (Paso 3)
+# Expression Layer Editor - Skeleton v0.5 (Commit 8)
 
-Este directorio contiene una base C# orientada a un plugin BepInEx/Koikatsu para edición de expresiones faciales con arquitectura preparada para escalar.
+Este módulo es una base C# para construir un editor de expresiones faciales de Koikatsu con separación limpia de capas:
+- Dominio/orquestación
+- Presentación/controlador
+- Adapters de host (BepInEx/KKAPI/Timeline)
 
-## Qué incluye Paso 3
-- Mantiene todo el Paso 2 (macros, presets, snapshots, timeline por rango).
-- Añade capa de **presentación/controlador** para desacoplar UI del dominio:
-  - `ExpressionEditorController` para callbacks de botones/acciones IMGUI.
-  - `IExpressionEditorView` para mostrar info, warnings, errores y refrescar presets.
-- Añade stubs de integración productiva para host/plugin real:
-  - `BepInExLogger`
+## Estado actual de implementación
+### ✅ Listo
+- Core de expresión: macros, presets, snapshots, blend y constraints.
+- Operaciones por capa facial (consultar parámetros, aplicar valores, reset por capa/global).
+- Repositorio de presets con operaciones CRUD básicas (`save/load/list/exists/delete/rename`).
+- Controller UI-first (`ExpressionEditorController`) con handlers para flujo de edición.
+- View host-agnostic (`ExpressionEditorWindow`) para adaptarse a IMGUI.
+- CompositionRoot con factories para:
+  - prototipo in-memory,
+  - producción,
+  - producción + UI.
+
+### 🚧 Pendiente (para plugin real)
+- Implementar adapters reales:
   - `BepInExCharacterRuntimeAdapter`
   - `TimelinePluginBridge`
-- Añade `CompositionRoot.CreateProduction(...)` para inyectar adapters reales desde el plugin host.
+  - `BepInExLogger`
+- Sustituir el render textual de `ExpressionEditorWindow.Draw()` por IMGUI real en host.
+- Añadir tests unitarios automáticos.
 
-## Estado actual
-- El core ya soporta:
-  - edición por macro,
-  - guardado/carga de presets,
-  - snapshots A/B y blend,
-  - autokey,
-  - operaciones de rango temporal.
-- Paso 3 deja preparada la entrada a plugin real sin acoplar la lógica a IMGUI/BepInEx directamente.
+## Flujo de uso recomendado (actual)
+1. Inicializar controller/window:
+   - `CreateProductionUi(...)` (host real) o
+   - `CreateDefault(...)` + `CreateUiController(...)` (prototipo).
+2. Llamar `OnInitialize()` desde UI.
+3. Refrescar presets/macros/capas según interacción.
+4. Aplicar macro/preset/snapshot blend desde handlers del controller.
+5. Guardar preset y validar warnings de constraints.
 
-## Estructura
-- `src/Models.cs`: modelos + `TimelineRange`.
-- `src/Interfaces.cs`: contratos de dominio e interfaz de vista.
-- `src/Services.cs`: servicios y adapters in-memory.
-- `src/ExpressionLayerEditorOrchestrator.cs`: lógica principal.
-- `src/Presentation/ExpressionEditorController.cs`: controlador de UI.
-- `src/Adapters/BepInExAdapterStubs.cs`: stubs de integración real.
-- `src/CompositionRoot.cs`: bootstrap para prototipado y producción.
+## Checklist manual de QA (smoke)
+Usar este checklist para validar comportamiento base después de cambios:
 
-## Próximo paso sugerido
-1. Crear plugin BepInEx real que llame `CreateProduction(...)`.
-2. Implementar `IExpressionEditorView` con IMGUI.
-3. Reemplazar stubs de `Adapters/` con llamadas reales a KKAPI/Timeline.
-4. Agregar tests unitarios del controlador y orquestador.
+1. **Carga inicial**
+   - [ ] `OnInitialize()` no arroja error.
+   - [ ] Personaje activo visible en la vista.
+2. **Presets**
+   - [ ] Guardar preset nuevo funciona.
+   - [ ] Cargar preset aplica cambios.
+   - [ ] Duplicar preset funciona con/ sin overwrite.
+   - [ ] Eliminar preset lo quita del listado.
+3. **Expresión**
+   - [ ] Aplicar macro modifica estado.
+   - [ ] `OnApplyLayerValues` modifica solo la capa objetivo.
+   - [ ] `OnResetVisibleLayer` resetea la capa.
+   - [ ] `OnResetAllFace` resetea todo.
+4. **Snapshots**
+   - [ ] Capturar A/B funciona.
+   - [ ] Slider de blend aplica transición sin error.
+5. **UX/diagnóstico**
+   - [ ] Busy state activa/desactiva en acciones.
+   - [ ] Warnings y errores llegan a vista.
+
+## Prioridad de roadmap
+1. UI amigable + capa de expresiones (prioridad máxima).
+2. Integración host real de runtime facial.
+3. Integración timeline avanzada (después).
+4. Pruebas automáticas.
