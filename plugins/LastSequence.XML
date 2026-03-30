@@ -1,0 +1,1474 @@
+<root>
+<interpolableGroup name = "New Sequence" >
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_body/o_body_a/o_Mask(Clone)" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_Mask(Clone)" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1.04" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1.05" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot60/N_move/cf_hair_base_b" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_base_b" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1.03" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1.04" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot53/N_move/part" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "part" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1.02" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1.03" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_shoes_outer/cf_shoes_army_boots_0heels_03e" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_shoes_army_boots_0heels_03e" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1.01" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1.02" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_shoes_inner/cf_o_root/clothes_00/n_shoes/N_shoes_armyboots/cf_shoes_army_boots" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_shoes_army_boots" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1.01" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_socks/cf_o_root/clothes_00/n_socks/N_socks_kyuudou/cf_o_shoes_kyuudou_tabi" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_o_shoes_kyuudou_tabi" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.99" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="1" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_bra/cf_o_root/bodytights/n_top_b/o_bra_b" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_bra_b" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.98" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.99" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_bra/cf_o_root/bodytights/n_top_a/o_bra_a" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_bra_a" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.97" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.98" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_bra/cf_o_root/bodytights/n_bot_b/o_body_allbodytights_bot_b" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_body_allbodytights_bot_b" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.96" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.97" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_bra/cf_o_root/bodytights/n_bot_a/o_body_allbodytights_bot_a" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_body_allbodytights_bot_a" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.95" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.96" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_clothesBot/cf_o_root/clothes_00/top_normal/n_bot_kyuudou/n_bot_b/cf_o_bot_kyuudou_n_00" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_o_bot_kyuudou_n_00" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.9400001" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.95" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_clothesBot/cf_o_root/clothes_00/top_normal/n_bot_kyuudou/n_bot_a/cf_o_bot_kyuudou_d_00" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_o_bot_kyuudou_d_00" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.9300001" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.9400001" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_clothesTop/cf_o_root/bodytights/n_top_b/o_bra_b" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_bra_b" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.9200001" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.9300001" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_clothesTop/cf_o_root/bodytights/n_top_a/o_bra_a" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_bra_a" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.9100001" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.9200001" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_clothesTop/cf_o_root/bodytights/n_bot_b/o_body_allbodytights_bot_b" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_body_allbodytights_bot_b" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.9000001" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.9100001" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/ct_clothesTop/cf_o_root/bodytights/n_bot_a/o_body_allbodytights_bot_a" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_body_allbodytights_bot_a" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8900001" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.9000001" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_silhouetteTop/n_tang_silhouette" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "n_tang_silhouette" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8800001" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8900001" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_silhouetteTop/n_body_silhouette" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "n_body_silhouette" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8700001" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8800001" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_tang/o_tang" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_tang" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8600001" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8700001" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_body/o_body_a/o_shadowcaster" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_shadowcaster" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8500001" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8600001" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_body/o_body_a/n_mnpb/o_mnpb" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_mnpb" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8400002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8500001" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_body/o_body_a/n_mnpb/o_mnpa" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_mnpa" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8300002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8400002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_body/o_body_a" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_body_a" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8200002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8300002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_body/n_dankon/o_dan_f" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_dan_f" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8100002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8200002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_body/n_dankon/o_dankon/o_gomu" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_gomu" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8000002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8100002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_00/cf_o_root/n_body/n_dankon/o_dankon" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_dankon" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7900002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.8000002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_tang2/n_tang_silhouette" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "n_tang_silhouette" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7800002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7900002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_tang2/n_tang" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "n_tang" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7700002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7800002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/o_tang" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "o_tang" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7600002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7700002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_special/cf_O_gag_eye_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_gag_eye_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7500002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7600002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_special/cf_O_gag_eye_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_gag_eye_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7400002" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7500002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_special/cf_O_gag_eye_00" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_gag_eye_00" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7300003" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7400002" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_eyebase/n_hitomi/cf_Ohitomi_R02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_Ohitomi_R02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7200003" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7300003" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_eyebase/n_hitomi/cf_Ohitomi_L02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_Ohitomi_L02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7100003" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7200003" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_eyebase/cf_Ohitomi_R" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_Ohitomi_R" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7000003" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7100003" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_eyebase/cf_Ohitomi_L" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_Ohitomi_L" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6900003" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.7000003" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_eyebase/cf_O_namida_S" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_namida_S" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6800003" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6900003" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_eyebase/cf_O_namida_M" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_namida_M" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6700003" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6800003" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_eyebase/cf_O_namida_L" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_namida_L" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6600003" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6700003" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_eyebase/cf_O_eyeline_low" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_eyeline_low" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6500003" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6600003" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/n_eyebase/cf_O_eyeline" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_eyeline" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6400003" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6500003" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/cf_O_tooth" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_tooth" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6300004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6400003" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/cf_O_noseline" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_noseline" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6200004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6300004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/cf_O_mayuge" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_mayuge" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6100004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6200004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/cf_O_face" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_face" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6000004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6100004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/ct_head/N_tonn_face/N_cf_haed/cf_O_canine" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_O_canine" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5900004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.6000004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot63/N_hairfront111/cf_hair_f_111_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_111_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5800004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5900004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot62/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5700004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5800004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot61/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5600004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5700004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot59/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5500004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5600004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot58/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5400004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5500004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot57/N_hairext59/cf_hair_ext_59_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_ext_59_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5300004" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5400004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot56/N_hairext59/cf_hair_ext_59_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_ext_59_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5200005" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5300004" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot55/N_hairext59/cf_hair_ext_59_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_ext_59_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5100005" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5200005" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot54/N_hairext53/cf_hair_ext_53_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_ext_53_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5000005" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5100005" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot52/N_hairext40/cf_hair_b_15_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_15_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4900005" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.5000005" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot51/N_hairext40/cf_hair_b_15_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_15_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4800005" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4900005" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot50/N_hairext40/cf_hair_b_40_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_40_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4700005" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4800005" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot49/N_hairext41/cf_hair_b_41_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_41_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4600005" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4700005" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot32/N_hairback108/cf_hair_b_108_04" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_108_04" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4500005" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4600005" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot32/N_hairback108/cf_hair_b_108_03" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_108_03" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4400005" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4500005" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot32/N_hairback108/cf_hair_b_108_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_108_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4300005" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4400005" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot32/N_hairback108/cf_hair_b_108_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_108_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4200006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4300005" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot32/N_hairback108/cf_hair_b_108_00" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_108_00" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4100006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4200006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot31/N_hairfront111/cf_hair_f_111_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_111_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4000006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4100006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot30/N_hairfront111/cf_hair_f_111_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_111_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3900006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.4000006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot29/N_hairfront111/cf_hair_f_111_04" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_111_04" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3800006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3900006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot28/N_hairfront113/cf_hair_f_113_04" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_113_04" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3700006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3800006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot27/N_hairfront113/cf_hair_f_113_03" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_113_03" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3600006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3700006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot25/N_hairfront111/cf_hair_f_111_03" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_111_03" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3500006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3600006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot24/N_hairfront113/cf_hair_f_113_03" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_113_03" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3400006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3500006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot23/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3300006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3400006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot22/N_hairfront111/cf_hair_f_111_03" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_111_03" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3200006" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3300006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot21/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3100007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3200006" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot20/N_hairfront111/cf_hair_f_111_04" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_111_04" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3000007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3100007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot19/N_hairfront106/cf_hair_f_106_03" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_106_03" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2900007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.3000007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot18/N_hairfront34/cf_hair_f_34_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_34_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2800007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2900007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot17/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2700007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2800007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot16/N_hairfront31/cf_hair_f_31_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_31_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2600007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2700007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot15/N_hairfront31/cf_hair_f_31_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_31_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2500007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2600007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot14/N_hairfront31/cf_hair_f_31_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_31_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2400007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2500007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot13/N_hairfront111/cf_hair_f_111_03" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_111_03" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2300007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2400007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot12/N_hairfront31/cf_hair_f_31_05" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_31_05" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2200007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2300007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_12" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_12" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2100007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2200007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_11" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_11" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2000007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2100007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_10" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_10" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1900007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.2000007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_09" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_09" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1800007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1900007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_08" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_08" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1700007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1800007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_07" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_07" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1600007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1700007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_06" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_06" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1500007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1600007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_05" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_05" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1400007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1500007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_04" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_04" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1300007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1400007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_03" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_03" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1200007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1300007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1100007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1200007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot11/N_hairback02/cf_hair_b_02_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_b_02_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1000007" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1100007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot10/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.09000066" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.1000007" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot09/N_hairfront32/cf_hair_f_32_01" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_32_01" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.08000066" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.09000066" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot08/N_hairfront31/cf_hair_f_31_04" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_31_04" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.07000066" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.08000066" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot07/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.06000067" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.07000066" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot06/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.05000067" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.06000067" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot05/N_hairfront34/cf_hair_f_34_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_34_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.04000067" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.05000067" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot04/N_hairfront34/cf_hair_f_34_05" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_34_05" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.03000067" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.04000067" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot03/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.02000067" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.03000067" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot02/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.01000067" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.02000067" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+<interpolable enabled="true" owner="RendererEditor" objectIndex="0" id="targetEnabled"  parameterPath = "BodyTop/p_cf_body_bone/cf_j_root/cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03/cf_j_neck/cf_j_head/cf_s_head/p_cf_head_bone/cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/a_n_headside/ca_slot01/N_hairfront116/cf_hair_f_116_02" parameterType = "0" bgColorR = "1" bgColorG = "0.3" bgColorB = "0.3" alias = "cf_hair_f_116_02" >
+<keyframe time="0" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="6.705523E-07" value="true">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+<keyframe time="0.01000067" value="false">
+<curveKeyframe time="0" value="0" inTangent="0" outTangent="1"/>
+<curveKeyframe time="1" value="1" inTangent="1" outTangent="0"/>
+</keyframe>
+</interpolable>
+</interpolableGroup>
+</root>
