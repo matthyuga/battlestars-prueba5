@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>KK_OverlayMods</name>
+    </assembly>
+    <members>
+        <member name="M:KoiClothesOverlayX.KoiClothesOverlayController.Hooks.CopyClothesPostfix(TMPro.TMP_Dropdown[],UnityEngine.UI.Toggle[],UnityEngine.UI.Toggle[])">
+            <summary>
+            Handle copying clothes between coordinates
+            </summary>
+        </member>
+        <member name="T:KoiClothesOverlayX.ClothesTexData">
+            <summary>
+            A clothes overlay texture holder.
+            </summary>
+        </member>
+        <member name="T:KoiSkinOverlayX.AdditionalTexture">
+            <summary>
+            An overlay texture that can be added to the overlay stack. 
+            Add to <see cref="P:KoiSkinOverlayX.KoiSkinOverlayController.AdditionalTextures"/> after each character reload.
+            Make sure to check if your texture doesn't already exist before adding!
+            </summary>
+        </member>
+        <member name="M:KoiSkinOverlayX.AdditionalTexture.#ctor(UnityEngine.Texture2D,KoiSkinOverlayX.TexType,System.Object)">
+            <summary>
+            Create a new additional overlay texture.
+            </summary>
+            <param name="texture">Overlay texture</param>
+            <param name="overlayType">What part to apply the overlay to</param>
+            <param name="tag">Tag for self use</param>
+        </member>
+        <member name="M:KoiSkinOverlayX.AdditionalTexture.#ctor(UnityEngine.Texture2D,KoiSkinOverlayX.TexType,System.Object,System.Int32)">
+            <summary>
+            Create a new additional overlay texture.
+            </summary>
+            <param name="texture">Overlay texture</param>
+            <param name="overlayType">What part to apply the overlay to</param>
+            <param name="tag">Tag for self use</param>
+            <param name="applyOrder">Order in which the overlay isapplied relative to other additional overlay textures. Lower number is applied earlier. Default is 0.</param>
+        </member>
+        <member name="P:KoiSkinOverlayX.KoiSkinOverlayController.AdditionalTextures">
+            <summary>
+            Additional overlays to be applied over the KSOX overlay (if any).
+            Drawn bottom to top based on the <exception cref="P:KoiSkinOverlayX.AdditionalTexture.ApplyOrder"></exception> property.
+            Use <code>UpdateTexture</code> to apply any changes done here.
+            </summary>
+        </member>
+        <member name="M:KoiSkinOverlayX.KoiSkinOverlayController.TryImportCOBOC">
+            <summary>
+            Attempt to import old KK_CharaOverlaysBasedOnCoordinate data.
+            Based on code from https://github.com/jim60105/KK/blob/99dd9a055679cea8bf2c7d85a357ca53c4233636/KK_CharaOverlaysBasedOnCoordinate/KK_CharaOverlaysBasedOnCoordinate.cs
+            </summary>
+        </member>
+        <member name="M:KoiSkinOverlayX.KoiSkinOverlayController.WhatTexturesNeedUpdating">
+            <summary>
+            For use with UpdateTexture, returns the most restrictive (fastest) update type that will cover all overlays
+            </summary>
+        </member>
+        <member name="F:KoiSkinOverlayX.TexType.EyeUnder">
+            <summary>
+            Same as using both EyeUnderL and EyeUnderR
+            </summary>
+        </member>
+        <member name="F:KoiSkinOverlayX.TexType.EyeOver">
+            <summary>
+            Same as using both EyeOverL and EyeOverR
+            </summary>
+        </member>
+        <member name="F:KoiSkinOverlayX.TexType.EyebrowUnder">
+            <summary>
+            There's no EyebrowOver because it's effectively the same as FaceOver
+            </summary>
+        </member>
+        <member name="F:KoiSkinOverlayX.TexType.EyelineUnder">
+            <summary>
+            There's no up/down separation because it's effectively the same texture in KK. Also, there is no up/down separation in HS2 at all.
+            </summary>
+        </member>
+        <member name="M:KoiSkinOverlayX.Util.OpenFileInExplorer(System.String)">
+            <summary>
+            Open explorer focused on the specified file or directory
+            </summary>
+        </member>
+        <member name="M:KoiSkinOverlayX.Util.NativeMethods.OpenFolderAndSelectFile(System.String)">
+            <summary>
+            Open explorer focused on item. Reuses already opened explorer windows unlike Process.Start
+            </summary>
+        </member>
+    </members>
+</doc>
