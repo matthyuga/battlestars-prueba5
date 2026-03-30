@@ -1,0 +1,164 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+
+namespace ExpressionLayerEditorSkeleton;
+
+public sealed class ExpressionComposer : IExpressionComposer
+{
+    public ExpressionState Compose(ExpressionState baseState, ExpressionState layerState, float layerIntensity, float globalIntensity)
+    {
+        var output = baseState.Clone();
+        output.GlobalIntensity = globalIntensity;
+
+        foreach (var kv in layerState.Values)
+        {
+            var baseValue = output.Values.TryGetValue(kv.Key, out var b) ? b : 0f;
+            var result = baseValue + (kv.Value * layerIntensity * globalIntensity);
+            output.Values[kv.Key] = result;
+        }
+
+        return output;
+    }
+}
+
+public sealed class ConstraintEngine : IConstraintEngine
+{
+    private readonly List<string> _warnings = new();
+
+    public ExpressionState ValidateAndFix(ExpressionState state, IEnumerable<BlendshapeConstraint> constraints)
+    {
+        _warnings.Clear();
+        var fixedState = state.Clone();
+
+        foreach (var c in constraints)
+        {
+            if (!fixedState.Values.TryGetValue(c.Key, out var value))
+                continue;
+
+            var clamped = Math.Clamp(value, c.Min, c.Max);
+            if (Math.Abs(clamped - value) > 0.0001f)
+            {
+                fixedState.Values[c.Key] = clamped;
+                _warnings.Add($"Clamped '{c.Key}' from {value:F3} to {clamped:F3}.");
+            }
+        }
+
+        return fixedState;
+    }
+
+    public IReadOnlyList<string> GetWarnings() => _warnings;
+}
+
+public sealed class JsonPresetService : IPresetService
+{
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true
+    };
+
+    public void SavePreset(string path, ExpressionPreset preset)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(path) ?? ".");
+        var json = JsonSerializer.Serialize(preset, JsonOptions);
+        File.WriteAllText(path, json);
+    }
+
+    public ExpressionPreset LoadPreset(string path)
+    {
+        var json = File.ReadAllText(path);
+        return JsonSerializer.Deserialize<ExpressionPreset>(json, JsonOptions)
+               ?? throw new InvalidDataException($"Preset at '{path}' is invalid.");
+    }
+}
+
+public sealed class SnapshotService : ISnapshotService
+{
+    private ExpressionState? _a;
+    private ExpressionState? _b;
+
+    public void SaveA(ExpressionState state) => _a = state.Clone();
+    public void SaveB(ExpressionState state) => _b = state.Clone();
+
+    public ExpressionState Interpolate(float t, bool smoothStep = false)
+    {
+        if (_a is null || _b is null)
+            throw new InvalidOperationException("Snapshots A and B must be initialized.");
+
+        var normalizedT = Math.Clamp(t, 0f, 1f);
+        if (smoothStep)
+            normalizedT = normalizedT * normalizedT * (3f - (2f * normalizedT));
+
+        var result = new ExpressionState
+        {
+            CharacterId = _a.CharacterId,
+            GlobalIntensity = Lerp(_a.GlobalIntensity, _b.GlobalIntensity, normalizedT)
+        };
+
+        var keys = _a.Values.Keys.Union(_b.Values.Keys, StringComparer.OrdinalIgnoreCase);
+        foreach (var key in keys)
+        {
+            var av = _a.Values.TryGetValue(key, out var aVal) ? aVal : 0f;
+            var bv = _b.Values.TryGetValue(key, out var bVal) ? bVal : 0f;
+            result.Values[key] = Lerp(av, bv, normalizedT);
+        }
+
+        return result;
+    }
+
+    private static float Lerp(float a, float b, float t) => a + ((b - a) * t);
+}
+
+public sealed class NullTimelineBridge : ITimelineBridge
+{
+    public bool IsAvailable => false;
+
+    public int GetCurrentFrame() => 0;
+
+    public void SetKey(string paramKey, float value, int frame)
+    {
+        // Stub: in real implementation this should call Timeline API.
+    }
+
+    public void SetKeysForRange(Dictionary<string, float> fromValues, Dictionary<string, float> toValues, int frameStart, int frameEnd)
+    {
+        // Stub: in real implementation this should write interpolated keyframes to Timeline.
+    }
+}
+
+public sealed class InMemoryCharacterContextService : ICharacterContextService
+{
+    private readonly CharacterContext _ctx = new()
+    {
+        CharacterId = "demo-char",
+        CharacterName = "Demo Character"
+    };
+
+    private readonly List<BlendshapeParam> _registry = new()
+    {
+        new BlendshapeParam { Key = "eye_face.f00_def_cl", Layer = FaceLayer.Eyes, Min = -1f, Max = 1f },
+        new BlendshapeParam { Key = "eye_face.f00_egao_op", Layer = FaceLayer.Eyes, Min = -1f, Max = 1f },
+        new BlendshapeParam { Key = "kuti_face.f00_doki_ss_op", Layer = FaceLayer.Mouth, Min = -1f, Max = 1f },
+        new BlendshapeParam { Key = "kuti_face.f00_ikari_cl", Layer = FaceLayer.Mouth, Min = -1f, Max = 1f }
+    };
+
+    private readonly ExpressionState _state = new()
+    {
+        CharacterId = "demo-char"
+    };
+
+    public CharacterContext GetActiveCharacter() => _ctx;
+
+    public IReadOnlyCollection<BlendshapeParam> GetBlendshapeRegistry(CharacterContext context) => _registry;
+
+    public ExpressionState ReadCurrentState(CharacterContext context) => _state.Clone();
+
+    public void ApplyState(CharacterContext context, ExpressionState state)
+    {
+        _state.CharacterId = state.CharacterId;
+        _state.GlobalIntensity = state.GlobalIntensity;
+        _state.Values = new Dictionary<string, float>(state.Values, StringComparer.OrdinalIgnoreCase);
+    }
+}
