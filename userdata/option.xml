@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Option>
+  <Option>
+    <cameraSpeedX>1</cameraSpeedX>
+    <cameraSpeedY>1</cameraSpeedY>
+    <cameraSpeed>1</cameraSpeed>
+    <manipulateSize>0.1668103</manipulateSize>
+    <manipuleteSpeed>1</manipuleteSpeed>
+    <initialPosition>0</initialPosition>
+    <selectedState>0</selectedState>
+    <autoHide>True</autoHide>
+    <autoSelect>True</autoSelect>
+    <snap>0</snap>
+    <colorFKHair>1,1,1,1</colorFKHair>
+    <colorFKNeck>1,1,1,1</colorFKNeck>
+    <colorFKBreast>1,1,1,1</colorFKBreast>
+    <colorFKBody>1,1,1,1</colorFKBody>
+    <colorFKRightHand>1,1,1,1</colorFKRightHand>
+    <colorFKLeftHand>1,1,1,1</colorFKLeftHand>
+    <colorFKSkirt>1,1,1,1</colorFKSkirt>
+    <lineFK>True</lineFK>
+    <colorFKItem>1,1,1,1</colorFKItem>
+    <_logo>0</_logo>
+    <_routeLineWidth>1</_routeLineWidth>
+    <routePointLimit>True</routePointLimit>
+    <startupLoad>False</startupLoad>
+  </Option>
+</Option>
