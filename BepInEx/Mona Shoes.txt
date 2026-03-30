@@ -1,3 +1,3 @@
-angleAnkle=0
-angleLeg=0
-height=0
+angleAnkle=15
+angleLeg=4
+height=0.032
