@@ -1,0 +1,6 @@
+r:Stand|stand=1,1,1,1,0
+
+/=0,0,0,0,0
+-- NONE --/-- NONE --=0,0,0,0,0
+
+custom_pose/Stand_D_00=1,1,1,1,0,0
