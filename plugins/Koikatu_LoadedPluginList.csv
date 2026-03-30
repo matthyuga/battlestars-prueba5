@@ -1,0 +1,202 @@
+GUID, Name, Version, Location
+aa2g.kant.rim.remover, Rim Remover, 1.2, BepInEx\plugins\KK_RimRemover.dll
+com.bepis.bepinex.extendedsave, Extended Save, 21.0, BepInEx\plugins\KK_BepisPlugins\ExtensibleSaveFormat.dll
+gravydevsupreme.xunity.resourceredirector, XUnity Resource Redirector, 2.1.0, BepInEx\plugins\XUnity.ResourceRedirector\XUnity.ResourceRedirector.BepInEx.dll
+com.bepis.bepinex.sideloader, Sideloader, 21.0, BepInEx\plugins\KK_BepisPlugins\Sideloader.dll
+com.joan6694.illusionplugins.moreaccessories, MoreAccessories, 2.0.21.1, BepInEx\plugins\MoreAccessories.dll
+marco.kkapi, Modding API, 1.42.2, BepInEx\plugins\KKAPI.dll
+Accessory_Parents, Accessory Parents, 1.6, BepInEx\plugins\KK_Accessory_Parents.dll
+Accessory_Shortcuts, Accessory Shortcuts, 1.6, BepInEx\plugins\KK_Accessory_Shortcuts.dll
+Accessory_States, Accessory States, 1.6, BepInEx\plugins\KK_Accessory_States.dll
+Additional_Card_Info, Additional Card Info, 1.5, BepInEx\plugins\KK_Additional_Card_Info.dll
+Accessory_Themes, Accessory Themes, 1.6, BepInEx\plugins\KK_Accessory_Themes.dll
+KSOX, Skin Overlay Mod, 7.0.2, BepInEx\plugins\OverlayMods\KK_OverlayMods.dll
+com.bepis.bepinex.configurationmanager, Configuration Manager, 18.4.1, BepInEx\plugins\ConfigurationManager\ConfigurationManager.dll
+com.deathweasel.bepinex.uncensorselector, Uncensor Selector, 3.12.3, BepInEx\plugins\KK_Plugins\KK_UncensorSelector.dll
+com.rclcircuit.bepinex.modboneimplantor, Mod Bone Implantor, 1.1.2, BepInEx\plugins\ModBoneImplantor.dll
+animal42069.KKbetterpenetration, KK Better Penetration, 4.5.5.2, BepInEx\plugins\KK_BetterPenetration.dll
+Autostart, Autostart, 1.0.0, BepInEx\plugins\KK_Autostart.dll
+BepInEx.EnableFullScreenToggle, Enable Full Screen Toggle, 1.0, BepInEx\plugins\BepInEx.EnableFullScreenToggle.dll
+BepInEx.EnableResize, Enable Resize, 3.0, BepInEx\plugins\BepInEx.EnableResize.dll
+BepInEx.InputHotkeyBlock, Input Hotkey Block, 1.4, BepInEx\plugins\BepInEx.InputHotkeyBlock.dll
+BepInEx.MuteInBackground, Mute In Background, 1.1, BepInEx\plugins\BepInEx.MuteInBackground.dll
+BepInEx.OptimizeIMGUI, Optimize IMGUI GC allocations, 1.0, BepInEx\plugins\BepInEx.OptimizeIMGUI.dll
+bero.crossfader, CrossFader, 0.11, BepInEx\plugins\CrossFader.dll
+Boop, Boop, 2.1, BepInEx\plugins\KK_Plugins\KK_Boop.dll
+KKABMX.Core, KKABMX (BonemodX), 5.2.5, BepInEx\plugins\KKABMX.dll
+Bulge, Bulge in the pants, tent in the woods, 1.0.2, BepInEx\plugins\KK_Bulge.dll
+Card_Update_Tool, Card Update Tool, 1.2, BepInEx\plugins\KK_CardUpdateTool.dll
+CatchUnityEventExceptions, Catch Unity Event Exceptions, 1.0, BepInEx\plugins\BepInEx.CatchUnityEventExceptions.dll
+RuntimeUnityEditor, Runtime Unity Editor, 6.1, BepInEx\plugins\RuntimeUnityEditor\RuntimeUnityEditor.Bepin5.dll
+CheatTools, Cheat Tools, 3.6, BepInEx\plugins\KK_CheatTools.dll
+ClothColliders, Cloth colliders support, 1.1, BepInEx\plugins\KK_ClothColliders.dll
+ClothesToAccessories, Clothes To Accessories, 1.1.2, BepInEx\plugins\KK_Plugins\KK_ClothesToAccessories.dll
+ClothingStateMenu, Clothing State Menu, 5.2, BepInEx\plugins\ClothingStateMenu\KK_ClothingStateMenu.dll
+com.bepis.bepinex.colorcorrector, Color Filter Remover, 21.0, BepInEx\plugins\KK_BepisPlugins\ColorCorrector.dll
+com.bepis.bepinex.inputunlocker, Input Length Unlocker, 21.0, BepInEx\plugins\KK_BepisPlugins\InputUnlocker.dll
+com.bepis.bepinex.screenshotmanager, Screenshot Manager, 21.0, BepInEx\plugins\KK_BepisPlugins\Screencap.dll
+com.bepis.bepinex.sliderunlocker, Slider Unlocker, 21.0, BepInEx\plugins\KK_BepisPlugins\SliderUnlocker.dll
+com.bepis.bgmloader, BGM Loader, 21.0, BepInEx\plugins\KK_BepisPlugins\BGMLoader.dll
+com.bepis.messagecenter, Message Center, 1.1.1.1, BepInEx\plugins\BepInEx.MessageCenter.dll
+com.cptgrey.bepinex.uniform, KK Uniform Uniforms, 1.1, BepInEx\plugins\KK_UniformUniforms.dll
+com.deathweasel.bepinex.accessoryclothes, Accessory Clothes, 1.0.2, BepInEx\plugins\KK_Plugins\KK_AccessoryClothes.dll
+com.deathweasel.bepinex.accessoryquickremove, Accessory Quick Remove, 1.0, BepInEx\plugins\KK_Plugins\KK_AccessoryQuickRemove.dll
+com.deathweasel.bepinex.autosave, Autosave, 1.2, BepInEx\plugins\KK_Plugins\KK_Autosave.dll
+com.deathweasel.bepinex.characterexport, Character Export, 1.0, BepInEx\plugins\KK_Plugins\KK_CharacterExport.dll
+com.deathweasel.bepinex.charamakerloadedsound, Character Maker Loaded Sound, 1.0, BepInEx\plugins\KK_Plugins\KK_CharaMakerLoadedSound.dll
+com.deathweasel.bepinex.clothingunlocker, Clothing Unlocker, 2.0.2, BepInEx\plugins\KK_Plugins\KK_ClothingUnlocker.dll
+com.deathweasel.bepinex.colliders, Colliders, 1.3.1, BepInEx\plugins\KK_Plugins\KK_Colliders.dll
+com.deathweasel.bepinex.dynamicboneeditor, Dynamic Bone Editor, 1.0.5, BepInEx\plugins\KK_Plugins\KK_DynamicBoneEditor.dll
+com.deathweasel.bepinex.eyecontrol, Eye Control, 1.0.1, BepInEx\plugins\KK_Plugins\KK_EyeControl.dll
+com.deathweasel.bepinex.eyeshaking, Eye Shaking, 1.3.1, BepInEx\plugins\KK_Plugins\KK_EyeShaking.dll
+com.deathweasel.bepinex.fadeadjuster, Fade Adjuster, 1.0.3, BepInEx\plugins\KK_Plugins\KK_FadeAdjuster.dll
+com.deathweasel.bepinex.forcehighpoly, Force High Poly, 2.1, BepInEx\plugins\KK_Plugins\KK_ForceHighPoly.dll
+com.deathweasel.bepinex.freehrandom, Free H Random, 1.4, BepInEx\plugins\KK_Plugins\KK_FreeHRandom.dll
+com.deathweasel.bepinex.hairaccessorycustomizer, Hair Accessory Customizer, 1.1.7, BepInEx\plugins\KK_Plugins\KK_HairAccessoryCustomizer.dll
+com.deathweasel.bepinex.hcharaadjustment, H Character Adjustment, 2.1, BepInEx\plugins\KK_Plugins\KK_HCharaAdjustment.dll
+com.deathweasel.bepinex.invisiblebody, Invisible Body, 1.4, BepInEx\plugins\KK_Plugins\KK_InvisibleBody.dll
+com.deathweasel.bepinex.itemblacklist, Item Blacklist, 3.0.1, BepInEx\plugins\KK_Plugins\KK_ItemBlacklist.dll
+com.deathweasel.bepinex.lightingtweaks, Lighting Tweaks, 1.1, BepInEx\plugins\KK_Plugins\KK_LightingTweaks.dll
+com.deathweasel.bepinex.listoverride, List Override, 1.0, BepInEx\plugins\KK_Plugins\KK_ListOverride.dll
+com.deathweasel.bepinex.makerdefaults, Maker Defaults, 1.1, BepInEx\plugins\KK_Plugins\KK_MakerDefaults.dll
+com.deathweasel.bepinex.malejuice, Male Juice, 1.3, BepInEx\plugins\KK_Plugins\KK_MaleJuice.dll
+com.deathweasel.bepinex.materialeditor, Material Editor, 3.13.1, BepInEx\plugins\KK_Plugins\KK_MaterialEditor.dll
+com.deathweasel.bepinex.materialeditor.maker, Material Editor Maker, 3.13.1, BepInEx\plugins\KK_Plugins\KK_MaterialEditor.dll
+com.deathweasel.bepinex.moreoutfits, More Outfit Slots, 1.1.3, BepInEx\plugins\KK_Plugins\KK_MoreOutfits.dll
+com.deathweasel.bepinex.profile, Profile, 1.0.3, BepInEx\plugins\KK_Plugins\KK_Profile.dll
+com.deathweasel.bepinex.pushup, Pushup, 1.4.0, BepInEx\plugins\KK_Plugins\KK_Pushup.dll
+com.deathweasel.bepinex.randomcharactergenerator, Random Character Generator, 2.0, BepInEx\plugins\KK_Plugins\KK_RandomCharacterGenerator.dll
+com.deathweasel.bepinex.reloadcharalistonchange, Reload Character List On Change, 1.5.2, BepInEx\plugins\KK_Plugins\KK_ReloadCharaListOnChange.dll
+com.deathweasel.bepinex.shaderswapper, Shader Swapper, 1.7, BepInEx\plugins\KK_Plugins\KK_ShaderSwapper.dll
+com.deathweasel.bepinex.subtitles, Subtitles, 2.3.2, BepInEx\plugins\KK_Plugins\KK_Subtitles.dll
+gravydevsupreme.xunity.autotranslator, XUnity Auto Translator, 5.4.5, BepInEx\plugins\XUnity.AutoTranslator\XUnity.AutoTranslator.Plugin.BepInEx.dll
+com.deathweasel.bepinex.textresourceredirector, Text Resource Redirector, 1.4.4.3, BepInEx\plugins\TranslationTools\KK_TextResourceRedirector.dll
+com.dreamhana.KK_WTFix, KK_WTFix, 1.2.3, BepInEx\plugins\KK_WTFix.dll
+com.essu.stiletto, Stiletto, 2.4.2, BepInEx\plugins\KK_Stiletto.dll
+com.gebo.BepInEx.GeBoAPI, GeBo Modding API, 1.1.2.1, BepInEx\plugins\KK_GeBoCommon.dll
+com.gebo.BepInEx.GameDialogHelper, Game Dialog Helper, 1.0.1.2, BepInEx\plugins\GeBo_Plugins\KK_GameDialogHelper.dll
+com.gebo.BepInEx.GameDressForSuccess, Dress for Success, 1.2.0.2, BepInEx\plugins\GeBo_Plugins\KK_GameDressForSuccess.dll
+com.gebo.bepinex.translationcachecleaner, Translation Cache Cleaner, 0.6.0.2, BepInEx\plugins\GeBo_Plugins\KK_TranslationCacheCleaner.dll
+com.gebo.bepinex.translationhelper, Translation Helper, 1.1.0.9, BepInEx\plugins\KK_TranslationHelper.dll
+com.illusionmods.translationtools.random_name_provider, Random Name Provider, 2.0.1, BepInEx\plugins\TranslationTools\KK_RandomNameProvider.dll
+KCOX, Clothes Overlay Mod, 7.0.2, BepInEx\plugins\OverlayMods\KK_OverlayMods.dll
+com.jim60105.kk.coordinateloadoption, Coordinate Load Option, 21.12.25.1, BepInEx\plugins\KK_CoordinateLoadOption.dll
+com.jim60105.kk.pluginlisttool, Plugin List Tool, 20.8.5.0, BepInEx\plugins\jim60105\KK_PluginListTool.dll
+com.jim60105.kk.studioautocloseloadingscenewindow, Studio Auto Close Loading Scene Window, 20.8.5.0, BepInEx\plugins\jim60105\KK_StudioAutoCloseLoadingSceneWindow.dll
+com.joan6694.illusionplugins.collidersdebug, ColllidersDebug, 1.0.0, BepInEx\plugins\CollidersDebug.dll
+com.joan6694.illusionplugins.kkus, KKUS, 1.15, BepInEx\plugins\KKUS.dll
+com.liquid.shader.wobble, Liquid_shader_wobble, 1.0, BepInEx\plugins\Liquid_shader_wobble.dll
+com.njaecha.MakerAnimatePoseToggle, KK_MakerAnimatePoseToggle, 1.1.0, BepInEx\plugins\KK_MakerAnimatePoseToggle.dll
+com.rikkibalboa.bepinex.kkprimcontroller, KKPRim Controller, 1.8, BepInEx\plugins\KK_KKPRimController.dll
+com.rikkibalboa.bepinex.projectorutils, ProjectorUtils, 1.0, BepInEx\plugins\KK_ProjectorUtils.dll
+com.rikkibalboa.bepinex.shadowcolorswapper, ShadowColorSwapper, 1.2, BepInEx\plugins\KK_ShadowColorSwapper.dll
+com.shallty.save_postprocessingeffects, Save_PostProcessingEffects, 0.1, BepInEx\plugins\KK_Save_PostProcessingEffects.dll
+com.snw.bepinex.breastphysicscontroller, BreastPhysicsController, 2.2, BepInEx\plugins\BreastPhysicsController\BreastPhysicsController.dll
+DisableHipDynamicBones, DisableHipDynamicBones, 1.0, BepInEx\plugins\DisableHipDynamicBones.dll
+essuhauled.animationloader, Animation Loader, 1.1.3.4, BepInEx\plugins\AnimationLoader.Koikatu.dll
+ExpressionControl, ExpressionControl, 0.2.7.9, BepInEx\plugins\KK_ExpressionControl.dll
+Fix_DynamicBones, Dynamic Bones Fix, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_DynamicBones.dll
+Fix_GuideObjects, Guide Objects Fix, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_GuideObjects.dll
+Fix_HairShadows, Hair Shadows Fix, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_HairShadows.dll
+GamepadSupport, GamepadSupport, 2.1, BepInEx\plugins\GamepadSupport\KK_GamepadSupport.dll
+HairShadowColorControl, HairShadowColorControl, 1.0, BepInEx\plugins\KK_Plugins\KK_HairShadowColorControl.dll
+HeightBar, HeightBarX, 4.0, BepInEx\plugins\KK_HeightBar.dll
+hj.aihs2studio.UIScalerAndWidescreenSupport, UIScalerAndWidescreenSupport, 1.0.2, BepInEx\plugins\KK_UIScalerAndWidescreenSupport.dll
+horse.coder.tools.scriptloader, C# Script Loader, 1.2.4, BepInEx\plugins\ScriptLoader.dll
+IllusionMods.CharacterReplacer, Character Replacer, 1.7, BepInEx\plugins\KK_CharacterReplacer.dll
+IntroBegone, Intro Begone, 1.0.0, BepInEx\plugins\KK_IntroBegone.dll
+KCOX_GUI, Clothes Overlay Mod GUI, 7.0.2, BepInEx\plugins\OverlayMods\KK_OverlayMods.dll
+keelhauled.animeassassistant, Anime Ass Assistant, 1.0.1.0, BepInEx\plugins\AnimeAssAssistant.Koikatu.dll
+keelhauled.cameraframemask, CameraFrameMask, 1.1.1.1, BepInEx\plugins\CameraFrameMask.Koikatu.dll
+keelhauled.clothingstatemenux, ClothingStateMenuX, 1.0.3.0, BepInEx\plugins\ClothingStateMenuX.Koikatu.dll
+keelhauled.draganddrop, Drag & Drop, 1.3.1, BepInEx\plugins\DragAndDrop.Koikatu.dll
+keelhauled.freehdefaults, FreeH Defaults, 2.0.2.1, BepInEx\plugins\FreeHDefaults.Koikatu.dll
+keelhauled.graphicssettings, Graphics Settings, 1.3.1, BepInEx\plugins\GraphicsSettings.dll
+keelhauled.hideallui, HideAllUI, 2.3.2, BepInEx\plugins\HideAllUI.Koikatu.dll
+keelhauled.lockonplugin, LockOnPlugin, 2.7.0.1, BepInEx\plugins\LockOnPlugin.Koikatu.dll
+keelhauled.makerbridge, MakerBridge, 1.0.5.1, BepInEx\plugins\MakerBridge.Koikatu.dll
+keelhauled.materiallink, MaterialLink, 1.0.0.0, BepInEx\plugins\MaterialLink.Koikatu.dll
+keelhauled.realpov, RealPOV, 1.4.1.1, BepInEx\plugins\RealPOV.Koikatu.dll
+keelhauled.titleshortcuts, Title Shortcuts, 1.3.1.1, BepInEx\plugins\TitleShortcuts.Koikatu.dll
+KK_ADVeditor, ADV Scene Editor, 1.1, BepInEx\plugins\KK_ADVeditor.dll
+KK_Ahegao, KK_Ahegao, 2.0, BepInEx\plugins\KK_Ahegao.dll
+KK_com.bepis.bepinex.configurationmanager, Configuration Manager wrapper for Koikatsu, 21.0, BepInEx\plugins\KK_BepisPlugins\ConfigurationManagerKK.dll
+KK_CrossEye, KK_CrossEye, 1.6, BepInEx\plugins\2155X\KK_CrossEye.dll
+KK_ExpressionControl, KK_ExpressionControl, 0.2.3, BepInEx\plugins\expresion\KK_ExpressionControl.dll
+KK_Fix_CenteredHSceneCursor, Centered HScene Cursor, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_CenteredHSceneCursor.dll
+KK_Fix_CharacterListOptimizations, Character List Optimizations, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_CharacterListOptimizations.dll
+KK_Fix_DataCorruptionFixes, Game and Studio Data Corruption Fixes, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_DataCorruptionFixes.dll
+KK_Fix_ExpandShaderDropdown, Fix Shader Dropdown Menu, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_ExpandShaderDropdown.dll
+KK_Fix_Eyebrow, Eyebrow Outline Fix, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_Eyebrows.dll
+KK_Fix_GarbageTruck, KK_Fix_GarbageTruck, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_GarbageTruck.dll
+KK_Fix_Heterochromia, Character Maker Heterochromia Fix, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_Heterochromia.dll
+KK_Fix_MainGameOptimizations, Main Game Optimizations, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_MainGameOptimizations.dll
+KK_Fix_MainParam, KK_Fix_MainParam, 1.2, BepInEx\plugins\KK_Fix_MainParam.dll
+KK_Fix_MakerOptimizations, Maker Optimizations, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_MakerOptimizations.dll
+KK_Fix_ManifestCorrector, Manifest Corrector, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_ManifestCorrector.dll
+KK_Fix_ModdedHeadEyeliner, Head Fix, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_ModdedHeadEyeliner.dll
+KK_Fix_NullChecks, Null Checks, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_NullChecks.dll
+KK_Fix_PartyCardCompatibility, Party Card Compatibility, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_PartyCardCompatibility.dll
+KK_Fix_PersonalityCorrector, Personality Corrector, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_PersonalityCorrector.dll
+KK_Fix_ResourceUnloadOptimizations, Resource Unload Optimizations, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_ResourceUnloadOptimizations.dll
+KK_Fix_RestoreMissingFunctions, Restore missing functions, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_RestoreMissingFunctions.dll
+KK_Fix_SettingsVerifier, Settings Fix, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_SettingsVerifier.dll
+KK_Fix_ShowerAccessories, Shower Accessories Fix, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_ShowerAccessories.dll
+KK_FixationalEyeMovement, KK_FixationalEyeMovement, 1.3.3, BepInEx\plugins\KK_FixationalEyeMovement.dll
+KK_HLightControl, KK_HLightControl, 1.2.5, BepInEx\plugins\2155X\KK_HLightControl.dll
+KK_MakerAdditions, KK_MakerAdditions, 1.0.0, BepInEx\plugins\2155X\KK_MakerAdditions.dll
+KK_MakerRandomPicker, KK_MakerRandomPicker, 1.3.0, BepInEx\plugins\2155X\KK_MakerRandomPicker.dll
+KK_MakerSearch, KK_MakerSearch, 1.5.1, BepInEx\plugins\2155X\KK_MakerSearch.dll
+KK_MoanSoftly, Moan softly when I H you, 1.0.1, BepInEx\plugins\KK_MoanSoftly.dll
+KK_MobAdder, Add mobs to roam mode, 3.0, BepInEx\plugins\KK_MobAdder\KK_MobAdder.dll
+KK_OrthographicCamera, KK_OrthographicCamera, 1.1.2, BepInEx\plugins\KK_OrthographicCamera.dll
+KK_Pregnancy, KK_Pregnancy, 2.9, BepInEx\plugins\KK_Pregnancy.dll
+KK_PregnancyPlus, KK_PregnancyPlus, 6.3.3, BepInEx\plugins\KK_PregnancyPlus.dll
+KK_TalkFreeCamera, TalkFreeCamera, 1.0.1, BepInEx\plugins\2155X\KK_TalkFreeCamera.dll
+koikdaisy.kkcharalightdisabler, KK_CharaLightDisabler, 1.0.1, BepInEx\plugins\KoikDaisy\KK_CharaLightDisabler.dll
+kokaiinum.KKExpandMaleMaker, Expand Male Maker, 1.3.0.0, BepInEx\plugins\KK_ExpandMaleMaker.dll
+KSOX_GUI, Skin Overlay Mod GUI, 7.0.2, BepInEx\plugins\OverlayMods\KK_OverlayMods.dll
+Marco.SkinEffects, Additional Skin Effects, 3.0.2, BepInEx\plugins\KK_SkinEffects.dll
+LewdCrestX, LewdCrestX, 1.4.1, BepInEx\plugins\KK_LewdCrestX.dll
+LoadFileLmitedFix, LoadFileLimitedFix, 22.0.3, BepInEx\plugins\IllusionFixes\KK_Fix_LoadFileLimited.dll
+MarC0.FPSCounter, FPS Counter, 3.3, BepInEx\plugins\FPSCounter\FPSCounter.dll
+marco.authordata, Card Author Data, 1.42.2, BepInEx\plugins\KKAPI.dll
+marco.becometrap, Koikatsu: Become Trap, 2.1, BepInEx\plugins\KK_BecomeTrap.dll
+marco.better_color_picker, Better Color Picker, 3.2, BepInEx\plugins\KK_BetterColorPicker.dll
+marco.FolderBrowser, Maker/Studio Browser Folders, 3.2.3, BepInEx\plugins\KK_BrowserFolders.dll
+marco.MoreAccParents, More Accessory Parents, 1.2, BepInEx\plugins\KK_MoreAccessoryParents.dll
+Marco.NightDarkener, Night Darkener, 1.3, BepInEx\plugins\KK_NightDarkener.dll
+marco.RemoveToRecycleBin, Remove Cards To Recycle Bin, 2.0, BepInEx\plugins\KK_RemoveToRecycleBin.dll
+marco-gameplaymod, Koikatu Gameplay Tweaks and Improvements, 2.3, BepInEx\plugins\KK_GameplayMod.dll
+MK.KK_BetterSquirt, KK_BetterSquirt, 3.0.2, BepInEx\plugins\KK_BetterSquirt.dll
+MK.KK_HSceneOptions, HSceneOptions, 3.2.1, BepInEx\plugins\KK_HSceneOptions.dll
+nakay.kk.ChaAlphaMask, Character Alpha Mask, 1.0.0, BepInEx\plugins\KK_ChaAlphaMask.dll
+nakay.kk.ClothingBlendShape, Clothing BlendShape, 1.0.0, BepInEx\plugins\KK_ClothingBlendShape.dll
+nakay.kk.CopyChaBodyMat, Copy Character BodyMaterial, 1.0.0, BepInEx\plugins\KK_CopyChaBodyMat.dll
+orange.spork.advikplugin, AdvIKPlugin, 1.7.1, BepInEx\plugins\KK_AdvIKPlugin.dll
+org.bepinex.plugins.BetterShadowQualitySettings, BetterShadowQualitySettings, 1.0.0.0, BepInEx\plugins\KK_BetterShadowQualitySettings.dll
+org.bepinex.plugins.KKUTS_TessFix, KKUTS_TessFix, 1.0.0.1, BepInEx\plugins\KKUTS_TessFix.dll
+org.bepinex.plugins.PostProcessingRuntime, PostProcessingRuntime, 1.0.0.0, BepInEx\plugins\PostProcessingRuntime.dll
+org.bepinex.plugins.PostProcessingEffectsV3, PostProcessingEffectsV3, 4.5, BepInEx\plugins\PostProcessingEffect.dll
+org.bepinex.plugins.ShaderManagementTool, ShaderManagementTool, 3.2.0.0, BepInEx\plugins\ShaderManagementTool.dll
+org.fox.poselib, PoseLibrary, 1.3.0, BepInEx\plugins\PoseLib.KK.dll
+org.njaecha.plugins.anal, AmazingNewAccessoryLogic, 0.1.1, BepInEx\plugins\KK_AmazingNewAccessoryLogic.dll
+org.njaecha.plugins.dbde, DynamicBoneDistributionEditor, 2.0.0, BepInEx\plugins\KK_DynamicBoneDistributionEditor.dll
+org.njaecha.plugins.editfangs, KK_EditFangs, 1.1.2, BepInEx\plugins\KK_EditFangs.dll
+org.njaecha.plugins.makeraccessoryslotnumbers, MakerAccessorySlotNumbers, 1.0.2, BepInEx\plugins\KK_MakerAccessorySlotNumbers.dll
+org.njaecha.plugins.makercamerapresets, KK_MakerCameraPresets, 1.0.3, BepInEx\plugins\KK_MakerCameraPresets.dll
+org.njaecha.plugins.objimport, KK_ObjImport, 2.1.5, BepInEx\plugins\KK_ObjImport.dll
+org.njaecha.plugins.pictureinpicture, PictureInPicture, 1.0.1, BepInEx\plugins\KK_PictureInPicture.dll
+PantyFairy, PantyFairy, 1.0.2, BepInEx\plugins\KK_PantyFairy.dll
+picolet21.koikatsu.DarknessWithStrawberryFlavor, Darkness with strawberry flavor, 0.3, BepInEx\plugins\KK_DarknessWithStrawberryFlavor.dll
+random_name_provider, Random Name Provider Compat, 2.0.1, BepInEx\plugins\TranslationTools\KK_RandomNameProvider.dll
+RSkoi.LiquidShaderWobblePlugin, LiquidShaderWobblePlugin, 1.0.0, BepInEx\plugins\LiquidShaderWobble.KK.dll
+RSkoi.robcupisz.LightShafts, LightShafts, 1.0.4, BepInEx\plugins\LightShafts.KK.dll
+Sauceke.SexFaces, Sex Faces, 1.3.0, BepInEx\plugins\KK_SexFaces.dll
+SliderHighlight, SliderHighlight, 2.2, BepInEx\plugins\KK_SliderHighlight.dll
+starstorm.aaaaaaaaaaaa, AAAAAAAAAAAA, 1.2.2.9, BepInEx\plugins\AAAAAAAAAAAA.Koikatu.dll
+starstorm.accmover, Acc Mover, 1.1.1.9, BepInEx\plugins\AccMover.Koikatu.dll
+starstorm.cursorindicator, Cursor Indicator, 1.0.0.9, BepInEx\plugins\CursorIndicator.Koikatu.dll
+starstorm.massshadereditor, Mass Shader Editor, 1.4.0.9, BepInEx\plugins\MassShaderEditor.Koikatu.dll
+starstorm.shaderfixer, Koikatsu Shader Fixer, 1.2.0.9, BepInEx\plugins\ShaderFixer.Koikatu.dll
+WarpToCharacters, WarpToCharacters, 1.1.1, BepInEx\plugins\KK_WarpToCharacters.dll

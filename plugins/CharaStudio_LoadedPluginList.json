@@ -1,0 +1,1352 @@
+[
+    {
+         "guid":  "aa2g.kant.rim.remover",
+         "name":  "Rim Remover",
+         "version":  "1.2",
+         "location":  "BepInEx\\plugins\\KK_RimRemover.dll"
+    },
+    {
+         "guid":  "com.bepis.bepinex.extendedsave",
+         "name":  "Extended Save",
+         "version":  "21.0",
+         "location":  "BepInEx\\plugins\\KK_BepisPlugins\\ExtensibleSaveFormat.dll"
+    },
+    {
+         "guid":  "gravydevsupreme.xunity.resourceredirector",
+         "name":  "XUnity Resource Redirector",
+         "version":  "2.1.0",
+         "location":  "BepInEx\\plugins\\XUnity.ResourceRedirector\\XUnity.ResourceRedirector.BepInEx.dll"
+    },
+    {
+         "guid":  "com.bepis.bepinex.sideloader",
+         "name":  "Sideloader",
+         "version":  "21.0",
+         "location":  "BepInEx\\plugins\\KK_BepisPlugins\\Sideloader.dll"
+    },
+    {
+         "guid":  "com.joan6694.illusionplugins.moreaccessories",
+         "name":  "MoreAccessories",
+         "version":  "2.0.21.1",
+         "location":  "BepInEx\\plugins\\MoreAccessories.dll"
+    },
+    {
+         "guid":  "marco.kkapi",
+         "name":  "Modding API",
+         "version":  "1.42.2",
+         "location":  "BepInEx\\plugins\\KKAPI.dll"
+    },
+    {
+         "guid":  "com.bepis.bepinex.screenshotmanager",
+         "name":  "Screenshot Manager",
+         "version":  "21.0",
+         "location":  "BepInEx\\plugins\\KK_BepisPlugins\\Screencap.dll"
+    },
+    {
+         "guid":  "KK_OrthographicCamera",
+         "name":  "KK_OrthographicCamera",
+         "version":  "1.1.2",
+         "location":  "BepInEx\\plugins\\KK_OrthographicCamera.dll"
+    },
+    {
+         "guid":  "gravydevsupreme.xunity.autotranslator",
+         "name":  "XUnity Auto Translator",
+         "version":  "5.4.5",
+         "location":  "BepInEx\\plugins\\XUnity.AutoTranslator\\XUnity.AutoTranslator.Plugin.BepInEx.dll"
+    },
+    {
+         "guid":  "KK_QuickAccessBox",
+         "name":  "KK_QuickAccessBox",
+         "version":  "3.2",
+         "location":  "BepInEx\\plugins\\KK_QuickAccessBox.dll"
+    },
+    {
+         "guid":  "AccessoriesToStudioItems",
+         "name":  "Accessories to Studio Items",
+         "version":  "1.0.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_AccessoriesToStudioItems.dll"
+    },
+    {
+         "guid":  "Accessory_States",
+         "name":  "Accessory States",
+         "version":  "1.6",
+         "location":  "BepInEx\\plugins\\KK_Accessory_States.dll"
+    },
+    {
+         "guid":  "BepInEx.EnableFullScreenToggle",
+         "name":  "Enable Full Screen Toggle",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\BepInEx.EnableFullScreenToggle.dll"
+    },
+    {
+         "guid":  "BepInEx.EnableResize",
+         "name":  "Enable Resize",
+         "version":  "3.0",
+         "location":  "BepInEx\\plugins\\BepInEx.EnableResize.dll"
+    },
+    {
+         "guid":  "BepInEx.InputHotkeyBlock",
+         "name":  "Input Hotkey Block",
+         "version":  "1.4",
+         "location":  "BepInEx\\plugins\\BepInEx.InputHotkeyBlock.dll"
+    },
+    {
+         "guid":  "BepInEx.MuteInBackground",
+         "name":  "Mute In Background",
+         "version":  "1.1",
+         "location":  "BepInEx\\plugins\\BepInEx.MuteInBackground.dll"
+    },
+    {
+         "guid":  "BepInEx.OptimizeIMGUI",
+         "name":  "Optimize IMGUI GC allocations",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\BepInEx.OptimizeIMGUI.dll"
+    },
+    {
+         "guid":  "bero.crossfader",
+         "name":  "CrossFader",
+         "version":  "0.11",
+         "location":  "BepInEx\\plugins\\CrossFader.dll"
+    },
+    {
+         "guid":  "com.joan6694.kkplugins.kkpe",
+         "name":  "KKPE",
+         "version":  "2.21.1",
+         "location":  "BepInEx\\plugins\\KKPE.dll"
+    },
+    {
+         "guid":  "Boop",
+         "name":  "Boop",
+         "version":  "2.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_Boop.dll"
+    },
+    {
+         "guid":  "KKABMX.Core",
+         "name":  "KKABMX (BonemodX)",
+         "version":  "5.2.5",
+         "location":  "BepInEx\\plugins\\KKABMX.dll"
+    },
+    {
+         "guid":  "Bulge",
+         "name":  "Bulge in the pants, tent in the woods",
+         "version":  "1.0.2",
+         "location":  "BepInEx\\plugins\\KK_Bulge.dll"
+    },
+    {
+         "guid":  "CatchUnityEventExceptions",
+         "name":  "Catch Unity Event Exceptions",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\BepInEx.CatchUnityEventExceptions.dll"
+    },
+    {
+         "guid":  "RuntimeUnityEditor",
+         "name":  "Runtime Unity Editor",
+         "version":  "6.1",
+         "location":  "BepInEx\\plugins\\RuntimeUnityEditor\\RuntimeUnityEditor.Bepin5.dll"
+    },
+    {
+         "guid":  "CheatTools",
+         "name":  "Cheat Tools",
+         "version":  "3.6",
+         "location":  "BepInEx\\plugins\\KK_CheatTools.dll"
+    },
+    {
+         "guid":  "ClothColliders",
+         "name":  "Cloth colliders support",
+         "version":  "1.1",
+         "location":  "BepInEx\\plugins\\KK_ClothColliders.dll"
+    },
+    {
+         "guid":  "ClothesToAccessories",
+         "name":  "Clothes To Accessories",
+         "version":  "1.1.2",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_ClothesToAccessories.dll"
+    },
+    {
+         "guid":  "KSOX",
+         "name":  "Skin Overlay Mod",
+         "version":  "7.0.2",
+         "location":  "BepInEx\\plugins\\OverlayMods\\KK_OverlayMods.dll"
+    },
+    {
+         "guid":  "com.bepis.bepinex.configurationmanager",
+         "name":  "Configuration Manager",
+         "version":  "18.4.1",
+         "location":  "BepInEx\\plugins\\ConfigurationManager\\ConfigurationManager.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.uncensorselector",
+         "name":  "Uncensor Selector",
+         "version":  "3.12.3",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_UncensorSelector.dll"
+    },
+    {
+         "guid":  "com.animal42069.additionalfknodes",
+         "name":  "KK Additional FK Nodes",
+         "version":  "1.2.1.0",
+         "location":  "BepInEx\\plugins\\KK_AdditionalFKNodes.dll"
+    },
+    {
+         "guid":  "com.rclcircuit.bepinex.modboneimplantor",
+         "name":  "Mod Bone Implantor",
+         "version":  "1.1.2",
+         "location":  "BepInEx\\plugins\\ModBoneImplantor.dll"
+    },
+    {
+         "guid":  "com.joan6694.illusionplugins.nodesconstraints",
+         "name":  "NodesConstraints",
+         "version":  "1.4.1",
+         "location":  "BepInEx\\plugins\\NodesConstraints.dll"
+    },
+    {
+         "guid":  "com.animal42069.kkstudiobetterpenetration",
+         "name":  "KK Studio Better Penetration",
+         "version":  "4.5.5.2",
+         "location":  "BepInEx\\plugins\\KK_Studio_BetterPenetration.dll"
+    },
+    {
+         "guid":  "com.bepis.bepinex.inputunlocker",
+         "name":  "Input Length Unlocker",
+         "version":  "21.0",
+         "location":  "BepInEx\\plugins\\KK_BepisPlugins\\InputUnlocker.dll"
+    },
+    {
+         "guid":  "com.bepis.bepinex.sliderunlocker",
+         "name":  "Slider Unlocker",
+         "version":  "21.0",
+         "location":  "BepInEx\\plugins\\KK_BepisPlugins\\SliderUnlocker.dll"
+    },
+    {
+         "guid":  "com.bepis.messagecenter",
+         "name":  "Message Center",
+         "version":  "1.1.1.1",
+         "location":  "BepInEx\\plugins\\BepInEx.MessageCenter.dll"
+    },
+    {
+         "guid":  "com.cptgrey.bepinex.uniform",
+         "name":  "KK Uniform Uniforms",
+         "version":  "1.1",
+         "location":  "BepInEx\\plugins\\KK_UniformUniforms.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.accessoryclothes",
+         "name":  "Accessory Clothes",
+         "version":  "1.0.2",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_AccessoryClothes.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.accessoryquickremove",
+         "name":  "Accessory Quick Remove",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_AccessoryQuickRemove.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.animationcontroller",
+         "name":  "Animation Controller",
+         "version":  "2.3",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_AnimationController.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.animationoverdrive",
+         "name":  "Animation Overdrive",
+         "version":  "1.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_AnimationOverdrive.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.autosave",
+         "name":  "Autosave",
+         "version":  "1.2",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_Autosave.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.characterexport",
+         "name":  "Character Export",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_CharacterExport.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.clothingunlocker",
+         "name":  "Clothing Unlocker",
+         "version":  "2.0.2",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_ClothingUnlocker.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.colliders",
+         "name":  "Colliders",
+         "version":  "1.3.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_Colliders.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.dynamicboneeditor",
+         "name":  "Dynamic Bone Editor",
+         "version":  "1.0.5",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_DynamicBoneEditor.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.eyecontrol",
+         "name":  "Eye Control",
+         "version":  "1.0.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_EyeControl.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.eyeshaking",
+         "name":  "Eye Shaking",
+         "version":  "1.3.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_EyeShaking.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.fadeadjuster",
+         "name":  "Fade Adjuster",
+         "version":  "1.0.3",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_FadeAdjuster.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.fkik",
+         "name":  "FK and IK",
+         "version":  "1.1.3",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_FKIK.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.forcehighpoly",
+         "name":  "Force High Poly",
+         "version":  "2.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_ForceHighPoly.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.freehrandom",
+         "name":  "Free H Random",
+         "version":  "1.4",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_FreeHRandom.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.hairaccessorycustomizer",
+         "name":  "Hair Accessory Customizer",
+         "version":  "1.1.7",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_HairAccessoryCustomizer.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.hcharaadjustment",
+         "name":  "H Character Adjustment",
+         "version":  "2.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_HCharaAdjustment.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.invisiblebody",
+         "name":  "Invisible Body",
+         "version":  "1.4",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_InvisibleBody.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.lightingtweaks",
+         "name":  "Lighting Tweaks",
+         "version":  "1.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_LightingTweaks.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.listoverride",
+         "name":  "List Override",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_ListOverride.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.makerdefaults",
+         "name":  "Maker Defaults",
+         "version":  "1.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_MakerDefaults.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.malejuice",
+         "name":  "Male Juice",
+         "version":  "1.3",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_MaleJuice.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.materialeditor",
+         "name":  "Material Editor",
+         "version":  "3.13.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_MaterialEditor.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.materialeditor.studio",
+         "name":  "Material Editor Studio",
+         "version":  "3.13.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_MaterialEditor.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.moreoutfits",
+         "name":  "More Outfit Slots",
+         "version":  "1.1.3",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_MoreOutfits.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.posefolders",
+         "name":  "Pose Tools",
+         "version":  "1.1.3",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_PoseTools.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.posequickload",
+         "name":  "Pose Quick Load",
+         "version":  "1.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_PoseQuickLoad.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.poseunlocker",
+         "name":  "Pose Gender Restriction Unlocker",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_PoseUnlocker.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.pushup",
+         "name":  "Pushup",
+         "version":  "1.4.0",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_Pushup.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.randomcharactergenerator",
+         "name":  "Random Character Generator",
+         "version":  "2.0",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_RandomCharacterGenerator.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.reloadcharalistonchange",
+         "name":  "Reload Character List On Change",
+         "version":  "1.5.2",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_ReloadCharaListOnChange.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.shaderswapper",
+         "name":  "Shader Swapper",
+         "version":  "1.7",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_ShaderSwapper.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.studioscenesettings",
+         "name":  "StudioSceneSettings",
+         "version":  "1.3.2",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_StudioSceneSettings.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.studiocustommasking",
+         "name":  "Studio Custom Masking",
+         "version":  "1.2",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_StudioCustomMasking.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.studioimageembed",
+         "name":  "Image Embed",
+         "version":  "1.0.3",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_StudioImageEmbed.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.studioobjectmovehotkeys",
+         "name":  "Studio Object Move Hotkeys",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_StudioObjectMoveHotkeys.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.studiosceneloadedsound",
+         "name":  "Studio Scene Loaded Sound",
+         "version":  "1.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_StudioSceneLoadedSound.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.textresourceredirector",
+         "name":  "Text Resource Redirector",
+         "version":  "1.4.4.3",
+         "location":  "BepInEx\\plugins\\TranslationTools\\KK_TextResourceRedirector.dll"
+    },
+    {
+         "guid":  "com.deathweasel.bepinex.twolut",
+         "name":  "Two Luts in Studio",
+         "version":  "1.0.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_TwoLut.dll"
+    },
+    {
+         "guid":  "com.dreamhana.KK_WTFix",
+         "name":  "KK_WTFix",
+         "version":  "1.2.3",
+         "location":  "BepInEx\\plugins\\KK_WTFix.dll"
+    },
+    {
+         "guid":  "com.essu.stiletto",
+         "name":  "Stiletto",
+         "version":  "2.4.2",
+         "location":  "BepInEx\\plugins\\KK_Stiletto.dll"
+    },
+    {
+         "guid":  "com.gebo.BepInEx.GeBoAPI",
+         "name":  "GeBo Modding API",
+         "version":  "1.1.2.1",
+         "location":  "BepInEx\\plugins\\KK_GeBoCommon.dll"
+    },
+    {
+         "guid":  "com.gebo.BepInEx.studiomultiselectchara",
+         "name":  "Studio MultiSelect Chara",
+         "version":  "1.0.0.2",
+         "location":  "BepInEx\\plugins\\GeBo_Plugins\\KK_StudioMultiselectChara.dll"
+    },
+    {
+         "guid":  "marco.FolderBrowser",
+         "name":  "Maker/Studio Browser Folders",
+         "version":  "3.2.3",
+         "location":  "BepInEx\\plugins\\KK_BrowserFolders.dll"
+    },
+    {
+         "guid":  "com.gebo.bepinex.studioscenenavigation",
+         "name":  "Studio Scene Navigation",
+         "version":  "1.0.2.2",
+         "location":  "BepInEx\\plugins\\GeBo_Plugins\\KK_StudioSceneNavigation.dll"
+    },
+    {
+         "guid":  "com.gebo.bepinex.translationcachecleaner",
+         "name":  "Translation Cache Cleaner",
+         "version":  "0.6.0.2",
+         "location":  "BepInEx\\plugins\\GeBo_Plugins\\KK_TranslationCacheCleaner.dll"
+    },
+    {
+         "guid":  "com.gebo.bepinex.translationhelper",
+         "name":  "Translation Helper",
+         "version":  "1.1.0.9",
+         "location":  "BepInEx\\plugins\\KK_TranslationHelper.dll"
+    },
+    {
+         "guid":  "com.illusionmods.translationtools.random_name_provider",
+         "name":  "Random Name Provider",
+         "version":  "2.0.1",
+         "location":  "BepInEx\\plugins\\TranslationTools\\KK_RandomNameProvider.dll"
+    },
+    {
+         "guid":  "KCOX",
+         "name":  "Clothes Overlay Mod",
+         "version":  "7.0.2",
+         "location":  "BepInEx\\plugins\\OverlayMods\\KK_OverlayMods.dll"
+    },
+    {
+         "guid":  "com.jim60105.kk.coordinateloadoption",
+         "name":  "Coordinate Load Option",
+         "version":  "21.12.25.1",
+         "location":  "BepInEx\\plugins\\KK_CoordinateLoadOption.dll"
+    },
+    {
+         "guid":  "com.jim60105.kk.pluginlisttool",
+         "name":  "Plugin List Tool",
+         "version":  "20.8.5.0",
+         "location":  "BepInEx\\plugins\\jim60105\\KK_PluginListTool.dll"
+    },
+    {
+         "guid":  "com.jim60105.kk.studioautocloseloadingscenewindow",
+         "name":  "Studio Auto Close Loading Scene Window",
+         "version":  "20.8.5.0",
+         "location":  "BepInEx\\plugins\\jim60105\\KK_StudioAutoCloseLoadingSceneWindow.dll"
+    },
+    {
+         "guid":  "com.jim60105.kk.studiocharalightlinkedtocamera",
+         "name":  "Studio Chara Light Linked To Camera",
+         "version":  "20.8.5.0",
+         "location":  "BepInEx\\plugins\\jim60105\\KK_StudioCharaLightLinkedToCamera.dll"
+    },
+    {
+         "guid":  "com.jim60105.kk.studiocharaonlyloadbody",
+         "name":  "Studio Chara Only Load Body",
+         "version":  "20.8.5.0",
+         "location":  "BepInEx\\plugins\\KK_StudioCharaOnlyLoadBody.dll"
+    },
+    {
+         "guid":  "com.jim60105.kk.studiomenuscrollingtext",
+         "name":  "Studio Menu Scrolling Text",
+         "version":  "20.9.10.0",
+         "location":  "BepInEx\\plugins\\jim60105\\KK_StudioMenuScrollingText.dll"
+    },
+    {
+         "guid":  "com.jim60105.kk.studioreflectfkfix",
+         "name":  "Studio Reflect FK Fix",
+         "version":  "20.8.5.0",
+         "location":  "BepInEx\\plugins\\jim60105\\KK_StudioReflectFKFix.dll"
+    },
+    {
+         "guid":  "com.jim60105.kk.studiosimplecolorongirls",
+         "name":  "Studio Simple Color On Girls",
+         "version":  "20.8.5.0",
+         "location":  "BepInEx\\plugins\\jim60105\\KK_StudioSimpleColorOnGirls.dll"
+    },
+    {
+         "guid":  "com.jim60105.kk.studiotextplugin",
+         "name":  "Studio Text Plugin",
+         "version":  "20.8.5.0",
+         "location":  "BepInEx\\plugins\\jim60105\\KK_StudioTextPlugin.dll"
+    },
+    {
+         "guid":  "com.jim60105.kk.studiotransgenderloading",
+         "name":  "Studio Transgender Loading",
+         "version":  "20.8.30.0",
+         "location":  "BepInEx\\plugins\\jim60105\\KK_StudioTransgenderLoading.dll"
+    },
+    {
+         "guid":  "com.joan6694.hsplugins.renderereditor",
+         "name":  "RendererEditor",
+         "version":  "1.6.0",
+         "location":  "BepInEx\\plugins\\RendererEditor.dll"
+    },
+    {
+         "guid":  "com.joan6694.illusionplugins.collidersdebug",
+         "name":  "ColllidersDebug",
+         "version":  "1.0.0",
+         "location":  "BepInEx\\plugins\\CollidersDebug.KK.dll"
+    },
+    {
+         "guid":  "com.joan6694.illusionplugins.kkus",
+         "name":  "KKUS",
+         "version":  "1.15",
+         "location":  "BepInEx\\plugins\\KKUS.dll"
+    },
+    {
+         "guid":  "com.joan6694.illusionplugins.timeline",
+         "name":  "Timeline",
+         "version":  "1.5.1",
+         "location":  "BepInEx\\plugins\\Timeline.dll"
+    },
+    {
+         "guid":  "com.joan6694.illusionplugins.videoexport",
+         "name":  "VideoExport",
+         "version":  "1.7",
+         "location":  "BepInEx\\plugins\\VideoExport.dll"
+    },
+    {
+         "guid":  "com.liquid.shader.wobble",
+         "name":  "Liquid_shader_wobble",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\Liquid_shader_wobble.dll"
+    },
+    {
+         "guid":  "com.rikkibalboa.bepinex.kkprimcontroller",
+         "name":  "KKPRim Controller",
+         "version":  "1.8",
+         "location":  "BepInEx\\plugins\\KK_KKPRimController.dll"
+    },
+    {
+         "guid":  "com.rikkibalboa.bepinex.projectorutils",
+         "name":  "ProjectorUtils",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_ProjectorUtils.dll"
+    },
+    {
+         "guid":  "com.rikkibalboa.bepinex.savecameraobjectfov",
+         "name":  "SaveCameraObjectFov",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_SaveCameraObjectFov.dll"
+    },
+    {
+         "guid":  "com.rikkibalboa.bepinex.shadowcolorswapper",
+         "name":  "ShadowColorSwapper",
+         "version":  "1.2",
+         "location":  "BepInEx\\plugins\\KK_ShadowColorSwapper.dll"
+    },
+    {
+         "guid":  "com.rikkibalboa.bepinex.studioSkinColorControl",
+         "name":  "StudioSkinColorControl",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_StudioSkinColorControl.dll"
+    },
+    {
+         "guid":  "com.rikkibalboa.bepinex.studioVoiceControl",
+         "name":  "StudioVoiceControl",
+         "version":  "1.1",
+         "location":  "BepInEx\\plugins\\KK_TimelineVoiceControl.dll"
+    },
+    {
+         "guid":  "com.shallty.save_postprocessingeffects",
+         "name":  "Save_PostProcessingEffects",
+         "version":  "0.1",
+         "location":  "BepInEx\\plugins\\KK_Save_PostProcessingEffects.dll"
+    },
+    {
+         "guid":  "com.shallty.shalltyutils",
+         "name":  "Shallty Utils",
+         "version":  "1.1",
+         "location":  "BepInEx\\plugins\\KK_ShalltyUtils.dll"
+    },
+    {
+         "guid":  "com.snw.bepinex.breastphysicscontroller",
+         "name":  "BreastPhysicsController",
+         "version":  "2.2",
+         "location":  "BepInEx\\plugins\\BreastPhysicsController\\BreastPhysicsController.dll"
+    },
+    {
+         "guid":  "DisableHipDynamicBones",
+         "name":  "DisableHipDynamicBones",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\DisableHipDynamicBones.dll"
+    },
+    {
+         "guid":  "essuhauled.animationloader",
+         "name":  "Animation Loader",
+         "version":  "1.1.3.4",
+         "location":  "BepInEx\\plugins\\AnimationLoader.Koikatu.dll"
+    },
+    {
+         "guid":  "ExpressionControl",
+         "name":  "ExpressionControl",
+         "version":  "0.2.7.9",
+         "location":  "BepInEx\\plugins\\KK_ExpressionControl.dll"
+    },
+    {
+         "guid":  "Fix_DynamicBones",
+         "name":  "Dynamic Bones Fix",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_DynamicBones.dll"
+    },
+    {
+         "guid":  "Fix_GuideObjects",
+         "name":  "Guide Objects Fix",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_GuideObjects.dll"
+    },
+    {
+         "guid":  "Fix_HairShadows",
+         "name":  "Hair Shadows Fix",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_HairShadows.dll"
+    },
+    {
+         "guid":  "Fix_PoseLoad",
+         "name":  "Pose Load Fix",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_PoseLoad.dll"
+    },
+    {
+         "guid":  "Fix_StudioOptimizations",
+         "name":  "Studio Optimizations",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_StudioOptimizations.dll"
+    },
+    {
+         "guid":  "HairShadowColorControl",
+         "name":  "HairShadowColorControl",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_HairShadowColorControl.dll"
+    },
+    {
+         "guid":  "hj.aihs2studio.UIScalerAndWidescreenSupport",
+         "name":  "UIScalerAndWidescreenSupport",
+         "version":  "1.0.2",
+         "location":  "BepInEx\\plugins\\KK_UIScalerAndWidescreenSupport.dll"
+    },
+    {
+         "guid":  "horse.coder.tools.scriptloader",
+         "name":  "C# Script Loader",
+         "version":  "1.2.4",
+         "location":  "BepInEx\\plugins\\ScriptLoader.dll"
+    },
+    {
+         "guid":  "KCOX_GUI",
+         "name":  "Clothes Overlay Mod GUI",
+         "version":  "7.0.2",
+         "location":  "BepInEx\\plugins\\OverlayMods\\KK_OverlayMods.dll"
+    },
+    {
+         "guid":  "keelhauled.bettersceneloader",
+         "name":  "BetterSceneLoader",
+         "version":  "1.1.1.1",
+         "location":  "BepInEx\\plugins\\BetterSceneLoader.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.cameraframemask",
+         "name":  "CameraFrameMask",
+         "version":  "1.1.1.1",
+         "location":  "BepInEx\\plugins\\CameraFrameMask.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.charastatex",
+         "name":  "CharaStateX",
+         "version":  "1.1.2.1",
+         "location":  "BepInEx\\plugins\\CharaStateX.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.defaultparameditor",
+         "name":  "DefaultParamEditor",
+         "version":  "1.4.2.1",
+         "location":  "BepInEx\\plugins\\DefaultParamEditor.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.defaultstudioscene",
+         "name":  "DefaultStudioScene",
+         "version":  "1.0.4.1",
+         "location":  "BepInEx\\plugins\\DefaultStudioScene.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.draganddrop",
+         "name":  "Drag & Drop",
+         "version":  "1.3.1",
+         "location":  "BepInEx\\plugins\\DragAndDrop.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.graphicssettings",
+         "name":  "Graphics Settings",
+         "version":  "1.3.1",
+         "location":  "BepInEx\\plugins\\GraphicsSettings.dll"
+    },
+    {
+         "guid":  "keelhauled.hideallui",
+         "name":  "HideAllUI",
+         "version":  "2.3.2",
+         "location":  "BepInEx\\plugins\\HideAllUI.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.itemlayeredit",
+         "name":  "Item Layer Edit",
+         "version":  "1.1.3.1",
+         "location":  "BepInEx\\plugins\\ItemLayerEdit.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.lightmanager",
+         "name":  "Light Manager",
+         "version":  "1.0.2.1",
+         "location":  "BepInEx\\plugins\\LightManager.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.lockonplugin",
+         "name":  "LockOnPlugin",
+         "version":  "2.7.0.1",
+         "location":  "BepInEx\\plugins\\LockOnPlugin.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.makerbridge",
+         "name":  "MakerBridge",
+         "version":  "1.0.5.1",
+         "location":  "BepInEx\\plugins\\MakerBridge.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.materiallink",
+         "name":  "MaterialLink",
+         "version":  "1.0.0.0",
+         "location":  "BepInEx\\plugins\\MaterialLink.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.realpov",
+         "name":  "RealPOV",
+         "version":  "1.4.1.1",
+         "location":  "BepInEx\\plugins\\RealPOV.Koikatu.dll"
+    },
+    {
+         "guid":  "keelhauled.studioaddonlite",
+         "name":  "StudioAddonLite",
+         "version":  "1.1.1.1",
+         "location":  "BepInEx\\plugins\\StudioAddonLite.Koikatu.dll"
+    },
+    {
+         "guid":  "Keitaro.UncensorDetails",
+         "name":  "Uncensor Details",
+         "version":  "1.1.0",
+         "location":  "BepInEx\\plugins\\KK_UncensorDetails.dll"
+    },
+    {
+         "guid":  "KK_com.bepis.bepinex.configurationmanager",
+         "name":  "Configuration Manager wrapper for Koikatsu",
+         "version":  "21.0",
+         "location":  "BepInEx\\plugins\\KK_BepisPlugins\\ConfigurationManagerKK.dll"
+    },
+    {
+         "guid":  "KK_CrossEye",
+         "name":  "KK_CrossEye",
+         "version":  "1.6",
+         "location":  "BepInEx\\plugins\\2155X\\KK_CrossEye.dll"
+    },
+    {
+         "guid":  "KK_ExpressionControl",
+         "name":  "KK_ExpressionControl",
+         "version":  "0.2.3",
+         "location":  "BepInEx\\plugins\\expresion\\KK_ExpressionControl.dll"
+    },
+    {
+         "guid":  "KK_Fix_CameraTarget",
+         "name":  "Camera Target Fix",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_CameraTarget.dll"
+    },
+    {
+         "guid":  "KK_Fix_DataCorruptionFixes",
+         "name":  "Game and Studio Data Corruption Fixes",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_DataCorruptionFixes.dll"
+    },
+    {
+         "guid":  "KK_Fix_ExpandShaderDropdown",
+         "name":  "Fix Shader Dropdown Menu",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_ExpandShaderDropdown.dll"
+    },
+    {
+         "guid":  "KK_Fix_Eyebrow",
+         "name":  "Eyebrow Outline Fix",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_Eyebrows.dll"
+    },
+    {
+         "guid":  "KK_Fix_GarbageTruck",
+         "name":  "KK_Fix_GarbageTruck",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_GarbageTruck.dll"
+    },
+    {
+         "guid":  "KK_Fix_InvalidSceneFileProtection",
+         "name":  "Invalid Scene Protection",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_InvalidSceneFileProtection.dll"
+    },
+    {
+         "guid":  "KK_Fix_ManifestCorrector",
+         "name":  "Manifest Corrector",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_ManifestCorrector.dll"
+    },
+    {
+         "guid":  "KK_Fix_ModdedHeadEyeliner",
+         "name":  "Head Fix",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_ModdedHeadEyeliner.dll"
+    },
+    {
+         "guid":  "KK_Fix_NullChecks",
+         "name":  "Null Checks",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_NullChecks.dll"
+    },
+    {
+         "guid":  "KK_Fix_PartyCardCompatibility",
+         "name":  "Party Card Compatibility",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_PartyCardCompatibility.dll"
+    },
+    {
+         "guid":  "KK_Fix_ResourceUnloadOptimizations",
+         "name":  "Resource Unload Optimizations",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_ResourceUnloadOptimizations.dll"
+    },
+    {
+         "guid":  "KK_Fix_SettingsVerifier",
+         "name":  "Settings Fix",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_SettingsVerifier.dll"
+    },
+    {
+         "guid":  "KK_Fix_UnlimitedMapLights",
+         "name":  "Unlimited Map Lights",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_UnlimitedMapLights.dll"
+    },
+    {
+         "guid":  "KK_Pregnancy",
+         "name":  "KK_Pregnancy",
+         "version":  "2.9",
+         "location":  "BepInEx\\plugins\\KK_Pregnancy.dll"
+    },
+    {
+         "guid":  "KK_PregnancyPlus",
+         "name":  "KK_PregnancyPlus",
+         "version":  "6.3.3",
+         "location":  "BepInEx\\plugins\\KK_PregnancyPlus.dll"
+    },
+    {
+         "guid":  "KK_StudioAccessoryNames",
+         "name":  "KK_StudioAccessoryNames",
+         "version":  "1.1.0",
+         "location":  "BepInEx\\plugins\\2155X\\KK_StudioAccessoryNames.dll"
+    },
+    {
+         "guid":  "KK_StudioMiscSearch",
+         "name":  "KK_StudioMiscSearch",
+         "version":  "1.2.0",
+         "location":  "BepInEx\\plugins\\2155X\\KK_StudioMiscSearch.dll"
+    },
+    {
+         "guid":  "KK_StudioPOV",
+         "name":  "KK_StudioPOV",
+         "version":  "1.1.1",
+         "location":  "BepInEx\\plugins\\2155X\\KK_StudioPOV.dll"
+    },
+    {
+         "guid":  "KK_VMDPlayPlugin",
+         "name":  "KK_VMDPlayPlugin",
+         "version":  "0.3.4",
+         "location":  "BepInEx\\plugins\\KK_VMDPlayPlugin\\KKVMDPlayPlugin.dll"
+    },
+    {
+         "guid":  "KK_VMDPlayExtSavePlugin",
+         "name":  "KKVMDPlayExtSavePlugin",
+         "version":  "0.3.1",
+         "location":  "BepInEx\\plugins\\KK_VMDPlayPlugin\\KKVMDPlayExtSavePlugin.dll"
+    },
+    {
+         "guid":  "KK_VMDPlayEyeTextureCachePlugin",
+         "name":  "KK_VMDPlayEyeTextureCachePlugin",
+         "version":  "1.3.0",
+         "location":  "BepInEx\\plugins\\KK_VMDPlayPlugin\\KKVMDPlayEyeTextureCache.dll"
+    },
+    {
+         "guid":  "kky.aihs2.studiocharasort",
+         "name":  "Studio Character Sort",
+         "version":  "1.0.1",
+         "location":  "BepInEx\\plugins\\StudioCharaSort.dll"
+    },
+    {
+         "guid":  "kky.StudioTransformOrientation",
+         "name":  "KK Studio Transform Orientation",
+         "version":  "1.1.2",
+         "location":  "BepInEx\\plugins\\KK_StudioTransformOrientation.dll"
+    },
+    {
+         "guid":  "koikdaisy.kkcharalightdisabler",
+         "name":  "KK_CharaLightDisabler",
+         "version":  "1.0.1",
+         "location":  "BepInEx\\plugins\\KoikDaisy\\KK_CharaLightDisabler.dll"
+    },
+    {
+         "guid":  "kokaiinum.KKExpandMaleMaker",
+         "name":  "Expand Male Maker",
+         "version":  "1.3.0.0",
+         "location":  "BepInEx\\plugins\\KK_ExpandMaleMaker.dll"
+    },
+    {
+         "guid":  "KSOX_GUI",
+         "name":  "Skin Overlay Mod GUI",
+         "version":  "7.0.2",
+         "location":  "BepInEx\\plugins\\OverlayMods\\KK_OverlayMods.dll"
+    },
+    {
+         "guid":  "Marco.SkinEffects",
+         "name":  "Additional Skin Effects",
+         "version":  "3.0.2",
+         "location":  "BepInEx\\plugins\\KK_SkinEffects.dll"
+    },
+    {
+         "guid":  "LewdCrestX",
+         "name":  "LewdCrestX",
+         "version":  "1.4.1",
+         "location":  "BepInEx\\plugins\\KK_LewdCrestX.dll"
+    },
+    {
+         "guid":  "LoadFileLmitedFix",
+         "name":  "LoadFileLimitedFix",
+         "version":  "22.0.3",
+         "location":  "BepInEx\\plugins\\IllusionFixes\\KK_Fix_LoadFileLimited.dll"
+    },
+    {
+         "guid":  "MarC0.FPSCounter",
+         "name":  "FPS Counter",
+         "version":  "3.3",
+         "location":  "BepInEx\\plugins\\FPSCounter\\FPSCounter.dll"
+    },
+    {
+         "guid":  "marco.authordata",
+         "name":  "Card Author Data",
+         "version":  "1.42.2",
+         "location":  "BepInEx\\plugins\\KKAPI.dll"
+    },
+    {
+         "guid":  "marco.becometrap",
+         "name":  "Koikatsu: Become Trap",
+         "version":  "2.1",
+         "location":  "BepInEx\\plugins\\KK_BecomeTrap.dll"
+    },
+    {
+         "guid":  "marco.better_color_picker",
+         "name":  "Better Color Picker",
+         "version":  "3.2",
+         "location":  "BepInEx\\plugins\\KK_BetterColorPicker.dll"
+    },
+    {
+         "guid":  "marco.MoreAccParents",
+         "name":  "More Accessory Parents",
+         "version":  "1.2",
+         "location":  "BepInEx\\plugins\\KK_MoreAccessoryParents.dll"
+    },
+    {
+         "guid":  "marco.RemoveToRecycleBin",
+         "name":  "Remove Cards To Recycle Bin",
+         "version":  "2.0",
+         "location":  "BepInEx\\plugins\\KK_RemoveToRecycleBin.dll"
+    },
+    {
+         "guid":  "mikke.MoveControllerKOI",
+         "name":  "Move Controller KOI",
+         "version":  "1.7.1.1",
+         "location":  "BepInEx\\plugins\\MoveControllerKOI.dll"
+    },
+    {
+         "guid":  "nakay.kk.ChaAlphaMask",
+         "name":  "Character Alpha Mask",
+         "version":  "1.0.0",
+         "location":  "BepInEx\\plugins\\KK_ChaAlphaMask.dll"
+    },
+    {
+         "guid":  "nakay.kk.ClothingBlendShape",
+         "name":  "Clothing BlendShape",
+         "version":  "1.0.0",
+         "location":  "BepInEx\\plugins\\KK_ClothingBlendShape.dll"
+    },
+    {
+         "guid":  "nakay.kk.CopyChaBodyMat",
+         "name":  "Copy Character BodyMaterial",
+         "version":  "1.0.0",
+         "location":  "BepInEx\\plugins\\KK_CopyChaBodyMat.dll"
+    },
+    {
+         "guid":  "orange.spork.advikplugin",
+         "name":  "AdvIKPlugin",
+         "version":  "1.7.1",
+         "location":  "BepInEx\\plugins\\KK_AdvIKPlugin.dll"
+    },
+    {
+         "guid":  "orange.spork.fkheightadjustuiplugin",
+         "name":  "FK Height Adjust UI",
+         "version":  "1.0.3",
+         "location":  "BepInEx\\plugins\\KK_FKHeightAdjustUI.dll"
+    },
+    {
+         "guid":  "orange.spork.moarcamzplugin",
+         "name":  "MoarCamz",
+         "version":  "1.0.8",
+         "location":  "BepInEx\\plugins\\KK_MoarCamz.dll"
+    },
+    {
+         "guid":  "org.bepinex.plugins.BetterShadowQualitySettings",
+         "name":  "BetterShadowQualitySettings",
+         "version":  "1.0.0.0",
+         "location":  "BepInEx\\plugins\\KK_BetterShadowQualitySettings.dll"
+    },
+    {
+         "guid":  "org.bepinex.plugins.KKUTS_TessFix",
+         "name":  "KKUTS_TessFix",
+         "version":  "1.0.0.1",
+         "location":  "BepInEx\\plugins\\KKUTS_TessFix.dll"
+    },
+    {
+         "guid":  "org.bepinex.plugins.PostProcessingRuntime",
+         "name":  "PostProcessingRuntime",
+         "version":  "1.0.0.0",
+         "location":  "BepInEx\\plugins\\PostProcessingRuntime.dll"
+    },
+    {
+         "guid":  "org.bepinex.plugins.PostProcessingEffectsV3",
+         "name":  "PostProcessingEffectsV3",
+         "version":  "4.5",
+         "location":  "BepInEx\\plugins\\PostProcessingEffect.dll"
+    },
+    {
+         "guid":  "org.bepinex.plugins.ShaderManagementTool",
+         "name":  "ShaderManagementTool",
+         "version":  "3.2.0.0",
+         "location":  "BepInEx\\plugins\\ShaderManagementTool.dll"
+    },
+    {
+         "guid":  "org.fox.poselib",
+         "name":  "PoseLibrary",
+         "version":  "1.3.0",
+         "location":  "BepInEx\\plugins\\PoseLib.KK.dll"
+    },
+    {
+         "guid":  "org.krypto5863.ObjectMap",
+         "name":  "ObjectMap",
+         "version":  "1.1.7",
+         "location":  "BepInEx\\plugins\\KK_ObjectMap.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.anal",
+         "name":  "AmazingNewAccessoryLogic",
+         "version":  "0.1.1",
+         "location":  "BepInEx\\plugins\\KK_AmazingNewAccessoryLogic.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.dbde",
+         "name":  "DynamicBoneDistributionEditor",
+         "version":  "2.0.0",
+         "location":  "BepInEx\\plugins\\KK_DynamicBoneDistributionEditor.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.editfangs",
+         "name":  "KK_EditFangs",
+         "version":  "1.1.2",
+         "location":  "BepInEx\\plugins\\KK_EditFangs.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.makeraccessoryslotnumbers",
+         "name":  "MakerAccessorySlotNumbers",
+         "version":  "1.0.2",
+         "location":  "BepInEx\\plugins\\KK_MakerAccessorySlotNumbers.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.objimport",
+         "name":  "KK_ObjImport",
+         "version":  "2.1.5",
+         "location":  "BepInEx\\plugins\\KK_ObjImport.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.pictureinpicture",
+         "name":  "PictureInPicture",
+         "version":  "1.0.1",
+         "location":  "BepInEx\\plugins\\KK_PictureInPicture.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.selectnewobjectoncopy",
+         "name":  "StudioSelectNewObjectOnCopy",
+         "version":  "1.0.0",
+         "location":  "BepInEx\\plugins\\KK_StudioSelectNewObjectOnCopy.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.studioitemskeleton",
+         "name":  "StudioItemSkeleton",
+         "version":  "1.1.0",
+         "location":  "BepInEx\\plugins\\KK_StudioItemSkeleton.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.studiokeybinds",
+         "name":  "KK_StudioKeybinds",
+         "version":  "1.0.1",
+         "location":  "BepInEx\\plugins\\KK_StudioKeybinds.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.timelinevmdsync",
+         "name":  "Timeline VMD Sync",
+         "version":  "3.0.3",
+         "location":  "BepInEx\\plugins\\KK_TimelineVMDSync.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.treenodenaming",
+         "name":  "TreeNodeNaming",
+         "version":  "1.2.0",
+         "location":  "BepInEx\\plugins\\KK_TreeNodeNaming.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.treenodeordering",
+         "name":  "TreeNodeOrdering",
+         "version":  "2.0.1",
+         "location":  "BepInEx\\plugins\\KK_TreeNodeOrdering.dll"
+    },
+    {
+         "guid":  "org.njaecha.plugins.VideoPlate",
+         "name":  "KK_VideoPlate",
+         "version":  "1.1.2",
+         "location":  "BepInEx\\plugins\\KK_VideoPlate.dll"
+    },
+    {
+         "guid":  "picolet21.koikatsu.DarknessWithStrawberryFlavor",
+         "name":  "Darkness with strawberry flavor",
+         "version":  "0.3",
+         "location":  "BepInEx\\plugins\\KK_DarknessWithStrawberryFlavor.dll"
+    },
+    {
+         "guid":  "random_name_provider",
+         "name":  "Random Name Provider Compat",
+         "version":  "2.0.1",
+         "location":  "BepInEx\\plugins\\TranslationTools\\KK_RandomNameProvider.dll"
+    },
+    {
+         "guid":  "RSkoi.LiquidShaderWobblePlugin",
+         "name":  "LiquidShaderWobblePlugin",
+         "version":  "1.0.0",
+         "location":  "BepInEx\\plugins\\LiquidShaderWobble.KK.dll"
+    },
+    {
+         "guid":  "RSkoi.robcupisz.LightShafts",
+         "name":  "LightShafts",
+         "version":  "1.0.4",
+         "location":  "BepInEx\\plugins\\LightShafts.KK.dll"
+    },
+    {
+         "guid":  "RSkoi_ComponentUtil",
+         "name":  "RSkoi_ComponentUtil",
+         "version":  "1.4.2",
+         "location":  "BepInEx\\plugins\\RSkoi_ComponentUtil.KK.dll"
+    },
+    {
+         "guid":  "Sauceke.SexFaces",
+         "name":  "Sex Faces",
+         "version":  "1.3.0",
+         "location":  "BepInEx\\plugins\\KK_SexFaces.dll"
+    },
+    {
+         "guid":  "starstorm.aaaaaaaaaaaa",
+         "name":  "AAAAAAAAAAAA",
+         "version":  "1.2.2.9",
+         "location":  "BepInEx\\plugins\\AAAAAAAAAAAA.Koikatu.dll"
+    },
+    {
+         "guid":  "starstorm.axisunlocker",
+         "name":  "Axis Unlocker",
+         "version":  "1.1.0.9",
+         "location":  "BepInEx\\plugins\\AxisUnlocker.Koikatu.dll"
+    },
+    {
+         "guid":  "starstorm.performancer",
+         "name":  "Performancer",
+         "version":  "1.2.5.9",
+         "location":  "BepInEx\\plugins\\Performancer.Koikatu.dll"
+    },
+    {
+         "guid":  "starstorm.betterscaling",
+         "name":  "Better Scaling",
+         "version":  "1.2.0.9",
+         "location":  "BepInEx\\plugins\\BetterScaling.Koikatu.dll"
+    },
+    {
+         "guid":  "starstorm.cursorindicator",
+         "name":  "Cursor Indicator",
+         "version":  "1.0.0.9",
+         "location":  "BepInEx\\plugins\\CursorIndicator.Koikatu.dll"
+    },
+    {
+         "guid":  "starstorm.lightsettings",
+         "name":  "Light Settings",
+         "version":  "1.2.0.9",
+         "location":  "BepInEx\\plugins\\LightSettings.Koikatu.dll"
+    },
+    {
+         "guid":  "starstorm.lighttoggler",
+         "name":  "Light Toggler",
+         "version":  "1.0.0.9",
+         "location":  "BepInEx\\plugins\\LightToggler.Koikatu.dll"
+    },
+    {
+         "guid":  "starstorm.massshadereditor",
+         "name":  "Mass Shader Editor",
+         "version":  "1.4.0.9",
+         "location":  "BepInEx\\plugins\\MassShaderEditor.Koikatu.dll"
+    },
+    {
+         "guid":  "starstorm.shaderfixer",
+         "name":  "Koikatsu Shader Fixer",
+         "version":  "1.2.0.9",
+         "location":  "BepInEx\\plugins\\ShaderFixer.Koikatu.dll"
+    },
+    {
+         "guid":  "StudioCameraTweaks",
+         "name":  "Studio Camera Tweaks",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_StudioCameraObjectTweaks.dll"
+    },
+    {
+         "guid":  "StudioExtraMoveAxis",
+         "name":  "Extra move axis in bottom right corner",
+         "version":  "2.0",
+         "location":  "BepInEx\\plugins\\KK_StudioExtraMoveAxis.dll"
+    },
+    {
+         "guid":  "StudioMapThumbnail",
+         "name":  "StudioMapThumbnail",
+         "version":  "1.2.0",
+         "location":  "BepInEx\\plugins\\KK_StudioMapThumbnail.dll"
+    },
+    {
+         "guid":  "StudioWindowResize",
+         "name":  "KK_StudioWindowResize",
+         "version":  "1.1.1",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_StudioWindowResize.dll"
+    },
+    {
+         "guid":  "TimelineFlowControl",
+         "name":  "Timeline Flow Control Logic",
+         "version":  "1.0",
+         "location":  "BepInEx\\plugins\\KK_Plugins\\KK_TimelineFlowControl.dll"
+    }
+]
