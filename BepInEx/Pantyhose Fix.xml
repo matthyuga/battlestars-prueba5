@@ -1,0 +1,6 @@
+<KK_ListOverride>
+	<Override Category="110" ID="5" KeyType="61" Value="0"/>
+	<Override Category="co_panst" ID="7" KeyType="StateType" Value="0"/>
+	<Override Category="co_panst" ID="9" KeyType="StateType" Value="0"/>
+	<Override Category="co_panst" ID="10" KeyType="StateType" Value="0"/>
+</KK_ListOverride>

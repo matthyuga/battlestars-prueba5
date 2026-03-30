@@ -1,0 +1,30 @@
+<FootJobAnimations xmlns="https://github.com/IllusionMods/AnimationLoader"
+    xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+    <Animations xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+        <a:string>Animation_pack_lists-houshi-khh_f_92--001</a:string>
+        <a:string>com.illusion-houshi-khh_f_54-054</a:string>
+        <a:string>com.illusion-houshi-khh_f_55-055</a:string>
+        <a:string>com.illusion-houshi-khh_f_59-059</a:string>
+        <a:string>com.illusion-houshi3P-khh3_f_02_00-004</a:string>
+        <a:string>com.illusion-sonyu-khs_f_n27-027</a:string>
+        <a:string>kpluganim-houshi-khh_f_60-001</a:string>
+        <a:string>kpluganim-houshi-khh_f_61-002</a:string>
+        <a:string>kpluganim-houshi-khh_f_62-003</a:string>
+        <a:string>kpluganim-houshi-khh_f_63-004</a:string>
+        <a:string>kpluganim-houshi-khh_f_75-016</a:string>
+        <a:string>kpluganim-houshi-khh_f_76-017</a:string>
+        <a:string>kpluganim-houshi-khh_f_77-018</a:string>
+        <a:string>kpluganim-houshi-khh_f_80-021</a:string>
+        <a:string>kpluganim-houshi-khh_f_81-022</a:string>
+        <a:string>kpluganim-houshi-khh_f_82-023</a:string>
+        <a:string>kpluganim-houshi-khh_f_83-024</a:string>
+        <a:string>kpluganim-houshi-khh_f_84-025</a:string>
+        <a:string>kpluganim-houshi-khh_f_91-069</a:string>
+        <a:string>kpluganim-houshi-khh_f_98-088</a:string>
+        <a:string>kpluganim-houshi-khh_f_105-1022</a:string>
+        <a:string>kpluganim-houshi-khh_f_106-1025</a:string>
+        <a:string>kpluganim-houshi-khh_f_110-1029</a:string>
+        <a:string>kpluganim-houshi-khh_f_111-1030</a:string>
+        <a:string>kpluganim-houshi-khh_f_112-1031</a:string>
+    </Animations>
+</FootJobAnimations>
