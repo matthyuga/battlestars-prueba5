@@ -13,6 +13,12 @@ public enum FaceLayer
     Other
 }
 
+public enum EditorMode
+{
+    Basic,
+    Advanced
+}
+
 public sealed class BlendshapeParam
 {
     public string Key { get; set; } = string.Empty;
@@ -84,4 +90,22 @@ public sealed class PluginOptions
 public readonly record struct TimelineRange(int StartFrame, int EndFrame)
 {
     public bool IsValid => StartFrame >= 0 && EndFrame >= StartFrame;
+}
+
+public sealed class ExpressionEditorViewState
+{
+    public string ActiveCharacterName { get; set; } = string.Empty;
+    public EditorMode Mode { get; set; } = EditorMode.Basic;
+
+    public float GlobalIntensity { get; set; } = 1f;
+    public float MacroIntensity { get; set; } = 1f;
+    public float BlendT { get; set; }
+    public bool SmoothStep { get; set; }
+
+    public string? SelectedPreset { get; set; }
+    public string? SelectedMacro { get; set; }
+
+    public List<string> Presets { get; set; } = new();
+    public List<string> Macros { get; set; } = new();
+    public List<string> Warnings { get; set; } = new();
 }
