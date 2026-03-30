@@ -1,0 +1,6 @@
+CustomPose_BodyLengthPower=0.075
+CustomPose_BodyLengthMultiplier=0.3
+CustomPose_HeelHeightPower=0.75
+CustomPose_HeelHeightMultiplier=32
+KneeBend_HeelHeightMultiplier=1
+DisplaySettingsFilePath=_display.txt

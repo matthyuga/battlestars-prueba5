@@ -1,0 +1,6 @@
+khh_f_62/M_Idle=2,3,3,0
+khh_f_62/M_WLoop1=0,6,-6,0,2,-2,0
+khh_f_62/M_OLoop=0,6,-6,0
+khh_f_62/M_OUT_A=0,6,-6,0
+khh_f_62/M_OUT_Start=0,6,-6,0
+khh_f_62/M_OUT_Loop=0,6,-6,0

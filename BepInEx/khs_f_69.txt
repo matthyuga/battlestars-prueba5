@@ -1,0 +1,15 @@
+p:khs_f_69=1,1.5,1.5,3
+
+khs_f_69/M_OLoop=1,2.5,2.5,3
+khs_f_69/M_OUT_A=1,2.5,2.5,3
+khs_f_69/M_Pull=1,2.5,2.5,3
+khs_f_69/M_Drop=1,2.5,2.5,3
+khs_f_69/M_IN_A=1,2.5,2.5,3
+khs_f_69/M_SS_IN_A=1,2.5,2.5,3
+khs_f_69/M_WS_IN_A=1,2.5,2.5,3
+
+khs_f_69/M_SLoop1=1,2,2,6
+khs_f_69/M_SLoop2=1,2,2,6
+khs_f_69/M_OLoop=1,2,2,6
+khs_f_69/M_SS_IN_Loop=1,2,2,6
+khs_f_69/M_SS_IN_Start=1,2,2,6
