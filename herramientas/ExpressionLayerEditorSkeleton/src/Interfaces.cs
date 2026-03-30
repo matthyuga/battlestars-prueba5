@@ -2,7 +2,14 @@ using System.Collections.Generic;
 
 namespace ExpressionLayerEditorSkeleton;
 
-public interface ICharacterContextService
+public interface ILogger
+{
+    void Info(string message);
+    void Warn(string message);
+    void Error(string message);
+}
+
+public interface ICharacterRuntimeAdapter
 {
     CharacterContext GetActiveCharacter();
     IReadOnlyCollection<BlendshapeParam> GetBlendshapeRegistry(CharacterContext context);
@@ -21,10 +28,11 @@ public interface IConstraintEngine
     IReadOnlyList<string> GetWarnings();
 }
 
-public interface IPresetService
+public interface IPresetRepository
 {
-    void SavePreset(string path, ExpressionPreset preset);
-    ExpressionPreset LoadPreset(string path);
+    void Save(ExpressionPreset preset);
+    ExpressionPreset Load(string presetName);
+    IReadOnlyCollection<string> ListPresetNames();
 }
 
 public interface ISnapshotService

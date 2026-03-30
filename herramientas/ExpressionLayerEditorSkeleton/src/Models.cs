@@ -9,13 +9,14 @@ public enum FaceLayer
     Brows,
     Mouth,
     Jaw,
-    NoseCheek
+    NoseCheek,
+    Other
 }
 
 public sealed class BlendshapeParam
 {
     public string Key { get; set; } = string.Empty;
-    public FaceLayer Layer { get; set; }
+    public FaceLayer Layer { get; set; } = FaceLayer.Other;
     public float Value { get; set; }
     public float Min { get; set; } = -1f;
     public float Max { get; set; } = 1f;
@@ -32,8 +33,6 @@ public sealed class ExpressionState
 {
     public string CharacterId { get; set; } = string.Empty;
     public float GlobalIntensity { get; set; } = 1f;
-
-    // InternalKey -> value
     public Dictionary<string, float> Values { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     public ExpressionState Clone()
@@ -49,7 +48,7 @@ public sealed class ExpressionState
 
 public sealed class ExpressionPreset
 {
-    public string SchemaVersion { get; set; } = "0.1";
+    public string SchemaVersion { get; set; } = "0.2";
     public string Name { get; set; } = string.Empty;
     public List<string> Tags { get; set; } = new();
     public float RecommendedIntensity { get; set; } = 1f;
@@ -73,4 +72,11 @@ public sealed class AutoKeyOptions
 {
     public float DeltaThreshold { get; set; } = 0.01f;
     public int KeyEveryNFrames { get; set; } = 1;
+}
+
+public sealed class PluginOptions
+{
+    public string PresetDirectory { get; set; } = "UserData/ELE/presets";
+    public float DefaultGlobalIntensity { get; set; } = 1f;
+    public bool StrictClamp { get; set; } = true;
 }

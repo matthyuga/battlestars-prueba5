@@ -6,6 +6,13 @@ using System.Text.Json;
 
 namespace ExpressionLayerEditorSkeleton;
 
+public sealed class ConsoleLogger : ILogger
+{
+    public void Info(string message) => Console.WriteLine($"[INFO] {message}");
+    public void Warn(string message) => Console.WriteLine($"[WARN] {message}");
+    public void Error(string message) => Console.WriteLine($"[ERROR] {message}");
+}
+
 public sealed class ExpressionComposer : IExpressionComposer
 {
     public ExpressionState Compose(ExpressionState baseState, ExpressionState layerState, float layerIntensity, float globalIntensity)
@@ -16,8 +23,7 @@ public sealed class ExpressionComposer : IExpressionComposer
         foreach (var kv in layerState.Values)
         {
             var baseValue = output.Values.TryGetValue(kv.Key, out var b) ? b : 0f;
-            var result = baseValue + (kv.Value * layerIntensity * globalIntensity);
-            output.Values[kv.Key] = result;
+            output.Values[kv.Key] = baseValue + (kv.Value * layerIntensity * globalIntensity);
         }
 
         return output;
@@ -52,25 +58,59 @@ public sealed class ConstraintEngine : IConstraintEngine
     public IReadOnlyList<string> GetWarnings() => _warnings;
 }
 
-public sealed class JsonPresetService : IPresetService
+public sealed class JsonFilePresetRepository : IPresetRepository
 {
+    private readonly string _presetDirectory;
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true
     };
 
-    public void SavePreset(string path, ExpressionPreset preset)
+    public JsonFilePresetRepository(string presetDirectory)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(path) ?? ".");
+        _presetDirectory = presetDirectory;
+    }
+
+    public void Save(ExpressionPreset preset)
+    {
+        Directory.CreateDirectory(_presetDirectory);
+        var safeName = ToFileSafeName(preset.Name);
+        var path = Path.Combine(_presetDirectory, $"{safeName}.json");
         var json = JsonSerializer.Serialize(preset, JsonOptions);
         File.WriteAllText(path, json);
     }
 
-    public ExpressionPreset LoadPreset(string path)
+    public ExpressionPreset Load(string presetName)
     {
+        var safeName = ToFileSafeName(presetName);
+        var path = Path.Combine(_presetDirectory, $"{safeName}.json");
+
         var json = File.ReadAllText(path);
         return JsonSerializer.Deserialize<ExpressionPreset>(json, JsonOptions)
                ?? throw new InvalidDataException($"Preset at '{path}' is invalid.");
+    }
+
+    public IReadOnlyCollection<string> ListPresetNames()
+    {
+        if (!Directory.Exists(_presetDirectory))
+            return Array.Empty<string>();
+
+        return Directory
+            .EnumerateFiles(_presetDirectory, "*.json", SearchOption.TopDirectoryOnly)
+            .Select(Path.GetFileNameWithoutExtension)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Cast<string>()
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    private static string ToFileSafeName(string value)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var chars = value.Select(ch => invalid.Contains(ch) ? '_' : ch).ToArray();
+        var safe = new string(chars).Trim();
+        return string.IsNullOrWhiteSpace(safe) ? "preset" : safe;
     }
 }
 
@@ -114,21 +154,12 @@ public sealed class SnapshotService : ISnapshotService
 public sealed class NullTimelineBridge : ITimelineBridge
 {
     public bool IsAvailable => false;
-
     public int GetCurrentFrame() => 0;
-
-    public void SetKey(string paramKey, float value, int frame)
-    {
-        // Stub: in real implementation this should call Timeline API.
-    }
-
-    public void SetKeysForRange(Dictionary<string, float> fromValues, Dictionary<string, float> toValues, int frameStart, int frameEnd)
-    {
-        // Stub: in real implementation this should write interpolated keyframes to Timeline.
-    }
+    public void SetKey(string paramKey, float value, int frame) { }
+    public void SetKeysForRange(Dictionary<string, float> fromValues, Dictionary<string, float> toValues, int frameStart, int frameEnd) { }
 }
 
-public sealed class InMemoryCharacterContextService : ICharacterContextService
+public sealed class InMemoryCharacterRuntimeAdapter : ICharacterRuntimeAdapter
 {
     private readonly CharacterContext _ctx = new()
     {
@@ -144,15 +175,10 @@ public sealed class InMemoryCharacterContextService : ICharacterContextService
         new BlendshapeParam { Key = "kuti_face.f00_ikari_cl", Layer = FaceLayer.Mouth, Min = -1f, Max = 1f }
     };
 
-    private readonly ExpressionState _state = new()
-    {
-        CharacterId = "demo-char"
-    };
+    private readonly ExpressionState _state = new() { CharacterId = "demo-char" };
 
     public CharacterContext GetActiveCharacter() => _ctx;
-
     public IReadOnlyCollection<BlendshapeParam> GetBlendshapeRegistry(CharacterContext context) => _registry;
-
     public ExpressionState ReadCurrentState(CharacterContext context) => _state.Clone();
 
     public void ApplyState(CharacterContext context, ExpressionState state)
