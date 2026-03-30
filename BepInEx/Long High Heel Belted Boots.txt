@@ -1,0 +1,3 @@
+angleAnkle=27
+angleLeg=0
+height=0.045
