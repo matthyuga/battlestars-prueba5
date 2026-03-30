@@ -1,0 +1,3 @@
+angleAnkle=12
+angleLeg=3
+height=0.03

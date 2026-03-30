@@ -1,0 +1,47 @@
+None_Placeholder=-- 未加载 --
+Default_Character_Name=<character_name>
+Default_Heel_Name=<heel_name>
+Default_Animation_Path=<animation_name>
+Default_Animation_Name=<animation_frame>
+
+Stiletto=高跟插件
+Ankle_Angle=脚踝角度
+Leg_Angle=小腿角度
+Thigh_Angle=大腿角度
+Waist_Angle=腰部角度
+Active=激活
+Height=高度修正
+Toe_Roll=脚趾修正
+Ankle_Roll=脚踝修正
+Knee_Bend=屈膝修正
+Custom_Pose=自制姿势
+Right_Leg=右腿
+Left_Leg=左腿
+Both_Legs=两腿同步
+
+Save=保存
+Reload_Configurations=重新加载配置
+Save_Heel_Settings=保存高跟设置
+
+Animation_Tab=动作修正
+CustomPose_Tab=自制姿势
+CustomHeel_Tab=高跟配置
+Custom_Pose_Compatibility=自定义姿势 (兼容模式)
+AnimationSettings=动作修正
+Heel_Settings=高跟设置
+Knee_Bend_Settings=屈膝修正设置
+
+Current_Characters=当前角色
+All_Characters=全部角色
+Switch_Characters=切换
+
+Name=名称
+Heel=高跟
+Anim_Path=动作组
+Anim_Name=动作帧
+Total=Total
+Previous=上一个
+Next=下一个
+
+Save_For_Animation_Group=保存 (动作组)
+Save_For_Animation_Frame=保存 (动作帧)

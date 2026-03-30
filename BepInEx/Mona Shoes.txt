@@ -1,0 +1,3 @@
+angleAnkle=15
+angleLeg=4
+height=0.032

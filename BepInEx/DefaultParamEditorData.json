@@ -1,0 +1,62 @@
+{
+    "charaParamData": {
+        "saved": true,
+        "clothesState": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
+        "neckLookPtn": 3,
+        "eyesOpenMax": 1.0,
+        "eyesBlink": true
+    },
+    "sceneParamData": {
+        "saved": true,
+        "aceNo": 1,
+        "aoeColor": {
+            "a": 1.0
+        },
+        "aoeRadius": 1.0,
+        "bloomIntensity": 5.0,
+        "bloomThreshold": 0.624,
+        "bloomBlur": 10.0,
+        "depthFocalSize": 1.120001,
+        "depthAperture": 0.76,
+        "fogColor": {
+            "r": 1.0,
+            "g": 0.3316326,
+            "b": 0.2202381,
+            "a": 1.0
+        },
+        "fogHeight": 50.0,
+        "fogStartDistance": 30.00015,
+        "sunThresholdColor": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+        },
+        "sunColor": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+        },
+        "enableShadow": true,
+        "lineColorG": 1.0,
+        "ambientShadow": {
+            "a": 1.0
+        },
+        "lineWidthG": 0.3100003,
+        "rampG": 1,
+        "ambientShadowG": 1.0,
+        "cameraNearClip": 0.06,
+        "fov": 23.0
+    }
+}

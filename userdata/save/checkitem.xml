@@ -1,0 +1,7033 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<checkitem>
+  <mod guid="HeadMod">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.nohairB">
+    <category number="101">
+      <item id="500" />
+      <item id="502" />
+      <item id="504" />
+      <item id="501" />
+      <item id="503" />
+      <item id="508" />
+      <item id="507" />
+      <item id="512" />
+    </category>
+  </mod>
+  <mod guid="[Frostation] Skin Tight Suit Pack">
+    <category number="210">
+      <item id="4" />
+      <item id="2" />
+      <item id="1" />
+    </category>
+    <category number="105">
+      <item id="4" />
+      <item id="3" />
+      <item id="2" />
+      <item id="1" />
+    </category>
+    <category number="110">
+      <item id="2" />
+      <item id="3" />
+      <item id="4" />
+      <item id="1" />
+    </category>
+    <category number="107">
+      <item id="2" />
+      <item id="4" />
+    </category>
+    <category number="108">
+      <item id="4" />
+    </category>
+    <category number="212">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="nakay.Top jacket">
+    <category number="211">
+      <item id="3" />
+      <item id="10" />
+      <item id="9" />
+      <item id="6" />
+      <item id="7" />
+    </category>
+    <category number="210">
+      <item id="9" />
+      <item id="6" />
+      <item id="3" />
+      <item id="4" />
+      <item id="2" />
+      <item id="1" />
+      <item id="8" />
+      <item id="7" />
+      <item id="5" />
+    </category>
+  </mod>
+  <mod guid="aa001">
+    <category number="122">
+      <item id="100000" />
+      <item id="100431" />
+      <item id="100002" />
+      <item id="100280" />
+      <item id="100430" />
+      <item id="100001" />
+      <item id="100460" />
+      <item id="100130" />
+      <item id="100420" />
+      <item id="100170" />
+      <item id="100050" />
+      <item id="100140" />
+      <item id="100271" />
+      <item id="100150" />
+      <item id="100020" />
+      <item id="100440" />
+      <item id="100350" />
+      <item id="100082" />
+      <item id="100120" />
+    </category>
+    <category number="123">
+      <item id="300122" />
+      <item id="100080" />
+      <item id="100150" />
+      <item id="100131" />
+      <item id="300161" />
+      <item id="100181" />
+      <item id="100061" />
+      <item id="100030" />
+      <item id="100140" />
+      <item id="300072" />
+      <item id="100110" />
+      <item id="300061" />
+      <item id="100191" />
+      <item id="100050" />
+    </category>
+  </mod>
+  <mod guid="com.kimono_jacket">
+    <category number="210">
+      <item id="200312" />
+    </category>
+  </mod>
+  <mod guid="5896.samurai.coat">
+    <category number="211">
+      <item id="96" />
+    </category>
+    <category number="105">
+      <item id="94" />
+    </category>
+  </mod>
+  <mod guid="com.Blanketman.AdditionalSkinMod">
+    <category number="420">
+      <item id="7427" />
+      <item id="7428" />
+      <item id="7426" />
+      <item id="7425" />
+      <item id="7424" />
+      <item id="7429" />
+    </category>
+  </mod>
+  <mod guid="aahair001">
+    <category number="122">
+      <item id="200450" />
+      <item id="200000" />
+      <item id="200301" />
+      <item id="200550" />
+      <item id="200380" />
+      <item id="200560" />
+      <item id="200300" />
+      <item id="200570" />
+      <item id="200480" />
+      <item id="200250" />
+      <item id="200050" />
+      <item id="200390" />
+      <item id="200100" />
+      <item id="200010" />
+      <item id="200600" />
+    </category>
+    <category number="123">
+      <item id="200431" />
+      <item id="200370" />
+      <item id="200351" />
+      <item id="200410" />
+      <item id="200210" />
+      <item id="200331" />
+      <item id="200201" />
+      <item id="200270" />
+      <item id="200320" />
+      <item id="200480" />
+      <item id="200010" />
+      <item id="200390" />
+      <item id="200261" />
+      <item id="200260" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.clothVariationP">
+    <category number="105">
+      <item id="573" />
+      <item id="566" />
+      <item id="563" />
+      <item id="568" />
+      <item id="562" />
+      <item id="564" />
+      <item id="567" />
+    </category>
+  </mod>
+  <mod guid="onaka_etc">
+    <category number="211">
+      <item id="820" />
+    </category>
+    <category number="107">
+      <item id="821" />
+    </category>
+    <category number="105">
+      <item id="819" />
+    </category>
+  </mod>
+  <mod guid="m14.FGO_BBLeotard">
+    <category number="210">
+      <item id="18" />
+    </category>
+  </mod>
+  <mod guid="yu000.ShirtlessUniform">
+    <category number="210">
+      <item id="100" />
+    </category>
+    <category number="201">
+      <item id="100" />
+    </category>
+    <category number="200">
+      <item id="100" />
+    </category>
+  </mod>
+  <mod guid="5896.haori.kimono">
+    <category number="211">
+      <item id="95" />
+    </category>
+  </mod>
+  <mod guid="nakay.accessory">
+    <category number="124">
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="MLS_semi_msc_1">
+    <category number="420">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="nakay.jacket.openshirt">
+    <category number="210">
+      <item id="69573" />
+      <item id="69574" />
+      <item id="69572" />
+      <item id="69575" />
+      <item id="69571" />
+      <item id="69570" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.Headmod02">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="5896.pufferjack">
+    <category number="211">
+      <item id="94" />
+    </category>
+    <category number="111">
+      <item id="6000" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Bleach.Mod">
+    <category number="105">
+      <item id="40831" />
+      <item id="40848" />
+      <item id="40706" />
+    </category>
+    <category number="106">
+      <item id="40832" />
+      <item id="40846" />
+    </category>
+    <category number="122">
+      <item id="40830" />
+    </category>
+  </mod>
+  <mod guid="ECshoes">
+    <category number="210">
+      <item id="22" />
+      <item id="25" />
+      <item id="21" />
+      <item id="24" />
+      <item id="18" />
+    </category>
+    <category number="105">
+      <item id="94" />
+      <item id="95" />
+      <item id="75" />
+      <item id="73" />
+      <item id="87" />
+      <item id="92" />
+    </category>
+    <category number="211">
+      <item id="41" />
+      <item id="47" />
+      <item id="48" />
+      <item id="43" />
+      <item id="39" />
+      <item id="35" />
+    </category>
+    <category number="112">
+      <item id="709" />
+      <item id="702" />
+      <item id="722" />
+      <item id="726" />
+      <item id="719" />
+      <item id="725" />
+    </category>
+    <category number="106">
+      <item id="61" />
+      <item id="59" />
+    </category>
+    <category number="110">
+      <item id="33" />
+      <item id="27" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.accprim">
+    <category number="126">
+      <item id="546" />
+      <item id="501" />
+      <item id="541" />
+      <item id="552" />
+      <item id="563" />
+      <item id="512" />
+      <item id="581" />
+      <item id="579" />
+      <item id="507" />
+      <item id="514" />
+      <item id="578" />
+      <item id="535" />
+      <item id="580" />
+      <item id="540" />
+      <item id="549" />
+      <item id="536" />
+      <item id="537" />
+      <item id="566" />
+      <item id="573" />
+      <item id="547" />
+      <item id="538" />
+      <item id="505" />
+      <item id="502" />
+      <item id="574" />
+      <item id="565" />
+      <item id="516" />
+      <item id="559" />
+    </category>
+  </mod>
+  <mod guid="kks.co_top_30">
+    <category number="105">
+      <item id="331" />
+      <item id="336" />
+      <item id="335" />
+      <item id="332" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.Headmod05">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.AccessoryHairFront">
+    <category number="123">
+      <item id="93" />
+      <item id="237" />
+      <item id="243" />
+      <item id="193" />
+      <item id="263" />
+      <item id="253" />
+      <item id="21" />
+      <item id="258" />
+      <item id="209" />
+      <item id="27" />
+      <item id="194" />
+      <item id="37" />
+      <item id="163" />
+      <item id="153" />
+      <item id="90" />
+      <item id="139" />
+      <item id="257" />
+      <item id="28" />
+      <item id="115" />
+      <item id="215" />
+      <item id="107" />
+      <item id="122" />
+      <item id="203" />
+      <item id="11" />
+      <item id="252" />
+      <item id="167" />
+      <item id="241" />
+      <item id="161" />
+      <item id="52" />
+      <item id="67" />
+      <item id="83" />
+      <item id="86" />
+      <item id="142" />
+      <item id="102" />
+      <item id="157" />
+      <item id="71" />
+      <item id="199" />
+      <item id="173" />
+      <item id="188" />
+      <item id="82" />
+      <item id="212" />
+      <item id="72" />
+      <item id="186" />
+      <item id="182" />
+      <item id="205" />
+      <item id="166" />
+      <item id="211" />
+      <item id="159" />
+      <item id="75" />
+      <item id="45" />
+      <item id="145" />
+      <item id="148" />
+      <item id="95" />
+    </category>
+  </mod>
+  <mod guid="cream002">
+    <category number="124">
+      <item id="802" />
+      <item id="801" />
+    </category>
+    <category number="122">
+      <item id="2133" />
+      <item id="2116" />
+      <item id="2058" />
+      <item id="2136" />
+      <item id="2096" />
+      <item id="2082" />
+      <item id="2158" />
+      <item id="2161" />
+      <item id="2163" />
+      <item id="2115" />
+      <item id="2038" />
+      <item id="2166" />
+      <item id="2155" />
+      <item id="2013" />
+      <item id="2041" />
+    </category>
+  </mod>
+  <mod guid="com.lucentz.nosleevegym">
+    <category number="210">
+      <item id="55346845" />
+    </category>
+  </mod>
+  <mod guid="moderchan.CustomClothesPack">
+    <category number="105">
+      <item id="1893" />
+      <item id="1895" />
+      <item id="1894" />
+    </category>
+    <category number="200">
+      <item id="1880" />
+      <item id="1881" />
+    </category>
+    <category number="107">
+      <item id="1884" />
+      <item id="1885" />
+    </category>
+  </mod>
+  <mod guid="cm3d201">
+    <category number="122">
+      <item id="31059" />
+      <item id="30240" />
+      <item id="30130" />
+      <item id="30070" />
+      <item id="30350" />
+      <item id="30050" />
+      <item id="30160" />
+      <item id="30460" />
+      <item id="30320" />
+      <item id="30640" />
+      <item id="30110" />
+      <item id="30280" />
+      <item id="30721" />
+      <item id="31034" />
+      <item id="310362" />
+      <item id="31036" />
+      <item id="31035" />
+      <item id="310402" />
+      <item id="310592" />
+      <item id="30560" />
+      <item id="30040" />
+    </category>
+    <category number="123">
+      <item id="32530" />
+      <item id="32470" />
+      <item id="32400" />
+      <item id="32500" />
+      <item id="32540" />
+      <item id="32311" />
+      <item id="32851" />
+      <item id="32040" />
+      <item id="32430" />
+      <item id="32120" />
+      <item id="32780" />
+    </category>
+  </mod>
+  <mod guid="com.nammiyoo.taisoufuku">
+    <category number="210">
+      <item id="5959004" />
+      <item id="5959007" />
+    </category>
+    <category number="105">
+      <item id="6959001" />
+      <item id="6959002" />
+    </category>
+  </mod>
+  <mod guid="hayashi.Hoodie">
+    <category number="211">
+      <item id="889" />
+    </category>
+  </mod>
+  <mod guid="broly_headmod">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="moderchan.CharamakerSupportMOD">
+    <category number="400">
+      <item id="1885" />
+      <item id="1881" />
+      <item id="1882" />
+      <item id="1880" />
+    </category>
+    <category number="406">
+      <item id="1767" />
+      <item id="1817" />
+    </category>
+    <category number="421">
+      <item id="1760" />
+      <item id="1762" />
+      <item id="1792" />
+    </category>
+    <category number="408">
+      <item id="1918" />
+      <item id="1915" />
+      <item id="1919" />
+      <item id="1902" />
+      <item id="1905" />
+      <item id="1906" />
+      <item id="1900" />
+      <item id="1897" />
+      <item id="1895" />
+      <item id="1881" />
+      <item id="1888" />
+      <item id="1903" />
+      <item id="1879" />
+      <item id="1887" />
+      <item id="1889" />
+      <item id="1896" />
+      <item id="1893" />
+      <item id="1886" />
+      <item id="1894" />
+      <item id="1891" />
+      <item id="1890" />
+    </category>
+    <category number="407">
+      <item id="1885" />
+      <item id="1888" />
+    </category>
+    <category number="410">
+      <item id="1919" />
+      <item id="1885" />
+      <item id="1842" />
+      <item id="1904" />
+      <item id="1761" />
+      <item id="1800" />
+      <item id="1892" />
+      <item id="1884" />
+      <item id="1916" />
+      <item id="1810" />
+      <item id="1894" />
+      <item id="1909" />
+      <item id="1827" />
+      <item id="1773" />
+    </category>
+    <category number="411">
+      <item id="1919" />
+      <item id="1895" />
+      <item id="1815" />
+      <item id="1813" />
+      <item id="1894" />
+      <item id="1822" />
+      <item id="1891" />
+      <item id="1915" />
+      <item id="1912" />
+      <item id="1881" />
+      <item id="1823" />
+      <item id="1805" />
+      <item id="1787" />
+      <item id="1916" />
+    </category>
+    <category number="412">
+      <item id="1783" />
+      <item id="1880" />
+      <item id="1833" />
+    </category>
+    <category number="413">
+      <item id="1776" />
+      <item id="1761" />
+      <item id="1875" />
+      <item id="1861" />
+      <item id="1862" />
+    </category>
+    <category number="409">
+      <item id="1880" />
+      <item id="1890" />
+    </category>
+    <category number="415">
+      <item id="1760" />
+      <item id="1786" />
+      <item id="1766" />
+      <item id="1862" />
+      <item id="1770" />
+      <item id="1783" />
+      <item id="1762" />
+      <item id="1811" />
+      <item id="1771" />
+      <item id="1761" />
+      <item id="1815" />
+    </category>
+    <category number="403">
+      <item id="1769" />
+      <item id="1767" />
+      <item id="1768" />
+    </category>
+    <category number="405">
+      <item id="1762" />
+      <item id="1775" />
+      <item id="1843" />
+    </category>
+    <category number="401">
+      <item id="1884" />
+      <item id="1889" />
+      <item id="1882" />
+      <item id="1883" />
+      <item id="1880" />
+    </category>
+    <category number="402">
+      <item id="1894" />
+    </category>
+    <category number="404">
+      <item id="1882" />
+    </category>
+    <category number="414">
+      <item id="1892" />
+      <item id="1894" />
+      <item id="1891" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Nose.Mod">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.clothVariation2">
+    <category number="105">
+      <item id="521" />
+      <item id="526" />
+      <item id="523" />
+      <item id="520" />
+      <item id="529" />
+      <item id="522" />
+      <item id="525" />
+      <item id="530" />
+    </category>
+    <category number="109">
+      <item id="510" />
+    </category>
+    <category number="106">
+      <item id="515" />
+      <item id="509" />
+      <item id="511" />
+      <item id="512" />
+      <item id="510" />
+      <item id="513" />
+      <item id="514" />
+      <item id="508" />
+    </category>
+    <category number="200">
+      <item id="501" />
+    </category>
+  </mod>
+  <mod guid="nashi.Jacket">
+    <category number="210">
+      <item id="745" />
+      <item id="746" />
+      <item id="742" />
+      <item id="743" />
+      <item id="741" />
+    </category>
+    <category number="211">
+      <item id="747" />
+      <item id="746" />
+      <item id="744" />
+      <item id="748" />
+      <item id="742" />
+      <item id="743" />
+      <item id="745" />
+      <item id="741" />
+    </category>
+    <category number="212">
+      <item id="742" />
+      <item id="743" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.Gal">
+    <category number="210">
+      <item id="1609" />
+      <item id="1608" />
+    </category>
+    <category number="111">
+      <item id="1601" />
+    </category>
+  </mod>
+  <mod guid="jacket001">
+    <category number="210">
+      <item id="600" />
+    </category>
+    <category number="211">
+      <item id="1000" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.LongSleeveTShirtSet">
+    <category number="210">
+      <item id="1604" />
+      <item id="1603" />
+    </category>
+  </mod>
+  <mod guid="koikoi.happy.nu.cloth_texture">
+    <category number="430">
+      <item id="5802" />
+      <item id="5801" />
+      <item id="5800" />
+    </category>
+  </mod>
+  <mod guid="mm.Bloomers">
+    <category number="210">
+      <item id="180004" />
+      <item id="180010" />
+      <item id="180012" />
+      <item id="180003" />
+    </category>
+  </mod>
+  <mod guid="xne_altbunny">
+    <category number="105">
+      <item id="9231" />
+      <item id="9232" />
+    </category>
+    <category number="210">
+      <item id="9204" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.clothVariation">
+    <category number="210">
+      <item id="509" />
+      <item id="504" />
+      <item id="505" />
+      <item id="507" />
+    </category>
+    <category number="105">
+      <item id="515" />
+      <item id="517" />
+      <item id="518" />
+      <item id="519" />
+      <item id="514" />
+    </category>
+    <category number="211">
+      <item id="502" />
+      <item id="501" />
+    </category>
+    <category number="109">
+      <item id="503" />
+      <item id="505" />
+      <item id="504" />
+    </category>
+    <category number="106">
+      <item id="501" />
+      <item id="503" />
+    </category>
+    <category number="107">
+      <item id="502" />
+      <item id="508" />
+      <item id="501" />
+    </category>
+    <category number="111">
+      <item id="510" />
+      <item id="511" />
+    </category>
+  </mod>
+  <mod guid="nashi.Top">
+    <category number="105">
+      <item id="748" />
+      <item id="743" />
+      <item id="744" />
+      <item id="741" />
+      <item id="749" />
+    </category>
+  </mod>
+  <mod guid="lesbianon.pufferjack">
+    <category number="211">
+      <item id="83" />
+    </category>
+    <category number="105">
+      <item id="82" />
+    </category>
+  </mod>
+  <mod guid="nashi.Sweater">
+    <category number="105">
+      <item id="712" />
+      <item id="711" />
+      <item id="714" />
+      <item id="713" />
+      <item id="715" />
+    </category>
+  </mod>
+  <mod guid="HeartCat_pattern">
+    <category number="430">
+      <item id="2016105" />
+      <item id="2016101" />
+      <item id="2016103" />
+      <item id="2016106" />
+      <item id="2016115" />
+      <item id="2016113" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.AccessoryHairBack">
+    <category number="122">
+      <item id="154" />
+      <item id="32" />
+      <item id="52" />
+      <item id="148" />
+      <item id="119" />
+      <item id="45" />
+      <item id="53" />
+      <item id="22" />
+      <item id="69" />
+      <item id="107" />
+      <item id="31" />
+      <item id="57" />
+      <item id="121" />
+      <item id="149" />
+      <item id="180" />
+      <item id="62" />
+      <item id="2" />
+      <item id="25" />
+      <item id="73" />
+      <item id="183" />
+      <item id="115" />
+      <item id="16" />
+      <item id="142" />
+      <item id="145" />
+      <item id="15" />
+      <item id="68" />
+      <item id="130" />
+      <item id="167" />
+      <item id="58" />
+      <item id="60" />
+      <item id="1" />
+      <item id="110" />
+      <item id="43" />
+      <item id="42" />
+      <item id="35" />
+      <item id="61" />
+      <item id="59" />
+      <item id="117" />
+      <item id="122" />
+      <item id="169" />
+      <item id="28" />
+      <item id="187" />
+      <item id="44" />
+      <item id="162" />
+      <item id="112" />
+      <item id="96" />
+    </category>
+  </mod>
+  <mod guid="com.mysto.modpack">
+    <category number="210">
+      <item id="4535346" />
+    </category>
+    <category number="421">
+      <item id="56406" />
+      <item id="56405" />
+      <item id="56407" />
+      <item id="56410" />
+      <item id="56409" />
+      <item id="56412" />
+    </category>
+    <category number="105">
+      <item id="45346747" />
+    </category>
+    <category number="110">
+      <item id="4393516" />
+    </category>
+    <category number="430">
+      <item id="56412" />
+    </category>
+  </mod>
+  <mod guid="com.roy12.SexySchoolgirlPackA">
+    <category number="202">
+      <item id="80" />
+    </category>
+    <category number="123">
+      <item id="80" />
+    </category>
+    <category number="128">
+      <item id="80" />
+    </category>
+    <category number="105">
+      <item id="80" />
+    </category>
+    <category number="200">
+      <item id="80" />
+    </category>
+    <category number="107">
+      <item id="81" />
+    </category>
+    <category number="110">
+      <item id="82" />
+      <item id="80" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.chinadresstopbolero">
+    <category number="105">
+      <item id="106" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.kimonodresstopopen2">
+    <category number="105">
+      <item id="99" />
+    </category>
+  </mod>
+  <mod guid="xne_hlbunny">
+    <category number="105">
+      <item id="9216" />
+    </category>
+  </mod>
+  <mod guid="nakay.Top decoration">
+    <category number="212">
+      <item id="3" />
+      <item id="2" />
+      <item id="4" />
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="pinosante.tubedress">
+    <category number="105">
+      <item id="125" />
+      <item id="124" />
+      <item id="123" />
+    </category>
+  </mod>
+  <mod guid="HearCat_ModPack">
+    <category number="200">
+      <item id="2016104" />
+    </category>
+    <category number="201">
+      <item id="2016107" />
+      <item id="2016108" />
+    </category>
+    <category number="211">
+      <item id="2015101" />
+    </category>
+  </mod>
+  <mod guid="WaTaFuk.WMO">
+    <category number="105">
+      <item id="3000" />
+      <item id="3001" />
+    </category>
+  </mod>
+  <mod guid="jacket521">
+    <category number="211">
+      <item id="12040" />
+    </category>
+  </mod>
+  <mod guid="Lesbianon.morepatterns">
+    <category number="430">
+      <item id="1224" />
+      <item id="1228" />
+      <item id="1233" />
+      <item id="1268" />
+      <item id="1270" />
+      <item id="12931" />
+      <item id="1254" />
+      <item id="1244" />
+      <item id="12741" />
+      <item id="1016" />
+      <item id="1269" />
+      <item id="12273" />
+    </category>
+  </mod>
+  <mod guid="yu000.GymClothesSet">
+    <category number="210">
+      <item id="512" />
+      <item id="511" />
+    </category>
+    <category number="108">
+      <item id="512" />
+      <item id="513" />
+      <item id="511" />
+    </category>
+  </mod>
+  <mod guid="xne_sukecami">
+    <category number="105">
+      <item id="9211" />
+    </category>
+  </mod>
+  <mod guid="xne_tsyatu01">
+    <category number="105">
+      <item id="9219" />
+    </category>
+  </mod>
+  <mod guid="chinadress.edit">
+    <category number="105">
+      <item id="10000" />
+    </category>
+  </mod>
+  <mod guid="m14.shaman">
+    <category number="210">
+      <item id="80" />
+    </category>
+  </mod>
+  <mod guid="moderchan.HMNurseCos">
+    <category number="105">
+      <item id="1882" />
+    </category>
+    <category number="122">
+      <item id="1879" />
+    </category>
+  </mod>
+  <mod guid="xne_dabotsyatu">
+    <category number="105">
+      <item id="9221" />
+      <item id="9220" />
+    </category>
+  </mod>
+  <mod guid="n777_sagiri">
+    <category number="105">
+      <item id="18009" />
+    </category>
+  </mod>
+  <mod guid="inner_Bandeau_dress">
+    <category number="105">
+      <item id="805" />
+    </category>
+    <category number="210">
+      <item id="804" />
+    </category>
+  </mod>
+  <mod guid="nashi.SummerSailor">
+    <category number="200">
+      <item id="741" />
+      <item id="744" />
+      <item id="742" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.NatsumiExpansionSet">
+    <category number="105">
+      <item id="1609" />
+    </category>
+  </mod>
+  <mod guid="com.roy12.slutstuff01">
+    <category number="201">
+      <item id="31099" />
+    </category>
+    <category number="200">
+      <item id="31098" />
+    </category>
+    <category number="125">
+      <item id="31095" />
+    </category>
+    <category number="431">
+      <item id="31098" />
+      <item id="31095" />
+    </category>
+    <category number="107">
+      <item id="31095" />
+    </category>
+    <category number="108">
+      <item id="31096" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.innerweddingdress">
+    <category number="210">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.cowgirljacket">
+    <category number="211">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="Augh.Nipples">
+    <category number="423">
+      <item id="6" />
+      <item id="8" />
+      <item id="4" />
+      <item id="2" />
+      <item id="1" />
+      <item id="5" />
+      <item id="7" />
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.camicut">
+    <category number="105">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="8_pack_skin">
+    <category number="420">
+      <item id="400" />
+      <item id="401" />
+    </category>
+  </mod>
+  <mod guid="KL_accessories_new">
+    <category number="105">
+      <item id="23341" />
+    </category>
+  </mod>
+  <mod guid="nakay.jacket.02">
+    <category number="211">
+      <item id="69620" />
+      <item id="69630" />
+    </category>
+  </mod>
+  <mod guid="00974.OnePieceNamiTattoos">
+    <category number="421">
+      <item id="92" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.Birthmarks">
+    <category number="421">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.ymdtexture">
+    <category number="421">
+      <item id="501" />
+      <item id="503" />
+    </category>
+    <category number="400">
+      <item id="501" />
+      <item id="503" />
+      <item id="502" />
+    </category>
+    <category number="430">
+      <item id="502" />
+      <item id="511" />
+      <item id="501" />
+      <item id="533" />
+      <item id="506" />
+      <item id="531" />
+      <item id="538" />
+      <item id="525" />
+      <item id="523" />
+      <item id="503" />
+      <item id="504" />
+      <item id="524" />
+      <item id="516" />
+      <item id="509" />
+      <item id="535" />
+      <item id="517" />
+      <item id="526" />
+      <item id="508" />
+    </category>
+    <category number="420">
+      <item id="502" />
+      <item id="504" />
+      <item id="503" />
+      <item id="501" />
+    </category>
+    <category number="402">
+      <item id="505" />
+      <item id="501" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.bpaint">
+    <category number="421">
+      <item id="503" />
+      <item id="501" />
+    </category>
+  </mod>
+  <mod guid="XiaoJuHua.XiaoJuHuaTattoo">
+    <category number="421">
+      <item id="21" />
+      <item id="18" />
+      <item id="10" />
+      <item id="6" />
+    </category>
+  </mod>
+  <mod guid="com.oilball.sleeveless">
+    <category number="105">
+      <item id="250" />
+    </category>
+  </mod>
+  <mod guid="Evaan.DemonSlayer.Mod">
+    <category number="105">
+      <item id="40703" />
+      <item id="40730" />
+    </category>
+  </mod>
+  <mod guid="WW_Accs">
+    <category number="122">
+      <item id="520" />
+      <item id="514" />
+      <item id="513" />
+      <item id="548" />
+      <item id="519" />
+    </category>
+    <category number="124">
+      <item id="501" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.ZatannaHat">
+    <category number="122">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.PaulineMajorHat">
+    <category number="122">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="kiyoubi">
+    <category number="112">
+      <item id="200007" />
+    </category>
+  </mod>
+  <mod guid="Ktan_Yumi_dress">
+    <category number="112">
+      <item id="50714" />
+    </category>
+  </mod>
+  <mod guid="Koimas.im@s_dresses">
+    <category number="112">
+      <item id="3460017" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Ragyo_Clothes">
+    <category number="112">
+      <item id="6886410" />
+    </category>
+  </mod>
+  <mod guid="com.nep.xinyanstuff">
+    <category number="112">
+      <item id="41571508" />
+    </category>
+    <category number="106">
+      <item id="41571510" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.GantzSuitSet3">
+    <category number="112">
+      <item id="1602" />
+    </category>
+  </mod>
+  <mod guid="kanako_04_modpack">
+    <category number="112">
+      <item id="991080409" />
+    </category>
+  </mod>
+  <mod guid="Masters Fall">
+    <category number="112">
+      <item id="112004401" />
+    </category>
+  </mod>
+  <mod guid="Baltimore_Azur_lane_123_123">
+    <category number="112">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="Mordhau.Outfit.Maker">
+    <category number="112">
+      <item id="851001" />
+      <item id="851000" />
+      <item id="852001" />
+      <item id="852004" />
+      <item id="852003" />
+      <item id="852000" />
+      <item id="852002" />
+      <item id="852005" />
+    </category>
+    <category number="128">
+      <item id="870001" />
+    </category>
+    <category number="122">
+      <item id="94021" />
+      <item id="94023" />
+    </category>
+    <category number="105">
+      <item id="80007" />
+    </category>
+    <category number="124">
+      <item id="95001" />
+      <item id="95002" />
+    </category>
+    <category number="111">
+      <item id="840000" />
+      <item id="840010" />
+      <item id="842001" />
+      <item id="841000" />
+    </category>
+  </mod>
+  <mod guid="Lesbianon.shoeretailored">
+    <category number="112">
+      <item id="1027" />
+      <item id="104" />
+      <item id="118" />
+      <item id="124" />
+      <item id="114" />
+      <item id="121" />
+      <item id="103" />
+      <item id="101" />
+      <item id="107" />
+      <item id="102" />
+      <item id="105" />
+    </category>
+  </mod>
+  <mod guid="HeadMod2">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Sergor.HpWatch">
+    <category number="128">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.alex7997.tattoo">
+    <category number="421">
+      <item id="87" />
+      <item id="83" />
+    </category>
+  </mod>
+  <mod guid="Megadroide_bodypaints_minitattos02">
+    <category number="421">
+      <item id="1023" />
+      <item id="1022" />
+    </category>
+  </mod>
+  <mod guid="nakay.head.gizaba">
+    <category number="100">
+      <item id="61" />
+    </category>
+  </mod>
+  <mod guid="DS27.Project_DIVA_AFT_MOD">
+    <category number="123">
+      <item id="32" />
+      <item id="28" />
+      <item id="19" />
+      <item id="18" />
+      <item id="17" />
+      <item id="14" />
+    </category>
+  </mod>
+  <mod guid="matne_coordinate_pack_00">
+    <category number="105">
+      <item id="1" />
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Naruto.Mod">
+    <category number="126">
+      <item id="40386" />
+    </category>
+    <category number="112">
+      <item id="40459" />
+      <item id="40384" />
+    </category>
+  </mod>
+  <mod guid="HeadMod_SharpTeeth">
+    <category number="100">
+      <item id="15" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.cowgirlvest">
+    <category number="211">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="TedPanda.chokercolletion">
+    <category number="124">
+      <item id="3281" />
+      <item id="3283" />
+      <item id="3285" />
+      <item id="3282" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.texchange">
+    <category number="105">
+      <item id="500" />
+      <item id="502" />
+      <item id="503" />
+      <item id="513" />
+      <item id="510" />
+      <item id="509" />
+      <item id="511" />
+    </category>
+    <category number="126">
+      <item id="604" />
+    </category>
+    <category number="107">
+      <item id="505" />
+    </category>
+    <category number="111">
+      <item id="502" />
+    </category>
+  </mod>
+  <mod guid="taka.PatternTextures">
+    <category number="430">
+      <item id="1003" />
+      <item id="1009" />
+      <item id="1001" />
+      <item id="1013" />
+      <item id="1002" />
+      <item id="1004" />
+      <item id="1005" />
+      <item id="1011" />
+    </category>
+  </mod>
+  <mod guid="KL_Diluc">
+    <category number="105">
+      <item id="33278" />
+    </category>
+  </mod>
+  <mod guid="kks.co_top_00">
+    <category number="105">
+      <item id="314" />
+      <item id="323" />
+      <item id="316" />
+      <item id="303" />
+      <item id="319" />
+      <item id="320" />
+      <item id="308" />
+      <item id="302" />
+      <item id="322" />
+    </category>
+  </mod>
+  <mod guid="uppervolta.AnimeCharacterHairstyleSet">
+    <category number="101">
+      <item id="108" />
+      <item id="101" />
+    </category>
+  </mod>
+  <mod guid="cream006">
+    <category number="210">
+      <item id="52003" />
+      <item id="52000" />
+    </category>
+    <category number="211">
+      <item id="52100" />
+    </category>
+    <category number="125">
+      <item id="78201" />
+    </category>
+    <category number="122">
+      <item id="72600" />
+      <item id="78400" />
+      <item id="5010" />
+    </category>
+    <category number="109">
+      <item id="2000" />
+      <item id="2001" />
+      <item id="2003" />
+    </category>
+    <category number="106">
+      <item id="5202" />
+      <item id="5200" />
+    </category>
+    <category number="112">
+      <item id="5200" />
+      <item id="5201" />
+    </category>
+  </mod>
+  <mod guid="Augh.FaceOutline">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="moderchan.BackHairTailNone">
+    <category number="101">
+      <item id="1889" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.Vest">
+    <category number="210">
+      <item id="1600" />
+    </category>
+  </mod>
+  <mod guid="koikatuman.IdolOutfitSplit">
+    <category number="212">
+      <item id="6900" />
+    </category>
+    <category number="210">
+      <item id="6908" />
+    </category>
+    <category number="211">
+      <item id="6901" />
+    </category>
+    <category number="110">
+      <item id="6905" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.Headmod01">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="wtf.Denims">
+    <category number="430">
+      <item id="111" />
+      <item id="110" />
+    </category>
+  </mod>
+  <mod guid="xm007.maleblazerfix">
+    <category number="105">
+      <item id="20502" />
+    </category>
+  </mod>
+  <mod guid="musisi.SSSS_Gridman_eye">
+    <category number="408">
+      <item id="9663" />
+    </category>
+  </mod>
+  <mod guid="WW_Eyes">
+    <category number="408">
+      <item id="720" />
+      <item id="718" />
+      <item id="723" />
+      <item id="789" />
+      <item id="775" />
+      <item id="767" />
+      <item id="731" />
+      <item id="704" />
+      <item id="709" />
+      <item id="711" />
+      <item id="708" />
+      <item id="785" />
+      <item id="796" />
+    </category>
+    <category number="413">
+      <item id="513" />
+    </category>
+    <category number="409">
+      <item id="503" />
+      <item id="513" />
+    </category>
+    <category number="410">
+      <item id="524" />
+    </category>
+  </mod>
+  <mod guid="com.gf.clothes">
+    <category number="210">
+      <item id="8205563" />
+      <item id="8205565" />
+    </category>
+    <category number="112">
+      <item id="8205569" />
+      <item id="8205570" />
+      <item id="8205567" />
+      <item id="8205566" />
+      <item id="8205573" />
+      <item id="8205568" />
+      <item id="8205574" />
+    </category>
+    <category number="105">
+      <item id="8205585" />
+      <item id="8205580" />
+      <item id="8205581" />
+    </category>
+    <category number="108">
+      <item id="8205567" />
+      <item id="8205562" />
+      <item id="8205563" />
+      <item id="8205566" />
+      <item id="8205565" />
+      <item id="8205564" />
+    </category>
+    <category number="106">
+      <item id="8205567" />
+      <item id="8205566" />
+      <item id="8205563" />
+      <item id="8205562" />
+      <item id="8205569" />
+    </category>
+  </mod>
+  <mod guid="com.nep.kirigiristuff">
+    <category number="210">
+      <item id="52187804" />
+    </category>
+    <category number="106">
+      <item id="52187807" />
+    </category>
+  </mod>
+  <mod guid="xne_jinner_mc">
+    <category number="210">
+      <item id="9202" />
+      <item id="9201" />
+    </category>
+  </mod>
+  <mod guid="WraxTV.Undershirt_Alt">
+    <category number="210">
+      <item id="2" />
+      <item id="1" />
+    </category>
+    <category number="107">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="ubin_hipper">
+    <category number="211">
+      <item id="970" />
+    </category>
+  </mod>
+  <mod guid="roie.WBTops">
+    <category number="211">
+      <item id="680312" />
+      <item id="680313" />
+    </category>
+  </mod>
+  <mod guid="Modified headmod">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="anse_turtleneck_sleeveless_mod">
+    <category number="210">
+      <item id="3002" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.Nails">
+    <category number="129">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.gf.acc">
+    <category number="124">
+      <item id="8205569" />
+      <item id="8205566" />
+      <item id="8205564" />
+    </category>
+    <category number="122">
+      <item id="8205605" />
+      <item id="8205603" />
+      <item id="8205602" />
+      <item id="8205617" />
+    </category>
+    <category number="126">
+      <item id="8205568" />
+      <item id="8205567" />
+    </category>
+  </mod>
+  <mod guid="N3x7xp.Outfits">
+    <category number="105">
+      <item id="2" />
+      <item id="4" />
+    </category>
+    <category number="106">
+      <item id="17" />
+    </category>
+  </mod>
+  <mod guid="com3d2.hair">
+    <category number="122">
+      <item id="31660" />
+      <item id="31200" />
+      <item id="31520" />
+      <item id="31410" />
+      <item id="31890" />
+      <item id="32030" />
+      <item id="32110" />
+      <item id="31370" />
+      <item id="31170" />
+      <item id="32070" />
+    </category>
+    <category number="123">
+      <item id="31540" />
+      <item id="31441" />
+      <item id="31250" />
+      <item id="32221" />
+      <item id="32581" />
+      <item id="32310" />
+      <item id="31470" />
+      <item id="31170" />
+      <item id="30190" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.DextersMomCape">
+    <category number="211">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="nakay.jacket.openshirtout">
+    <category number="210">
+      <item id="69584" />
+      <item id="69581" />
+      <item id="69580" />
+    </category>
+  </mod>
+  <mod guid="Gin26.COM3D2Hair">
+    <category number="123">
+      <item id="1340" />
+      <item id="3460" />
+      <item id="2810" />
+      <item id="3100" />
+      <item id="1341" />
+    </category>
+  </mod>
+  <mod guid="Ashura.ClothingBundle">
+    <category number="105">
+      <item id="7" />
+      <item id="6" />
+      <item id="4" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.accbutahead">
+    <category number="122">
+      <item id="625" />
+      <item id="626" />
+      <item id="622" />
+      <item id="601" />
+      <item id="636" />
+      <item id="639" />
+      <item id="640" />
+      <item id="637" />
+      <item id="638" />
+      <item id="633" />
+      <item id="624" />
+      <item id="621" />
+    </category>
+  </mod>
+  <mod guid="WW_Familiars">
+    <category number="122">
+      <item id="505" />
+      <item id="503" />
+      <item id="501" />
+      <item id="515" />
+      <item id="551" />
+      <item id="557" />
+      <item id="554" />
+      <item id="555" />
+      <item id="552" />
+      <item id="553" />
+      <item id="541" />
+    </category>
+    <category number="126">
+      <item id="502" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.Skele.Mod">
+    <category number="122">
+      <item id="2334213" />
+      <item id="2334214" />
+    </category>
+    <category number="125">
+      <item id="2334212" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.Plaguemask2.Mod">
+    <category number="122">
+      <item id="60046" />
+    </category>
+  </mod>
+  <mod guid="vannysuit.mod">
+    <category number="122">
+      <item id="331894" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.Masque.Mod">
+    <category number="122">
+      <item id="701621" />
+      <item id="701618" />
+      <item id="701614" />
+      <item id="701622" />
+      <item id="701617" />
+      <item id="701613" />
+      <item id="701612" />
+      <item id="701616" />
+      <item id="701615" />
+      <item id="701620" />
+    </category>
+  </mod>
+  <mod guid="com.moonman.acc">
+    <category number="122">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="[Frostation] Accessories MK1">
+    <category number="122">
+      <item id="1" />
+    </category>
+    <category number="124">
+      <item id="9" />
+      <item id="6" />
+      <item id="11" />
+      <item id="8" />
+      <item id="5" />
+      <item id="7" />
+      <item id="10" />
+    </category>
+  </mod>
+  <mod guid="Anna.MonsterHunter">
+    <category number="122">
+      <item id="1" />
+    </category>
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="brownbricks.tonymask">
+    <category number="122">
+      <item id="69227" />
+    </category>
+  </mod>
+  <mod guid="七色的人偶.妖精">
+    <category number="408">
+      <item id="246" />
+    </category>
+    <category number="106">
+      <item id="247" />
+    </category>
+  </mod>
+  <mod guid="七色的人偶.夜々">
+    <category number="408">
+      <item id="0" />
+    </category>
+    <category number="106">
+      <item id="243" />
+    </category>
+  </mod>
+  <mod guid="hitsugayaprops.mod">
+    <category number="122">
+      <item id="632790" />
+    </category>
+    <category number="125">
+      <item id="1125921" />
+    </category>
+  </mod>
+  <mod guid="anse_loose_tanktop_mod">
+    <category number="105">
+      <item id="60057" />
+    </category>
+  </mod>
+  <mod guid="wtf.FaceDetail">
+    <category number="400">
+      <item id="300" />
+      <item id="302" />
+      <item id="301" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.hairBArrange">
+    <category number="101">
+      <item id="527" />
+      <item id="514" />
+      <item id="518" />
+      <item id="525" />
+      <item id="519" />
+      <item id="515" />
+      <item id="526" />
+      <item id="523" />
+      <item id="524" />
+      <item id="521" />
+    </category>
+  </mod>
+  <mod guid="Raguro.HollowHead">
+    <category number="122">
+      <item id="83996" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.sistertop">
+    <category number="210">
+      <item id="91" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.EmotionCreatorsItems">
+    <category number="128">
+      <item id="203" />
+    </category>
+    <category number="126">
+      <item id="202" />
+      <item id="200" />
+      <item id="205" />
+    </category>
+    <category number="105">
+      <item id="226" />
+      <item id="228" />
+      <item id="227" />
+      <item id="224" />
+      <item id="225" />
+    </category>
+    <category number="109">
+      <item id="207" />
+      <item id="209" />
+    </category>
+    <category number="112">
+      <item id="207" />
+      <item id="209" />
+    </category>
+    <category number="123">
+      <item id="208" />
+    </category>
+    <category number="106">
+      <item id="214" />
+    </category>
+    <category number="124">
+      <item id="209" />
+    </category>
+    <category number="110">
+      <item id="207" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.HeadNoEars">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="vkat_xmas">
+    <category number="122">
+      <item id="97" />
+    </category>
+    <category number="108">
+      <item id="16" />
+    </category>
+    <category number="112">
+      <item id="31" />
+    </category>
+    <category number="105">
+      <item id="71" />
+    </category>
+  </mod>
+  <mod guid="DeathWeasel.NoHead">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="vk.HairNClothes.part1">
+    <category number="101">
+      <item id="886" />
+      <item id="887" />
+      <item id="888" />
+      <item id="884" />
+    </category>
+    <category number="105">
+      <item id="886" />
+    </category>
+    <category number="106">
+      <item id="889" />
+    </category>
+  </mod>
+  <mod guid="cif001">
+    <category number="122">
+      <item id="5201" />
+      <item id="5207" />
+    </category>
+    <category number="106">
+      <item id="5300" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.acchairP">
+    <category number="122">
+      <item id="743" />
+      <item id="751" />
+      <item id="744" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.Clover">
+    <category number="431">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Snooley.CoiffurePack">
+    <category number="101">
+      <item id="616" />
+      <item id="617" />
+    </category>
+    <category number="102">
+      <item id="616" />
+    </category>
+  </mod>
+  <mod guid="BMANN.Bandages">
+    <category number="430">
+      <item id="3" />
+      <item id="4" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.shoesHS">
+    <category number="112">
+      <item id="515" />
+      <item id="514" />
+      <item id="513" />
+      <item id="510" />
+      <item id="512" />
+      <item id="508" />
+    </category>
+  </mod>
+  <mod guid="Cz_Various_pack">
+    <category number="110">
+      <item id="4998" />
+    </category>
+    <category number="109">
+      <item id="7456" />
+      <item id="7455" />
+    </category>
+    <category number="210">
+      <item id="746" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.Pyramid.Mod">
+    <category number="129">
+      <item id="60019" />
+    </category>
+    <category number="122">
+      <item id="60005" />
+    </category>
+  </mod>
+  <mod guid="com.gf.collection">
+    <category number="410">
+      <item id="8205566" />
+    </category>
+    <category number="409">
+      <item id="8205563" />
+    </category>
+    <category number="412">
+      <item id="8205586" />
+      <item id="8205571" />
+    </category>
+    <category number="408">
+      <item id="8205587" />
+      <item id="8205567" />
+    </category>
+    <category number="413">
+      <item id="8205569" />
+      <item id="8205568" />
+    </category>
+    <category number="400">
+      <item id="8205563" />
+      <item id="8205565" />
+      <item id="8205562" />
+    </category>
+    <category number="402">
+      <item id="8205562" />
+    </category>
+    <category number="415">
+      <item id="8205562" />
+    </category>
+    <category number="414">
+      <item id="8205562" />
+      <item id="8205563" />
+      <item id="8205566" />
+      <item id="8205565" />
+      <item id="8205564" />
+      <item id="8205569" />
+    </category>
+  </mod>
+  <mod guid="VaizravaNa.DRiris">
+    <category number="408">
+      <item id="9999" />
+    </category>
+  </mod>
+  <mod guid="com.alex7997.patterns">
+    <category number="430">
+      <item id="114" />
+      <item id="113" />
+      <item id="115" />
+      <item id="108" />
+      <item id="104" />
+      <item id="101" />
+    </category>
+  </mod>
+  <mod guid="com.the_dactyl.low_ankle_socks">
+    <category number="111">
+      <item id="14" />
+    </category>
+  </mod>
+  <mod guid="DrHarkness.BaldHead">
+    <category number="100">
+      <item id="6416" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.CheetaraClaws">
+    <category number="109">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="[G15] Ifrit Set">
+    <category number="110">
+      <item id="11814" />
+    </category>
+    <category number="112">
+      <item id="11728" />
+    </category>
+    <category number="126">
+      <item id="11834" />
+      <item id="11836" />
+      <item id="11844" />
+      <item id="11832" />
+      <item id="11848" />
+    </category>
+    <category number="106">
+      <item id="11812" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.sirutex">
+    <category number="111">
+      <item id="509" />
+      <item id="507" />
+      <item id="508" />
+    </category>
+    <category number="110">
+      <item id="506" />
+    </category>
+  </mod>
+  <mod guid="Lesbianon.eyehighlights.unusualpupils">
+    <category number="408">
+      <item id="1" />
+    </category>
+    <category number="410">
+      <item id="7" />
+      <item id="14" />
+      <item id="5" />
+    </category>
+    <category number="411">
+      <item id="6" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.NoIris">
+    <category number="408">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="moderchan.NailstepGloves.AltSlot">
+    <category number="111">
+      <item id="1882" />
+    </category>
+    <category number="110">
+      <item id="1884" />
+    </category>
+  </mod>
+  <mod guid="gray.Devil_Set">
+    <category number="125">
+      <item id="2922" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.HeadWithFangs">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="HappyCat.PatternMod">
+    <category number="430">
+      <item id="74" />
+      <item id="90" />
+      <item id="80" />
+      <item id="77" />
+    </category>
+  </mod>
+  <mod guid="vkat_halloween">
+    <category number="122">
+      <item id="85" />
+      <item id="87" />
+      <item id="84" />
+    </category>
+    <category number="121">
+      <item id="25" />
+    </category>
+  </mod>
+  <mod guid="moderchan.NailstepGloves">
+    <category number="109">
+      <item id="1884" />
+      <item id="1883" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.egyptiandresstop">
+    <category number="105">
+      <item id="91" />
+    </category>
+  </mod>
+  <mod guid="73lac7c.ManaSet">
+    <category number="109">
+      <item id="65" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.Headmod03">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.CanineNose01">
+    <category number="123">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="dqk">
+    <category number="123">
+      <item id="713321" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.MashKyrielightExpansionSet3">
+    <category number="210">
+      <item id="1639" />
+      <item id="1640" />
+    </category>
+    <category number="112">
+      <item id="1641" />
+      <item id="1640" />
+    </category>
+    <category number="110">
+      <item id="1604" />
+    </category>
+  </mod>
+  <mod guid="codevein.AccessoryHair">
+    <category number="121">
+      <item id="640036" />
+      <item id="640037" />
+      <item id="640044" />
+      <item id="640020" />
+      <item id="640071" />
+      <item id="640043" />
+    </category>
+  </mod>
+  <mod guid="WraxTV.USF4Elena">
+    <category number="112">
+      <item id="79106" />
+    </category>
+  </mod>
+  <mod guid="Augh.ClawNails">
+    <category number="129">
+      <item id="2" />
+    </category>
+    <category number="127">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="bibiassetsport.mod">
+    <category number="123">
+      <item id="212531" />
+    </category>
+  </mod>
+  <mod guid="xne_altcloth01">
+    <category number="106">
+      <item id="9206" />
+      <item id="9207" />
+    </category>
+  </mod>
+  <mod guid="xm007.rex">
+    <category number="106">
+      <item id="24008" />
+    </category>
+    <category number="101">
+      <item id="24020" />
+    </category>
+  </mod>
+  <mod guid="XiongbenYYHJ">
+    <category number="106">
+      <item id="7899" />
+    </category>
+  </mod>
+  <mod guid="xiunvyifu1">
+    <category number="106">
+      <item id="51192" />
+    </category>
+  </mod>
+  <mod guid="WraxTV.TwiliMidna">
+    <category number="106">
+      <item id="32223" />
+    </category>
+  </mod>
+  <mod guid="WraxTV.Nadia">
+    <category number="106">
+      <item id="70001" />
+    </category>
+  </mod>
+  <mod guid="xingci">
+    <category number="106">
+      <item id="1000002" />
+    </category>
+    <category number="111">
+      <item id="1000009" />
+    </category>
+  </mod>
+  <mod guid="温泉ルウシェ skirt">
+    <category number="106">
+      <item id="36391" />
+    </category>
+  </mod>
+  <mod guid="七色的人偶.立華 かなで">
+    <category number="106">
+      <item id="244" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.clothVariation4">
+    <category number="106">
+      <item id="521" />
+    </category>
+    <category number="105">
+      <item id="551" />
+    </category>
+  </mod>
+  <mod guid="YaeMod_Cetol">
+    <category number="106">
+      <item id="12" />
+    </category>
+  </mod>
+  <mod guid="xne_skcdg">
+    <category number="106">
+      <item id="9216" />
+      <item id="9217" />
+    </category>
+    <category number="211">
+      <item id="9203" />
+    </category>
+  </mod>
+  <mod guid="xne_fobtms">
+    <category number="106">
+      <item id="9211" />
+      <item id="9212" />
+    </category>
+  </mod>
+  <mod guid="xne_egyptianset">
+    <category number="106">
+      <item id="9203" />
+      <item id="9201" />
+    </category>
+    <category number="105">
+      <item id="9218" />
+    </category>
+  </mod>
+  <mod guid="WraxTV.GyeeHead">
+    <category number="106">
+      <item id="55555" />
+    </category>
+    <category number="122">
+      <item id="66661" />
+    </category>
+  </mod>
+  <mod guid="wraith_voidwalker">
+    <category number="106">
+      <item id="1000002" />
+    </category>
+    <category number="122">
+      <item id="2000001" />
+      <item id="2000002" />
+    </category>
+  </mod>
+  <mod guid="WraxTV.BOTWUrbosa">
+    <category number="106">
+      <item id="69703" />
+    </category>
+  </mod>
+  <mod guid="WraxTV.DBZK_TurtleGi">
+    <category number="106">
+      <item id="40290" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.BulmaPants">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.Facialhair.Mod">
+    <category number="123">
+      <item id="51430" />
+      <item id="51433" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.PuffyHair.Mod">
+    <category number="123">
+      <item id="235714" />
+    </category>
+    <category number="122">
+      <item id="235712" />
+    </category>
+  </mod>
+  <mod guid="Evaan.P5Gurls.Mod">
+    <category number="122">
+      <item id="40567" />
+      <item id="40516" />
+    </category>
+    <category number="105">
+      <item id="40494" />
+      <item id="40448" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.JKO">
+    <category number="122">
+      <item id="60666" />
+    </category>
+  </mod>
+  <mod guid="grimmjowprp.mod">
+    <category number="122">
+      <item id="632738" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.KujouSara.Mod">
+    <category number="122">
+      <item id="130683" />
+    </category>
+    <category number="111">
+      <item id="130677" />
+    </category>
+  </mod>
+  <mod guid="Ohno.AccessoryGreenMask">
+    <category number="122">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="ZwroYuzo.NMeowsMask">
+    <category number="122">
+      <item id="1531" />
+    </category>
+  </mod>
+  <mod guid="keelhauled.phribbon">
+    <category number="124">
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="Koto.Chokers">
+    <category number="124">
+      <item id="84201" />
+      <item id="84203" />
+      <item id="84205" />
+      <item id="84204" />
+    </category>
+  </mod>
+  <mod guid="KoiBoy.RWBYMods">
+    <category number="124">
+      <item id="5" />
+    </category>
+  </mod>
+  <mod guid="Zeta.CodeVeinAccessories">
+    <category number="124">
+      <item id="2" />
+      <item id="3" />
+    </category>
+    <category number="122">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.nep.compastuff">
+    <category number="128">
+      <item id="207409" />
+    </category>
+    <category number="106">
+      <item id="207406" />
+    </category>
+  </mod>
+  <mod guid="com.nep.blackheartstuff">
+    <category number="128">
+      <item id="55910506" />
+    </category>
+  </mod>
+  <mod guid="com.nep.dengekikostuff">
+    <category number="128">
+      <item id="85100417" />
+    </category>
+    <category number="112">
+      <item id="85100411" />
+    </category>
+  </mod>
+  <mod guid="com.nep.magesstuff">
+    <category number="128">
+      <item id="4870610" />
+    </category>
+    <category number="106">
+      <item id="4870617" />
+      <item id="4870619" />
+    </category>
+  </mod>
+  <mod guid="com.nep.marvystuff">
+    <category number="128">
+      <item id="5521208" />
+      <item id="5521207" />
+    </category>
+  </mod>
+  <mod guid="RSkoi.Hood">
+    <category number="122">
+      <item id="3111" />
+      <item id="3112" />
+    </category>
+  </mod>
+  <mod guid="PokemonAcc.DrHarkness">
+    <category number="122">
+      <item id="20018" />
+    </category>
+    <category number="126">
+      <item id="100010" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.Goatee">
+    <category number="123">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Harvexarc.BlackholeIris">
+    <category number="408">
+      <item id="777230102" />
+    </category>
+  </mod>
+  <mod guid="yanmod.charamake">
+    <category number="408">
+      <item id="708" />
+      <item id="716" />
+      <item id="702" />
+      <item id="703" />
+      <item id="700" />
+      <item id="720" />
+    </category>
+    <category number="412">
+      <item id="788" />
+    </category>
+    <category number="410">
+      <item id="704" />
+    </category>
+  </mod>
+  <mod guid="uppervolta.KKNipples">
+    <category number="423">
+      <item id="850" />
+      <item id="855" />
+      <item id="851" />
+      <item id="862" />
+      <item id="859" />
+      <item id="860" />
+      <item id="854" />
+    </category>
+  </mod>
+  <mod guid="mlekoduszenip">
+    <category number="423">
+      <item id="133" />
+    </category>
+  </mod>
+  <mod guid="hayashi.xmascos">
+    <category number="109">
+      <item id="884" />
+    </category>
+    <category number="112">
+      <item id="884" />
+    </category>
+  </mod>
+  <mod guid="com.roy12.sexypackd">
+    <category number="111">
+      <item id="97" />
+    </category>
+    <category number="200">
+      <item id="88" />
+    </category>
+    <category number="106">
+      <item id="91" />
+    </category>
+    <category number="108">
+      <item id="97" />
+    </category>
+  </mod>
+  <mod guid="nep001">
+    <category number="112">
+      <item id="50000" />
+    </category>
+    <category number="111">
+      <item id="27600" />
+      <item id="76210" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.Aile.mod">
+    <category number="112">
+      <item id="317021" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.SallyNose">
+    <category number="123">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="xne_swimset01">
+    <category number="108">
+      <item id="9203" />
+      <item id="9201" />
+    </category>
+  </mod>
+  <mod guid="yanmod.nipples">
+    <category number="423">
+      <item id="700" />
+      <item id="702" />
+      <item id="701" />
+      <item id="703" />
+    </category>
+  </mod>
+  <mod guid="NinjaCostume">
+    <category number="108">
+      <item id="96307" />
+      <item id="96306" />
+    </category>
+    <category number="107">
+      <item id="96303" />
+    </category>
+    <category number="110">
+      <item id="96309" />
+    </category>
+  </mod>
+  <mod guid="FrankiePasta.OrganicShape01">
+    <category number="126">
+      <item id="8" />
+      <item id="1" />
+      <item id="14" />
+      <item id="19" />
+      <item id="9" />
+    </category>
+  </mod>
+  <mod guid="Wubsy.CowPrint.Patterns">
+    <category number="430">
+      <item id="1" />
+      <item id="5" />
+      <item id="4" />
+    </category>
+  </mod>
+  <mod guid="WW_Emblems">
+    <category number="431">
+      <item id="703" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.Bandages">
+    <category number="108">
+      <item id="1" />
+    </category>
+    <category number="109">
+      <item id="1" />
+    </category>
+    <category number="111">
+      <item id="1" />
+    </category>
+    <category number="107">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.alex7997.nipples">
+    <category number="423">
+      <item id="21" />
+      <item id="23" />
+      <item id="22" />
+    </category>
+  </mod>
+  <mod guid="DEF.KirisuEye">
+    <category number="408">
+      <item id="9999" />
+    </category>
+  </mod>
+  <mod guid="musisi.hundosi_k">
+    <category number="108">
+      <item id="9663" />
+    </category>
+  </mod>
+  <mod guid="8246asdf.UpperEyes">
+    <category number="408">
+      <item id="7999" />
+    </category>
+  </mod>
+  <mod guid="war001">
+    <category number="112">
+      <item id="4200" />
+    </category>
+    <category number="126">
+      <item id="44000" />
+    </category>
+    <category number="212">
+      <item id="41001" />
+    </category>
+  </mod>
+  <mod guid="WraxTV.TiffanyLords">
+    <category number="122">
+      <item id="99759" />
+    </category>
+  </mod>
+  <mod guid="Raguro.zHWsh">
+    <category number="108">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Cz_Hakama">
+    <category number="105">
+      <item id="9220" />
+    </category>
+  </mod>
+  <mod guid="Augh.Geta">
+    <category number="112">
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="Augh.SamShoulder">
+    <category number="128">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.JasminePants">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Augh.SamGauntlets">
+    <category number="109">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.clothVariation3">
+    <category number="110">
+      <item id="519" />
+    </category>
+    <category number="105">
+      <item id="531" />
+    </category>
+  </mod>
+  <mod guid="nakay.kuikomi.thigh">
+    <category number="111">
+      <item id="1" />
+      <item id="2" />
+    </category>
+    <category number="110">
+      <item id="1" />
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="pinosante.transparent.high-leg.panties">
+    <category number="108">
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="7S002">
+    <category number="112">
+      <item id="542302" />
+    </category>
+  </mod>
+  <mod guid="vkat02">
+    <category number="109">
+      <item id="4965218" />
+      <item id="4965217" />
+    </category>
+    <category number="122">
+      <item id="4965278" />
+    </category>
+    <category number="112">
+      <item id="4965229" />
+    </category>
+    <category number="108">
+      <item id="496528" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.shoesHM">
+    <category number="112">
+      <item id="503" />
+      <item id="504" />
+    </category>
+  </mod>
+  <mod guid="RSkoi.MovedVanillaBodytights">
+    <category number="110">
+      <item id="1422" />
+    </category>
+  </mod>
+  <mod guid="wen.Angel">
+    <category number="101">
+      <item id="244" />
+    </category>
+  </mod>
+  <mod guid="TICK-TACK.rollup_jeans2">
+    <category number="106">
+      <item id="26502" />
+    </category>
+  </mod>
+  <mod guid="com.the_dactyl.round_ankle_socks">
+    <category number="111">
+      <item id="14" />
+    </category>
+  </mod>
+  <mod guid="wings01">
+    <category number="125">
+      <item id="60001" />
+    </category>
+  </mod>
+  <mod guid="com.roy12.slutstuff00">
+    <category number="105">
+      <item id="95" />
+    </category>
+    <category number="124">
+      <item id="380" />
+    </category>
+    <category number="107">
+      <item id="326" />
+    </category>
+  </mod>
+  <mod guid="com.roy12.sexypackb">
+    <category number="200">
+      <item id="85" />
+    </category>
+    <category number="201">
+      <item id="95" />
+    </category>
+    <category number="202">
+      <item id="95" />
+    </category>
+    <category number="111">
+      <item id="95" />
+    </category>
+    <category number="126">
+      <item id="85" />
+    </category>
+    <category number="108">
+      <item id="95" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.coatonly">
+    <category number="211">
+      <item id="91" />
+    </category>
+  </mod>
+  <mod guid="MOD of Asuna Stacia ver for koikatsu">
+    <category number="122">
+      <item id="508" />
+    </category>
+    <category number="109">
+      <item id="503" />
+    </category>
+  </mod>
+  <mod guid="WW_WeaponAccs">
+    <category number="126">
+      <item id="548" />
+    </category>
+  </mod>
+  <mod guid="Hffun.AthleticsUniform">
+    <category number="105">
+      <item id="302" />
+    </category>
+    <category number="106">
+      <item id="301" />
+    </category>
+  </mod>
+  <mod guid="koikatuman.HotPants">
+    <category number="105">
+      <item id="6901" />
+    </category>
+    <category number="210">
+      <item id="6907" />
+    </category>
+    <category number="106">
+      <item id="6900" />
+    </category>
+  </mod>
+  <mod guid="NGNL.ErogeNipples">
+    <category number="423">
+      <item id="41" />
+      <item id="40" />
+      <item id="37" />
+      <item id="39" />
+      <item id="38" />
+    </category>
+  </mod>
+  <mod guid="zzzZZescargot_mod00">
+    <category number="105">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="com.nep.miyabistuff">
+    <category number="122">
+      <item id="528412306" />
+    </category>
+    <category number="106">
+      <item id="528412302" />
+    </category>
+  </mod>
+  <mod guid="Augh.BabyTee">
+    <category number="105">
+      <item id="1" />
+    </category>
+    <category number="210">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.roy12.TakumiAndLusaminePack">
+    <category number="400">
+      <item id="6" />
+    </category>
+  </mod>
+  <mod guid="nashi.ClochetteNipple">
+    <category number="423">
+      <item id="741" />
+    </category>
+  </mod>
+  <mod guid="FrankiePasta.ExpressivePlus01">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="A-fan.Nipples_2">
+    <category number="423">
+      <item id="201" />
+      <item id="202" />
+    </category>
+  </mod>
+  <mod guid="8246asdf.NoGameNoLife_eyeset">
+    <category number="409">
+      <item id="9999" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.bk201mask">
+    <category number="123">
+      <item id="92" />
+    </category>
+  </mod>
+  <mod guid="noblekale.texturepack.mod">
+    <category number="408">
+      <item id="53022" />
+    </category>
+  </mod>
+  <mod guid="siki_05_modpack">
+    <category number="122">
+      <item id="99126513" />
+    </category>
+  </mod>
+  <mod guid="mgs4000">
+    <category number="122">
+      <item id="45231" />
+    </category>
+  </mod>
+  <mod guid="La Signora hair">
+    <category number="122">
+      <item id="800002" />
+    </category>
+  </mod>
+  <mod guid="lrdj.syuko_ssr_outfits">
+    <category number="122">
+      <item id="2637" />
+    </category>
+    <category number="123">
+      <item id="14" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.WindRollI">
+    <category number="123">
+      <item id="8" />
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.Smoothmask">
+    <category number="123">
+      <item id="624991" />
+      <item id="624990" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.FrontlineNemesis.Mod">
+    <category number="123">
+      <item id="878175" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.EgyptHead.Mod">
+    <category number="123">
+      <item id="63719" />
+    </category>
+  </mod>
+  <mod guid="Sigma.LucinaMask">
+    <category number="123">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Rich.Code.Vein.Masks">
+    <category number="123">
+      <item id="10" />
+      <item id="5" />
+      <item id="3" />
+      <item id="4" />
+      <item id="2" />
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.SpiderGwenMask">
+    <category number="123">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="giuls.sunshine accessories">
+    <category number="123">
+      <item id="5" />
+    </category>
+  </mod>
+  <mod guid="EC001">
+    <category number="123">
+      <item id="208" />
+    </category>
+    <category number="110">
+      <item id="207" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Io">
+    <category number="123">
+      <item id="7228" />
+    </category>
+    <category number="108">
+      <item id="7202" />
+    </category>
+  </mod>
+  <mod guid="Augh.KitsuneMask">
+    <category number="123">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Indrick.Sydney">
+    <category number="123">
+      <item id="40098" />
+    </category>
+  </mod>
+  <mod guid="[Frostation] RE Hunk">
+    <category number="125">
+      <item id="1" />
+    </category>
+    <category number="127">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Praven.MoreHair">
+    <category number="424">
+      <item id="9003" />
+      <item id="9024" />
+    </category>
+  </mod>
+  <mod guid="[Frostation] Lucia Alpha">
+    <category number="112">
+      <item id="1553" />
+    </category>
+  </mod>
+  <mod guid="[G11] T-elos Set">
+    <category number="112">
+      <item id="4190" />
+    </category>
+    <category number="408">
+      <item id="5233" />
+    </category>
+    <category number="106">
+      <item id="4913" />
+    </category>
+  </mod>
+  <mod guid="[Ω-G16] HS2-KK Set">
+    <category number="112">
+      <item id="15222" />
+      <item id="14122" />
+    </category>
+    <category number="110">
+      <item id="16218" />
+    </category>
+    <category number="105">
+      <item id="17124" />
+      <item id="16114" />
+      <item id="15410" />
+    </category>
+    <category number="106">
+      <item id="15232" />
+      <item id="15234" />
+      <item id="16116" />
+      <item id="17116" />
+      <item id="16114" />
+    </category>
+    <category number="122">
+      <item id="15126" />
+      <item id="15124" />
+      <item id="15484" />
+    </category>
+  </mod>
+  <mod guid="5795">
+    <category number="112">
+      <item id="4500" />
+    </category>
+  </mod>
+  <mod guid="73lac7c.DarkMagicianGirl">
+    <category number="112">
+      <item id="45" />
+    </category>
+    <category number="106">
+      <item id="65" />
+    </category>
+  </mod>
+  <mod guid="5896.hu.tao">
+    <category number="112">
+      <item id="111" />
+    </category>
+  </mod>
+  <mod guid="10579">
+    <category number="112">
+      <item id="3691" />
+    </category>
+  </mod>
+  <mod guid="anse_fringe_boots_mod">
+    <category number="112">
+      <item id="630102" />
+    </category>
+  </mod>
+  <mod guid="anse_mary-jane_pumps_mod">
+    <category number="112">
+      <item id="6073" />
+    </category>
+  </mod>
+  <mod guid="com.hflowerking.steampunkshoe">
+    <category number="112">
+      <item id="1714" />
+    </category>
+  </mod>
+  <mod guid="com.leisehg.Aegir">
+    <category number="112">
+      <item id="1709191" />
+    </category>
+  </mod>
+  <mod guid="com.leisehg.Roon">
+    <category number="112">
+      <item id="1711061" />
+    </category>
+    <category number="106">
+      <item id="1710291" />
+    </category>
+  </mod>
+  <mod guid="com.leisehg.Suruga">
+    <category number="112">
+      <item id="1702012" />
+    </category>
+    <category number="106">
+      <item id="1712261" />
+    </category>
+  </mod>
+  <mod guid="com.Naier.Estelle def">
+    <category number="112">
+      <item id="2466" />
+    </category>
+    <category number="110">
+      <item id="45644" />
+    </category>
+    <category number="106">
+      <item id="45635" />
+    </category>
+  </mod>
+  <mod guid="com.Naier.DarkpriestMGE">
+    <category number="112">
+      <item id="2466" />
+    </category>
+  </mod>
+  <mod guid="com.nep.alstuff">
+    <category number="112">
+      <item id="385870" />
+    </category>
+  </mod>
+  <mod guid="com.nep.dionastuff">
+    <category number="112">
+      <item id="42123003" />
+    </category>
+    <category number="106">
+      <item id="42123004" />
+    </category>
+  </mod>
+  <mod guid="com.nep.defammestuff">
+    <category number="112">
+      <item id="84108705" />
+    </category>
+    <category number="106">
+      <item id="84108703" />
+    </category>
+  </mod>
+  <mod guid="com.nep.futabastuff">
+    <category number="112">
+      <item id="3518912" />
+    </category>
+    <category number="106">
+      <item id="3518911" />
+      <item id="3518908" />
+    </category>
+  </mod>
+  <mod guid="com.nep.famitsustuff">
+    <category number="112">
+      <item id="50810302" />
+    </category>
+  </mod>
+  <mod guid="com.nep.junkostuff">
+    <category number="112">
+      <item id="70894602" />
+    </category>
+  </mod>
+  <mod guid="com.nep.kleestuff">
+    <category number="112">
+      <item id="14015503" />
+    </category>
+  </mod>
+  <mod guid="DrHarkness.SonicShoesPort">
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.gunholster">
+    <category number="126">
+      <item id="126" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.nighthawkscythe">
+    <category number="129">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="mp4001">
+    <category number="125">
+      <item id="1930" />
+    </category>
+    <category number="124">
+      <item id="1920" />
+    </category>
+  </mod>
+  <mod guid="com.Naier. TovTreant monstergirl">
+    <category number="122">
+      <item id="55454" />
+    </category>
+  </mod>
+  <mod guid="cbr95810_ph">
+    <category number="424">
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="H_enry.shoes">
+    <category number="112">
+      <item id="2" />
+      <item id="1" />
+      <item id="4" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.dragonclaw">
+    <category number="109">
+      <item id="97" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.KimPossiblePants">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="uppervolta.AdditionalPubicHair">
+    <category number="424">
+      <item id="853" />
+    </category>
+  </mod>
+  <mod guid="skyrim001">
+    <category number="122">
+      <item id="64001" />
+      <item id="64000" />
+      <item id="64010" />
+      <item id="64011" />
+      <item id="64021" />
+      <item id="64030" />
+    </category>
+    <category number="105">
+      <item id="60000" />
+    </category>
+  </mod>
+  <mod guid="snapmiscpack">
+    <category number="122">
+      <item id="12458" />
+    </category>
+  </mod>
+  <mod guid="riko_39_modpack">
+    <category number="122">
+      <item id="661023901" />
+    </category>
+  </mod>
+  <mod guid="RikkiBalboa.ZeldaAccessories">
+    <category number="122">
+      <item id="10" />
+    </category>
+  </mod>
+  <mod guid="xm007.kantaicollection.armor.V1">
+    <category number="122">
+      <item id="23025" />
+    </category>
+    <category number="124">
+      <item id="23028" />
+    </category>
+  </mod>
+  <mod guid="vkat_newyear">
+    <category number="122">
+      <item id="106" />
+      <item id="105" />
+    </category>
+  </mod>
+  <mod guid="videlhairport.mod">
+    <category number="122">
+      <item id="532605" />
+      <item id="532606" />
+    </category>
+  </mod>
+  <mod guid="Tsun.CBRN.KOI">
+    <category number="122">
+      <item id="101" />
+      <item id="103" />
+    </category>
+  </mod>
+  <mod guid="Tactical_gearset.Tsunni">
+    <category number="122">
+      <item id="8" />
+    </category>
+    <category number="126">
+      <item id="307" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Kisara">
+    <category number="129">
+      <item id="1578778" />
+    </category>
+  </mod>
+  <mod guid="com.test.shirtlessblazer">
+    <category number="210">
+      <item id="66" />
+      <item id="67" />
+      <item id="69" />
+    </category>
+  </mod>
+  <mod guid="ninken_kunoichi_02">
+    <category number="124">
+      <item id="96502" />
+    </category>
+    <category number="108">
+      <item id="96308" />
+    </category>
+    <category number="107">
+      <item id="96302" />
+      <item id="96301" />
+      <item id="96303" />
+    </category>
+    <category number="110">
+      <item id="96309" />
+    </category>
+    <category number="106">
+      <item id="97111" />
+    </category>
+    <category number="111">
+      <item id="97122" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.BulmaScarf">
+    <category number="124">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="mm.PartiallyOpenParka">
+    <category number="211">
+      <item id="180000" />
+    </category>
+  </mod>
+  <mod guid="musisi.Armor plate_k">
+    <category number="125">
+      <item id="9663" />
+    </category>
+  </mod>
+  <mod guid="Evaan.LinkBOTW.Mod">
+    <category number="105">
+      <item id="40373" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.magicianjacket">
+    <category number="211">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Toga.Mod">
+    <category number="122">
+      <item id="40146" />
+    </category>
+  </mod>
+  <mod guid="com.lucentz.nscardigan">
+    <category number="126">
+      <item id="5252521" />
+    </category>
+  </mod>
+  <mod guid="com.ymgpt.acc_earrings_top">
+    <category number="123">
+      <item id="311" />
+      <item id="308" />
+    </category>
+  </mod>
+  <mod guid="[B5] BES">
+    <category number="106">
+      <item id="883" />
+    </category>
+  </mod>
+  <mod guid="[YueFengyu]琴里">
+    <category number="106">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="anse_high-waist_skirt_mod">
+    <category number="106">
+      <item id="2056" />
+      <item id="2055" />
+    </category>
+    <category number="211">
+      <item id="2056" />
+    </category>
+  </mod>
+  <mod guid="anse_chichi_noren_mod">
+    <category number="106">
+      <item id="60072" />
+      <item id="60068" />
+    </category>
+    <category number="108">
+      <item id="60073" />
+      <item id="60069" />
+    </category>
+  </mod>
+  <mod guid="BronyaMN">
+    <category number="106">
+      <item id="2591" />
+    </category>
+  </mod>
+  <mod guid="cdpsbo.ba_iori">
+    <category number="106">
+      <item id="20939" />
+    </category>
+    <category number="100">
+      <item id="20939" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.CatLingerie">
+    <category number="106">
+      <item id="26" />
+    </category>
+    <category number="105">
+      <item id="35" />
+    </category>
+  </mod>
+  <mod guid="xm007.Kurumi">
+    <category number="408">
+      <item id="21300" />
+    </category>
+    <category number="112">
+      <item id="21200" />
+    </category>
+    <category number="102">
+      <item id="21001" />
+      <item id="21003" />
+    </category>
+  </mod>
+  <mod guid="com.kallenfag.yakumo">
+    <category number="412">
+      <item id="131272" />
+    </category>
+  </mod>
+  <mod guid="moderchan.HairExtensionPackVol2">
+    <category number="122">
+      <item id="1909" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.Panties">
+    <category number="108">
+      <item id="2" />
+      <item id="5" />
+      <item id="9" />
+      <item id="10" />
+      <item id="17" />
+      <item id="6" />
+      <item id="16" />
+      <item id="13" />
+      <item id="15" />
+      <item id="14" />
+      <item id="11" />
+      <item id="1" />
+      <item id="7" />
+      <item id="3" />
+      <item id="19" />
+    </category>
+  </mod>
+  <mod guid="Modified head">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="947.AnimationTatoos">
+    <category number="421">
+      <item id="4" />
+    </category>
+  </mod>
+  <mod guid="com.kallenfag.GeassEye">
+    <category number="408">
+      <item id="131293" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.Redirectors">
+    <category number="210">
+      <item id="0" />
+      <item id="55" />
+      <item id="56" />
+      <item id="65" />
+      <item id="44" />
+    </category>
+    <category number="200">
+      <item id="44" />
+      <item id="0" />
+    </category>
+    <category number="201">
+      <item id="0" />
+    </category>
+    <category number="211">
+      <item id="31" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.OpenJersey">
+    <category number="211">
+      <item id="5" />
+      <item id="4" />
+    </category>
+  </mod>
+  <mod guid="YuMiaoyieyeline">
+    <category number="412">
+      <item id="612123129" />
+    </category>
+  </mod>
+  <mod guid="com.madevil.sakurajima_mai">
+    <category number="412">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Bodytexture.mod">
+    <category number="421">
+      <item id="70000" />
+    </category>
+  </mod>
+  <mod guid="bdsqlsz.adeye">
+    <category number="408">
+      <item id="92" />
+    </category>
+  </mod>
+  <mod guid="zzzZZescargot_mod002">
+    <category number="105">
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.MinervaDress">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.MineSet">
+    <category number="112">
+      <item id="1600" />
+    </category>
+  </mod>
+  <mod guid="com.roy12.sexypackc">
+    <category number="200">
+      <item id="86" />
+    </category>
+    <category number="201">
+      <item id="96" />
+    </category>
+    <category number="108">
+      <item id="96" />
+    </category>
+    <category number="111">
+      <item id="96" />
+    </category>
+    <category number="107">
+      <item id="90" />
+    </category>
+    <category number="202">
+      <item id="96" />
+    </category>
+    <category number="109">
+      <item id="90" />
+    </category>
+    <category number="106">
+      <item id="90" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.AnnaCape">
+    <category number="211">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="5896.hayashi.hoodie.long">
+    <category number="211">
+      <item id="888" />
+    </category>
+  </mod>
+  <mod guid="onaka_uniform">
+    <category number="211">
+      <item id="822" />
+    </category>
+  </mod>
+  <mod guid="mm.NonTransparentApron">
+    <category number="105">
+      <item id="180001" />
+      <item id="180000" />
+    </category>
+  </mod>
+  <mod guid="TeaDrinkingIntensifies.PyraAccessories">
+    <category number="400">
+      <item id="3117" />
+    </category>
+    <category number="123">
+      <item id="3111" />
+    </category>
+  </mod>
+  <mod guid="xm007.Nia">
+    <category number="400">
+      <item id="25031" />
+    </category>
+  </mod>
+  <mod guid="nashiki.ShortSkirtCollider">
+    <category number="106">
+      <item id="744" />
+      <item id="741" />
+      <item id="742" />
+      <item id="745" />
+      <item id="750" />
+    </category>
+  </mod>
+  <mod guid="onaka.lowback_inner">
+    <category number="210">
+      <item id="12345" />
+    </category>
+  </mod>
+  <mod guid="moderchan.LongGlovesTipCutAltSlot">
+    <category number="110">
+      <item id="3882" />
+    </category>
+  </mod>
+  <mod guid="ztokki.LongSocks">
+    <category number="111">
+      <item id="2810" />
+      <item id="2811" />
+      <item id="2812" />
+    </category>
+  </mod>
+  <mod guid="onaka_clothes">
+    <category number="210">
+      <item id="817" />
+      <item id="816" />
+    </category>
+    <category number="211">
+      <item id="815" />
+    </category>
+  </mod>
+  <mod guid="hayashi.OpenFrontSkirt">
+    <category number="106">
+      <item id="885" />
+    </category>
+  </mod>
+  <mod guid="earthship.ThighHighFishnet">
+    <category number="110">
+      <item id="1011" />
+    </category>
+    <category number="111">
+      <item id="1011" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.RiderSet">
+    <category number="111">
+      <item id="1662" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.egyptiandressskirt">
+    <category number="106">
+      <item id="91" />
+    </category>
+  </mod>
+  <mod guid="murara.magic">
+    <category number="202">
+      <item id="20200205" />
+    </category>
+    <category number="212">
+      <item id="20200205" />
+    </category>
+    <category number="110">
+      <item id="20200205" />
+    </category>
+    <category number="111">
+      <item id="20200205" />
+    </category>
+  </mod>
+  <mod guid="pinosante's elegant stockings">
+    <category number="111">
+      <item id="91323" />
+    </category>
+  </mod>
+  <mod guid="Augh.Flipflops">
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.sakuya">
+    <category number="400">
+      <item id="504" />
+    </category>
+    <category number="430">
+      <item id="539" />
+    </category>
+  </mod>
+  <mod guid="nashi.Panties.ver1">
+    <category number="108">
+      <item id="776" />
+    </category>
+  </mod>
+  <mod guid="com.Blanketman.NonLightStockings">
+    <category number="110">
+      <item id="1486" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.sth01">
+    <category number="111">
+      <item id="92" />
+      <item id="94" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Midoriya.Mod">
+    <category number="112">
+      <item id="40271" />
+    </category>
+  </mod>
+  <mod guid="mat.Tops">
+    <category number="105">
+      <item id="1214" />
+      <item id="1218" />
+    </category>
+  </mod>
+  <mod guid="Augh.HungryPanties">
+    <category number="108">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="kks.trial.clothes">
+    <category number="105">
+      <item id="308" />
+      <item id="302" />
+    </category>
+    <category number="107">
+      <item id="302" />
+      <item id="309" />
+    </category>
+    <category number="108">
+      <item id="304" />
+    </category>
+    <category number="106">
+      <item id="302" />
+    </category>
+  </mod>
+  <mod guid="roie.WBSocks">
+    <category number="111">
+      <item id="680103" />
+    </category>
+  </mod>
+  <mod guid="[Ω-G16] HS2-KK Demo">
+    <category number="106">
+      <item id="18112" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.ZeldaBoots">
+    <category number="112">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="Evaan.FleshFang.Mod">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.sideslitskirtlong">
+    <category number="106">
+      <item id="122" />
+    </category>
+  </mod>
+  <mod guid="Cetol">
+    <category number="112">
+      <item id="2822233" />
+    </category>
+  </mod>
+  <mod guid="com.James_jix.Void_Drifter">
+    <category number="121">
+      <item id="73413" />
+    </category>
+  </mod>
+  <mod guid="giuls.mmd halos">
+    <category number="122">
+      <item id="8" />
+    </category>
+  </mod>
+  <mod guid="m14.FGO_QinLiangyuBodysuit">
+    <category number="107">
+      <item id="45" />
+    </category>
+  </mod>
+  <mod guid="lapinduracell.4KTransparentLaceLingerie">
+    <category number="107">
+      <item id="84" />
+      <item id="74" />
+    </category>
+    <category number="108">
+      <item id="77" />
+    </category>
+  </mod>
+  <mod guid="Lhianna.blendshape.stuff">
+    <category number="107">
+      <item id="101" />
+      <item id="102" />
+    </category>
+    <category number="108">
+      <item id="102" />
+      <item id="2" />
+      <item id="101" />
+    </category>
+  </mod>
+  <mod guid="[Hatoko]紫咲シオン - ロリータ">
+    <category number="111">
+      <item id="330084" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.acchairF2">
+    <category number="123">
+      <item id="567" />
+      <item id="617" />
+      <item id="568" />
+      <item id="610" />
+      <item id="566" />
+      <item id="565" />
+      <item id="761" />
+      <item id="569" />
+      <item id="578" />
+      <item id="576" />
+      <item id="769" />
+      <item id="572" />
+    </category>
+  </mod>
+  <mod guid="Augh.HeartThong">
+    <category number="125">
+      <item id="1" />
+    </category>
+    <category number="107">
+      <item id="1" />
+    </category>
+    <category number="108">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="nakay.shorts.panst">
+    <category number="108">
+      <item id="1" />
+      <item id="2" />
+    </category>
+    <category number="110">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.KinokoHair">
+    <category number="123">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="nashi.PoloShirt">
+    <category number="105">
+      <item id="703" />
+      <item id="704" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.MulanDress">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="ShakoSwimtop">
+    <category number="108">
+      <item id="2" />
+      <item id="1" />
+      <item id="3" />
+      <item id="4" />
+    </category>
+    <category number="107">
+      <item id="2" />
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="koikatuman.AdditionalPatterns">
+    <category number="430">
+      <item id="6901" />
+    </category>
+  </mod>
+  <mod guid="Add.Jackets">
+    <category number="211">
+      <item id="45674" />
+      <item id="45670" />
+    </category>
+    <category number="210">
+      <item id="45801" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.Bras">
+    <category number="107">
+      <item id="13" />
+      <item id="11" />
+      <item id="12" />
+      <item id="16" />
+      <item id="14" />
+      <item id="1" />
+      <item id="2" />
+      <item id="7" />
+      <item id="9" />
+      <item id="6" />
+    </category>
+    <category number="211">
+      <item id="2" />
+    </category>
+    <category number="210">
+      <item id="2" />
+    </category>
+    <category number="105">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="Augh.Competition">
+    <category number="105">
+      <item id="4" />
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.wyc353.Mythical Animals pattern">
+    <category number="430">
+      <item id="540" />
+      <item id="541" />
+    </category>
+  </mod>
+  <mod guid="Thatdude.Feiyan">
+    <category number="121">
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="Mint_E403.SuperMiniTightSkirt">
+    <category number="106">
+      <item id="2823" />
+    </category>
+  </mod>
+  <mod guid="nashi.ShortsZuri">
+    <category number="108">
+      <item id="731" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.AyanamiReiSet">
+    <category number="107">
+      <item id="1619" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.hontokneesocks">
+    <category number="111">
+      <item id="86" />
+    </category>
+  </mod>
+  <mod guid="cytryna1.PussyPiercing">
+    <category number="108">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.Swimsuits">
+    <category number="107">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.acchairF">
+    <category number="123">
+      <item id="581" />
+    </category>
+  </mod>
+  <mod guid="nashi.Bodytights">
+    <category number="110">
+      <item id="757" />
+      <item id="756" />
+      <item id="761" />
+      <item id="759" />
+      <item id="760" />
+      <item id="763" />
+      <item id="762" />
+    </category>
+  </mod>
+  <mod guid="ztoki.AdditionalEmblems">
+    <category number="431">
+      <item id="297" />
+      <item id="272" />
+      <item id="285" />
+      <item id="271" />
+    </category>
+  </mod>
+  <mod guid="lrdj.rin_ssr_outfits">
+    <category number="105">
+      <item id="2232" />
+    </category>
+  </mod>
+  <mod guid="pinosante.cropped_tubetop">
+    <category number="107">
+      <item id="1615" />
+    </category>
+  </mod>
+  <mod guid="Azur_Lane_Bremerton_123">
+    <category number="108">
+      <item id="0" />
+    </category>
+    <category number="210">
+      <item id="0" />
+    </category>
+    <category number="110">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="fissy.byleth.mod">
+    <category number="122">
+      <item id="129632" />
+    </category>
+  </mod>
+  <mod guid="hayashi.OpenFrontPants">
+    <category number="106">
+      <item id="886" />
+      <item id="887" />
+    </category>
+  </mod>
+  <mod guid="anse_cute_socks_mod">
+    <category number="111">
+      <item id="6073" />
+      <item id="6072" />
+    </category>
+  </mod>
+  <mod guid="xne_sk80p">
+    <category number="106">
+      <item id="9210" />
+      <item id="9209" />
+    </category>
+  </mod>
+  <mod guid="ws54090.stiletto">
+    <category number="112">
+      <item id="1" />
+      <item id="11" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.ClaireSet">
+    <category number="107">
+      <item id="1621" />
+    </category>
+    <category number="211">
+      <item id="1620" />
+    </category>
+  </mod>
+  <mod guid="FrankiePasta.SallyHalloweenHeadmod">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Augh.Blacktape">
+    <category number="107">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.PokeballEmblem">
+    <category number="431">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="ztokki.UnderwearPasties">
+    <category number="108">
+      <item id="1274" />
+      <item id="1271" />
+      <item id="1272" />
+      <item id="1273" />
+      <item id="1270" />
+    </category>
+    <category number="107">
+      <item id="1271" />
+      <item id="1270" />
+      <item id="1272" />
+    </category>
+  </mod>
+  <mod guid="pinosante.fuckdollpantyhose">
+    <category number="110">
+      <item id="9258" />
+    </category>
+  </mod>
+  <mod guid="com.roy12.galheels">
+    <category number="112">
+      <item id="81" />
+    </category>
+  </mod>
+  <mod guid="TedPanda.chokerpack">
+    <category number="124">
+      <item id="3281" />
+    </category>
+  </mod>
+  <mod guid="Snydrex.Rings.Mod">
+    <category number="124">
+      <item id="125320" />
+    </category>
+  </mod>
+  <mod guid="SoDevs.DigiChokers">
+    <category number="124">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Sny.Wata.Mod">
+    <category number="124">
+      <item id="772341" />
+    </category>
+  </mod>
+  <mod guid="Sny.Towa.Mod">
+    <category number="124">
+      <item id="124960" />
+    </category>
+  </mod>
+  <mod guid="roie.WBAccessories">
+    <category number="124">
+      <item id="680404" />
+    </category>
+  </mod>
+  <mod guid="Rich.codeVeinNeckBrace">
+    <category number="124">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Avatar.Mod">
+    <category number="122">
+      <item id="40437" />
+    </category>
+    <category number="105">
+      <item id="40248" />
+    </category>
+  </mod>
+  <mod guid="com.kallenfag.GeassEyeAlternate">
+    <category number="408">
+      <item id="329329" />
+    </category>
+  </mod>
+  <mod guid="com.kallenfag.Lucinaeye">
+    <category number="408">
+      <item id="3446" />
+    </category>
+  </mod>
+  <mod guid="Facepaintaddon.CharamakerSupportMOD">
+    <category number="405">
+      <item id="9030" />
+    </category>
+  </mod>
+  <mod guid="nashi.HalfOffPantyhose">
+    <category number="110">
+      <item id="747" />
+      <item id="748" />
+    </category>
+  </mod>
+  <mod guid="com.alex7997.lips">
+    <category number="403">
+      <item id="57" />
+      <item id="55" />
+      <item id="51" />
+    </category>
+  </mod>
+  <mod guid="CelestiaZX Lets Go Jeans">
+    <category number="106">
+      <item id="14975" />
+    </category>
+  </mod>
+  <mod guid="anse_blucher_mod">
+    <category number="112">
+      <item id="6048" />
+    </category>
+  </mod>
+  <mod guid="Zeta.SunshineHairAccessories">
+    <category number="123">
+      <item id="9" />
+    </category>
+  </mod>
+  <mod guid="nashi_Erifrill_Innerwear">
+    <category number="210">
+      <item id="7241337" />
+    </category>
+  </mod>
+  <mod guid="nashi.Panties">
+    <category number="108">
+      <item id="774" />
+      <item id="771" />
+      <item id="778" />
+      <item id="761" />
+      <item id="776" />
+    </category>
+  </mod>
+  <mod guid="yu000.MicroBikini">
+    <category number="108">
+      <item id="600" />
+    </category>
+  </mod>
+  <mod guid="Augh.Volleyball">
+    <category number="110">
+      <item id="1011" />
+    </category>
+    <category number="111">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.DextersMomGym">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.MiraiAkariSet">
+    <category number="210">
+      <item id="1634" />
+    </category>
+    <category number="108">
+      <item id="1633" />
+    </category>
+  </mod>
+  <mod guid="nashi.Bras">
+    <category number="107">
+      <item id="742" />
+      <item id="743" />
+      <item id="744" />
+      <item id="763" />
+    </category>
+  </mod>
+  <mod guid="AntY.panst">
+    <category number="110">
+      <item id="119" />
+      <item id="113" />
+      <item id="120" />
+      <item id="114" />
+    </category>
+  </mod>
+  <mod guid="NBY02">
+    <category number="106">
+      <item id="3694" />
+    </category>
+  </mod>
+  <mod guid="nashi.Shinobi">
+    <category number="105">
+      <item id="706" />
+    </category>
+  </mod>
+  <mod guid="moderchan.AddLip">
+    <category number="403">
+      <item id="1882" />
+      <item id="1881" />
+    </category>
+  </mod>
+  <mod guid="Zeta.SunshineClothing">
+    <category number="210">
+      <item id="3" />
+    </category>
+    <category number="105">
+      <item id="1" />
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="TICK-TACK.pantshot_r_custom">
+    <category number="106">
+      <item id="524" />
+    </category>
+  </mod>
+  <mod guid="xne_brzlswim">
+    <category number="107">
+      <item id="9220" />
+    </category>
+  </mod>
+  <mod guid="com.nep.ningguangstuff">
+    <category number="124">
+      <item id="19511506" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.SallyBoots">
+    <category number="112">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="A-fan.Short_sleeves_cleavage_shirt">
+    <category number="210">
+      <item id="1030" />
+      <item id="1040" />
+    </category>
+    <category number="200">
+      <item id="1031" />
+    </category>
+  </mod>
+  <mod guid="Sylvers.Sims.4.Lips">
+    <category number="403">
+      <item id="7028" />
+      <item id="7029" />
+      <item id="7024" />
+      <item id="7025" />
+    </category>
+  </mod>
+  <mod guid="breakthrough.AddtionalLips">
+    <category number="403">
+      <item id="850300" />
+    </category>
+  </mod>
+  <mod guid="Gothic_Jacket_Top_Ass_Haggis">
+    <category number="105">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.MiroSet">
+    <category number="112">
+      <item id="1603" />
+    </category>
+    <category number="411">
+      <item id="1600" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.muvluv">
+    <category number="123">
+      <item id="1632" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.HairBase">
+    <category number="101">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="5896.sailor.mini">
+    <category number="106">
+      <item id="141" />
+    </category>
+  </mod>
+  <mod guid="nashi.Mizugi">
+    <category number="107">
+      <item id="788" />
+      <item id="701" />
+      <item id="783" />
+      <item id="787" />
+      <item id="786" />
+      <item id="700" />
+    </category>
+  </mod>
+  <mod guid="ztokki.Panties">
+    <category number="108">
+      <item id="1282" />
+      <item id="1281" />
+      <item id="1280" />
+    </category>
+  </mod>
+  <mod guid="RSkoi.ztokki.LongSocks">
+    <category number="110">
+      <item id="2812" />
+      <item id="2811" />
+    </category>
+  </mod>
+  <mod guid="anse_offshoulder_mod">
+    <category number="105">
+      <item id="680011" />
+    </category>
+  </mod>
+  <mod guid="guicoolsbikiniset">
+    <category number="108">
+      <item id="4" />
+      <item id="3" />
+      <item id="1" />
+    </category>
+    <category number="107">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="ryo2003.stiletto3">
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Neko's Bundle">
+    <category number="105">
+      <item id="6" />
+      <item id="1" />
+      <item id="4" />
+      <item id="8" />
+      <item id="7" />
+    </category>
+  </mod>
+  <mod guid="luci7_uppercheek">
+    <category number="402">
+      <item id="72301" />
+    </category>
+  </mod>
+  <mod guid="[F14] Silky Illusion Set">
+    <category number="107">
+      <item id="2010" />
+    </category>
+    <category number="108">
+      <item id="1455" />
+      <item id="1451" />
+      <item id="1453" />
+      <item id="1456" />
+      <item id="1457" />
+    </category>
+  </mod>
+  <mod guid="nashi_Mizugi_2nd">
+    <category number="107">
+      <item id="721" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.clothExtend">
+    <category number="110">
+      <item id="500" />
+    </category>
+    <category number="109">
+      <item id="500" />
+    </category>
+    <category number="111">
+      <item id="499" />
+    </category>
+  </mod>
+  <mod guid="Tansen.ShoesMods">
+    <category number="112">
+      <item id="9001" />
+      <item id="9002" />
+    </category>
+  </mod>
+  <mod guid="h_.heels">
+    <category number="112">
+      <item id="200052" />
+    </category>
+  </mod>
+  <mod guid="kks.co_bot_00">
+    <category number="106">
+      <item id="309" />
+      <item id="313" />
+      <item id="308" />
+      <item id="307" />
+      <item id="310" />
+      <item id="312" />
+    </category>
+  </mod>
+  <mod guid="Augh.CursedJordans">
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="zzzZZescargot_mod001">
+    <category number="105">
+      <item id="3" />
+      <item id="12" />
+      <item id="1" />
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="xne_dksweater">
+    <category number="105">
+      <item id="9209" />
+      <item id="9210" />
+      <item id="9208" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.Patterns">
+    <category number="430">
+      <item id="78" />
+      <item id="64" />
+    </category>
+  </mod>
+  <mod guid="Augh.StirrupStockings">
+    <category number="111">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Cz_Longcoat">
+    <category number="211">
+      <item id="744" />
+      <item id="745" />
+    </category>
+    <category number="110">
+      <item id="745" />
+    </category>
+  </mod>
+  <mod guid="Raguro.KNls">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="kq">
+    <category number="408">
+      <item id="2367991" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Perona.Mod">
+    <category number="105">
+      <item id="40221" />
+    </category>
+  </mod>
+  <mod guid="ancforest_crow.AdditionalPatterns">
+    <category number="430">
+      <item id="4006" />
+    </category>
+  </mod>
+  <mod guid="hffun.TrainingClothing">
+    <category number="106">
+      <item id="303" />
+    </category>
+    <category number="105">
+      <item id="303" />
+    </category>
+  </mod>
+  <mod guid="com.IceRain.EXTRAPATTERN">
+    <category number="430">
+      <item id="553" />
+      <item id="552" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.kimonodressskirtopen">
+    <category number="106">
+      <item id="101" />
+    </category>
+  </mod>
+  <mod guid="m14.SmallSchoolSwimsuit">
+    <category number="107">
+      <item id="51" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Ryuko">
+    <category number="112">
+      <item id="20032" />
+    </category>
+    <category number="105">
+      <item id="20030" />
+    </category>
+  </mod>
+  <mod guid="Alvarna.ClothingSet3">
+    <category number="105">
+      <item id="1" />
+    </category>
+    <category number="106">
+      <item id="1" />
+    </category>
+    <category number="107">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.underkneesocks">
+    <category number="111">
+      <item id="88" />
+    </category>
+  </mod>
+  <mod guid="multioverlaylatex.mod">
+    <category number="105">
+      <item id="5415119" />
+      <item id="5415121" />
+      <item id="5415120" />
+    </category>
+    <category number="107">
+      <item id="332361" />
+      <item id="332362" />
+    </category>
+  </mod>
+  <mod guid="kks.co_shorts_00">
+    <category number="108">
+      <item id="305" />
+    </category>
+  </mod>
+  <mod guid="turime_face">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.PacificaJacket">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.RogueBoots">
+    <category number="112">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="Rikka.reverse_bunny">
+    <category number="107">
+      <item id="0" />
+    </category>
+    <category number="211">
+      <item id="0" />
+      <item id="1" />
+    </category>
+    <category number="106">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.chirai">
+    <category number="112">
+      <item id="1606" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.accneckP">
+    <category number="124">
+      <item id="504" />
+      <item id="502" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.chinadresstop">
+    <category number="105">
+      <item id="103" />
+    </category>
+  </mod>
+  <mod guid="IllusionMods.SaradaShoes">
+    <category number="112">
+      <item id="77733" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.ShortHair">
+    <category number="123">
+      <item id="6" />
+    </category>
+  </mod>
+  <mod guid="com.ss.LineSocks">
+    <category number="111">
+      <item id="527" />
+      <item id="528" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.basiclongskirt">
+    <category number="106">
+      <item id="89" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Tifa.Mod">
+    <category number="112">
+      <item id="40239" />
+    </category>
+  </mod>
+  <mod guid="uppervolta.TwoStampEmblem">
+    <category number="431">
+      <item id="881" />
+      <item id="879" />
+      <item id="875" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.middleheelpumps">
+    <category number="112">
+      <item id="96" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.thighhighs">
+    <category number="110">
+      <item id="93" />
+    </category>
+  </mod>
+  <mod guid="com.the_dactyl.ped_socks">
+    <category number="111">
+      <item id="205" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.bolerojacketfrill">
+    <category number="211">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="n3x7xp.bra">
+    <category number="107">
+      <item id="11" />
+    </category>
+  </mod>
+  <mod guid="luci7_taisougi_and_buruma">
+    <category number="106">
+      <item id="72301" />
+    </category>
+    <category number="210">
+      <item id="72303" />
+      <item id="72301" />
+    </category>
+  </mod>
+  <mod guid="com.ymgpt.long_gloves_left_right.AltSlot">
+    <category number="110">
+      <item id="21302" />
+      <item id="21301" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.AccessoryHairExtension">
+    <category number="122">
+      <item id="1" />
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="nashi.Chichitent">
+    <category number="200">
+      <item id="751" />
+    </category>
+  </mod>
+  <mod guid="Evaan.DBZGurls.Mod">
+    <category number="122">
+      <item id="40890" />
+    </category>
+    <category number="105">
+      <item id="40910" />
+    </category>
+    <category number="100">
+      <item id="4" />
+    </category>
+  </mod>
+  <mod guid="Evaan.FireEmblem.Mod">
+    <category number="105">
+      <item id="40586" />
+    </category>
+  </mod>
+  <mod guid="DS27.Project_DIVA_Hair_Set">
+    <category number="121">
+      <item id="23" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.LolaBunnyHead">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.chloe">
+    <category number="105">
+      <item id="1617" />
+    </category>
+  </mod>
+  <mod guid="Evaan.TeenTitans.Mod">
+    <category number="122">
+      <item id="40547" />
+    </category>
+  </mod>
+  <mod guid="com.nammiyoo.nipple_accessories">
+    <category number="125">
+      <item id="19799" />
+    </category>
+  </mod>
+  <mod guid="CB.rita_eye">
+    <category number="408">
+      <item id="125899" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.innertubetop">
+    <category number="210">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.BangM">
+    <category number="123">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="DEF.BulletGirl">
+    <category number="408">
+      <item id="9998" />
+    </category>
+  </mod>
+  <mod guid="moderchan.LongGlovesTipCut">
+    <category number="109">
+      <item id="1881" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Taimanin.Mod">
+    <category number="105">
+      <item id="40807" />
+    </category>
+  </mod>
+  <mod guid="8246asdf.Kaguya_eye">
+    <category number="408">
+      <item id="7978" />
+    </category>
+  </mod>
+  <mod guid="nashi_Babydoll">
+    <category number="105">
+      <item id="719" />
+      <item id="718" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.SkinTypeSlenderWithBreastDefinition">
+    <category number="420">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="dak.eye">
+    <category number="408">
+      <item id="7496" />
+    </category>
+  </mod>
+  <mod guid="rem27.ToLoveRuModPack">
+    <category number="211">
+      <item id="40" />
+    </category>
+    <category number="210">
+      <item id="21" />
+      <item id="22" />
+      <item id="20" />
+    </category>
+  </mod>
+  <mod guid="[Ω-C-5] Cowgirl set">
+    <category number="124">
+      <item id="11746" />
+    </category>
+    <category number="106">
+      <item id="11743" />
+    </category>
+  </mod>
+  <mod guid="zzzZZescargot_mod003">
+    <category number="105">
+      <item id="1" />
+      <item id="10" />
+      <item id="30" />
+    </category>
+    <category number="108">
+      <item id="30" />
+      <item id="1" />
+      <item id="2" />
+    </category>
+    <category number="106">
+      <item id="30" />
+    </category>
+  </mod>
+  <mod guid="[NEXT21] AnnieHair1.1">
+    <category number="122">
+      <item id="40037" />
+    </category>
+  </mod>
+  <mod guid="Alvarna.ClothingSet5">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="n3x7xp.swimsuitsg01">
+    <category number="105">
+      <item id="4" />
+    </category>
+  </mod>
+  <mod guid="Osland-cuteSlut">
+    <category number="105">
+      <item id="0" />
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="shinyBunny">
+    <category number="105">
+      <item id="997" />
+    </category>
+  </mod>
+  <mod guid="Cz_Long_blazer">
+    <category number="211">
+      <item id="744" />
+    </category>
+  </mod>
+  <mod guid="moderchan.HairExtensionPack">
+    <category number="122">
+      <item id="1880" />
+      <item id="1883" />
+    </category>
+  </mod>
+  <mod guid="Zeta.NavelPiercingsACP">
+    <category number="126">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="pinosante.cropped_camisole">
+    <category number="105">
+      <item id="5974" />
+    </category>
+  </mod>
+  <mod guid="Thatdude.Ganyu">
+    <category number="121">
+      <item id="14" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.Ganyu.Mod">
+    <category number="105">
+      <item id="130586" />
+    </category>
+  </mod>
+  <mod guid="jacket001_Edit">
+    <category number="211">
+      <item id="1001" />
+    </category>
+  </mod>
+  <mod guid="com.unknown.dekocuta">
+    <category number="123">
+      <item id="101" />
+    </category>
+  </mod>
+  <mod guid="Evaan.MHAgirls.Mod">
+    <category number="122">
+      <item id="40233" />
+      <item id="40350" />
+    </category>
+    <category number="105">
+      <item id="40230" />
+      <item id="40320" />
+    </category>
+    <category number="109">
+      <item id="40231" />
+    </category>
+  </mod>
+  <mod guid="Jeanne_Alter_Cetol">
+    <category number="123">
+      <item id="722132" />
+      <item id="7421532" />
+    </category>
+  </mod>
+  <mod guid="fissy.hotspringtowel.mod">
+    <category number="105">
+      <item id="726019" />
+    </category>
+  </mod>
+  <mod guid="tm.top.options">
+    <category number="211">
+      <item id="2612" />
+      <item id="2620" />
+      <item id="2601" />
+    </category>
+    <category number="210">
+      <item id="1230" />
+    </category>
+  </mod>
+  <mod guid="anse_square_dress_mod">
+    <category number="105">
+      <item id="60051" />
+    </category>
+  </mod>
+  <mod guid="SunshineHairAccs">
+    <category number="123">
+      <item id="13" />
+      <item id="4" />
+      <item id="7" />
+      <item id="22" />
+    </category>
+    <category number="122">
+      <item id="4" />
+    </category>
+  </mod>
+  <mod guid="lrdj.kanade_outfits">
+    <category number="123">
+      <item id="11" />
+    </category>
+  </mod>
+  <mod guid="fisherytale.streetwear">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.HexDress">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Guicool_Egyptian_Garment">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="lrdj.starlit_season">
+    <category number="124">
+      <item id="1" />
+    </category>
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.bolerojacketlace">
+    <category number="211">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="ZMR_AcchairB">
+    <category number="122">
+      <item id="2154" />
+      <item id="2153" />
+    </category>
+  </mod>
+  <mod guid="Raguro.ToudouMarikoTop">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.classicmaidtop">
+    <category number="105">
+      <item id="125" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.RoxanneShirt">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="anse_curtain_sailor_mod">
+    <category number="200">
+      <item id="20070" />
+      <item id="20080" />
+    </category>
+  </mod>
+  <mod guid="hcni_sailor00">
+    <category number="201">
+      <item id="89005" />
+    </category>
+    <category number="202">
+      <item id="89004" />
+    </category>
+  </mod>
+  <mod guid="sage.shimakaze">
+    <category number="202">
+      <item id="3232" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.Rosaria.Mod">
+    <category number="105">
+      <item id="130606" />
+    </category>
+    <category number="106">
+      <item id="130601" />
+    </category>
+    <category number="108">
+      <item id="130605" />
+    </category>
+    <category number="110">
+      <item id="130604" />
+    </category>
+    <category number="109">
+      <item id="130603" />
+    </category>
+    <category number="112">
+      <item id="130602" />
+    </category>
+  </mod>
+  <mod guid="Front_tietop">
+    <category number="105">
+      <item id="11" />
+      <item id="13" />
+      <item id="12" />
+      <item id="18" />
+      <item id="17" />
+      <item id="14" />
+    </category>
+  </mod>
+  <mod guid="5896.parka.fgo">
+    <category number="105">
+      <item id="94" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.NatsumiSet">
+    <category number="105">
+      <item id="1606" />
+    </category>
+  </mod>
+  <mod guid="com.zf9UK2ZA0.Lowrise_pants03">
+    <category number="106">
+      <item id="9104" />
+      <item id="9103" />
+    </category>
+  </mod>
+  <mod guid="TICK-TACK.denim_hotpants">
+    <category number="106">
+      <item id="26511" />
+    </category>
+  </mod>
+  <mod guid="n3x7xp.brag02">
+    <category number="107">
+      <item id="5" />
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="EdelSwimsuit">
+    <category number="107">
+      <item id="87998" />
+    </category>
+  </mod>
+  <mod guid="CelestiaZX Very Micro Swimsuit">
+    <category number="107">
+      <item id="984" />
+    </category>
+  </mod>
+  <mod guid="nashi.MizugiTubetop">
+    <category number="107">
+      <item id="710" />
+    </category>
+  </mod>
+  <mod guid="kanade_03_modpack">
+    <category number="108">
+      <item id="99223305" />
+    </category>
+  </mod>
+  <mod guid="com.nep.barbarastuff">
+    <category number="106">
+      <item id="7212502" />
+    </category>
+  </mod>
+  <mod guid="n3x7xp.brag042nd">
+    <category number="107">
+      <item id="36" />
+      <item id="3" />
+      <item id="14" />
+    </category>
+  </mod>
+  <mod guid="RSkoi.moderchan.CustomClothesPack">
+    <category number="110">
+      <item id="1895" />
+      <item id="1893" />
+      <item id="1894" />
+      <item id="1896" />
+    </category>
+  </mod>
+  <mod guid="n3x7xp.brag04">
+    <category number="107">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="xne_pantshot_s">
+    <category number="106">
+      <item id="9204" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.Iris.Mod">
+    <category number="107">
+      <item id="130634" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.Blaze.Mod">
+    <category number="107">
+      <item id="130577" />
+    </category>
+  </mod>
+  <mod guid="Tent Bikini">
+    <category number="108">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Rinkoalt">
+    <category number="106">
+      <item id="80008" />
+    </category>
+  </mod>
+  <mod guid="Cz_Hiromi_Dress">
+    <category number="110">
+      <item id="499" />
+    </category>
+  </mod>
+  <mod guid="[Frostation] Ramlethal Valentine GG">
+    <category number="126">
+      <item id="1" />
+    </category>
+    <category number="106">
+      <item id="1551" />
+    </category>
+  </mod>
+  <mod guid="fissy.venti.mod">
+    <category number="126">
+      <item id="542" />
+    </category>
+  </mod>
+  <mod guid="[Frostation] Ethel Clothing">
+    <category number="112">
+      <item id="1" />
+    </category>
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="[Frostation] CV Rin Murasame">
+    <category number="112">
+      <item id="1" />
+    </category>
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="WraxTV.Cammy">
+    <category number="112">
+      <item id="78104" />
+      <item id="78103" />
+    </category>
+  </mod>
+  <mod guid="Vlakace.Punk Platform Boots">
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="VS.Sigma">
+    <category number="112">
+      <item id="15393" />
+    </category>
+  </mod>
+  <mod guid="VC.Sigma">
+    <category number="112">
+      <item id="15393" />
+    </category>
+  </mod>
+  <mod guid="Tomimi Assets.mod">
+    <category number="112">
+      <item id="332344" />
+    </category>
+    <category number="210">
+      <item id="5410197" />
+    </category>
+  </mod>
+  <mod guid="Raguro.ZeldaHWBts">
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Raguro.SofielBoots">
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="anse_sneakers_mod">
+    <category number="112">
+      <item id="6071" />
+    </category>
+  </mod>
+  <mod guid="AntY.gloves">
+    <category number="109">
+      <item id="111" />
+    </category>
+  </mod>
+  <mod guid="cm3d2">
+    <category number="109">
+      <item id="37002" />
+      <item id="37001" />
+    </category>
+    <category number="110">
+      <item id="37000" />
+    </category>
+    <category number="105">
+      <item id="37001" />
+    </category>
+    <category number="108">
+      <item id="37000" />
+    </category>
+  </mod>
+  <mod guid="com.ymgpt.transparent_long_gloves">
+    <category number="109">
+      <item id="21305" />
+      <item id="21303" />
+    </category>
+  </mod>
+  <mod guid="com.nammiyoo.kyoeimizugi">
+    <category number="107">
+      <item id="394806" />
+      <item id="394805" />
+    </category>
+  </mod>
+  <mod guid="com.redrayz.yelan">
+    <category number="107">
+      <item id="593" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.KrystalTop">
+    <category number="107">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Augh.FiteMeMami">
+    <category number="109">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="ZMR_Clothing">
+    <category number="109">
+      <item id="2150" />
+    </category>
+    <category number="210">
+      <item id="2150" />
+    </category>
+  </mod>
+  <mod guid="gt_Quality.Nipples">
+    <category number="423">
+      <item id="1" />
+      <item id="4" />
+      <item id="3" />
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="nashi_Front_hook">
+    <category number="107">
+      <item id="730" />
+    </category>
+  </mod>
+  <mod guid="com.zf9UK2ZA0.TaimaninYukikazeBodysuit">
+    <category number="107">
+      <item id="7117" />
+    </category>
+  </mod>
+  <mod guid="com.zf9UK2ZA0.ReiPlugsuit">
+    <category number="107">
+      <item id="8217" />
+    </category>
+  </mod>
+  <mod guid="ryusimi.swimsuits">
+    <category number="107">
+      <item id="101" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.MashKyrielightInnerSet">
+    <category number="110">
+      <item id="1600" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.toelesssocks">
+    <category number="111">
+      <item id="88" />
+    </category>
+  </mod>
+  <mod guid="earthship.pantyhose">
+    <category number="110">
+      <item id="69" />
+    </category>
+  </mod>
+  <mod guid="hayashi.ShrineMaidenGlovesNoDecoration">
+    <category number="109">
+      <item id="887" />
+    </category>
+  </mod>
+  <mod guid="nashi.OneFootSocks">
+    <category number="110">
+      <item id="751" />
+    </category>
+    <category number="111">
+      <item id="751" />
+    </category>
+  </mod>
+  <mod guid="nashi.TornPantyhose">
+    <category number="110">
+      <item id="742" />
+    </category>
+  </mod>
+  <mod guid="hayashi.DevilGlovesNoDecoration">
+    <category number="109">
+      <item id="891" />
+    </category>
+  </mod>
+  <mod guid="[E9] VGP">
+    <category number="112">
+      <item id="483617" />
+    </category>
+  </mod>
+  <mod guid="wen.Elf">
+    <category number="111">
+      <item id="247" />
+    </category>
+  </mod>
+  <mod guid="nakay.kuikomi.thigh.cbs">
+    <category number="111">
+      <item id="69663" />
+      <item id="69662" />
+      <item id="69660" />
+      <item id="69661" />
+    </category>
+    <category number="110">
+      <item id="69660" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.Lisa.Mod">
+    <category number="112">
+      <item id="130543" />
+    </category>
+    <category number="110">
+      <item id="130536" />
+    </category>
+    <category number="111">
+      <item id="130541" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.CocoTightJeans">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.nammiyoo.inverted_nipples">
+    <category number="423">
+      <item id="1960013" />
+    </category>
+  </mod>
+  <mod guid="Augh.ChunkyMaryjanes">
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Naier.Leather jacket">
+    <category number="211">
+      <item id="56465" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.BlackCanaryJacket">
+    <category number="211">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="DS27.Project_DIVA_Clothes_MOD">
+    <category number="211">
+      <item id="1" />
+    </category>
+    <category number="112">
+      <item id="3" />
+      <item id="4" />
+    </category>
+    <category number="124">
+      <item id="7" />
+    </category>
+  </mod>
+  <mod guid="Amiya_Jacket">
+    <category number="211">
+      <item id="2003262" />
+    </category>
+  </mod>
+  <mod guid="Augh.Legwarmers">
+    <category number="111">
+      <item id="92" />
+    </category>
+  </mod>
+  <mod guid="Augh.BandageBra">
+    <category number="107">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Bunny_bra">
+    <category number="107">
+      <item id="127127" />
+    </category>
+  </mod>
+  <mod guid="Augh.HeavyBoots">
+    <category number="112">
+      <item id="1" />
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="anse_halfboots2_mod">
+    <category number="112">
+      <item id="6070" />
+    </category>
+  </mod>
+  <mod guid="Cz_Mika_boots">
+    <category number="112">
+      <item id="50714" />
+    </category>
+  </mod>
+  <mod guid="com.nep.saturnstuff">
+    <category number="112">
+      <item id="48895203" />
+    </category>
+    <category number="106">
+      <item id="48895202" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.eva4">
+    <category number="112">
+      <item id="1609" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.MashKyrielightExpansionSet2">
+    <category number="112">
+      <item id="1639" />
+    </category>
+    <category number="210">
+      <item id="1638" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Zestmod">
+    <category number="112">
+      <item id="588863298" />
+    </category>
+  </mod>
+  <mod guid="jeannedarc1.mod">
+    <category number="112">
+      <item id="3312434" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.Friedrich.Mod">
+    <category number="112">
+      <item id="130687" />
+    </category>
+    <category number="106">
+      <item id="130689" />
+    </category>
+  </mod>
+  <mod guid="lrdj._leah_claudius_mod">
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="lrdj.cgss_common_dresses">
+    <category number="112">
+      <item id="126" />
+    </category>
+    <category number="105">
+      <item id="7" />
+    </category>
+  </mod>
+  <mod guid="Anime_Nipples">
+    <category number="423">
+      <item id="575" />
+      <item id="572" />
+      <item id="506" />
+      <item id="509" />
+      <item id="517" />
+      <item id="520" />
+      <item id="532" />
+      <item id="537" />
+      <item id="548" />
+      <item id="551" />
+      <item id="557" />
+      <item id="562" />
+      <item id="577" />
+      <item id="580" />
+      <item id="581" />
+    </category>
+  </mod>
+  <mod guid="A-fan.Nipples">
+    <category number="423">
+      <item id="9801" />
+    </category>
+  </mod>
+  <mod guid="nashi_IBL_bunny">
+    <category number="105">
+      <item id="720" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.OzoraHarukaSwimsuitPatternSet">
+    <category number="430">
+      <item id="1639" />
+    </category>
+  </mod>
+  <mod guid="Commission_Projects_Type_P">
+    <category number="105">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="RCL_circuit.Eden.VenusBloodLagoon">
+    <category number="101">
+      <item id="23906" />
+    </category>
+    <category number="126">
+      <item id="23916" />
+    </category>
+  </mod>
+  <mod guid="SunshineClothing">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="anse_racing_swimsuitst_mod">
+    <category number="105">
+      <item id="60004" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Flame sakitama">
+    <category number="105">
+      <item id="720010" />
+    </category>
+  </mod>
+  <mod guid="Neko's Bundle_V2">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Sweater_inner">
+    <category number="210">
+      <item id="713713" />
+      <item id="711711" />
+      <item id="714714" />
+      <item id="715715" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.FuminaSet">
+    <category number="210">
+      <item id="1610" />
+    </category>
+  </mod>
+  <mod guid="mod of Alice Synthesis Thirty for koikatsu">
+    <category number="124">
+      <item id="505" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.PrincessDaphneDress">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.SheraGreenwood">
+    <category number="105">
+      <item id="9233447" />
+    </category>
+  </mod>
+  <mod guid="com.Slingfire.patterns">
+    <category number="430">
+      <item id="1011" />
+    </category>
+  </mod>
+  <mod guid="1010Lovely">
+    <category number="122">
+      <item id="10103" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Miyamoto musashi">
+    <category number="105">
+      <item id="70001" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.FeliciaCollar">
+    <category number="124">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Evaan.KillLaKill.Mod">
+    <category number="122">
+      <item id="40617" />
+    </category>
+  </mod>
+  <mod guid="kks.co_top_50">
+    <category number="105">
+      <item id="337" />
+    </category>
+  </mod>
+  <mod guid="moderchan.GlossyHairband">
+    <category number="122">
+      <item id="1873" />
+    </category>
+  </mod>
+  <mod guid="Raguro.KNtd">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.KrystalTopArmor">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.OtokuraYuukiSet">
+    <category number="211">
+      <item id="1627" />
+    </category>
+  </mod>
+  <mod guid="[YueFengyu]xiaoan_DK">
+    <category number="105">
+      <item id="2896763" />
+    </category>
+  </mod>
+  <mod guid="com.DeathWeasel.AccessoryHairSide">
+    <category number="123">
+      <item id="2" />
+      <item id="14" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.RinTosakaSet">
+    <category number="212">
+      <item id="1600" />
+    </category>
+    <category number="210">
+      <item id="1605" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Ryza2">
+    <category number="105">
+      <item id="1480365" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.ArielTail">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Pixen_Derpixon_OCs_123_123">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="ZMX009">
+    <category number="122">
+      <item id="261" />
+    </category>
+  </mod>
+  <mod guid="yelan">
+    <category number="200">
+      <item id="1018161" />
+    </category>
+    <category number="121">
+      <item id="1018151" />
+    </category>
+  </mod>
+  <mod guid="[Makise]Candace">
+    <category number="105">
+      <item id="874311194" />
+    </category>
+    <category number="122">
+      <item id="785762288" />
+    </category>
+    <category number="106">
+      <item id="514583851" />
+    </category>
+  </mod>
+  <mod guid="Raguro.ToudouMarikoCollar">
+    <category number="124">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="dak.Hair">
+    <category number="121">
+      <item id="1051" />
+    </category>
+  </mod>
+  <mod guid="Evaan.SNK.Mod">
+    <category number="105">
+      <item id="40423" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.SinonSet">
+    <category number="105">
+      <item id="1611" />
+    </category>
+    <category number="124">
+      <item id="1601" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.MineSet2">
+    <category number="210">
+      <item id="1607" />
+    </category>
+  </mod>
+  <mod guid="com.kallenfag.maidneck">
+    <category number="211">
+      <item id="45186752" />
+    </category>
+  </mod>
+  <mod guid="com.unknown.kimonocut3">
+    <category number="105">
+      <item id="107" />
+    </category>
+  </mod>
+  <mod guid="yamadamod.hairNicoichi">
+    <category number="102">
+      <item id="515" />
+    </category>
+  </mod>
+  <mod guid="xne_skdrs01">
+    <category number="105">
+      <item id="9214" />
+    </category>
+  </mod>
+  <mod guid="kks.co_top_40">
+    <category number="105">
+      <item id="339" />
+    </category>
+  </mod>
+  <mod guid="nashi.party">
+    <category number="105">
+      <item id="720" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.JerseySet">
+    <category number="105">
+      <item id="1607" />
+    </category>
+  </mod>
+  <mod guid="IllusionMods.MereoleonaSuit">
+    <category number="105">
+      <item id="77757" />
+    </category>
+  </mod>
+  <mod guid="IllusionMods.MereoleonaHair">
+    <category number="121">
+      <item id="77579" />
+    </category>
+  </mod>
+  <mod guid="[蓬莱伝説]夜見れな mod">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="[蓬莱伝説]癒月ちょこ mod">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="IllusionMods.MereoleonaBook">
+    <category number="121">
+      <item id="77582" />
+    </category>
+  </mod>
+  <mod guid="IllusionMods.MereoleonaBag">
+    <category number="121">
+      <item id="77581" />
+    </category>
+  </mod>
+  <mod guid="IllusionMods.MereoleonaCape">
+    <category number="125">
+      <item id="77580" />
+    </category>
+  </mod>
+  <mod guid="IllusionMods.MikasaHair">
+    <category number="121">
+      <item id="77589" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.Aizen">
+    <category number="122">
+      <item id="5921" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.Ulquiorra">
+    <category number="122">
+      <item id="5918" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.Urahara">
+    <category number="122">
+      <item id="5912" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.IsshinKurosaki">
+    <category number="122">
+      <item id="5924" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.Toshiro">
+    <category number="122">
+      <item id="5925" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.Kenpachi">
+    <category number="122">
+      <item id="5917" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.Mayuri">
+    <category number="122">
+      <item id="6981" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.Byakuya">
+    <category number="122">
+      <item id="5922" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.Renji">
+    <category number="122">
+      <item id="5913" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.TosenKaname">
+    <category number="122">
+      <item id="2121" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.GinIchimaru">
+    <category number="122">
+      <item id="7927" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.OetsuNimaiya">
+    <category number="122">
+      <item id="2121" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.ShuheiHisagi">
+    <category number="122">
+      <item id="2126" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Spellbinderangela">
+    <category number="105">
+      <item id="11189" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Trialsangela">
+    <category number="122">
+      <item id="10120" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.maidinnertubetop">
+    <category number="210">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="fxe">
+    <category number="200">
+      <item id="23651" />
+    </category>
+    <category number="121">
+      <item id="6011" />
+    </category>
+    <category number="108">
+      <item id="3620" />
+    </category>
+  </mod>
+  <mod guid="anse_toa_school_uniform_mod">
+    <category number="210">
+      <item id="61001" />
+    </category>
+    <category number="106">
+      <item id="61032" />
+    </category>
+    <category number="212">
+      <item id="61006" />
+    </category>
+  </mod>
+  <mod guid="Arknights_Surtr_123">
+    <category number="210">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="Deedlit.acc">
+    <category number="210">
+      <item id="21" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.MatoSakuraSet">
+    <category number="210">
+      <item id="1601" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.Eula.Mod">
+    <category number="210">
+      <item id="130609" />
+    </category>
+  </mod>
+  <mod guid="mm.JacketBikini">
+    <category number="210">
+      <item id="180000" />
+    </category>
+  </mod>
+  <mod guid="NBY01">
+    <category number="210">
+      <item id="3691" />
+      <item id="3692" />
+    </category>
+  </mod>
+  <mod guid="SL01">
+    <category number="210">
+      <item id="3689" />
+      <item id="3690" />
+    </category>
+  </mod>
+  <mod guid="yobobo.OtokuraYuukiSet">
+    <category number="210">
+      <item id="1626" />
+    </category>
+  </mod>
+  <mod guid="Tansen.Arknights.Dusk">
+    <category number="210">
+      <item id="211006" />
+    </category>
+  </mod>
+  <mod guid="Tansen.Arknights Kal'tsit">
+    <category number="210">
+      <item id="211202" />
+    </category>
+  </mod>
+  <mod guid="Silvervale _Ear_123_123">
+    <category number="210">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="pathos.cass">
+    <category number="210">
+      <item id="995" />
+    </category>
+  </mod>
+  <mod guid="oyd_hoodie01">
+    <category number="210">
+      <item id="3696" />
+    </category>
+  </mod>
+  <mod guid="rean">
+    <category number="210">
+      <item id="35" />
+    </category>
+  </mod>
+  <mod guid="Lingerie II">
+    <category number="107">
+      <item id="20" />
+    </category>
+  </mod>
+  <mod guid="luci7_microbkini">
+    <category number="107">
+      <item id="1185" />
+    </category>
+  </mod>
+  <mod guid="Isekai.Outfit.Maker">
+    <category number="124">
+      <item id="62000" />
+    </category>
+  </mod>
+  <mod guid="lrdj.frederica_outfits">
+    <category number="124">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="mod of Vladilena Milize for koikatsu">
+    <category number="124">
+      <item id="615" />
+    </category>
+  </mod>
+  <mod guid="mod of Alice Synthesis Thirty for koikatsu(ver2)">
+    <category number="124">
+      <item id="609" />
+    </category>
+  </mod>
+  <mod guid="militarpackage.mod">
+    <category number="124">
+      <item id="1128900" />
+    </category>
+  </mod>
+  <mod guid="momoura.kemonofriends">
+    <category number="124">
+      <item id="4" />
+    </category>
+  </mod>
+  <mod guid="[Makise]Nilou">
+    <category number="110">
+      <item id="340893488" />
+    </category>
+  </mod>
+  <mod guid="chang_zudai">
+    <category number="110">
+      <item id="9763581" />
+    </category>
+  </mod>
+  <mod guid="ayumu_42_shoes">
+    <category number="110">
+      <item id="662014207" />
+    </category>
+  </mod>
+  <mod guid="cinderella_girls_dress_modpack">
+    <category number="110">
+      <item id="99705007" />
+    </category>
+  </mod>
+  <mod guid="CJSN">
+    <category number="110">
+      <item id="888884" />
+    </category>
+  </mod>
+  <mod guid="com.Naier.Judithintothesky">
+    <category number="110">
+      <item id="45644" />
+    </category>
+    <category number="106">
+      <item id="45635" />
+    </category>
+  </mod>
+  <mod guid="Cz_ririm_set">
+    <category number="110">
+      <item id="1745" />
+    </category>
+  </mod>
+  <mod guid="dance_of_galaxy_modpack">
+    <category number="110">
+      <item id="22010407" />
+    </category>
+  </mod>
+  <mod guid="dark_Prison">
+    <category number="110">
+      <item id="826" />
+    </category>
+    <category number="108">
+      <item id="827" />
+    </category>
+  </mod>
+  <mod guid="elven_panst">
+    <category number="110">
+      <item id="5199924" />
+    </category>
+  </mod>
+  <mod guid="fissy.vera.mod">
+    <category number="110">
+      <item id="153126" />
+    </category>
+  </mod>
+  <mod guid="Hestia">
+    <category number="110">
+      <item id="1896051" />
+    </category>
+  </mod>
+  <mod guid="HeldMesin.Scarlet Wedding Costume Set">
+    <category number="110">
+      <item id="7015" />
+    </category>
+  </mod>
+  <mod guid="IllusionMods.AkizaPantyHouse">
+    <category number="110">
+      <item id="77754" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.Keqing.Mod">
+    <category number="110">
+      <item id="130562" />
+    </category>
+  </mod>
+  <mod guid="mayu_scarlet_rose_modpack">
+    <category number="110">
+      <item id="9906107" />
+    </category>
+  </mod>
+  <mod guid="mods.nono">
+    <category number="110">
+      <item id="707080" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.StockingStockings">
+    <category number="110">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="Tailor_work_omega">
+    <category number="111">
+      <item id="24010" />
+      <item id="24000" />
+    </category>
+  </mod>
+  <mod guid="Peach Sanctuary">
+    <category number="111">
+      <item id="59010" />
+    </category>
+  </mod>
+  <mod guid="oppressor8070">
+    <category number="111">
+      <item id="700728" />
+    </category>
+  </mod>
+  <mod guid="nature_cheer_modpack">
+    <category number="111">
+      <item id="77060206" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.MercyHalloweenSocks">
+    <category number="111">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="114514">
+    <category number="111">
+      <item id="7138" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.ShortHairI">
+    <category number="123">
+      <item id="6" />
+    </category>
+  </mod>
+  <mod guid="MOD of Sinon as CaitSith">
+    <category number="210">
+      <item id="500" />
+    </category>
+  </mod>
+  <mod guid="Kallen nun outfit and hair">
+    <category number="105">
+      <item id="34635" />
+    </category>
+  </mod>
+  <mod guid="mat.Corset">
+    <category number="105">
+      <item id="1200" />
+    </category>
+  </mod>
+  <mod guid="onaka.bea_jkt_inner">
+    <category number="105">
+      <item id="801" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.RosalinaLeotard">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Tansen.FGO.Musashi.swimsuit.free">
+    <category number="211">
+      <item id="16300" />
+    </category>
+  </mod>
+  <mod guid="bodytightwithskirt">
+    <category number="105">
+      <item id="24454" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.HexBikiniTop">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="earthship.archeryhakamaedit">
+    <category number="106">
+      <item id="39" />
+    </category>
+  </mod>
+  <mod guid="m14.realSuit">
+    <category number="107">
+      <item id="268" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.ChelLoincloth">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="humble_AngelicaAinsworth">
+    <category number="105">
+      <item id="72688962" />
+    </category>
+    <category number="121">
+      <item id="72688965" />
+      <item id="72688966" />
+      <item id="72688967" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.DWIglasses">
+    <category number="123">
+      <item id="112" />
+    </category>
+  </mod>
+  <mod guid="[DarobJ]Rita_C5">
+    <category number="112">
+      <item id="96832" />
+    </category>
+    <category number="108">
+      <item id="29652" />
+    </category>
+  </mod>
+  <mod guid="[DarobJ]Duradual">
+    <category number="112">
+      <item id="26462" />
+    </category>
+  </mod>
+  <mod guid="Jinsung.Hallibelhair">
+    <category number="123">
+      <item id="5" />
+    </category>
+  </mod>
+  <mod guid="nashi.SkirtWithPetticoat">
+    <category number="106">
+      <item id="781" />
+      <item id="782" />
+      <item id="785" />
+      <item id="786" />
+    </category>
+  </mod>
+  <mod guid="[F13] White Carol Set">
+    <category number="106">
+      <item id="1450" />
+    </category>
+  </mod>
+  <mod guid="[Ltsuki]A22Patricia">
+    <category number="106">
+      <item id="12031" />
+    </category>
+  </mod>
+  <mod guid="[Ltsuki]HackDoll-1">
+    <category number="106">
+      <item id="12035" />
+    </category>
+  </mod>
+  <mod guid="[Ltsuki]SSKaede">
+    <category number="106">
+      <item id="9224" />
+    </category>
+  </mod>
+  <mod guid="[Makise]DJNT_SZJS">
+    <category number="106">
+      <item id="514593851" />
+    </category>
+    <category number="108">
+      <item id="458078972" />
+    </category>
+  </mod>
+  <mod guid="[Makise]Dehya">
+    <category number="106">
+      <item id="704583850" />
+    </category>
+  </mod>
+  <mod guid="[YueFengyu]zhezhi">
+    <category number="106">
+      <item id="0" />
+    </category>
+    <category number="122">
+      <item id="23952227" />
+    </category>
+  </mod>
+  <mod guid="[YueFengYu]黒咲芽亜">
+    <category number="106">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="73lac7c.Clannad">
+    <category number="106">
+      <item id="225" />
+    </category>
+  </mod>
+  <mod guid="73lac7c.low">
+    <category number="106">
+      <item id="532" />
+    </category>
+  </mod>
+  <mod guid="com.nep.katsuragistuff">
+    <category number="106">
+      <item id="75472103" />
+    </category>
+  </mod>
+  <mod guid="com.nep.miraistuff">
+    <category number="106">
+      <item id="21421018" />
+      <item id="21421002" />
+    </category>
+  </mod>
+  <mod guid="com.nep.nepstuff">
+    <category number="106">
+      <item id="478551" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.longpleatedskirtlace">
+    <category number="106">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.shortkd">
+    <category number="106">
+      <item id="127" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.shorterkd">
+    <category number="106">
+      <item id="126" />
+    </category>
+  </mod>
+  <mod guid="Cz_Siranui_Kaede_dress">
+    <category number="106">
+      <item id="751" />
+    </category>
+  </mod>
+  <mod guid="KL_Theresa_accessories">
+    <category number="106">
+      <item id="2591" />
+    </category>
+  </mod>
+  <mod guid="koikatuman.LowerSkirt">
+    <category number="106">
+      <item id="3232" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.AcademyBlue.Mod">
+    <category number="106">
+      <item id="130497" />
+    </category>
+  </mod>
+  <mod guid="Ktan_Ranko_dress">
+    <category number="106">
+      <item id="9224" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.RamonaShorts">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.ElizabethSkirt2">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.HexBikiniBottom">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.IsabelleSkirt">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.BetillaSkirt">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.ArielTailBottom">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="cream001">
+    <category number="122">
+      <item id="875" />
+    </category>
+  </mod>
+  <mod guid="Soopergang.hideawaylingerie">
+    <category number="108">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="xne_swimset02">
+    <category number="108">
+      <item id="9205" />
+      <item id="9206" />
+    </category>
+  </mod>
+  <mod guid="xne_rurinaset">
+    <category number="108">
+      <item id="9204" />
+    </category>
+  </mod>
+  <mod guid="tokitsukaze_mod">
+    <category number="108">
+      <item id="722" />
+    </category>
+  </mod>
+  <mod guid="siki_06_modpack">
+    <category number="108">
+      <item id="99126606" />
+    </category>
+  </mod>
+  <mod guid="[Liangpi,Xiongben]JZHJ">
+    <category number="108">
+      <item id="7243" />
+    </category>
+  </mod>
+  <mod guid="[Liangpi]Mei_PXQX">
+    <category number="108">
+      <item id="7093" />
+    </category>
+  </mod>
+  <mod guid="[SolityL]ningguang">
+    <category number="108">
+      <item id="970065" />
+    </category>
+  </mod>
+  <mod guid="[Theresa]Hua_Qingniao">
+    <category number="108">
+      <item id="2240307" />
+    </category>
+  </mod>
+  <mod guid="[蓬莱伝説]呜米Umy公式服 mod">
+    <category number="108">
+      <item id="1280" />
+    </category>
+  </mod>
+  <mod guid="Anonymous.PantiesMod">
+    <category number="108">
+      <item id="742" />
+      <item id="741" />
+    </category>
+  </mod>
+  <mod guid="Augh.SunshineFrilledBikini">
+    <category number="108">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Cz_Overcast_Monochrome">
+    <category number="108">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="Cz_Morikubo_bikini">
+    <category number="108">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="futaboy.strapon">
+    <category number="108">
+      <item id="19" />
+    </category>
+  </mod>
+  <mod guid="earthship.Budget">
+    <category number="108">
+      <item id="69" />
+    </category>
+  </mod>
+  <mod guid="futaboy.strapons">
+    <category number="108">
+      <item id="19" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.swimpack">
+    <category number="108">
+      <item id="85233589" />
+      <item id="85233599" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.dizzy">
+    <category number="108">
+      <item id="20612" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Wu Zetian">
+    <category number="108">
+      <item id="70009" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Valkyriaswimsuit">
+    <category number="108">
+      <item id="4538845" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Angel">
+    <category number="108">
+      <item id="9554178" />
+    </category>
+  </mod>
+  <mod guid="Fworks_Nomi_Kudoryafuka">
+    <category number="108">
+      <item id="8505" />
+    </category>
+  </mod>
+  <mod guid="yae miko">
+    <category number="108">
+      <item id="67392" />
+    </category>
+  </mod>
+  <mod guid="ZMX016">
+    <category number="111">
+      <item id="503" />
+    </category>
+  </mod>
+  <mod guid="xmasfrank.mod">
+    <category number="111">
+      <item id="332370" />
+    </category>
+  </mod>
+  <mod guid="testlegv01">
+    <category number="111">
+      <item id="3333" />
+    </category>
+  </mod>
+  <mod guid="takumi_01_modpack">
+    <category number="111">
+      <item id="99280108" />
+    </category>
+  </mod>
+  <mod guid="Shako.Neppurple">
+    <category number="111">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Seele_Mirrored Flourishes">
+    <category number="111">
+      <item id="59111" />
+    </category>
+  </mod>
+  <mod guid="Raguro.ZeldaHWs">
+    <category number="111">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Raguro.CSocks">
+    <category number="111">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="lj_Mb1Luxiya">
+    <category number="111">
+      <item id="7058" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.Jean.Mod">
+    <category number="111">
+      <item id="130645" />
+    </category>
+  </mod>
+  <mod guid="Kraitx.Fischl.Mod">
+    <category number="111">
+      <item id="130547" />
+    </category>
+  </mod>
+  <mod guid="kks.co_socks_40">
+    <category number="111">
+      <item id="300" />
+    </category>
+  </mod>
+  <mod guid="koikatuman.BB">
+    <category number="111">
+      <item id="6900" />
+    </category>
+  </mod>
+  <mod guid="ryo2003.stiletto">
+    <category number="112">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="HCNI_uniform00">
+    <category number="112">
+      <item id="89016" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.PacificaBoots">
+    <category number="112">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.GantzSuitSet">
+    <category number="107">
+      <item id="1609" />
+    </category>
+  </mod>
+  <mod guid="Uuminae.doll.body.detail">
+    <category number="420">
+      <item id="6977" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.Onepiece">
+    <category number="106">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.chinadressskirt70">
+    <category number="106">
+      <item id="113" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.chinadressskirtshort">
+    <category number="106">
+      <item id="105" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.chinadressskirtlong">
+    <category number="106">
+      <item id="101" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.chinadressskirt70s">
+    <category number="106">
+      <item id="121" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.GradationHakama">
+    <category number="106">
+      <item id="13" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.IdolOnepiece">
+    <category number="106">
+      <item id="4" />
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.nep.tekkenstuff">
+    <category number="106">
+      <item id="430247917" />
+      <item id="430247916" />
+    </category>
+  </mod>
+  <mod guid="com.nep.neptuniastuffreworks">
+    <category number="106">
+      <item id="777114004" />
+      <item id="777114005" />
+    </category>
+  </mod>
+  <mod guid="zaoyou">
+    <category number="106">
+      <item id="8516" />
+    </category>
+  </mod>
+  <mod guid="yumi_06_modpack">
+    <category number="106">
+      <item id="99263603" />
+    </category>
+  </mod>
+  <mod guid="Raguro.JGpants">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="rika_02_modpack">
+    <category number="106">
+      <item id="99268203" />
+    </category>
+  </mod>
+  <mod guid="RedZone">
+    <category number="106">
+      <item id="5889214" />
+    </category>
+  </mod>
+  <mod guid="Raguro.ZhwBD">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Raguro.SofielSkirt">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.KimonoDressBottom_Fa">
+    <category number="106">
+      <item id="8" />
+    </category>
+  </mod>
+  <mod guid="com.nep.tamsoftstuff">
+    <category number="106">
+      <item id="48210803" />
+    </category>
+  </mod>
+  <mod guid="com.nep.qiqistuff">
+    <category number="106">
+      <item id="32804204" />
+    </category>
+  </mod>
+  <mod guid="com.Naier.Rita Mordio mage outfit">
+    <category number="106">
+      <item id="45545" />
+    </category>
+  </mod>
+  <mod guid="com.Naier.Kai's outfit">
+    <category number="106">
+      <item id="45635" />
+    </category>
+  </mod>
+  <mod guid="com.Naier.Judith">
+    <category number="106">
+      <item id="45545" />
+    </category>
+  </mod>
+  <mod guid="com.Naier.Golem MGE">
+    <category number="106">
+      <item id="45635" />
+    </category>
+  </mod>
+  <mod guid="com.Naier.Dhampir MGE">
+    <category number="106">
+      <item id="45635" />
+    </category>
+  </mod>
+  <mod guid="com.Naier.Anubis MGE">
+    <category number="106">
+      <item id="45635" />
+    </category>
+  </mod>
+  <mod guid="com.leisehg.Shokaku">
+    <category number="106">
+      <item id="1710191" />
+    </category>
+  </mod>
+  <mod guid="com.leisehg.ZhaoHe">
+    <category number="106">
+      <item id="1701301" />
+    </category>
+  </mod>
+  <mod guid="com.leisehg.Taiho">
+    <category number="106">
+      <item id="2203102" />
+    </category>
+  </mod>
+  <mod guid="com.leisehg.PrinzEugen">
+    <category number="106">
+      <item id="17082232" />
+    </category>
+  </mod>
+  <mod guid="com.leisehg.JeanBart">
+    <category number="106">
+      <item id="2204211" />
+    </category>
+  </mod>
+  <mod guid="com.leisehg.AugustVonParseval">
+    <category number="106">
+      <item id="1701091" />
+    </category>
+  </mod>
+  <mod guid="com.leisehg.Emden">
+    <category number="106">
+      <item id="2205062" />
+    </category>
+  </mod>
+  <mod guid="Augh.Boilersuit">
+    <category number="106">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="anse_flareu_slirt_mod">
+    <category number="106">
+      <item id="2019" />
+    </category>
+  </mod>
+  <mod guid="anse_high-waist_frill_skirt_mod">
+    <category number="106">
+      <item id="2057" />
+    </category>
+  </mod>
+  <mod guid="[YueFengyu]xiaoan">
+    <category number="122">
+      <item id="2395227" />
+    </category>
+  </mod>
+  <mod guid="gyobobo.MakinonSet">
+    <category number="107">
+      <item id="1625" />
+    </category>
+  </mod>
+  <mod guid="wtf.FakeSunburn">
+    <category number="422">
+      <item id="30" />
+    </category>
+  </mod>
+  <mod guid="FrankiePasta.KrystalHeadmod">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Evaan.OnePiece.Mod">
+    <category number="105">
+      <item id="40772" />
+    </category>
+    <category number="122">
+      <item id="40770" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Shantae.Mod">
+    <category number="122">
+      <item id="40125" />
+    </category>
+  </mod>
+  <mod guid="Raguro.MKdss">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Koimas.346pro">
+    <category number="121">
+      <item id="346110" />
+    </category>
+  </mod>
+  <mod guid="kushinahairpack.mod">
+    <category number="122">
+      <item id="221101" />
+    </category>
+  </mod>
+  <mod guid="Alexander.Hair">
+    <category number="123">
+      <item id="2151" />
+    </category>
+  </mod>
+  <mod guid="AA2HexaFrontHairAddition">
+    <category number="123">
+      <item id="24" />
+      <item id="7" />
+    </category>
+  </mod>
+  <mod guid="Raguro.LottaDress">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.MirageDress">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="WraxTV.SFVFelicia">
+    <category number="122">
+      <item id="89700" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.Headmod07">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.LadyLong">
+    <category number="122">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.Headmod09">
+    <category number="100">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="xxSJxx.Android 17 Hair">
+    <category number="123">
+      <item id="4174" />
+    </category>
+  </mod>
+  <mod guid="Augh.WitchHatDeux">
+    <category number="122">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="Virgoblack.OnePieceBoys">
+    <category number="122">
+      <item id="2907" />
+    </category>
+  </mod>
+  <mod guid="A-fan.Mizuha_clothes">
+    <category number="201">
+      <item id="920" />
+    </category>
+    <category number="200">
+      <item id="941" />
+      <item id="943" />
+    </category>
+    <category number="430">
+      <item id="960" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Digimon.Mod">
+    <category number="122">
+      <item id="40793" />
+    </category>
+    <category number="105">
+      <item id="40795" />
+    </category>
+  </mod>
+  <mod guid="Sublime_Harness_123">
+    <category number="105">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.SamusArmor">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="gt9797.CleavageDressShirt">
+    <category number="210">
+      <item id="55366844" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.LongSideTailR">
+    <category number="122">
+      <item id="3" />
+    </category>
+  </mod>
+  <mod guid="ABCEEFG.YamabukiMiaMod">
+    <category number="105">
+      <item id="12354" />
+    </category>
+  </mod>
+  <mod guid="ABCEEFG.bodytightsamehalf">
+    <category number="105">
+      <item id="12587" />
+    </category>
+  </mod>
+  <mod guid="saiyantail.mod">
+    <category number="126">
+      <item id="700002" />
+    </category>
+  </mod>
+  <mod guid="roil_eirika_01">
+    <category number="105">
+      <item id="99001" />
+    </category>
+  </mod>
+  <mod guid="A-fan.Kagura">
+    <category number="400">
+      <item id="600" />
+    </category>
+  </mod>
+  <mod guid="Roy12.Revealing_loincloth_2mat">
+    <category number="200">
+      <item id="1302" />
+    </category>
+  </mod>
+  <mod guid="Rinko_Kageyama_clothes">
+    <category number="105">
+      <item id="108" />
+    </category>
+  </mod>
+  <mod guid="Rinko_Kageyama_accessories">
+    <category number="123">
+      <item id="100" />
+    </category>
+  </mod>
+  <mod guid="A-fan.Lara_Croft_clothes">
+    <category number="105">
+      <item id="100" />
+    </category>
+  </mod>
+  <mod guid="Saria_accessories">
+    <category number="123">
+      <item id="100" />
+    </category>
+  </mod>
+  <mod guid="A-fan.Saria_clothes">
+    <category number="105">
+      <item id="100" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.ElizabethBlouse">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="MrDelegado.ElizabethTop">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="A-fan.Tomoe_Gozen_2">
+    <category number="105">
+      <item id="100" />
+    </category>
+  </mod>
+  <mod guid="M2M.NurseOutfit">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Gugi.NegliShort">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Sports Bra">
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="Wayfarer_Coat">
+    <category number="105">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="Evaan.Pokemon.Mod">
+    <category number="105">
+      <item id="40394" />
+    </category>
+    <category number="122">
+      <item id="40835" />
+    </category>
+  </mod>
+  <mod guid="GaryuX.Stlouis">
+    <category number="105">
+      <item id="13001" />
+    </category>
+  </mod>
+  <mod guid="com.roy12.BowsetteAccessories">
+    <category number="126">
+      <item id="3212" />
+    </category>
+  </mod>
+  <mod guid="[Apuri]Pokemon_Acc">
+    <category number="122">
+      <item id="8460188" />
+      <item id="8460189" />
+    </category>
+  </mod>
+  <mod guid="com.Quokka.ShortOverall">
+    <category number="105">
+      <item id="2" />
+    </category>
+  </mod>
+  <mod guid="Cz_Hina_cardigan">
+    <category number="211">
+      <item id="744" />
+    </category>
+  </mod>
+  <mod guid="ABCEEFG.iwaoOrihimeMod">
+    <category number="122">
+      <item id="0" />
+      <item id="1" />
+    </category>
+    <category number="105">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="ABCEEFG.ObuiOtawaMomi">
+    <category number="105">
+      <item id="0" />
+    </category>
+    <category number="122">
+      <item id="0" />
+    </category>
+  </mod>
+  <mod guid="ABCEEFG.FeiVShinoharaReika">
+    <category number="122">
+      <item id="0" />
+    </category>
+    <category number="105">
+      <item id="1" />
+    </category>
+  </mod>
+  <mod guid="com.Nullpoppo.VolumePonytail">
+    <category number="122">
+      <item id="5" />
+    </category>
+  </mod>
+</checkitem>

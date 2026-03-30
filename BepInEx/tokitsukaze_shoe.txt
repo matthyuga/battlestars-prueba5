@@ -1,0 +1,3 @@
+angleAnkle=12
+angleLeg=36
+height=0.094

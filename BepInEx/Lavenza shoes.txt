@@ -1,0 +1,3 @@
+angleAnkle=6
+angleLeg=0
+height=0.006

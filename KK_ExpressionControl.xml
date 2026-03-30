@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <KeyConfig>
+    <showGUI>L</showGUI>
+  </KeyConfig>
+  <Expressions>
+    <item guid="1dc370e7051641069a597a36f9296222" name="デフォルト" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="e15e98811e184e029713b4df1c645d1b" name="笑顔" eyebrowPtn="0" eyesPtn="2" mouthPtn="1" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="1a864cdd02cd44b197e2921742b467c0" name="笑顔2" eyebrowPtn="0" eyesPtn="4" mouthPtn="25" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="ee8bc26916594c528a6030ff2ba1f228" name="笑顔3" eyebrowPtn="0" eyesPtn="2" mouthPtn="3" hideHighlight="false" blink="true" eyeOpen="0.7222222" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="7ce2226161694318979a28a3e088fefc" name="切ない" eyebrowPtn="13" eyesPtn="7" mouthPtn="32" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0.896368" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="8113007c0b6c4f11af5f021cb2022f28" name="切ない2" eyebrowPtn="13" eyesPtn="7" mouthPtn="32" hideHighlight="false" blink="true" eyeOpen="0.7277778" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="a146eb6d5e4745869835afe0c40db536" name="照れ" eyebrowPtn="2" eyesPtn="8" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0.461111069" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="4abb64504f5b4b259fb1ee13e7dfee3c" name="照れ2" eyebrowPtn="2" eyesPtn="8" mouthPtn="10" hideHighlight="false" blink="true" eyeOpen="0.85" mouthOpen="0.311111063" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="2f1d04d87f0848998cf3cec4df7cc892" name="怒り" eyebrowPtn="1" eyesPtn="9" mouthPtn="8" hideHighlight="false" blink="true" eyeOpen="0.7222222" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="1da84ba2dcb54d0599d2f39b685a05c8" name="怒り2" eyebrowPtn="10" eyesPtn="9" mouthPtn="9" hideHighlight="false" blink="true" eyeOpen="0.7222222" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="a7c8e662345c426bbdcf8fb06701f1fc" name="真剣" eyebrowPtn="10" eyesPtn="10" mouthPtn="10" hideHighlight="false" blink="true" eyeOpen="0.7222222" mouthOpen="0.015548503" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="35417531eac4455da15b6d9f6026cdac" name="つまらない" eyebrowPtn="13" eyesPtn="11" mouthPtn="15" hideHighlight="false" blink="true" eyeOpen="0.7222222" mouthOpen="0.530922055" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="abcc4ce89b3e4bbaa01380ea0b923cf2" name="苦しい" eyebrowPtn="13" eyesPtn="12" mouthPtn="14" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0.438888878" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="a30e035e2c1840308faba9a3f2e6352a" name="嫌悪" eyebrowPtn="13" eyesPtn="13" mouthPtn="12" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="ecca0dae560f4b3987f8da27760c7df0" name="思案" eyebrowPtn="6" eyesPtn="14" mouthPtn="10" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="15e81fe39987483e99d44d4ef72eca22" name="悲しい" eyebrowPtn="13" eyesPtn="15" mouthPtn="13" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0.90573895" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="640b497a9a5147689a71f147b46724f6" name="泣き" eyebrowPtn="13" eyesPtn="16" mouthPtn="31" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0.90573895" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="c84c280f29834840961b37245bbe9f39" name="焦り" eyebrowPtn="11" eyesPtn="17" mouthPtn="14" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="6fd145df9b6b4b0499aa412248522d38" name="落胆" eyebrowPtn="13" eyesPtn="18" mouthPtn="16" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0.690219343" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="32a04d1e64424b6faca6e41af16e1a50" name="困る" eyebrowPtn="2" eyesPtn="19" mouthPtn="31" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="1" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="cedee48940d7454885ea512a13247b32" name="ドヤ" eyebrowPtn="14" eyesPtn="20" mouthPtn="19" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="1" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="cec02c066e3e4c26902944e00b4a0a51" name="緊張" eyebrowPtn="13" eyesPtn="2" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="1" hohoAka="0.5" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="cef67d1bd128418495c1eb912d0ae0db" name="緊張2" eyebrowPtn="2" eyesPtn="7" mouthPtn="14" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="1" hohoAka="0.5" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="8ec7c75e209c4b7db6b4dfbddf70594a" name="緊張3" eyebrowPtn="13" eyesPtn="0" mouthPtn="10" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="1" hohoAka="0.5" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="8c9b280665824858918931f812573356" name="困る2" eyebrowPtn="13" eyesPtn="20" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="1" hohoAka="0.5" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="4281d3914a204de988617eed81f5481e" name="痛い" eyebrowPtn="2" eyesPtn="4" mouthPtn="9" hideHighlight="false" blink="true" eyeOpen="0.9" mouthOpen="1" hohoAka="0.5" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="871e8cccb7994e1c9114279571704b91" name="感じ" eyebrowPtn="2" eyesPtn="20" mouthPtn="14" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="1" hohoAka="0.5" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="3118a2f8be6f4dcb823c81dc766f53ca" name="涙Lv0" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="95df4843b11a44dd818913a65f59dfd5" name="涙Lv1" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="1" eyeY="0" eyeSmall="0" />
+    <item guid="009d13349bc54e4c9c59876859ee7f86" name="涙Lv2" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="2" eyeY="0" eyeSmall="0" />
+    <item guid="5b44b7cfbe54457ca2a1a424fcb9162b" name="涙Lv3" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="3" eyeY="0" eyeSmall="0" />
+    <item guid="2b82bd7643f24572aaca939b4c6eaffd" name="頬0%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="545dba11dd2a497dad231bddefd4bd46" name="頬25%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0.25" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="a58cfba1ad2f46cab47338e7323ea5ed" name="頬50%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0.5" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="a8ee92b995794a70b557eab8c7a41977" name="頬75%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0.75" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="65cf17a24b2246b58e59d67112886eee" name="頬100%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="1" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="a9cef480fe5446fc8d933ba8ad30b361" name="瞳Y0%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="c1b3abefd46f4179825dd6b2bce7683c" name="瞳Y5%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0.05" eyeSmall="0" />
+    <item guid="8db26de05f9f4affb09452eabf12e429" name="瞳Y10%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0.1" eyeSmall="0" />
+    <item guid="31305f7a4aaa44d89b4f8c3c0132c356" name="瞳Y15%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0.15" eyeSmall="0" />
+    <item guid="46feab98078f4d60aec4ba9f9d952060" name="瞳Y20%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0.2" eyeSmall="0" />
+    <item guid="a63ec00717e44fa882cb59ed5d2fdaf3" name="瞳Y25%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0.25" eyeSmall="0" />
+    <item guid="4ee0fe2924184b1885ce9be1f23f5822" name="瞳Y30%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0.3" eyeSmall="0" />
+    <item guid="a4ce07a653f54fab81772f2927562699" name="瞳小0%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0" />
+    <item guid="5b9bc9be49344b20a828aeadbeee4824" name="瞳小25%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0.25" />
+    <item guid="badbc6a713264125b5de6d1672ae77e6" name="瞳小50%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0.5" />
+    <item guid="e185dc8fee864fc18d8b13814be205f9" name="瞳小75%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="0.75" />
+    <item guid="5a27a3e3c2124d0e9e7d171870ccfaea" name="瞳小100%" eyebrowPtn="0" eyesPtn="0" mouthPtn="0" hideHighlight="false" blink="true" eyeOpen="1" mouthOpen="0" hohoAka="0" tearLv="0" eyeY="0" eyeSmall="1" />
+  </Expressions>
+  <Programs>
+    <Program guid="021a01900c3f4a8ba526dcb5a037ab4e" name="test" applyMouthOpen="false">
+      <unit aibu="false" houshi="false" sounyuu="false" idle="true" kiss="false" loopW="false" loopS="false" spurtM="false" spurtF="false" orgazumM="false" orgazumF="false" afterOrgazumM="false" afterOrgazumF="false" feelingL="0" feelingH="0" orgazumNumL="0" orgazumNumH="0" morph="true" tear="false" hoho="false" highlight="false" eyeY="false">
+        <guid>1dc370e7051641069a597a36f9296222</guid>
+        <guid>e15e98811e184e029713b4df1c645d1b</guid>
+        <guid>1a864cdd02cd44b197e2921742b467c0</guid>
+        <guid>7ce2226161694318979a28a3e088fefc</guid>
+        <guid>a146eb6d5e4745869835afe0c40db536</guid>
+        <guid>2f1d04d87f0848998cf3cec4df7cc892</guid>
+        <guid>ecca0dae560f4b3987f8da27760c7df0</guid>
+        <guid>c84c280f29834840961b37245bbe9f39</guid>
+        <guid>cedee48940d7454885ea512a13247b32</guid>
+      </unit>
+      <unit aibu="false" houshi="false" sounyuu="false" idle="true" kiss="false" loopW="false" loopS="false" spurtM="false" spurtF="false" orgazumM="false" orgazumF="false" afterOrgazumM="false" afterOrgazumF="false" feelingL="0" feelingH="0" orgazumNumL="0" orgazumNumH="0" morph="false" tear="false" hoho="true" highlight="false" eyeY="false">
+        <guid>2b82bd7643f24572aaca939b4c6eaffd</guid>
+        <guid>545dba11dd2a497dad231bddefd4bd46</guid>
+        <guid>a58cfba1ad2f46cab47338e7323ea5ed</guid>
+        <guid>a8ee92b995794a70b557eab8c7a41977</guid>
+        <guid>65cf17a24b2246b58e59d67112886eee</guid>
+      </unit>
+    </Program>
+    <Program guid="33a999a987da4aa393af9b57ba8102e7" name="Htest" applyMouthOpen="false">
+      <unit aibu="true" houshi="true" sounyuu="true" idle="true" kiss="true" loopW="true" loopS="true" spurtM="true" spurtF="true" orgazumM="true" orgazumF="true" afterOrgazumM="true" afterOrgazumF="true" feelingL="0" feelingH="69" orgazumNumL="0" orgazumNumH="1" morph="false" tear="false" hoho="true" highlight="false" eyeY="false">
+        <guid>545dba11dd2a497dad231bddefd4bd46</guid>
+      </unit>
+      <unit aibu="true" houshi="true" sounyuu="true" idle="true" kiss="true" loopW="true" loopS="true" spurtM="true" spurtF="true" orgazumM="true" orgazumF="true" afterOrgazumM="true" afterOrgazumF="true" feelingL="70" feelingH="100" orgazumNumL="0" orgazumNumH="1" morph="false" tear="false" hoho="true" highlight="false" eyeY="false">
+        <guid>a58cfba1ad2f46cab47338e7323ea5ed</guid>
+      </unit>
+      <unit aibu="true" houshi="true" sounyuu="true" idle="true" kiss="true" loopW="true" loopS="true" spurtM="true" spurtF="true" orgazumM="true" orgazumF="true" afterOrgazumM="true" afterOrgazumF="true" feelingL="0" feelingH="69" orgazumNumL="2" orgazumNumH="10" morph="false" tear="false" hoho="true" highlight="false" eyeY="false">
+        <guid>a8ee92b995794a70b557eab8c7a41977</guid>
+      </unit>
+      <unit aibu="true" houshi="true" sounyuu="true" idle="true" kiss="true" loopW="true" loopS="true" spurtM="true" spurtF="true" orgazumM="true" orgazumF="true" afterOrgazumM="true" afterOrgazumF="true" feelingL="70" feelingH="100" orgazumNumL="2" orgazumNumH="10" morph="false" tear="false" hoho="true" highlight="false" eyeY="false">
+        <guid>65cf17a24b2246b58e59d67112886eee</guid>
+      </unit>
+      <unit aibu="true" houshi="true" sounyuu="true" idle="false" kiss="false" loopW="false" loopS="false" spurtM="false" spurtF="false" orgazumM="false" orgazumF="true" afterOrgazumM="false" afterOrgazumF="false" feelingL="0" feelingH="100" orgazumNumL="0" orgazumNumH="1" morph="false" tear="false" hoho="false" highlight="false" eyeY="true">
+        <guid>c1b3abefd46f4179825dd6b2bce7683c</guid>
+      </unit>
+      <unit aibu="true" houshi="true" sounyuu="true" idle="false" kiss="false" loopW="false" loopS="false" spurtM="false" spurtF="false" orgazumM="false" orgazumF="true" afterOrgazumM="false" afterOrgazumF="false" feelingL="0" feelingH="100" orgazumNumL="2" orgazumNumH="10" morph="false" tear="false" hoho="false" highlight="false" eyeY="true">
+        <guid>31305f7a4aaa44d89b4f8c3c0132c356</guid>
+        <guid>8db26de05f9f4affb09452eabf12e429</guid>
+      </unit>
+      <unit aibu="true" houshi="true" sounyuu="true" idle="false" kiss="false" loopW="false" loopS="false" spurtM="false" spurtF="false" orgazumM="false" orgazumF="true" afterOrgazumM="false" afterOrgazumF="false" feelingL="0" feelingH="100" orgazumNumL="3" orgazumNumH="10" morph="false" tear="false" hoho="false" highlight="false" eyeY="true">
+        <guid>46feab98078f4d60aec4ba9f9d952060</guid>
+      </unit>
+      <unit aibu="true" houshi="true" sounyuu="true" idle="false" kiss="false" loopW="false" loopS="false" spurtM="false" spurtF="false" orgazumM="false" orgazumF="false" afterOrgazumM="false" afterOrgazumF="true" feelingL="0" feelingH="100" orgazumNumL="1" orgazumNumH="2" morph="false" tear="false" hoho="false" highlight="false" eyeY="true">
+        <guid>c1b3abefd46f4179825dd6b2bce7683c</guid>
+      </unit>
+      <unit aibu="true" houshi="true" sounyuu="true" idle="false" kiss="false" loopW="false" loopS="false" spurtM="false" spurtF="false" orgazumM="false" orgazumF="false" afterOrgazumM="false" afterOrgazumF="true" feelingL="0" feelingH="100" orgazumNumL="2" orgazumNumH="10" morph="false" tear="false" hoho="false" highlight="false" eyeY="true">
+        <guid>31305f7a4aaa44d89b4f8c3c0132c356</guid>
+        <guid>8db26de05f9f4affb09452eabf12e429</guid>
+      </unit>
+      <unit aibu="true" houshi="true" sounyuu="true" idle="false" kiss="false" loopW="false" loopS="false" spurtM="false" spurtF="false" orgazumM="false" orgazumF="false" afterOrgazumM="false" afterOrgazumF="true" feelingL="0" feelingH="100" orgazumNumL="3" orgazumNumH="10" morph="false" tear="false" hoho="false" highlight="false" eyeY="true">
+        <guid>31305f7a4aaa44d89b4f8c3c0132c356</guid>
+        <guid>46feab98078f4d60aec4ba9f9d952060</guid>
+      </unit>
+    </Program>
+  </Programs>
+</root>

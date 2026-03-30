@@ -1,0 +1,4 @@
+p:khs_f_71=5.5,1,0,0
+khs_f_71/M_Idle=5,1,0,10
+khs_f_71/M_SLoop1=7,2,2,0
+khs_f_71/M_SLoop2=7,2,2,0

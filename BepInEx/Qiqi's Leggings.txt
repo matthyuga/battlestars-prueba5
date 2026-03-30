@@ -1,0 +1,3 @@
+angleAnkle=0
+angleLeg=0
+height=0.008
