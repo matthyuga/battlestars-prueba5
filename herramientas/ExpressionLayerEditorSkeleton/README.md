@@ -1,33 +1,38 @@
-# Expression Layer Editor - Skeleton v0.2 (Paso 1 limpio para escalar)
+# Expression Layer Editor - Skeleton v0.3 (Paso 2)
 
 Este directorio contiene una base C# orientada a un plugin BepInEx/Koikatsu para edición de expresiones faciales con arquitectura preparada para escalar.
 
-## Qué cambió en esta versión
-- Se introdujo una separación más limpia entre:
-  - **Runtime adapter** (`ICharacterRuntimeAdapter`) para conectar luego con KKAPI/Studio.
-  - **Repositorio de presets** (`IPresetRepository`) en lugar de guardar/cargar por path suelto.
-  - **Opciones de plugin** (`PluginOptions`) para configuración centralizada.
-  - **Logger** (`ILogger`) para desacoplar salida (luego BepInEx logger).
-- Se añadió `CompositionRoot` para bootstrap consistente.
+## Qué incluye Paso 2
+- Continúa la arquitectura limpia del Paso 1 (runtime adapter, preset repository, logger, composition root).
+- Añade capacidades de timeline para flujo de animación:
+  - `SetTimelineFrame(int frame)`
+  - `AutoKeyModified(...)`
+  - `ApplySnapshotBlendToRange(TimelineRange, smoothStep)`
+  - `ApplyPresetAcrossRange(preset, TimelineRange, intensity)`
+- Incorpora `InMemoryTimelineBridge` para prototipar keyframes por frame y rangos con interpolación lineal.
 
-## Estado actual (Paso 1)
-- Ya existe un flujo MVP completo para:
+## Estado actual
+- MVP cubre:
   - personaje activo,
-  - aplicar macro,
-  - guardar/cargar preset,
+  - macros,
+  - presets,
   - snapshots A/B,
-  - autokey opcional.
-- Implementación por defecto con adapters en memoria y timeline nulo para prototipado.
+  - autokey y operaciones por rango temporal.
 
 ## Estructura
-- `src/Models.cs`: modelos + `PluginOptions`.
-- `src/Interfaces.cs`: contratos escalables (runtime, preset repo, logger, etc.).
-- `src/Services.cs`: servicios base y stubs (`JsonFilePresetRepository`, `InMemoryCharacterRuntimeAdapter`, etc.).
-- `src/ExpressionLayerEditorOrchestrator.cs`: servicio de aplicación principal.
-- `src/CompositionRoot.cs`: ensamblado de dependencias default.
+- `src/Models.cs`: modelos + `PluginOptions` + `TimelineRange`.
+- `src/Interfaces.cs`: contratos escalables.
+- `src/Services.cs`: servicios base y stubs (`JsonFilePresetRepository`, `InMemoryCharacterRuntimeAdapter`, `InMemoryTimelineBridge`, etc.).
+- `src/ExpressionLayerEditorOrchestrator.cs`: lógica principal de aplicación.
+- `src/CompositionRoot.cs`: bootstrap por defecto.
 
-## Siguiente implementación recomendada
-1. Crear `BepInExCharacterRuntimeAdapter : ICharacterRuntimeAdapter`.
-2. Crear `BepInExLogger : ILogger`.
-3. Crear `TimelinePluginBridge : ITimelineBridge`.
-4. Añadir panel IMGUI para operaciones principales (macro, preset, snapshot, autokey).
+## Próximo paso recomendado (Paso 3)
+1. Implementar adapters reales:
+   - `BepInExCharacterRuntimeAdapter`
+   - `TimelinePluginBridge`
+   - `BepInExLogger`
+2. Agregar UI IMGUI para:
+   - selector de presets,
+   - snapshot A/B + slider t,
+   - acciones de rango temporal.
+3. Añadir pruebas unitarias para `SnapshotService`, `InMemoryTimelineBridge` y `ExpressionLayerEditorOrchestrator`.

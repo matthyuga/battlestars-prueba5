@@ -5,11 +5,11 @@ using System.Linq;
 namespace ExpressionLayerEditorSkeleton;
 
 /// <summary>
-/// Application service for MVP Step 1:
+/// Application service for MVP Step 1 + Step 2:
 /// - Runtime character expression editing
 /// - Preset save/load by repository
 /// - Snapshot blend
-/// - Optional timeline autokey
+/// - Timeline autokey + frame range interpolation helpers
 /// </summary>
 public sealed class ExpressionLayerEditorOrchestrator
 {
@@ -54,6 +54,8 @@ public sealed class ExpressionLayerEditorOrchestrator
     public CharacterContext GetActiveCharacter() => _runtime.GetActiveCharacter();
 
     public IReadOnlyCollection<string> ListPresets() => _presetRepository.ListPresetNames();
+
+    public void SetTimelineFrame(int frame) => _timelineBridge.SetCurrentFrame(frame);
 
     public void ApplyMacro(string macroName, float intensity, float? globalIntensityOverride = null)
     {
@@ -172,6 +174,59 @@ public sealed class ExpressionLayerEditorOrchestrator
 
         _lastApplied = current.Clone();
         return written;
+    }
+
+    public int ApplySnapshotBlendToRange(TimelineRange range, bool smoothStep)
+    {
+        if (!_timelineBridge.IsAvailable)
+            return 0;
+        if (!range.IsValid)
+            throw new ArgumentException("Invalid timeline range");
+
+        var frameCount = range.EndFrame - range.StartFrame + 1;
+        if (frameCount <= 1)
+        {
+            _timelineBridge.SetCurrentFrame(range.StartFrame);
+            ApplySnapshotBlend(1f, smoothStep);
+            AutoKeyModified(new AutoKeyOptions());
+            return 1;
+        }
+
+        var keysWrittenFrames = 0;
+        for (var frame = range.StartFrame; frame <= range.EndFrame; frame++)
+        {
+            var t = (frame - range.StartFrame) / (float)(frameCount - 1);
+            _timelineBridge.SetCurrentFrame(frame);
+            ApplySnapshotBlend(t, smoothStep);
+            AutoKeyModified(new AutoKeyOptions());
+            keysWrittenFrames++;
+        }
+
+        return keysWrittenFrames;
+    }
+
+    public void ApplyPresetAcrossRange(string presetName, TimelineRange range, float intensity = 1f)
+    {
+        if (!_timelineBridge.IsAvailable)
+            return;
+        if (!range.IsValid)
+            throw new ArgumentException("Invalid timeline range");
+
+        var startFrame = range.StartFrame;
+        var endFrame = range.EndFrame;
+
+        // Capture current state as source.
+        var ctx = _runtime.GetActiveCharacter();
+        EnsureValidCharacter(ctx);
+        var fromState = _runtime.ReadCurrentState(ctx);
+
+        // Build target state from preset.
+        var preset = _presetRepository.Load(presetName);
+        var targetState = fromState.Clone();
+        foreach (var kv in preset.Values)
+            targetState.Values[kv.Key] = kv.Value * intensity;
+
+        _timelineBridge.SetKeysForRange(fromState.Values, targetState.Values, startFrame, endFrame);
     }
 
     public IReadOnlyList<string> GetConstraintWarnings() => _constraintEngine.GetWarnings();

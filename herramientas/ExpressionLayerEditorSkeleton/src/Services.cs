@@ -155,8 +155,63 @@ public sealed class NullTimelineBridge : ITimelineBridge
 {
     public bool IsAvailable => false;
     public int GetCurrentFrame() => 0;
+    public void SetCurrentFrame(int frame) { }
     public void SetKey(string paramKey, float value, int frame) { }
     public void SetKeysForRange(Dictionary<string, float> fromValues, Dictionary<string, float> toValues, int frameStart, int frameEnd) { }
+}
+
+public sealed class InMemoryTimelineBridge : ITimelineBridge
+{
+    private readonly Dictionary<int, Dictionary<string, float>> _keysByFrame = new();
+    private int _currentFrame;
+
+    public bool IsAvailable => true;
+
+    public int GetCurrentFrame() => _currentFrame;
+
+    public void SetCurrentFrame(int frame)
+    {
+        _currentFrame = Math.Max(0, frame);
+    }
+
+    public void SetKey(string paramKey, float value, int frame)
+    {
+        if (!_keysByFrame.TryGetValue(frame, out var frameKeys))
+        {
+            frameKeys = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+            _keysByFrame[frame] = frameKeys;
+        }
+
+        frameKeys[paramKey] = value;
+    }
+
+    public void SetKeysForRange(Dictionary<string, float> fromValues, Dictionary<string, float> toValues, int frameStart, int frameEnd)
+    {
+        if (frameEnd < frameStart)
+            throw new ArgumentException("frameEnd must be >= frameStart");
+
+        var total = Math.Max(1, frameEnd - frameStart);
+        var keys = fromValues.Keys.Union(toValues.Keys, StringComparer.OrdinalIgnoreCase);
+
+        for (var frame = frameStart; frame <= frameEnd; frame++)
+        {
+            var t = (frame - frameStart) / (float)total;
+            foreach (var key in keys)
+            {
+                var from = fromValues.TryGetValue(key, out var fv) ? fv : 0f;
+                var to = toValues.TryGetValue(key, out var tv) ? tv : 0f;
+                var v = from + ((to - from) * t);
+                SetKey(key, v, frame);
+            }
+        }
+    }
+
+    public IReadOnlyDictionary<int, IReadOnlyDictionary<string, float>> SnapshotKeys()
+    {
+        return _keysByFrame.ToDictionary(
+            kv => kv.Key,
+            kv => (IReadOnlyDictionary<string, float>)new Dictionary<string, float>(kv.Value, StringComparer.OrdinalIgnoreCase));
+    }
 }
 
 public sealed class InMemoryCharacterRuntimeAdapter : ICharacterRuntimeAdapter

@@ -80,3 +80,8 @@ public sealed class PluginOptions
     public float DefaultGlobalIntensity { get; set; } = 1f;
     public bool StrictClamp { get; set; } = true;
 }
+
+public readonly record struct TimelineRange(int StartFrame, int EndFrame)
+{
+    public bool IsValid => StartFrame >= 0 && EndFrame >= StartFrame;
+}

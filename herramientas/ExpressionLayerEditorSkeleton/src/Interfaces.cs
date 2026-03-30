@@ -46,6 +46,7 @@ public interface ITimelineBridge
 {
     bool IsAvailable { get; }
     int GetCurrentFrame();
+    void SetCurrentFrame(int frame);
     void SetKey(string paramKey, float value, int frame);
     void SetKeysForRange(Dictionary<string, float> fromValues, Dictionary<string, float> toValues, int frameStart, int frameEnd);
 }
