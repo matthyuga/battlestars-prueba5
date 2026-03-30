@@ -44,3 +44,106 @@ Fecha: 2026-03-29
 
 ## Nota de continuidad
 Este documento sirve como memoria base para retomar el tema en otra sesión sin perder contexto.
+
+---
+
+## Análisis técnico de los archivos subidos en esta rama
+
+Fecha: 2026-03-30
+
+### Archivos detectados
+- Carta: `cards/KK_149908.png` (PNG con payload de tarjeta Koikatsu embebido después de `IEND`).
+- Escena: `scenes/125904715_p1.png` (PNG con payload de escena embebido después de `IEND`).
+- Captura: `cap/CharaStudio-2026-03-26-12-17-23-Render.png` (PNG normal, sin payload extra).
+- Mods: `mods/[nHaruka] KKUTS v2.3.zipmod`, `mods/KKUTS.zipmod`.
+- Plugins (`.dll`): 16 archivos en `plugins/`.
+
+### Hallazgos sobre la carta de Ichigo
+- Se detecta cabecera textual `KoiKatuChara` en el payload.
+- Se detecta el nombre `Ichigo` dentro de los datos serializados.
+- Se detectan referencias de GUID/IDs de contenido modded (útiles para ubicar zipmods), incluyendo:
+  - `com.Blanketman.AdditionalSkinMod`
+  - `com.zf9UK2ZA0.Lowrise_pants03`
+  - `com.DeathWeasel.Panties`
+  - `com.DeathWeasel.AccessoryHairBack`
+  - `com.DeathWeasel.AccessoryHairFront`
+  - `com.lucentz.nscardigan`
+- También aparecen referencias a plugins de edición/material:
+  - `com.deathweasel.bepinex.materialeditor`
+  - `com.deathweasel.bepinex.clothingunlocker`
+  - `com.deathweasel.bepinex.hairaccessorycustomizer`
+  - `com.deathweasel.bepinex.pushup`
+  - `com.deathweasel.bepinex.uncensorselector`
+
+### Hallazgos sobre la escena
+- Se detecta payload embebido muy grande tras `IEND`, consistente con datos de escena de Chara Studio.
+- Se observan referencias repetidas a shaders/materiales del tipo:
+  - `Shader Forge/main_opaque`
+  - `Shader Forge/main_skin`
+  - `Shader Forge/main_item`
+  - `Shader Forge/main_hair`
+  - `Shader Forge/main_hair_front`
+  - `Shader Forge/toon_eye_lod0`
+  - `Shader Forge/toon_eyew_lod0`
+- Esto confirma que sí se pueden extraer pistas de configuración visual para replicar look & feel.
+
+### Hallazgos sobre zipmods KKUTS
+- Ambos zipmods incluyen `manifest.xml` con:
+  - `guid`: `KKUTS`
+  - `name`: `KKUTS`
+  - `version`: `2.3` (en `[nHaruka] KKUTS v2.3.zipmod`)
+  - `author`: `nHaruka`
+  - `game`: `Koikatsu`
+- Incluyen bundles de shader/material para chara/item/hair y variantes tessellation (`kkuts*.unity3d`).
+
+### Hallazgos sobre plugins
+- Los 16 archivos en `plugins/` son DLLs .NET/Unity válidas (cabecera `MZ`).
+- Se detectan, entre otros:
+  - `AccMover.Koikatu.dll`
+  - `AnimeAssAssistant.Koikatu.dll`
+  - `AnimationLoader.Koikatu.dll`
+  - `BetterSceneLoader.Koikatu.dll`
+  - `BetterScaling.Koikatu.dll`
+  - `AxisUnlocker.Koikatu.dll`
+  - utilidades `BepInEx.*` (MessageCenter, InputHotkeyBlock, MuteInBackground, etc.)
+
+### Qué puede hacer Codex con este material (de forma práctica)
+1. Inventario automático de dependencias (GUIDs de zipmods/plugins) por carta/escena.
+2. Checklist de faltantes para que una carta/escena cargue sin errores.
+3. Extracción de referencias de shader/material para recrear estilos visuales.
+4. Base de búsqueda de objetos por nombre técnico/GUID detectado.
+5. Comparación entre dos cartas o dos escenas para ver cambios de configuración.
+
+### Límites actuales (sin más tooling)
+- No se reconstruye al 100% la escena animada solo con strings; para eso conviene parser dedicado de formato de escena + lectura de datos serializados completos.
+- No se garantiza mapear cada objeto/hueso/keyframe sin exportadores o herramientas adicionales del ecosistema KK/Studio.
+
+### Próximo paso recomendado
+- Subir una segunda versión de la misma escena (v1/v2) y una segunda carta (v1/v2). Con eso se puede generar diff técnico (qué cambió en materiales, luces y parámetros) y convertirlo en receta reproducible.
+
+## Verificación solicitada: carga de plugins en rama `codex/locate-repositories-of-manlymarco`
+
+Fecha: 2026-03-30
+
+- Sí, los plugins son accesibles desde esta rama en la carpeta `plugins/`.
+- Recuento actual detectado por escaneo local: **16 DLLs**.
+- Lista detectada:
+  - `AAAAAAAAAAAA.Koikatu.dll`
+  - `AccMover.Koikatu.dll`
+  - `AnimationCurveEditor.Old.dll`
+  - `AnimationLoader.Koikatu.dll`
+  - `AnimeAssAssistant.Koikatu.dll`
+  - `AxisUnlocker.Koikatu.dll`
+  - `BepInEx.CatchUnityEventExceptions.dll`
+  - `BepInEx.EnableFullScreenToggle.dll`
+  - `BepInEx.EnableResize.dll`
+  - `BepInEx.InputHotkeyBlock.dll`
+  - `BepInEx.MessageCenter.dll`
+  - `BepInEx.MuteInBackground.dll`
+  - `BepInEx.OptimizeIMGUI.dll`
+  - `BetterScaling.Koikatu.dll`
+  - `BetterSceneLoader.Koikatu.dll`
+  - `BreastPhysicsController.dll`
+
+### Nota
+Si en GitHub ves más de 16, puede haber diferencia entre lo que quedó en esta copia de trabajo y lo último pushado al remoto. En ese caso, conviene sincronizar y volver a correr el inventario.
