@@ -33,6 +33,10 @@ public interface IPresetRepository
     void Save(ExpressionPreset preset);
     ExpressionPreset Load(string presetName);
     IReadOnlyCollection<string> ListPresetNames();
+
+    bool Exists(string presetName);
+    void Delete(string presetName);
+    void Rename(string oldName, string newName, bool overwrite = false);
 }
 
 public interface ISnapshotService
@@ -57,4 +61,11 @@ public interface IExpressionEditorView
     void ShowWarning(string message);
     void ShowError(string message);
     void RefreshPresetList(IReadOnlyCollection<string> presetNames);
+
+    void SetActiveCharacterName(string name);
+    void SetMacroList(IReadOnlyCollection<string> macroNames);
+    void SetSelectedPreset(string? presetName);
+    void SetConstraintWarnings(IReadOnlyCollection<string> warnings);
+    void SetBusy(bool isBusy);
+    void RefreshLayerParameters(FaceLayer layer, IReadOnlyCollection<BlendshapeParam> parameters);
 }

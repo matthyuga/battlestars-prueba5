@@ -83,10 +83,9 @@ public sealed class JsonFilePresetRepository : IPresetRepository
 
     public ExpressionPreset Load(string presetName)
     {
-        var safeName = ToFileSafeName(presetName);
-        var path = Path.Combine(_presetDirectory, $"{safeName}.json");
-
+        var path = GetPresetPath(presetName);
         var json = File.ReadAllText(path);
+
         return JsonSerializer.Deserialize<ExpressionPreset>(json, JsonOptions)
                ?? throw new InvalidDataException($"Preset at '{path}' is invalid.");
     }
@@ -103,6 +102,44 @@ public sealed class JsonFilePresetRepository : IPresetRepository
             .Cast<string>()
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
             .ToArray();
+    }
+
+    public bool Exists(string presetName)
+    {
+        var path = GetPresetPath(presetName);
+        return File.Exists(path);
+    }
+
+    public void Delete(string presetName)
+    {
+        var path = GetPresetPath(presetName);
+        if (File.Exists(path))
+            File.Delete(path);
+    }
+
+    public void Rename(string oldName, string newName, bool overwrite = false)
+    {
+        var oldPath = GetPresetPath(oldName);
+        var newPath = GetPresetPath(newName);
+
+        if (!File.Exists(oldPath))
+            throw new FileNotFoundException($"Preset '{oldName}' not found.", oldPath);
+
+        if (File.Exists(newPath))
+        {
+            if (!overwrite)
+                throw new IOException($"Target preset '{newName}' already exists.");
+
+            File.Delete(newPath);
+        }
+
+        File.Move(oldPath, newPath);
+    }
+
+    private string GetPresetPath(string presetName)
+    {
+        var safeName = ToFileSafeName(presetName);
+        return Path.Combine(_presetDirectory, $"{safeName}.json");
     }
 
     private static string ToFileSafeName(string value)
