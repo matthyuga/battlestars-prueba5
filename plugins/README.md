@@ -1,34 +1,76 @@
-![preview 1](https://user-images.githubusercontent.com/39247311/52307982-6bb26080-299c-11e9-9a64-99ede143fb6d.png)
-# Illusion Overlay Mods
-Plugin that allows adding overlay textures (tattoos) to character's face, body and clothes in games made by Illusion. This lets you create unique characters and clothes easily without needing to make mods for the game. These additional textures are saved inside the card and used by the main game and studio. Previously named Koikatsu Overlay Mods and KSOX (KoiSkinOverlayX) + KCOX (KoiClothesOverlayX). Supported games:
-- Koikatu / Koikatsu Party (KK_OverlayMods)
-- Emotion Creators (EC_OverlayMods)
-- AI-Shoujo / AI-Syoujyo (AI_OverlayMods)
-- HoneySelect2 (HS2_OverlayMods)
+# BepisPlugins
+A collection of essential [BepInEx](https://github.com/BepInEx/BepInEx) plugins for Koikatu / Koikatsu Party, EmotionCreators, AI-Shoujo / AI-Girl, HoneySelect2, HoneyCome, SamabakeScramble / Summer Vacation Scramble, and other games by Illusion/Illgames. Check plugin descriptions below for a full list of included plugins. 
 
-## How to use 
-1. Make sure that the [latest Modding API](https://github.com/ManlyMarco/KKAPI) is installed, and your game is updated.
-2. Download the latest release from [here](https://github.com/ManlyMarco/Koikatu-Overlay-Mods/releases). You only need the version specific for your game.
-3. Extract the release to your game. The dll file should end up inside `Koikatu\BepInEx\plugins`. 
-4. Start character maker. You should see new tab "Overlays" show up under the Body tab, and overlay controls under clothes tabs.
-5. [Guides on creating skin overlays are available here](Guide).
+If you wish to contribute or need help, check the #help channel on the [Koikatsu discord server](https://discord.gg/hevygx6).
 
-### Importing old overlays (only Koikatsu version)
-- Overlays from folders in BepInEx/KoiSkinOverlay with the char's name will be imported on character load. In these folders, "body.png" and/or "face.png" will be loaded. When you save the character, these files will be saved inside the character card and removed from the folder.
-- If you downloaded a character with additional overlay files (.png images) you can load the character, go to the "Overlays" tab in maker, and load them there. Once you save the chracter they will be saved inside the character card.
-- Old overlay files are of the "overlay", not "underlay" type. If you try to use old-style overlays as underlays, they will look different.
+### How to install
+0. The latest version of BepInEx 5, or in case of HoneyCome of BepInEx 6 (nightly build 668 or later) is required. Make sure it is installed and working before installing BepisPlugins. Latest version of the ConfigurationManager plugin is also recommended to be installed.
+1. Download the latest release archive for your game (specified by the two letter prefix, e.g. AI for AI-Girl) from the releases page above (not the "Clone or download" button).
+2. Extract the archive into your game directory (where the game exe and BepInEx folder are located). Replace old files if asked.
 
-## Changes from KoiSkinOverlay (the precursor to this mod)
-This mod is based on the original KoiSkinOverlay mod by essu and many new features.
-- Overlays are saved to the cards now (no need to share overlays with the cards now).
-- Characters with identical names can have different overlays now.
-- Added integrated interface to character maker for managing overlays (Body\Overlays).
-- Support for 2 different overlay types: old-type overlays (above everything) and underlays (below tatoos, blushes, etc.). Both types can be used at the same time.
-- Ability to load overlays from other cards.
-- Added clothes overlays. It allows adding overlays to textures of almost all clothes.
-- And more as time goes on...
+## Plugin descriptions
+You can see more information about some of the plugins by checking their config files in `BepInEx\config` (or by using the in-game [ConfigurationManager plugin](https://github.com/BepInEx/BepInEx.ConfigurationManager)).
 
-![preview 2](https://user-images.githubusercontent.com/39247311/52307974-66551600-299c-11e9-8a8c-183006541530.png)
-![preview 3](https://user-images.githubusercontent.com/39247311/49687441-f5f85880-fb02-11e8-90e9-a5103ca13a51.png)
-![Eye overlay preview](https://user-images.githubusercontent.com/39247311/52975293-41fa3000-33c5-11e9-9735-07b25613520d.png)
-Preview pictures 1 and 2 by @DeathWeasel1337. Character in picture 3 by HCM06, in picture 4 by Yata.
+Note: Not all plugins might be available for a given game (not yet ported by anyone, or technically infeasible).
+
+### BGMLoader
+Loads custom BGMs and clips played on game startup. Stock audio is replaced during runtime by custom clips from BepInEx\BGM and BepInEx\IntroClips directories.
+
+[Tutorial on how to replace sound clips and background music using BGMLoader.](https://github.com/IllusionMods/BepisPlugins/wiki/BGM-Loader)
+
+### ColorCorrector
+(Koikatsu)
+
+Allows configuration of some post-processing filters. (change of bloom amount, disable saturation filter)
+
+### ExtensibleSaveFormat
+Allows additional data to be saved to character, coordinate and scene cards. The cards are fully compatible with non-modded game, the additional data is lost in that case. This is used by sideloader to store used mod information.
+
+### InputUnlocker
+Allows user to input longer than normal values to InputFields. This allows longer names and other properties stored as text.
+
+### Screencap
+Creates screenshots based on settings. Can create screenshots of much higher resolution than what the game is running at. It can make screen (F9 key) or character (F11 key) screenshots.
+
+### Sideloader
+Loads mods packaged in .zip archives from the Mods directory without modifying the game files at all. You don't unzip them, just drag and drop to Mods folder in the game root.
+
+It prevents mods from colliding with each other (i.e. 2 mods have same item IDs and can't coexist; sideloader automatically assigns correct IDs). It also makes it easy to disable/remove mods with no lasting effects on your game install (just remove the .zip, no game files are changed at any point).
+
+[More information and tutorial on sideloader-compatible mod creation.](https://github.com/IllusionMods/BepisPlugins/wiki/1-Introduction-to-zipmod-format)
+
+[Step-by-step guide for creating a simple texture mod.](https://github.com/IllusionMods/BepisPlugins/wiki/2-How-to-create-a-simple-zipmod)
+
+[Tool for automatically converting old list mods to sideloader-compatible form.](https://github.com/IllusionMods/ZipStudio/releases)
+
+### SliderUnlocker
+Allows user to set values outside of the standard 0-100 range on all sliders in the editor.
+
+### IMGUIModule.Il2Cpp.CoreCLR.Patcher
+(HoneyCome, SamabakeScramble)
+
+Fixes issues with IMGUI caused by the game being IL2CPP that prevent other plugins like ConfigurationManager from being displayed correctly.
+
+## Removed plugins
+
+### Configuration Manager
+Moved to https://github.com/BepInEx/BepInEx.ConfigurationManager
+
+### DeveloperConsole
+Moved to https://github.com/BepInEx/DeveloperConsole
+
+### IPALoader
+Moved to https://github.com/BepInEx/IPALoaderX
+
+### MessageCenter
+Moved to https://github.com/BepInEx/MessageCenter
+
+### ScriptEngine
+Moved to https://github.com/BepInEx/BepInEx.Debug
+
+## Obsolete plugins
+### DynamicTranslationLoader
+Replaced by [XUnity.AutoTranslator](https://github.com/bbepis/XUnity.AutoTranslator)
+
+### ResourceRedirector
+Replaced by [XUnity.ResourceRedirector](https://github.com/bbepis/XUnity.AutoTranslator)
