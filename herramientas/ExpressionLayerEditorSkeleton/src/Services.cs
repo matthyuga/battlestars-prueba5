@@ -74,6 +74,10 @@ public sealed class JsonFilePresetRepository : IPresetRepository
 
     public void Save(ExpressionPreset preset)
     {
+        if (preset is null)
+            throw new ArgumentNullException(nameof(preset));
+        EnsureValidPresetName(preset.Name);
+
         Directory.CreateDirectory(_presetDirectory);
         var safeName = ToFileSafeName(preset.Name);
         var path = Path.Combine(_presetDirectory, $"{safeName}.json");
@@ -83,6 +87,7 @@ public sealed class JsonFilePresetRepository : IPresetRepository
 
     public ExpressionPreset Load(string presetName)
     {
+        EnsureValidPresetName(presetName);
         var path = GetPresetPath(presetName);
         var json = File.ReadAllText(path);
 
@@ -106,12 +111,14 @@ public sealed class JsonFilePresetRepository : IPresetRepository
 
     public bool Exists(string presetName)
     {
+        EnsureValidPresetName(presetName);
         var path = GetPresetPath(presetName);
         return File.Exists(path);
     }
 
     public void Delete(string presetName)
     {
+        EnsureValidPresetName(presetName);
         var path = GetPresetPath(presetName);
         if (File.Exists(path))
             File.Delete(path);
@@ -119,6 +126,12 @@ public sealed class JsonFilePresetRepository : IPresetRepository
 
     public void Rename(string oldName, string newName, bool overwrite = false)
     {
+        EnsureValidPresetName(oldName);
+        EnsureValidPresetName(newName);
+
+        if (string.Equals(oldName.Trim(), newName.Trim(), StringComparison.OrdinalIgnoreCase))
+            return;
+
         var oldPath = GetPresetPath(oldName);
         var newPath = GetPresetPath(newName);
 
@@ -148,6 +161,12 @@ public sealed class JsonFilePresetRepository : IPresetRepository
         var chars = value.Select(ch => invalid.Contains(ch) ? '_' : ch).ToArray();
         var safe = new string(chars).Trim();
         return string.IsNullOrWhiteSpace(safe) ? "preset" : safe;
+    }
+
+    private static void EnsureValidPresetName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException("Preset name cannot be empty.", nameof(value));
     }
 }
 
