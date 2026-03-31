@@ -373,6 +373,18 @@ init -870 python:
                 "detail": "sim_run_d1_catalog_tests no disponible.",
             })
 
+        fn_d2 = getattr(S, "sim_run_d2_bridge_tests", None)
+        if callable(fn_d2):
+            raw_d2 = fn_d2()
+            if isinstance(raw_d2, list):
+                out.extend(raw_d2)
+        else:
+            out.append({
+                "name": "d2_bridge_tests_unavailable",
+                "ok": False,
+                "detail": "sim_run_d2_bridge_tests no disponible.",
+            })
+
         S.sim_lab_smoke_results_v1 = out
         return S.sim_lab_smoke_results_v1
 

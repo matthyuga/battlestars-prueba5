@@ -125,6 +125,116 @@ init -875 python:
             "normalized": ec,
         }
 
+    def sim_build_request_from_mid_battle_event(event_ctx, battle_ctx=None):
+        """
+        D2 - Bridge evento mid-battle -> Partial SimulationRequest.
+        """
+        vv = sim_validate_mid_battle_event(event_ctx)
+        ec = vv.get("normalized", {}) if isinstance(vv.get("normalized", {}), dict) else {}
+        errors = list(vv.get("errors", [])) if isinstance(vv.get("errors", []), list) else []
+        warnings = list(vv.get("warnings", [])) if isinstance(vv.get("warnings", []), list) else []
+        bc = battle_ctx if isinstance(battle_ctx, dict) else {}
+
+        if not vv.get("ok", False):
+            return {
+                "ok": False,
+                "errors": errors,
+                "warnings": warnings,
+                "request": {},
+                "event": ec,
+            }
+
+        # Actores desde contexto de combate si existe; fallback parcial por evento.
+        actors = []
+        team_a = bc.get("team_a_actors", None)
+        team_b = bc.get("team_b_actors", None)
+
+        if isinstance(team_a, list) and isinstance(team_b, list) and (len(team_a) + len(team_b) > 0):
+            for i, a in enumerate(team_a):
+                actors.append(_sim_build_actor_from_runtime("A", "ally", a, i))
+            for i, a in enumerate(team_b):
+                actors.append(_sim_build_actor_from_runtime("B", "enemy", a, i))
+        else:
+            # Fallback: actor evento + rival placeholder para mantener shape de simulación.
+            ev_actor = {
+                "actor_id": str(ec.get("actor_id", "event_actor") or "event_actor"),
+                "actor_type": str(ec.get("actor_type", "PLAYER") or "PLAYER"),
+                "level": _sim_to_int(ec.get("level", 1), 1),
+                "register": ec.get("register", None),
+                "exp_current": _sim_to_int(ec.get("exp_current", 0), 0),
+                "exp_max": max(1, _sim_to_int(ec.get("exp_max", 100), 100)),
+                "oro_current": _sim_to_int(ec.get("oro_current", 0), 0),
+                "stars": ec.get("stars", {k: 0 for k in SIM_STAR_KEYS}),
+                "flags": ec.get("flags", {"eligible_rewards": True, "allow_level_up": True, "allow_inventory_rewards": True}),
+            }
+            ev_team = str(ec.get("team", "A") or "A").upper()
+            if ev_team not in ("A", "B"):
+                ev_team = "A"
+            rv_team = "B" if ev_team == "A" else "A"
+            actors.append(_sim_build_actor_from_runtime(ev_team, "ally", ev_actor, 0))
+            actors.append(_sim_build_actor_from_runtime(rv_team, "enemy", {
+                "actor_id": "mid_dummy_rival",
+                "actor_type": "BETA",
+                "level": max(1, _sim_to_int(ec.get("rival_level", ev_actor["level"]), ev_actor["level"])),
+                "register": ec.get("rival_register", ev_actor.get("register", 0)),
+                "exp_current": 0,
+                "exp_max": 100,
+                "oro_current": 0,
+                "stars": {k: 0 for k in SIM_STAR_KEYS},
+                "flags": {"eligible_rewards": False, "allow_level_up": False, "allow_inventory_rewards": False},
+            }, 0))
+            warnings.append("battle_ctx sin equipos; se usa rival placeholder para request parcial.")
+
+        team_a_count = len([x for x in actors if str(x.get("team", "")).upper() == "A"])
+        team_b_count = len([x for x in actors if str(x.get("team", "")).upper() == "B"])
+        mode = "custom"
+        if team_a_count == 1 and team_b_count == 1:
+            mode = "1v1"
+        elif team_a_count == 2 and team_b_count == 1:
+            mode = "2v1"
+        elif team_a_count == 1 and team_b_count == 2:
+            mode = "1v2"
+        elif team_a_count == 2 and team_b_count == 2:
+            mode = "2v2"
+
+        match_id = str(ec.get("match_id", bc.get("match_id", "match_unknown")) or "match_unknown")
+        req = {
+            "sim_contract_version": SIM_CONTRACT_VERSION,
+            "simulation_id": "mid_%s" % match_id,
+            "mode": str(bc.get("mode", mode) or mode),
+            "source": "mid_battle_event",
+            "event_type": "conditional_gain",
+            "winner_team": "DRAW",
+            "reward_event_id": str(ec.get("reward_event_id", sim_build_mid_battle_reward_event_id(ec)) or sim_build_mid_battle_reward_event_id(ec)),
+            "actors": actors,
+            "config": {
+                "preset": str(bc.get("preset", "medium_v2") or "medium_v2"),
+                "allow_mid_battle_grants": True,
+                "repetition_count": max(1, _sim_to_int(bc.get("repetition_count", 1), 1)),
+                "multi_factor_enabled": bool(bc.get("multi_factor_enabled", True)),
+                "idempotency_registry": bc.get("idempotency_registry", {}),
+            },
+            "mid_battle_meta": {
+                "event_key": str(ec.get("event_key", "") or ""),
+                "trigger_uid": str(ec.get("trigger_uid", "") or ""),
+                "canonical_trigger_key": str(ec.get("canonical_trigger_key", "") or ""),
+                "match_id": match_id,
+            },
+        }
+
+        vr = sim_validate_request(req)
+        if not vr.get("ok", False):
+            errors.extend(vr.get("errors", []))
+        warnings.extend(vr.get("warnings", []))
+
+        return {
+            "ok": (len(errors) == 0),
+            "errors": errors,
+            "warnings": warnings,
+            "request": vr.get("normalized", req),
+            "event": ec,
+        }
+
     def sim_build_min_request():
         """
         Request mínimo válido para pruebas de contrato.
@@ -1400,6 +1510,49 @@ init -875 python:
         }
         v2 = sim_validate_mid_battle_event(ev_bad)
         _push("d1_reject_unknown_event_key", not bool(v2.get("ok", True)))
+
+        return out
+
+    def sim_run_d2_bridge_tests():
+        """
+        D2 - Smoke tests del bridge mid-battle -> request parcial.
+        """
+        out = []
+
+        def _push(name, ok, detail=""):
+            out.append({"name": name, "ok": bool(ok), "detail": str(detail or "")})
+
+        ev = {
+            "event_key": "technique_proc",
+            "actor_id": "player_1",
+            "actor_type": "PLAYER",
+            "team": "A",
+            "match_id": "md2_1",
+            "trigger_uid": "tr_001",
+        }
+        bridge1 = sim_build_request_from_mid_battle_event(ev, battle_ctx={})
+        req1 = bridge1.get("request", {}) if isinstance(bridge1.get("request", {}), dict) else {}
+        _push("d2_bridge_fallback_ok", bool(bridge1.get("ok", False)))
+        _push("d2_bridge_source_mid_battle", str(req1.get("source", "")) == "mid_battle_event")
+        _push("d2_bridge_event_type_conditional_gain", str(req1.get("event_type", "")) == "conditional_gain")
+        _push("d2_bridge_reward_event_id_present", str(req1.get("reward_event_id", "") or "") != "")
+
+        battle_ctx = {
+            "mode": "2v2",
+            "team_a_actors": [
+                {"actor_id": "player_1", "actor_type": "PLAYER", "level": 10, "register": 1},
+                {"actor_id": "alpha_a1", "actor_type": "ALPHA", "level": 20, "register": 2},
+            ],
+            "team_b_actors": [
+                {"actor_id": "delta_b1", "actor_type": "DELTA", "level": 20, "register": 2},
+                {"actor_id": "beta_b1", "actor_type": "BETA", "level": 20, "register": 2},
+            ],
+        }
+        bridge2 = sim_build_request_from_mid_battle_event(ev, battle_ctx=battle_ctx)
+        req2 = bridge2.get("request", {}) if isinstance(bridge2.get("request", {}), dict) else {}
+        _push("d2_bridge_with_battle_ctx_ok", bool(bridge2.get("ok", False)))
+        _push("d2_bridge_mode_2v2", str(req2.get("mode", "")) == "2v2")
+        _push("d2_bridge_actors_shape", len(req2.get("actors", [])) == 4)
 
         return out
 
