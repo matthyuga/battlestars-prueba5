@@ -25,6 +25,11 @@ Este módulo es una base C# para construir un editor de expresiones faciales de 
 - Sustituir el render textual de `ExpressionEditorWindow.Draw()` por IMGUI real en host.
 - Añadir tests unitarios automáticos.
 
+
+## Avance Fase 0 (inicio)
+- Los adapters de host ya pueden cablearse por delegados (`BepInExCharacterRuntimeAdapter`, `TimelinePluginBridge`, `BepInExLogger`) sin depender de tipos de Unity/BepInEx dentro de este proyecto.
+- Se añadió `Phase0VerticalSliceBootstrap` para armar rápidamente el par `(orchestrator, controller)` con adapters reales del host.
+
 ## Flujo de uso recomendado (actual)
 1. Inicializar controller/window:
    - `CreateProductionUi(...)` (host real) o

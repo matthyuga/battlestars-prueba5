@@ -4,42 +4,85 @@ using System.Collections.Generic;
 namespace ExpressionLayerEditorSkeleton;
 
 /// <summary>
-/// Step 3 stubs for production integrations.
-/// Replace internals with actual BepInEx/KKAPI/Timeline calls in the plugin project.
+/// Phase 0 adapters prepared for host wiring via delegates.
+/// They avoid hard dependency on BepInEx/KKAPI types in this skeleton project.
 /// </summary>
 public sealed class BepInExLogger : ILogger
 {
-    public void Info(string message) => throw new NotImplementedException("Wire this to BepInEx logger (LogInfo).");
-    public void Warn(string message) => throw new NotImplementedException("Wire this to BepInEx logger (LogWarning).");
-    public void Error(string message) => throw new NotImplementedException("Wire this to BepInEx logger (LogError).");
+    private readonly Action<string> _info;
+    private readonly Action<string> _warn;
+    private readonly Action<string> _error;
+
+    public BepInExLogger(Action<string>? info = null, Action<string>? warn = null, Action<string>? error = null)
+    {
+        _info = info ?? Console.WriteLine;
+        _warn = warn ?? Console.WriteLine;
+        _error = error ?? Console.WriteLine;
+    }
+
+    public void Info(string message) => _info(message);
+    public void Warn(string message) => _warn(message);
+    public void Error(string message) => _error(message);
 }
 
 public sealed class BepInExCharacterRuntimeAdapter : ICharacterRuntimeAdapter
 {
-    public CharacterContext GetActiveCharacter() => throw new NotImplementedException("Resolve active character from Studio scene context.");
+    private readonly Func<CharacterContext> _getActiveCharacter;
+    private readonly Func<CharacterContext, IReadOnlyCollection<BlendshapeParam>> _getBlendshapeRegistry;
+    private readonly Func<CharacterContext, ExpressionState> _readCurrentState;
+    private readonly Action<CharacterContext, ExpressionState> _applyState;
+
+    public BepInExCharacterRuntimeAdapter(
+        Func<CharacterContext> getActiveCharacter,
+        Func<CharacterContext, IReadOnlyCollection<BlendshapeParam>> getBlendshapeRegistry,
+        Func<CharacterContext, ExpressionState> readCurrentState,
+        Action<CharacterContext, ExpressionState> applyState)
+    {
+        _getActiveCharacter = getActiveCharacter;
+        _getBlendshapeRegistry = getBlendshapeRegistry;
+        _readCurrentState = readCurrentState;
+        _applyState = applyState;
+    }
+
+    public CharacterContext GetActiveCharacter() => _getActiveCharacter();
 
     public IReadOnlyCollection<BlendshapeParam> GetBlendshapeRegistry(CharacterContext context)
-        => throw new NotImplementedException("Build registry from KKPE/face blendshape metadata.");
+        => _getBlendshapeRegistry(context);
 
     public ExpressionState ReadCurrentState(CharacterContext context)
-        => throw new NotImplementedException("Read current blendshape values from character runtime.");
+        => _readCurrentState(context);
 
     public void ApplyState(CharacterContext context, ExpressionState state)
-        => throw new NotImplementedException("Apply blendshape values to character runtime.");
+        => _applyState(context, state);
 }
 
 public sealed class TimelinePluginBridge : ITimelineBridge
 {
-    public bool IsAvailable => throw new NotImplementedException("Detect Timeline plugin availability.");
+    private readonly Func<bool> _isAvailable;
+    private readonly Func<int> _getCurrentFrame;
+    private readonly Action<int> _setCurrentFrame;
+    private readonly Action<string, float, int> _setKey;
+    private readonly Action<Dictionary<string, float>, Dictionary<string, float>, int, int> _setKeysForRange;
 
-    public int GetCurrentFrame() => throw new NotImplementedException("Read current frame from Timeline plugin.");
+    public TimelinePluginBridge(
+        Func<bool> isAvailable,
+        Func<int> getCurrentFrame,
+        Action<int> setCurrentFrame,
+        Action<string, float, int> setKey,
+        Action<Dictionary<string, float>, Dictionary<string, float>, int, int> setKeysForRange)
+    {
+        _isAvailable = isAvailable;
+        _getCurrentFrame = getCurrentFrame;
+        _setCurrentFrame = setCurrentFrame;
+        _setKey = setKey;
+        _setKeysForRange = setKeysForRange;
+    }
 
-    public void SetCurrentFrame(int frame)
-        => throw new NotImplementedException("Set current frame in Timeline plugin.");
-
-    public void SetKey(string paramKey, float value, int frame)
-        => throw new NotImplementedException("Insert/update keyframe via Timeline API.");
+    public bool IsAvailable => _isAvailable();
+    public int GetCurrentFrame() => _getCurrentFrame();
+    public void SetCurrentFrame(int frame) => _setCurrentFrame(frame);
+    public void SetKey(string paramKey, float value, int frame) => _setKey(paramKey, value, frame);
 
     public void SetKeysForRange(Dictionary<string, float> fromValues, Dictionary<string, float> toValues, int frameStart, int frameEnd)
-        => throw new NotImplementedException("Write interpolated keyframes using Timeline API.");
+        => _setKeysForRange(fromValues, toValues, frameStart, frameEnd);
 }
