@@ -10,11 +10,18 @@ default sim_lab_state_v1 = {}
 default sim_lab_last_result_v1 = None
 default sim_lab_export_text_v1 = ""
 default sim_lab_smoke_results_v1 = []
+default sim_lab_mid_battle_rows_v1 = []
 
 init -870 python:
     import copy
     import json
     import renpy.store as S
+
+    def _sim_lab_to_int(v, default=0):
+        try:
+            return int(v)
+        except Exception:
+            return int(default or 0)
 
     def sim_lab_make_actor(idx=1):
         n = int(idx or 1)
@@ -436,6 +443,54 @@ init -870 python:
         S.sim_lab_smoke_results_v1 = out
         return S.sim_lab_smoke_results_v1
 
+    def sim_lab_refresh_mid_battle_view(limit=20):
+        lim = int(limit or 20)
+        if lim < 1:
+            lim = 1
+        if lim > 100:
+            lim = 100
+
+        raw = getattr(S, "sim_mid_battle_event_log_v1", None)
+        if not isinstance(raw, list):
+            raw = []
+
+        rows = []
+        for ev in reversed(raw[-lim:]):
+            if not isinstance(ev, dict):
+                continue
+            event_key = str(ev.get("event_key", "") or "")
+            reward_event_id = str(ev.get("reward_event_id", "") or "")
+            actors = ev.get("actors", []) if isinstance(ev.get("actors", []), list) else []
+
+            if len(actors) > 0:
+                for aa in actors:
+                    if not isinstance(aa, dict):
+                        continue
+                    rows.append({
+                        "event_key": event_key,
+                        "reward_event_id": reward_event_id,
+                        "actor_id": str(aa.get("actor_id", "") or "n/a"),
+                        "exp_gain": _sim_lab_to_int(aa.get("exp_gain", 0), 0),
+                        "oro_gain": _sim_lab_to_int(aa.get("oro_gain", 0), 0),
+                        "idempotency_status": str(aa.get("idempotency_status", "unknown") or "unknown"),
+                    })
+            else:
+                rows.append({
+                    "event_key": event_key,
+                    "reward_event_id": reward_event_id,
+                    "actor_id": "n/a",
+                    "exp_gain": _sim_lab_to_int(ev.get("apply_total_exp", 0), 0),
+                    "oro_gain": _sim_lab_to_int(ev.get("apply_total_oro", 0), 0),
+                    "idempotency_status": "unknown",
+                })
+
+        S.sim_lab_mid_battle_rows_v1 = rows
+        return S.sim_lab_mid_battle_rows_v1
+
+    def sim_lab_clear_mid_battle_view():
+        S.sim_lab_mid_battle_rows_v1 = []
+        return S.sim_lab_mid_battle_rows_v1
+
 
 label sim_lab_open:
     call screen sim_lab_v1
@@ -450,6 +505,7 @@ screen sim_lab_v1():
     $ actors = st.get("actors", []) if isinstance(st.get("actors", []), list) else []
     $ last = sim_lab_last_result_v1 if isinstance(sim_lab_last_result_v1, dict) else None
     $ smoke = sim_lab_smoke_results_v1 if isinstance(sim_lab_smoke_results_v1, list) else []
+    $ mid_rows = sim_lab_mid_battle_rows_v1 if isinstance(sim_lab_mid_battle_rows_v1, list) else []
     $ export_text = sim_lab_export_text_v1 if isinstance(sim_lab_export_text_v1, str) else ""
 
     frame:
@@ -704,6 +760,37 @@ screen sim_lab_v1():
                             text "Idempotency statuses por actor_id:" size 14
                             for kk, vv in statuses.items():
                                 text ("- %s: %s" % (kk, vv)) size 13
+
+            frame:
+                xfill True
+                ymaximum 280
+                padding (12, 12)
+                vbox:
+                    spacing 8
+                    text "D7 — QA Mid-battle inspector" size 24
+                    hbox:
+                        spacing 8
+                        textbutton "Refrescar últimos 20" action Function(sim_lab_refresh_mid_battle_view, 20)
+                        textbutton "Limpiar vista" action Function(sim_lab_clear_mid_battle_view)
+                    if len(mid_rows) > 0:
+                        viewport:
+                            draggable True
+                            mousewheel True
+                            scrollbars "vertical"
+                            ymaximum 190
+                            vbox:
+                                spacing 6
+                                for row in mid_rows:
+                                    text ("%s | %s | actor=%s | gains exp/oro=%s/%s | idem=%s" % (
+                                        row.get("event_key", "n/a"),
+                                        row.get("reward_event_id", "n/a"),
+                                        row.get("actor_id", "n/a"),
+                                        row.get("exp_gain", 0),
+                                        row.get("oro_gain", 0),
+                                        row.get("idempotency_status", "unknown"),
+                                    )) size 14
+                    else:
+                        text "Sin snapshot. Usa 'Refrescar últimos 20' para inspeccionar N recientes." size 14
 
             frame:
                 xfill True

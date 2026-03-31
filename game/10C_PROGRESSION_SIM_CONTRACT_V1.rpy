@@ -379,6 +379,20 @@ init -875 python:
         log = getattr(S, "sim_mid_battle_event_log_v1", None)
         if not isinstance(log, list):
             log = []
+        idem_statuses = res.get("audit", {}).get("idempotency", {}).get("statuses", {})
+        if not isinstance(idem_statuses, dict):
+            idem_statuses = {}
+        actor_rows = []
+        for rr in res.get("results", []):
+            if not isinstance(rr, dict):
+                continue
+            actor_rows.append({
+                "actor_id": str(rr.get("actor_id", "") or ""),
+                "exp_gain": _sim_to_int(rr.get("final", {}).get("exp_gain", 0), 0),
+                "oro_gain": _sim_to_int(rr.get("final", {}).get("oro_gain", 0), 0),
+                "idempotency_status": str(idem_statuses.get(str(rr.get("actor_id", "") or ""), "unknown") or "unknown"),
+            })
+
         log.append({
             "event_key": str(req.get("mid_battle_meta", {}).get("event_key", "") or ""),
             "reward_event_id": str(req.get("reward_event_id", "") or ""),
@@ -387,6 +401,7 @@ init -875 python:
             "apply_ok": bool(apply_report.get("ok", False)),
             "apply_total_exp": _sim_to_int(apply_report.get("total_exp", 0), 0),
             "apply_total_oro": _sim_to_int(apply_report.get("total_oro", 0), 0),
+            "actors": actor_rows,
         })
         if len(log) > 300:
             log = log[-300:]
