@@ -397,6 +397,18 @@ init -870 python:
                 "detail": "sim_run_d3_mid_battle_tests no disponible.",
             })
 
+        fn_d4 = getattr(S, "sim_run_d4_reconcile_tests", None)
+        if callable(fn_d4):
+            raw_d4 = fn_d4()
+            if isinstance(raw_d4, list):
+                out.extend(raw_d4)
+        else:
+            out.append({
+                "name": "d4_reconcile_tests_unavailable",
+                "ok": False,
+                "detail": "sim_run_d4_reconcile_tests no disponible.",
+            })
+
         S.sim_lab_smoke_results_v1 = out
         return S.sim_lab_smoke_results_v1
 

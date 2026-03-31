@@ -284,6 +284,26 @@ init -875 python:
         persist = sim_persist_simulation_artifacts(pack)
         apply_report = sim_apply_simulation_rewards_to_runtime(pack)
 
+        # D4 base: ledger de pagos mid-battle por match/actor para reconciliación en battle_end.
+        mm = req.get("mid_battle_meta", {}) if isinstance(req.get("mid_battle_meta", {}), dict) else {}
+        match_id = str(mm.get("match_id", bc.get("match_id", "match_unknown")) or "match_unknown")
+        grants = getattr(S, "sim_mid_battle_grants_v1", None)
+        if not isinstance(grants, dict):
+            grants = {}
+        by_match = grants.get(match_id, {}) if isinstance(grants.get(match_id, {}), dict) else {}
+        for it in (apply_report.get("items", []) if isinstance(apply_report.get("items", []), list) else []):
+            if not isinstance(it, dict):
+                continue
+            aid = str(it.get("actor_id", "") or "")
+            if aid == "":
+                continue
+            row = by_match.get(aid, {}) if isinstance(by_match.get(aid, {}), dict) else {}
+            row["exp_paid"] = max(0, _sim_to_int(row.get("exp_paid", 0), 0) + _sim_to_int(it.get("exp_gain", 0), 0))
+            row["oro_paid"] = max(0, _sim_to_int(row.get("oro_paid", 0), 0) + _sim_to_int(it.get("oro_gain", 0), 0))
+            by_match[aid] = row
+        grants[match_id] = by_match
+        S.sim_mid_battle_grants_v1 = grants
+
         log = getattr(S, "sim_mid_battle_event_log_v1", None)
         if not isinstance(log, list):
             log = []
@@ -309,6 +329,81 @@ init -875 python:
             "persist": persist,
             "apply": apply_report,
         }
+
+    def sim_reconcile_battle_end_with_mid_grants(sim_pack, runtime=None, policy="subtract_paid"):
+        """
+        D4 - Reconciliación battle_end vs pagos mid-battle previos.
+        Política v1: subtract_paid.
+        """
+        import renpy.store as S
+
+        pack = copy.deepcopy(sim_pack if isinstance(sim_pack, dict) else {})
+        req = pack.get("request", {}) if isinstance(pack.get("request", {}), dict) else {}
+        res = pack.get("result", {}) if isinstance(pack.get("result", {}), dict) else {}
+        rt = runtime if isinstance(runtime, dict) else {}
+
+        if str(req.get("source", "") or "") != "battle_end":
+            return pack
+        if str(policy or "subtract_paid") != "subtract_paid":
+            return pack
+
+        match_id = str(rt.get("battle_id", rt.get("match_id", req.get("simulation_id", "match_unknown"))) or "match_unknown")
+        grants = getattr(S, "sim_mid_battle_grants_v1", None)
+        if not isinstance(grants, dict):
+            grants = {}
+        by_match = grants.get(match_id, {}) if isinstance(grants.get(match_id, {}), dict) else {}
+        if len(by_match) == 0:
+            return pack
+
+        rows = res.get("results", []) if isinstance(res.get("results", []), list) else []
+        out_rows = []
+        total_exp_sub = 0
+        total_oro_sub = 0
+
+        for rr in rows:
+            r = copy.deepcopy(rr if isinstance(rr, dict) else {})
+            aid = str(r.get("actor_id", "") or "")
+            paid = by_match.get(aid, {}) if isinstance(by_match.get(aid, {}), dict) else {}
+            exp_paid = max(0, _sim_to_int(paid.get("exp_paid", 0), 0))
+            oro_paid = max(0, _sim_to_int(paid.get("oro_paid", 0), 0))
+
+            ff = r.get("final", {}) if isinstance(r.get("final", {}), dict) else {}
+            exp_old = max(0, _sim_to_int(ff.get("exp_gain", 0), 0))
+            oro_old = max(0, _sim_to_int(ff.get("oro_gain", 0), 0))
+            exp_new = max(0, exp_old - exp_paid)
+            oro_new = max(0, oro_old - oro_paid)
+            ff["exp_gain"] = exp_new
+            ff["oro_gain"] = oro_new
+            ff["exp_after"] = max(0, _sim_to_int(ff.get("exp_after", 0), 0) - (exp_old - exp_new))
+            ff["oro_after"] = max(0, _sim_to_int(ff.get("oro_after", 0), 0) - (oro_old - oro_new))
+            r["final"] = ff
+
+            notes = r.get("notes", []) if isinstance(r.get("notes", []), list) else []
+            if exp_paid > 0 or oro_paid > 0:
+                notes.append("reconciled_mid_battle_paid")
+            r["notes"] = notes
+
+            total_exp_sub += max(0, exp_old - exp_new)
+            total_oro_sub += max(0, oro_old - oro_new)
+            out_rows.append(r)
+
+        res["results"] = out_rows
+        audit = res.get("audit", {}) if isinstance(res.get("audit", {}), dict) else {}
+        audit["reconciliation"] = {
+            "policy": "subtract_paid",
+            "match_id": match_id,
+            "total_exp_subtracted": total_exp_sub,
+            "total_oro_subtracted": total_oro_sub,
+            "actors_reconciled": len(by_match),
+        }
+        res["audit"] = audit
+        pack["result"] = res
+
+        # Consumir ledger de ese match para no arrastrarlo a cierres futuros.
+        if match_id in grants:
+            del grants[match_id]
+        S.sim_mid_battle_grants_v1 = grants
+        return pack
 
     def sim_build_min_request():
         """
@@ -1019,9 +1114,14 @@ init -875 python:
         """
         req = sim_build_request_from_battle_state(runtime=runtime, overrides=overrides)
         res = run_simulation(req)
-        return {
+        pack = {
             "request": req,
             "result": res,
+        }
+        pack = sim_reconcile_battle_end_with_mid_grants(pack, runtime=runtime, policy="subtract_paid")
+        return {
+            "request": pack.get("request", req),
+            "result": pack.get("result", res),
         }
 
     def sim_persist_simulation_artifacts(sim_pack, max_log_items=300):
@@ -1684,6 +1784,89 @@ init -875 python:
         finally:
             S.sim_idempotency_registry_v1 = snap_registry
             S.sim_mid_battle_event_log_v1 = snap_log
+            S.sim_battle_end_last_apply_v1 = snap_apply
+
+        return out
+
+    def sim_run_d4_reconcile_tests():
+        """
+        D4 - Smoke tests de reconciliación mid-battle vs battle_end.
+        """
+        import renpy.store as S
+
+        out = []
+
+        def _push(name, ok, detail=""):
+            out.append({"name": name, "ok": bool(ok), "detail": str(detail or "")})
+
+        snap_registry = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+        snap_grants = copy.deepcopy(getattr(S, "sim_mid_battle_grants_v1", {}))
+        snap_apply = copy.deepcopy(getattr(S, "sim_battle_end_last_apply_v1", {}))
+
+        try:
+            # 1) Pagar un mid-battle.
+            ev = {
+                "event_key": "technique_proc",
+                "actor_id": "player_1",
+                "actor_type": "PLAYER",
+                "team": "A",
+                "match_id": "d4_match_1",
+                "trigger_uid": "d4_t01",
+                "level": 10,
+                "register": 1,
+            }
+            bc = {
+                "mode": "1v1",
+                "team_a_actors": [{"actor_id": "player_1", "actor_type": "PLAYER", "level": 10, "register": 1}],
+                "team_b_actors": [{"actor_id": "beta_e1", "actor_type": "BETA", "level": 10, "register": 1}],
+                "idempotency_registry": copy.deepcopy(snap_registry),
+            }
+            r_mid = sim_run_mid_battle_event(ev, bc)
+            paid_mid_exp = _sim_to_int(r_mid.get("apply", {}).get("total_exp", 0), 0)
+            paid_mid_oro = _sim_to_int(r_mid.get("apply", {}).get("total_oro", 0), 0)
+            _push("d4_mid_battle_paid", bool(r_mid.get("ok", False)))
+
+            # 2) Cierre battle_end del mismo match: debe reconciliar restando lo pagado.
+            runtime_end = {
+                "source": "battle_end",
+                "battle_id": "d4_match_1",
+                "result": "victory",
+                "player_level": 10,
+                "player_register": 1,
+                "player_exp": 0,
+                "player_exp_max": 100,
+                "player_oro": 0,
+                "player_actor_type": "PLAYER",
+                "enemy_level": 10,
+                "enemy_register": 1,
+                "enemy_actor_type": "BETA",
+                "idempotency_registry": copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {})),
+            }
+            pack_end = sim_run_battle_end_simulation(runtime=runtime_end)
+            res_end = pack_end.get("result", {}) if isinstance(pack_end.get("result", {}), dict) else {}
+            rows = res_end.get("results", []) if isinstance(res_end.get("results", []), list) else []
+            rec = res_end.get("audit", {}).get("reconciliation", {}) if isinstance(res_end.get("audit", {}), dict) else {}
+
+            # Encontrar fila player.
+            p_row = None
+            for rr in rows:
+                if str(rr.get("actor_id", "") or "") == "player_1":
+                    p_row = rr
+                    break
+            p_gain = _sim_to_int((p_row or {}).get("final", {}).get("exp_gain", 0), 0)
+            p_oro = _sim_to_int((p_row or {}).get("final", {}).get("oro_gain", 0), 0)
+
+            _push("d4_reconciliation_audit_present", isinstance(rec, dict) and str(rec.get("policy", "")) == "subtract_paid")
+            _push("d4_reconciliation_subtracted_non_negative", _sim_to_int(rec.get("total_exp_subtracted", -1), -1) >= 0 and _sim_to_int(rec.get("total_oro_subtracted", -1), -1) >= 0)
+            _push("d4_battle_end_respects_paid", p_gain >= 0 and p_oro >= 0 and (_sim_to_int(rec.get("total_exp_subtracted", 0), 0) >= 0))
+
+            # 3) Ledger consumido tras reconciliación.
+            grants_after = getattr(S, "sim_mid_battle_grants_v1", {})
+            consumed = (not isinstance(grants_after, dict)) or ("d4_match_1" not in grants_after)
+            _push("d4_match_ledger_consumed", consumed)
+        finally:
+            S.sim_idempotency_registry_v1 = snap_registry
+            S.sim_mid_battle_grants_v1 = snap_grants
             S.sim_battle_end_last_apply_v1 = snap_apply
 
         return out
