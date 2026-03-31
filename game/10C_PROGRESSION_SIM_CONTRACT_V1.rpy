@@ -842,6 +842,10 @@ init -875 python:
         wallet = getattr(S, "sim_actor_runtime_wallet_v1", None)
         if not isinstance(wallet, dict):
             wallet = {}
+        if len(wallet) == 0:
+            pw = getattr(S.persistent, "sim_actor_wallet_v1", None)
+            if isinstance(pw, dict):
+                wallet = copy.deepcopy(pw)
 
         for rr in results:
             if not isinstance(rr, dict):
@@ -891,6 +895,7 @@ init -875 python:
             })
 
         S.sim_actor_runtime_wallet_v1 = wallet
+        wallet_persist = sim_persist_actor_wallets()
 
         report = {
             "ok": True,
@@ -898,9 +903,71 @@ init -875 python:
             "total_exp": total_exp,
             "total_oro": total_oro,
             "items": applied,
+            "wallet_persist": wallet_persist,
         }
         S.sim_battle_end_last_apply_v1 = report
         return report
+
+    def sim_persist_actor_wallets(max_items=1000):
+        """
+        C3+ - Persistencia fuerte de wallets ALPHA/DELTA.
+        Fuente: S.sim_actor_runtime_wallet_v1
+        Destino: S.persistent.sim_actor_wallet_v1
+        """
+        import renpy
+        import renpy.store as S
+
+        runtime_wallet = getattr(S, "sim_actor_runtime_wallet_v1", None)
+        if not isinstance(runtime_wallet, dict):
+            runtime_wallet = {}
+
+        persistent_wallet = getattr(S.persistent, "sim_actor_wallet_v1", None)
+        if not isinstance(persistent_wallet, dict):
+            persistent_wallet = {}
+
+        merged = copy.deepcopy(persistent_wallet)
+        updated = 0
+
+        for actor_id, row in runtime_wallet.items():
+            rr = row if isinstance(row, dict) else {}
+            aid = str(actor_id or rr.get("actor_id", "") or "").strip()
+            if aid == "":
+                continue
+
+            at = str(rr.get("actor_type", "") or "").upper()
+            if at not in ("ALPHA", "DELTA"):
+                continue
+
+            prev = merged.get(aid, {}) if isinstance(merged.get(aid, {}), dict) else {}
+            merged[aid] = {
+                "actor_id": aid,
+                "actor_type": at,
+                "exp": max(0, _sim_to_int(rr.get("exp", prev.get("exp", 0)), 0)),
+                "oro": max(0, _sim_to_int(rr.get("oro", prev.get("oro", 0)), 0)),
+                "updated_ts_unix": int(time.time()),
+            }
+            updated += 1
+
+        # Hard cap por cantidad de actores para evitar crecimiento no controlado.
+        lim = max(100, _sim_to_int(max_items, 1000))
+        if len(merged) > lim:
+            # ordena por timestamp y conserva más recientes
+            rows = []
+            for k, v in merged.items():
+                vv = v if isinstance(v, dict) else {}
+                rows.append((k, _sim_to_int(vv.get("updated_ts_unix", 0), 0), vv))
+            rows.sort(key=lambda x: x[1], reverse=True)
+            cut = rows[:lim]
+            merged = {k: vv for (k, _, vv) in cut}
+
+        S.persistent.sim_actor_wallet_v1 = merged
+        renpy.save_persistent()
+
+        return {
+            "ok": True,
+            "updated": updated,
+            "total_persistent_wallet": len(merged),
+        }
 
     def sim_apply_reward_event_idempotency(normalized_request, results):
         """
@@ -1237,6 +1304,7 @@ init -875 python:
         snap_registry = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
         snap_apply = copy.deepcopy(getattr(S, "sim_battle_end_last_apply_v1", {}))
         snap_wallet = copy.deepcopy(getattr(S, "sim_actor_runtime_wallet_v1", {}))
+        snap_pwallet = copy.deepcopy(getattr(S.persistent, "sim_actor_wallet_v1", {}))
 
         try:
             runtime = {
@@ -1295,11 +1363,15 @@ init -875 python:
             sim_persist_simulation_artifacts(pack_ad)
             sim_apply_simulation_rewards_to_runtime(pack_ad)
             wallet_after = getattr(S, "sim_actor_runtime_wallet_v1", {})
+            pw_after = getattr(S.persistent, "sim_actor_wallet_v1", {})
             ok_ad = (
                 isinstance(wallet_after, dict) and
                 "alpha_a1" in wallet_after and
                 "delta_b1" in wallet_after and
-                "beta_b2" not in wallet_after
+                "beta_b2" not in wallet_after and
+                isinstance(pw_after, dict) and
+                "alpha_a1" in pw_after and
+                "delta_b1" in pw_after
             )
             _push("c6_multi_2v2_wallet_apply", ok_ad)
 
@@ -1353,6 +1425,7 @@ init -875 python:
             S.sim_idempotency_registry_v1 = snap_registry
             S.sim_battle_end_last_apply_v1 = snap_apply
             S.sim_actor_runtime_wallet_v1 = snap_wallet
+            S.persistent.sim_actor_wallet_v1 = snap_pwallet
 
             # Persist restore snapshot para trazabilidad QA.
             cur = getattr(S.persistent, "sim_c6_restore_log_v1", None)
@@ -1365,6 +1438,7 @@ init -875 python:
                 "player_oro_before": snap_player_oro,
                 "registry_size_before": len(snap_registry) if isinstance(snap_registry, dict) else 0,
                 "wallet_size_before": len(snap_wallet) if isinstance(snap_wallet, dict) else 0,
+                "persistent_wallet_size_before": len(snap_pwallet) if isinstance(snap_pwallet, dict) else 0,
             })
             if len(cur) > 200:
                 cur = cur[-200:]
