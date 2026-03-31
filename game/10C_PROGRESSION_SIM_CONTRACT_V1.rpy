@@ -743,6 +743,18 @@ init -875 python:
 
         return req
 
+    def sim_run_battle_end_simulation(runtime=None, overrides=None):
+        """
+        C2 - Ejecuta pipeline de cierre:
+        runtime -> SimulationRequest -> run_simulation.
+        """
+        req = sim_build_request_from_battle_state(runtime=runtime, overrides=overrides)
+        res = run_simulation(req)
+        return {
+            "request": req,
+            "result": res,
+        }
+
     def sim_apply_reward_event_idempotency(normalized_request, results):
         """
         A5 - Anti-duplicación por reward_event_id.

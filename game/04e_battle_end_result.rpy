@@ -47,6 +47,62 @@ label battle_end:
         "El combate ha terminado."
         $ S.story_pilot_last_result = "unknown"
 
+    # --- C2: ejecutar simulador al cierre (sin aplicar todavía) ---
+    python:
+        import renpy.store as S
+
+        # Estado base de runtime para el adaptador C1.
+        runtime = {
+            "source": "battle_end",
+            "result": str(getattr(S, "story_pilot_last_result", "draw") or "draw"),
+            "battle_id": str(getattr(S, "story_pilot_battle_id", "battle_runtime") or "battle_runtime"),
+            "player_hp": int(getattr(S, "player_hp", 0) or 0),
+            "enemy_hp": int(getattr(S, "enemy_hp", 0) or 0),
+            "repetition_count": int(getattr(S, "story_pilot_repetition_count", 1) or 1),
+            "preset": str(getattr(S, "story_pilot_reward_preset", "medium_v2") or "medium_v2"),
+            "multi_factor_enabled": bool(getattr(S, "story_pilot_multi_factor_enabled", True)),
+        }
+
+        # Bridge opcional con panel RPG si existe estado persistente.
+        st = getattr(S, "rpg_panel_state_v1", None)
+        if isinstance(st, dict):
+            p = st.get("player", {}) if isinstance(st.get("player", {}), dict) else {}
+            runtime["player_level"] = int(p.get("level", getattr(S, "player_level", 1)) or 1)
+            runtime["player_register"] = int(p.get("register", getattr(S, "player_register", 0)) or 0)
+            runtime["player_exp"] = int(p.get("exp_current", getattr(S, "player_exp", 0)) or 0)
+            runtime["player_exp_max"] = int(p.get("exp_max", getattr(S, "player_exp_max", 100)) or 100)
+            runtime["player_oro"] = int(p.get("oro_current", getattr(S, "player_oro", 0)) or 0)
+        else:
+            runtime["player_level"] = int(getattr(S, "player_level", 1) or 1)
+            runtime["player_register"] = int(getattr(S, "player_register", 0) or 0)
+            runtime["player_exp"] = int(getattr(S, "player_exp", 0) or 0)
+            runtime["player_exp_max"] = int(getattr(S, "player_exp_max", 100) or 100)
+            runtime["player_oro"] = int(getattr(S, "player_oro", 0) or 0)
+
+        # Enemigo v1 (fallback simple 1v1). En C3/C4 se amplía a equipos múltiples runtime.
+        runtime["enemy_level"] = int(getattr(S, "enemy_level", 1) or 1)
+        runtime["enemy_register"] = int(getattr(S, "enemy_register", 0) or 0)
+        runtime["enemy_exp"] = int(getattr(S, "enemy_exp", 0) or 0)
+        runtime["enemy_exp_max"] = int(getattr(S, "enemy_exp_max", 100) or 100)
+        runtime["enemy_oro"] = int(getattr(S, "enemy_oro", 0) or 0)
+
+        fn_sim = getattr(S, "sim_run_battle_end_simulation", None)
+        if callable(fn_sim):
+            pack = fn_sim(runtime=runtime)
+            S.sim_battle_end_last_request_v1 = pack.get("request", {})
+            S.sim_battle_end_last_result_v1 = pack.get("result", {})
+        else:
+            # Fallback seguro: sin crash, deja evidencia en audit-like.
+            S.sim_battle_end_last_request_v1 = {}
+            S.sim_battle_end_last_result_v1 = {
+                "results": [],
+                "audit": {
+                    "warnings": [],
+                    "errors": ["sim_run_battle_end_simulation no disponible en store."],
+                    "sim_contract_version": "v1",
+                },
+            }
+
     # --- Limpieza global de efectos visuales y HUD ---
     if renpy.has_label("battle_hide_hud"):
         $ battle_hide_hud()
