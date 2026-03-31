@@ -1719,6 +1719,98 @@ init -875 python:
             "outputs": out,
         }, ensure_ascii=False, sort_keys=True, indent=2)
 
+    def sim_phaseE_multiplayer_fixture_requests():
+        """
+        E4 - Fixtures canónicos host/guest para validar autorización y audit.
+        """
+        base_bc = {
+            "mode": "2v2",
+            "multiplayer_enabled": True,
+            "session_id": "sess_e4_001",
+            "host_actor_id": "host_p1",
+            "allowed_guest_actor_ids": ["guest_a1"],
+            "team_a_actors": [
+                {"actor_id": "host_p1", "actor_type": "PLAYER", "level": 10, "register": 1},
+                {"actor_id": "guest_a1", "actor_type": "ALPHA", "level": 10, "register": 1},
+            ],
+            "team_b_actors": [
+                {"actor_id": "enemy_b1", "actor_type": "BETA", "level": 10, "register": 1},
+                {"actor_id": "enemy_b2", "actor_type": "BETA", "level": 10, "register": 1},
+            ],
+        }
+        return {
+            "e4_host_allowed": {
+                "event_ctx": {"event_key": "passive_proc", "actor_id": "host_p1", "actor_type": "PLAYER", "team": "A", "match_id": "e4_m1", "trigger_uid": "e4_t1"},
+                "battle_ctx": copy.deepcopy(base_bc),
+                "expect_blocked": False,
+            },
+            "e4_guest_allowed": {
+                "event_ctx": {"event_key": "passive_proc", "actor_id": "guest_a1", "actor_type": "ALPHA", "team": "A", "match_id": "e4_m1", "trigger_uid": "e4_t2"},
+                "battle_ctx": copy.deepcopy(base_bc),
+                "expect_blocked": False,
+            },
+            "e4_guest_blocked": {
+                "event_ctx": {"event_key": "passive_proc", "actor_id": "guest_forbidden", "actor_type": "ALPHA", "team": "A", "match_id": "e4_m1", "trigger_uid": "e4_t3"},
+                "battle_ctx": copy.deepcopy(base_bc),
+                "expect_blocked": True,
+            },
+        }
+
+    def sim_run_phaseE_e4_tests():
+        """
+        E4 - Smoke de fixtures multiplayer + metadata de sesión en audit log.
+        """
+        import renpy.store as S
+
+        out = []
+
+        def _push(name, ok, detail=""):
+            out.append({"name": name, "ok": bool(ok), "detail": str(detail or "")})
+
+        fixtures = sim_phaseE_multiplayer_fixture_requests()
+        snap_registry = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+        snap_log = copy.deepcopy(getattr(S, "sim_mid_battle_event_log_v1", []))
+        snap_apply = copy.deepcopy(getattr(S, "sim_battle_end_last_apply_v1", {}))
+
+        try:
+            for key in ("e4_host_allowed", "e4_guest_allowed", "e4_guest_blocked"):
+                fx = fixtures.get(key, {}) if isinstance(fixtures.get(key, {}), dict) else {}
+                ev = copy.deepcopy(fx.get("event_ctx", {}))
+                bc = copy.deepcopy(fx.get("battle_ctx", {}))
+                bc["idempotency_registry"] = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+                rr = sim_run_mid_battle_event(ev, bc)
+                blocked = (not bool(rr.get("ok", True))) and ("authz_block" in " ".join(rr.get("warnings", [])))
+                _push("%s_expected_block_state" % key, blocked == bool(fx.get("expect_blocked", False)))
+
+            log = getattr(S, "sim_mid_battle_event_log_v1", [])
+            session_ok = False
+            if isinstance(log, list) and len(log) > 0:
+                for row in log:
+                    if not isinstance(row, dict):
+                        continue
+                    if str(row.get("session_id", "") or "") == "sess_e4_001":
+                        session_ok = True
+                        break
+            _push("e4_audit_has_session_id", session_ok)
+        finally:
+            S.sim_idempotency_registry_v1 = snap_registry
+            S.sim_mid_battle_event_log_v1 = snap_log
+            S.sim_battle_end_last_apply_v1 = snap_apply
+
+        return out
+
+    def sim_export_phaseE_fixtures_json():
+        """
+        E4 - Export de fixtures multiplayer + resultados esperados.
+        """
+        fixtures = sim_phaseE_multiplayer_fixture_requests()
+        return json.dumps({
+            "sim_contract_version": SIM_CONTRACT_VERSION,
+            "phase": "E4",
+            "fixtures": fixtures,
+            "checks": sim_run_phaseE_e4_tests(),
+        }, ensure_ascii=False, sort_keys=True, indent=2)
+
     def sim_phaseA_checkpoint_report():
         """
         A8 - Reporte consolidado de cierre de Fase A.

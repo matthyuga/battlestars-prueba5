@@ -341,6 +341,16 @@ init -870 python:
             }, ensure_ascii=False, indent=2)
         return S.sim_lab_export_text_v1
 
+    def sim_lab_export_phaseE_json():
+        fn = getattr(S, "sim_export_phaseE_fixtures_json", None)
+        if callable(fn):
+            S.sim_lab_export_text_v1 = str(fn() or "")
+        else:
+            S.sim_lab_export_text_v1 = json.dumps({
+                "error": "sim_export_phaseE_fixtures_json no disponible.",
+            }, ensure_ascii=False, indent=2)
+        return S.sim_lab_export_text_v1
+
     def sim_lab_run_smoke_checklist():
         out = []
 
@@ -438,6 +448,18 @@ init -870 python:
                 "name": "phaseD_e2e_tests_unavailable",
                 "ok": False,
                 "detail": "sim_run_phaseD_e2e_tests no disponible.",
+            })
+
+        fn_e4 = getattr(S, "sim_run_phaseE_e4_tests", None)
+        if callable(fn_e4):
+            raw_e4 = fn_e4()
+            if isinstance(raw_e4, list):
+                out.extend(raw_e4)
+        else:
+            out.append({
+                "name": "phaseE_e4_tests_unavailable",
+                "ok": False,
+                "detail": "sim_run_phaseE_e4_tests no disponible.",
             })
 
         S.sim_lab_smoke_results_v1 = out
@@ -802,7 +824,8 @@ screen sim_lab_v1():
                     hbox:
                         spacing 8
                         textbutton "Export last result JSON" action Function(sim_lab_export_last_result_json)
-                        textbutton "Export fixtures JSON" action Function(sim_lab_export_phaseA_json)
+                        textbutton "Export fixtures A JSON" action Function(sim_lab_export_phaseA_json)
+                        textbutton "Export fixtures E JSON" action Function(sim_lab_export_phaseE_json)
                     viewport:
                         draggable True
                         mousewheel True
