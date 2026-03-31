@@ -1006,6 +1006,8 @@ screen help():
                 textbutton _("EXP Grid") action SetScreenVariable("device", "exp_grid")
                 textbutton _("Oro Grid") action SetScreenVariable("device", "oro_grid")
                 textbutton _("Stars Score") action SetScreenVariable("device", "stars_score")
+                if config.developer:
+                    textbutton _("SIM Lab (Dev)") action ShowMenu("sim_lab_v1")
 
                 if GamepadExists():
                     textbutton _("Gamepad") action SetScreenVariable("device", "gamepad")
