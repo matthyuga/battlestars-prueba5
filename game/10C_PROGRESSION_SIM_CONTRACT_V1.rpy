@@ -812,6 +812,78 @@ init -875 python:
             "last_snapshot": snap,
         }
 
+    def sim_apply_simulation_rewards_to_runtime(sim_pack):
+        """
+        C3 - Aplicación real de recompensas visibles (v1).
+        Alcance inicial:
+          - Aplica rewards del actor PLAYER al store runtime.
+          - Mantiene trazabilidad en `sim_battle_end_last_apply_v1`.
+        """
+        import renpy.store as S
+
+        pack = sim_pack if isinstance(sim_pack, dict) else {}
+        req = pack.get("request", {}) if isinstance(pack.get("request", {}), dict) else {}
+        res = pack.get("result", {}) if isinstance(pack.get("result", {}), dict) else {}
+        actors = req.get("actors", []) if isinstance(req.get("actors", []), list) else []
+        results = res.get("results", []) if isinstance(res.get("results", []), list) else []
+
+        actor_by_id = {}
+        for a in actors:
+            if isinstance(a, dict):
+                actor_by_id[str(a.get("actor_id", ""))] = a
+
+        applied = []
+        total_exp = 0
+        total_oro = 0
+
+        for rr in results:
+            if not isinstance(rr, dict):
+                continue
+            actor_id = str(rr.get("actor_id", "") or "")
+            a = actor_by_id.get(actor_id, {})
+            actor_type = str(a.get("actor_type", "") or "").upper()
+            eligible = bool(rr.get("eligible", False))
+            ff = rr.get("final", {}) if isinstance(rr.get("final", {}), dict) else {}
+            exp_gain = max(0, _sim_to_int(ff.get("exp_gain", 0), 0))
+            oro_gain = max(0, _sim_to_int(ff.get("oro_gain", 0), 0))
+
+            if (not eligible) or actor_type != "PLAYER":
+                continue
+            if exp_gain <= 0 and oro_gain <= 0:
+                continue
+
+            # Store runtime principal.
+            S.player_exp = max(0, _sim_to_int(getattr(S, "player_exp", 0), 0) + exp_gain)
+            S.player_oro = max(0, _sim_to_int(getattr(S, "player_oro", 0), 0) + oro_gain)
+
+            # Bridge opcional con panel RPG.
+            st = getattr(S, "rpg_panel_state_v1", None)
+            if isinstance(st, dict):
+                p = st.get("player", {}) if isinstance(st.get("player", {}), dict) else {}
+                p["exp_current"] = max(0, _sim_to_int(p.get("exp_current", 0), 0) + exp_gain)
+                p["oro_current"] = max(0, _sim_to_int(p.get("oro_current", 0), 0) + oro_gain)
+                st["player"] = p
+                S.rpg_panel_state_v1 = st
+
+            total_exp += exp_gain
+            total_oro += oro_gain
+            applied.append({
+                "actor_id": actor_id,
+                "actor_type": actor_type,
+                "exp_gain": exp_gain,
+                "oro_gain": oro_gain,
+            })
+
+        report = {
+            "ok": True,
+            "applied_count": len(applied),
+            "total_exp": total_exp,
+            "total_oro": total_oro,
+            "items": applied,
+        }
+        S.sim_battle_end_last_apply_v1 = report
+        return report
+
     def sim_apply_reward_event_idempotency(normalized_request, results):
         """
         A5 - Anti-duplicación por reward_event_id.

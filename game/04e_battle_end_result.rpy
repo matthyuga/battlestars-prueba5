@@ -100,6 +100,14 @@ label battle_end:
                     "ok": False,
                     "error": "sim_persist_simulation_artifacts no disponible en store.",
                 }
+            fn_apply = getattr(S, "sim_apply_simulation_rewards_to_runtime", None)
+            if callable(fn_apply):
+                S.sim_battle_end_last_apply_v1 = fn_apply(pack)
+            else:
+                S.sim_battle_end_last_apply_v1 = {
+                    "ok": False,
+                    "error": "sim_apply_simulation_rewards_to_runtime no disponible en store.",
+                }
         else:
             # Fallback seguro: sin crash, deja evidencia en audit-like.
             S.sim_battle_end_last_request_v1 = {}
@@ -112,6 +120,10 @@ label battle_end:
                 },
             }
             S.sim_battle_end_last_persist_v1 = {
+                "ok": False,
+                "error": "sim_run_battle_end_simulation no disponible en store.",
+            }
+            S.sim_battle_end_last_apply_v1 = {
                 "ok": False,
                 "error": "sim_run_battle_end_simulation no disponible en store.",
             }
