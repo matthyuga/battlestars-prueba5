@@ -1811,6 +1811,74 @@ init -875 python:
             "checks": sim_run_phaseE_e4_tests(),
         }, ensure_ascii=False, sort_keys=True, indent=2)
 
+    def sim_run_phaseE_e5_tests():
+        """
+        E5 - Gate operacional de cierre (ready/no-ready) previo a testeo manual.
+        """
+        out = []
+
+        def _push(name, ok, detail=""):
+            out.append({"name": name, "ok": bool(ok), "detail": str(detail or "")})
+
+        all_rows = []
+        fn_d6 = globals().get("sim_run_phaseD_e2e_tests", None)
+        if callable(fn_d6):
+            rr = fn_d6()
+            if isinstance(rr, list):
+                all_rows.extend(rr)
+        else:
+            _push("e5_phaseD_e2e_unavailable", False, "sim_run_phaseD_e2e_tests no disponible")
+
+        fn_e4 = globals().get("sim_run_phaseE_e4_tests", None)
+        if callable(fn_e4):
+            rr2 = fn_e4()
+            if isinstance(rr2, list):
+                all_rows.extend(rr2)
+        else:
+            _push("e5_phaseE_e4_unavailable", False, "sim_run_phaseE_e4_tests no disponible")
+
+        by_name = {}
+        for row in all_rows:
+            if isinstance(row, dict):
+                by_name[str(row.get("name", ""))] = bool(row.get("ok", False))
+
+        required = [
+            "phaseD_e2e_required_gate",
+            "e4_host_allowed_expected_block_state",
+            "e4_guest_allowed_expected_block_state",
+            "e4_guest_blocked_expected_block_state",
+            "e4_audit_has_session_id",
+        ]
+        missing = []
+        for name in required:
+            if not bool(by_name.get(name, False)):
+                missing.append(name)
+
+        _push(
+            "phaseE_e5_readiness_gate",
+            len(missing) == 0,
+            ("missing_or_failed=%s" % ",".join(missing)) if len(missing) > 0 else "ready_for_manual_runtime_testing"
+        )
+        return out
+
+    def sim_phaseE_e5_readiness_report():
+        tests = sim_run_phaseE_e5_tests()
+        failed = []
+        for t in tests:
+            if not bool((t or {}).get("ok", False)):
+                failed.append(str((t or {}).get("name", "unknown")))
+        return {
+            "phase": "E5",
+            "sim_contract_version": SIM_CONTRACT_VERSION,
+            "ready": (len(failed) == 0),
+            "failed_checks": failed,
+            "checks": tests,
+            "generated_ts_unix": int(time.time()),
+        }
+
+    def sim_export_phaseE_e5_readiness_json():
+        return json.dumps(sim_phaseE_e5_readiness_report(), ensure_ascii=False, sort_keys=True, indent=2)
+
     def sim_phaseA_checkpoint_report():
         """
         A8 - Reporte consolidado de cierre de Fase A.
