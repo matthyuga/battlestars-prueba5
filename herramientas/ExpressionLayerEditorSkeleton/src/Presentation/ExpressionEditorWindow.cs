@@ -20,6 +20,8 @@ public sealed class ExpressionEditorWindow : IExpressionEditorView
 
     private readonly Dictionary<FaceLayer, IReadOnlyCollection<BlendshapeParam>> _layerCache = new();
     private bool _isBusy;
+    private int _timelineFrame;
+    private bool _timelineAvailable = true;
 
     public ExpressionEditorWindow(ExpressionEditorController controller)
     {
@@ -37,6 +39,7 @@ public sealed class ExpressionEditorWindow : IExpressionEditorView
         DrawMacroPanel(sb);
         DrawPresetPanel(sb);
         DrawSnapshotPanel(sb);
+        DrawTimelinePanel(sb);
 
         DrawLayerPanel(sb, FaceLayer.Eyes);
         DrawLayerPanel(sb, FaceLayer.Brows);
@@ -178,6 +181,34 @@ public sealed class ExpressionEditorWindow : IExpressionEditorView
         _controller.OnSetEditorMode(mode == EditorMode.Advanced);
     }
 
+    public void SetTimelineAvailable(bool available) => _timelineAvailable = available;
+    public void SetTimelineFrame(int frame) => _timelineFrame = Math.Max(0, frame);
+
+    public void ClickSetTimelineFrame(int frame)
+    {
+        _timelineFrame = Math.Max(0, frame);
+        _controller.OnSetTimelineFrame(_timelineFrame);
+    }
+
+    public void ClickAutoKeyModified(float deltaThreshold = 0.01f, int keyEveryNFrames = 1)
+    {
+        _controller.OnAutoKeyModified(new AutoKeyOptions
+        {
+            DeltaThreshold = deltaThreshold,
+            KeyEveryNFrames = keyEveryNFrames
+        });
+    }
+
+    public void ClickApplySnapshotBlendToRange(int startFrame, int endFrame, bool smoothStep)
+    {
+        _controller.OnApplySnapshotBlendToRange(new TimelineRange(startFrame, endFrame), smoothStep);
+    }
+
+    public void ClickApplyPresetAcrossRange(string presetName, int startFrame, int endFrame, float intensity = 1f)
+    {
+        _controller.OnApplyPresetAcrossRange(presetName, new TimelineRange(startFrame, endFrame), intensity);
+    }
+
     private void DrawHeader(StringBuilder sb)
     {
         sb.AppendLine("== Expression Editor ==");
@@ -206,6 +237,13 @@ public sealed class ExpressionEditorWindow : IExpressionEditorView
     {
         sb.AppendLine("-- Snapshots --");
         sb.AppendLine($"BlendT: {_state.BlendT:F2} | SmoothStep: {_state.SmoothStep}");
+    }
+
+    private void DrawTimelinePanel(StringBuilder sb)
+    {
+        sb.AppendLine("-- Timeline --");
+        sb.AppendLine($"Available: {_timelineAvailable} | Frame: {_timelineFrame}");
+        sb.AppendLine("Hooks: SetFrame / AutoKeyModified / BlendToRange / PresetToRange");
     }
 
     private void DrawLayerPanel(StringBuilder sb, FaceLayer layer)

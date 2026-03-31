@@ -26,6 +26,10 @@ Este módulo es una base C# para construir un editor de expresiones faciales de 
 - Añadir tests unitarios automáticos.
 
 
+## Avance Fase 3 (inicio)
+- Se añadieron hooks de timeline en la vista (`set frame`, `autokey`, `blend por rango`, `preset por rango`) para integración básica.
+- Se añadió método de controller para fijar frame (`OnSetTimelineFrame`).
+
 ## Avance Fase 2 (inicio)
 - `ExpressionEditorWindow` se amplió con flujo UI-first: selección/carga/guardado de presets, aplicación de macros, snapshots, edición por capas y modo básico/avanzado.
 - Se añadieron hooks explícitos para mapear controles IMGUI del host a handlers del controller.

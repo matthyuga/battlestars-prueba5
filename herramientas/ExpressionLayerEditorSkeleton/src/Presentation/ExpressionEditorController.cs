@@ -189,6 +189,15 @@ public sealed class ExpressionEditorController
             $"Preset '{presetName}' aplicado en rango {range.StartFrame}-{range.EndFrame}.");
     }
 
+    public void OnSetTimelineFrame(int frame)
+    {
+        Guarded(() =>
+        {
+            _orchestrator.SetTimelineFrame(frame);
+            _view.ShowInfo($"Timeline frame fijado en {frame}.");
+        });
+    }
+
     public void OnClearWarnings() => _view.SetConstraintWarnings(Array.Empty<string>());
 
     public void OnRefreshLayer(FaceLayer layer)
