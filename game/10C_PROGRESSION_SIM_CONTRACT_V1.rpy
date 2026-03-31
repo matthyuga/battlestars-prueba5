@@ -91,6 +91,39 @@ init -875 python:
         trigger_uid = str(ec.get("trigger_uid", "t0") or "t0")
         return "mbe::%s::%s::%s::%s" % (match_id, event_key, actor_id, trigger_uid)
 
+    def sim_is_mid_battle_actor_authorized(event_ctx, battle_ctx=None):
+        """
+        E3 - Regla mínima host/invitado para grants mid-battle.
+        Si multiplayer no está activo, permite (compat backward).
+        """
+        ec = event_ctx if isinstance(event_ctx, dict) else {}
+        bc = battle_ctx if isinstance(battle_ctx, dict) else {}
+
+        if not bool(bc.get("multiplayer_enabled", False)):
+            return {"ok": True, "reason": "single_player_or_disabled"}
+
+        actor_id = str(ec.get("actor_id", "") or "").strip()
+        if actor_id == "":
+            return {"ok": False, "reason": "missing_actor_id"}
+
+        host_actor_id = str(bc.get("host_actor_id", "") or "").strip()
+        strict_host_only = bool(bc.get("strict_host_only", False))
+        guest_ids = bc.get("allowed_guest_actor_ids", [])
+        if not isinstance(guest_ids, list):
+            guest_ids = []
+        guest_set = set([str(x or "").strip() for x in guest_ids if str(x or "").strip() != ""])
+
+        if strict_host_only:
+            if host_actor_id != "" and actor_id == host_actor_id:
+                return {"ok": True, "reason": "host_allowed_strict"}
+            return {"ok": False, "reason": "strict_host_only_block"}
+
+        if host_actor_id != "" and actor_id == host_actor_id:
+            return {"ok": True, "reason": "host_allowed"}
+        if actor_id in guest_set:
+            return {"ok": True, "reason": "guest_allowed"}
+        return {"ok": False, "reason": "actor_not_allowed_in_session"}
+
     def sim_validate_mid_battle_event(event_ctx):
         """
         D1 - Validador de catálogo de eventos mid-battle.
@@ -237,6 +270,8 @@ init -875 python:
                 "trigger_uid": str(ec.get("trigger_uid", "") or ""),
                 "canonical_trigger_key": str(ec.get("canonical_trigger_key", "") or ""),
                 "match_id": match_id,
+                "session_id": str(bc.get("session_id", "") or ""),
+                "host_actor_id": str(bc.get("host_actor_id", "") or ""),
             },
         }
 
@@ -302,6 +337,18 @@ init -875 python:
                 "result": {},
                 "persist": {"ok": False, "skipped": True},
                 "apply": {"ok": False, "skipped": True},
+            }
+
+        auth = sim_is_mid_battle_actor_authorized(ec, bc)
+        if not bool(auth.get("ok", False)):
+            return {
+                "ok": False,
+                "errors": [],
+                "warnings": ["authz_block: %s" % str(auth.get("reason", "unknown") or "unknown")],
+                "request": req,
+                "result": {},
+                "persist": {"ok": False, "skipped": True, "reason": "authz_block"},
+                "apply": {"ok": False, "skipped": True, "reason": "authz_block"},
             }
 
         # D5 Guard rail #1: límite de grants por match.
@@ -419,6 +466,8 @@ init -875 python:
             "apply_ok": bool(apply_report.get("ok", False)),
             "apply_total_exp": _sim_to_int(apply_report.get("total_exp", 0), 0),
             "apply_total_oro": _sim_to_int(apply_report.get("total_oro", 0), 0),
+            "session_id": str(mm.get("session_id", "") or ""),
+            "host_actor_id": str(mm.get("host_actor_id", "") or ""),
             "actors": actor_rows,
         })
         if len(log) > 300:
@@ -1890,6 +1939,19 @@ init -875 python:
                 _sim_to_int(r2.get("apply", {}).get("total_oro", -1), -1) == 0
             )
             _push("d3_retry_no_double_pay", no_double)
+
+            # E3 - actor fuera de lista permitida en sesión multiplayer debe bloquearse.
+            ev_block = copy.deepcopy(ev)
+            ev_block["actor_id"] = "guest_forbidden"
+            ev_block["trigger_uid"] = "proc_block_001"
+            bc_auth = copy.deepcopy(bc)
+            bc_auth["multiplayer_enabled"] = True
+            bc_auth["host_actor_id"] = "player_1"
+            bc_auth["allowed_guest_actor_ids"] = ["alpha_guest_1"]
+            bc_auth["idempotency_registry"] = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+            r_block = sim_run_mid_battle_event(ev_block, bc_auth)
+            blocked = (not bool(r_block.get("ok", True))) and ("authz_block" in " ".join(r_block.get("warnings", [])))
+            _push("d3_blocks_unauthorized_guest_actor", blocked)
 
             log = getattr(S, "sim_mid_battle_event_log_v1", [])
             _push("d3_event_log_written", isinstance(log, list) and len(log) >= 1)
