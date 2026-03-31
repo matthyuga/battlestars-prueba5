@@ -316,7 +316,7 @@ screen navigation():
             textbutton _("Start") action Start()
             textbutton _("Start Historia (Piloto)") action Start("story_phaseA_intro")
             if config.developer:
-                textbutton _("Sim Lab Sandbox (Dev)") action ShowMenu("sim_lab_v1")
+                textbutton _("Sim Lab Sandbox (Dev)") action Start("sim_lab_open")
 
         else:
 
@@ -1009,7 +1009,7 @@ screen help():
                 textbutton _("Oro Grid") action SetScreenVariable("device", "oro_grid")
                 textbutton _("Stars Score") action SetScreenVariable("device", "stars_score")
                 if config.developer:
-                    textbutton _("SIM Lab (Dev)") action ShowMenu("sim_lab_v1")
+                    textbutton _("SIM Lab (Dev)") action Call("sim_lab_open")
 
                 if GamepadExists():
                     textbutton _("Gamepad") action SetScreenVariable("device", "gamepad")
