@@ -26,6 +26,12 @@ Este módulo es una base C# para construir un editor de expresiones faciales de 
 - Añadir tests unitarios automáticos.
 
 
+## Avance Fase 4 (inicio)
+- Se añadió proyecto de tests unitarios `tests/ExpressionLayerEditorSkeleton.Tests` con cobertura inicial para:
+  - `JsonFilePresetRepository`
+  - `ExpressionLayerEditorOrchestrator`
+  - `ExpressionEditorController`
+
 ## Avance Fase 3 (inicio)
 - Se añadieron hooks de timeline en la vista (`set frame`, `autokey`, `blend por rango`, `preset por rango`) para integración básica.
 - Se añadió método de controller para fijar frame (`OnSetTimelineFrame`).
