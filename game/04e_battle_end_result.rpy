@@ -61,6 +61,7 @@ label battle_end:
             "repetition_count": int(getattr(S, "story_pilot_repetition_count", 1) or 1),
             "preset": str(getattr(S, "story_pilot_reward_preset", "medium_v2") or "medium_v2"),
             "multi_factor_enabled": bool(getattr(S, "story_pilot_multi_factor_enabled", True)),
+            "idempotency_registry": getattr(S, "sim_idempotency_registry_v1", {}),
         }
 
         # Bridge opcional con panel RPG si existe estado persistente.
@@ -91,6 +92,14 @@ label battle_end:
             pack = fn_sim(runtime=runtime)
             S.sim_battle_end_last_request_v1 = pack.get("request", {})
             S.sim_battle_end_last_result_v1 = pack.get("result", {})
+            fn_persist = getattr(S, "sim_persist_simulation_artifacts", None)
+            if callable(fn_persist):
+                S.sim_battle_end_last_persist_v1 = fn_persist(pack)
+            else:
+                S.sim_battle_end_last_persist_v1 = {
+                    "ok": False,
+                    "error": "sim_persist_simulation_artifacts no disponible en store.",
+                }
         else:
             # Fallback seguro: sin crash, deja evidencia en audit-like.
             S.sim_battle_end_last_request_v1 = {}
@@ -101,6 +110,10 @@ label battle_end:
                     "errors": ["sim_run_battle_end_simulation no disponible en store."],
                     "sim_contract_version": "v1",
                 },
+            }
+            S.sim_battle_end_last_persist_v1 = {
+                "ok": False,
+                "error": "sim_run_battle_end_simulation no disponible en store.",
             }
 
     # --- Limpieza global de efectos visuales y HUD ---

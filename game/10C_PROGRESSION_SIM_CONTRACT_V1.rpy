@@ -7,6 +7,7 @@ init -875 python:
 
     import copy
     import json
+    import time
 
     SIM_CONTRACT_VERSION = "v1"
 
@@ -753,6 +754,62 @@ init -875 python:
         return {
             "request": req,
             "result": res,
+        }
+
+    def sim_persist_simulation_artifacts(sim_pack, max_log_items=300):
+        """
+        C5 - Persistencia de audit + idempotency registry.
+        Guarda:
+          - registry en store (session/runtime)
+          - snapshots de auditoría en persistent
+        """
+        import renpy
+        import renpy.store as S
+
+        pack = sim_pack if isinstance(sim_pack, dict) else {}
+        req = pack.get("request", {}) if isinstance(pack.get("request", {}), dict) else {}
+        res = pack.get("result", {}) if isinstance(pack.get("result", {}), dict) else {}
+        audit = res.get("audit", {}) if isinstance(res.get("audit", {}), dict) else {}
+        idem = audit.get("idempotency", {}) if isinstance(audit.get("idempotency", {}), dict) else {}
+
+        registry_out = idem.get("registry_out", {}) if isinstance(idem.get("registry_out", {}), dict) else {}
+        S.sim_idempotency_registry_v1 = copy.deepcopy(registry_out)
+        # Alias para C1/C2 (sources lookup por clave directa).
+        S.idempotency_registry = copy.deepcopy(registry_out)
+
+        snap = {
+            "ts_unix": int(time.time()),
+            "simulation_id": str(res.get("simulation_id", req.get("simulation_id", "sim_unknown")) or "sim_unknown"),
+            "source": str(req.get("source", "unknown") or "unknown"),
+            "mode": str(res.get("mode", req.get("mode", "custom")) or "custom"),
+            "winner_team": str(res.get("winner_team", req.get("winner_team", "DRAW")) or "DRAW"),
+            "reward_event_id": str(req.get("reward_event_id", "") or ""),
+            "errors": list(audit.get("errors", [])) if isinstance(audit.get("errors", []), list) else [],
+            "warnings": list(audit.get("warnings", [])) if isinstance(audit.get("warnings", []), list) else [],
+            "idempotency": {
+                "enabled": bool(idem.get("enabled", False)),
+                "event_id": str(idem.get("event_id", "") or ""),
+                "statuses": list(idem.get("statuses", [])) if isinstance(idem.get("statuses", []), list) else [],
+                "registry_size": len(registry_out),
+            },
+        }
+
+        cur = getattr(S.persistent, "sim_audit_log_v1", None)
+        if not isinstance(cur, list):
+            cur = []
+        cur.append(snap)
+
+        lim = max(50, _sim_to_int(max_log_items, 300))
+        if len(cur) > lim:
+            cur = cur[-lim:]
+        S.persistent.sim_audit_log_v1 = cur
+        renpy.save_persistent()
+
+        return {
+            "ok": True,
+            "registry_size": len(registry_out),
+            "audit_items": len(cur),
+            "last_snapshot": snap,
         }
 
     def sim_apply_reward_event_idempotency(normalized_request, results):
