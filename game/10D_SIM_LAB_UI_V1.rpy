@@ -335,19 +335,33 @@ init -870 python:
         return S.sim_lab_export_text_v1
 
     def sim_lab_run_smoke_checklist():
-        fn = getattr(S, "sim_run_phaseA_tests", None)
-        if callable(fn):
-            raw = fn()
+        out = []
+
+        fn_a = getattr(S, "sim_run_phaseA_tests", None)
+        if callable(fn_a):
+            raw = fn_a()
             if isinstance(raw, list):
-                S.sim_lab_smoke_results_v1 = raw
-            else:
-                S.sim_lab_smoke_results_v1 = []
+                out.extend(raw)
         else:
-            S.sim_lab_smoke_results_v1 = [{
+            out.append({
                 "name": "phaseA_tests_unavailable",
                 "ok": False,
                 "detail": "sim_run_phaseA_tests no disponible.",
-            }]
+            })
+
+        fn_c = getattr(S, "sim_run_phaseC_e2e_tests", None)
+        if callable(fn_c):
+            raw_c = fn_c()
+            if isinstance(raw_c, list):
+                out.extend(raw_c)
+        else:
+            out.append({
+                "name": "phaseC_e2e_tests_unavailable",
+                "ok": False,
+                "detail": "sim_run_phaseC_e2e_tests no disponible.",
+            })
+
+        S.sim_lab_smoke_results_v1 = out
         return S.sim_lab_smoke_results_v1
 
 

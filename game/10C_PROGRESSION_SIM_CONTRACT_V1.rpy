@@ -1199,3 +1199,92 @@ init -875 python:
         _push("c1_reward_event_id_autogen", rid != "")
 
         return out
+
+    def sim_run_phaseC_e2e_tests():
+        """
+        C6 - QA E2E mínimo para integración C2/C5/C3/C4.
+        Retorna lista [{name, ok, detail}].
+        """
+        import renpy.store as S
+
+        out = []
+
+        def _push(name, ok, detail=""):
+            out.append({"name": name, "ok": bool(ok), "detail": str(detail or "")})
+
+        # Snapshot para evitar side-effects en sesión QA.
+        snap_player_exp = _sim_to_int(getattr(S, "player_exp", 0), 0)
+        snap_player_oro = _sim_to_int(getattr(S, "player_oro", 0), 0)
+        snap_registry = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+        snap_apply = copy.deepcopy(getattr(S, "sim_battle_end_last_apply_v1", {}))
+
+        try:
+            runtime = {
+                "source": "battle_end",
+                "battle_id": "c6_e2e_1v1",
+                "result": "victory",
+                "player_hp": 120,
+                "enemy_hp": 0,
+                "player_level": 10,
+                "player_register": 1,
+                "player_exp": snap_player_exp,
+                "player_exp_max": 100,
+                "player_oro": snap_player_oro,
+                "player_actor_type": "PLAYER",
+                "enemy_level": 10,
+                "enemy_register": 1,
+                "enemy_actor_type": "BETA",
+                "idempotency_registry": copy.deepcopy(snap_registry),
+            }
+
+            # 1) Simulación y aplicación inicial.
+            pack1 = sim_run_battle_end_simulation(runtime=runtime)
+            res1 = pack1.get("result", {}) if isinstance(pack1.get("result", {}), dict) else {}
+            rows1 = res1.get("results", []) if isinstance(res1.get("results", []), list) else []
+            apply1 = sim_apply_simulation_rewards_to_runtime(pack1)
+            persist1 = sim_persist_simulation_artifacts(pack1)
+
+            ok1 = isinstance(rows1, list) and len(rows1) >= 1 and bool(apply1.get("ok", False))
+            _push("c6_real_1v1_pipeline", ok1)
+
+            # 2) Reintento mismo evento -> no doble pago.
+            reg_after_1 = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+            runtime_retry = copy.deepcopy(runtime)
+            runtime_retry["idempotency_registry"] = reg_after_1
+            pack2 = sim_run_battle_end_simulation(runtime=runtime_retry)
+            apply2 = sim_apply_simulation_rewards_to_runtime(pack2)
+            no_double = (_sim_to_int(apply2.get("total_exp", -1), -1) == 0 and _sim_to_int(apply2.get("total_oro", -1), -1) == 0)
+            _push("c6_no_double_payment_retry", no_double)
+
+            # 3) Coherencia cálculo vs resumen/aplicación (C4 consume estos mismos datos).
+            sum_exp = 0
+            sum_oro = 0
+            for rr in rows1:
+                if not isinstance(rr, dict):
+                    continue
+                ff = rr.get("final", {}) if isinstance(rr.get("final", {}), dict) else {}
+                if bool(rr.get("eligible", False)):
+                    sum_exp += max(0, _sim_to_int(ff.get("exp_gain", 0), 0))
+                    sum_oro += max(0, _sim_to_int(ff.get("oro_gain", 0), 0))
+
+            # C3 aplica solo PLAYER por alcance v1.
+            # Verificamos que apply report sea <= suma total elegible.
+            ok3 = (
+                _sim_to_int(apply1.get("total_exp", -1), -1) >= 0 and
+                _sim_to_int(apply1.get("total_oro", -1), -1) >= 0 and
+                _sim_to_int(apply1.get("total_exp", 0), 0) <= sum_exp and
+                _sim_to_int(apply1.get("total_oro", 0), 0) <= sum_oro
+            )
+            _push("c6_view_matches_calculation_source", ok3)
+
+            # 4) Persistencia mínima disponible.
+            _push("c6_audit_registry_persisted", bool(persist1.get("ok", False)))
+
+        finally:
+            # Restore snapshot (safe helper QA).
+            S.player_exp = snap_player_exp
+            S.player_oro = snap_player_oro
+            S.sim_idempotency_registry_v1 = snap_registry
+            S.sim_battle_end_last_apply_v1 = snap_apply
+
+        return out
