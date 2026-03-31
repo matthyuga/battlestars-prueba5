@@ -26,6 +26,10 @@ Este módulo es una base C# para construir un editor de expresiones faciales de 
 - Añadir tests unitarios automáticos.
 
 
+## Avance Fase 1 (inicio)
+- `BepInExCharacterRuntimeAdapter` ahora tiene manejo defensivo de errores, fallback de personaje válido y cache de registry por personaje.
+- `TimelinePluginBridge` ahora degrada de forma segura ante errores (sin romper flujo) y reporta warnings por logger.
+
 ## Avance Fase 0 (inicio)
 - Los adapters de host ya pueden cablearse por delegados (`BepInExCharacterRuntimeAdapter`, `TimelinePluginBridge`, `BepInExLogger`) sin depender de tipos de Unity/BepInEx dentro de este proyecto.
 - Se añadió `Phase0VerticalSliceBootstrap` para armar rápidamente el par `(orchestrator, controller)` con adapters reales del host.
