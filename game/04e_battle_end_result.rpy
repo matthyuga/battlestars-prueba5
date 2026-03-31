@@ -94,7 +94,13 @@ label battle_end:
             S.sim_battle_end_last_result_v1 = pack.get("result", {})
             fn_persist = getattr(S, "sim_persist_simulation_artifacts", None)
             if callable(fn_persist):
-                S.sim_battle_end_last_persist_v1 = fn_persist(pack)
+                try:
+                    S.sim_battle_end_last_persist_v1 = fn_persist(pack)
+                except Exception as ex:
+                    S.sim_battle_end_last_persist_v1 = {
+                        "ok": False,
+                        "error": "persist_exception: %s" % ex,
+                    }
             else:
                 S.sim_battle_end_last_persist_v1 = {
                     "ok": False,
@@ -102,7 +108,13 @@ label battle_end:
                 }
             fn_apply = getattr(S, "sim_apply_simulation_rewards_to_runtime", None)
             if callable(fn_apply):
-                S.sim_battle_end_last_apply_v1 = fn_apply(pack)
+                try:
+                    S.sim_battle_end_last_apply_v1 = fn_apply(pack)
+                except Exception as ex:
+                    S.sim_battle_end_last_apply_v1 = {
+                        "ok": False,
+                        "error": "apply_exception: %s" % ex,
+                    }
             else:
                 S.sim_battle_end_last_apply_v1 = {
                     "ok": False,

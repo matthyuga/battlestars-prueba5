@@ -315,6 +315,8 @@ screen navigation():
 
             textbutton _("Start") action Start()
             textbutton _("Start Historia (Piloto)") action Start("story_phaseA_intro")
+            if config.developer:
+                textbutton _("Sim Lab Sandbox (Dev)") action ShowMenu("sim_lab_v1")
 
         else:
 
