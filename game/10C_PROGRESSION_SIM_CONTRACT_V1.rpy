@@ -235,6 +235,81 @@ init -875 python:
             "event": ec,
         }
 
+    def sim_run_mid_battle_event(event_ctx, battle_ctx=None):
+        """
+        D3 - Pipeline runtime para trigger mid-battle:
+        build -> run -> persist -> apply
+        """
+        import renpy.store as S
+
+        ec = event_ctx if isinstance(event_ctx, dict) else {}
+        bc = copy.deepcopy(battle_ctx if isinstance(battle_ctx, dict) else {})
+
+        if "idempotency_registry" not in bc:
+            bc["idempotency_registry"] = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+        if "match_id" not in bc:
+            bc["match_id"] = str(getattr(S, "story_pilot_battle_id", "match_unknown") or "match_unknown")
+
+        bridge = sim_build_request_from_mid_battle_event(ec, bc)
+        if not bridge.get("ok", False):
+            return {
+                "ok": False,
+                "errors": list(bridge.get("errors", [])),
+                "warnings": list(bridge.get("warnings", [])),
+                "request": {},
+                "result": {},
+                "persist": {"ok": False},
+                "apply": {"ok": False},
+            }
+
+        req = bridge.get("request", {}) if isinstance(bridge.get("request", {}), dict) else {}
+        cfg = req.get("config", {}) if isinstance(req.get("config", {}), dict) else {}
+        if not bool(cfg.get("allow_mid_battle_grants", True)):
+            return {
+                "ok": False,
+                "errors": [],
+                "warnings": ["allow_mid_battle_grants=false: trigger ignorado."],
+                "request": req,
+                "result": {},
+                "persist": {"ok": False, "skipped": True},
+                "apply": {"ok": False, "skipped": True},
+            }
+
+        res = run_simulation(req)
+        pack = {
+            "request": req,
+            "result": res,
+            "event": bridge.get("event", {}),
+        }
+        persist = sim_persist_simulation_artifacts(pack)
+        apply_report = sim_apply_simulation_rewards_to_runtime(pack)
+
+        log = getattr(S, "sim_mid_battle_event_log_v1", None)
+        if not isinstance(log, list):
+            log = []
+        log.append({
+            "event_key": str(req.get("mid_battle_meta", {}).get("event_key", "") or ""),
+            "reward_event_id": str(req.get("reward_event_id", "") or ""),
+            "canonical_trigger_key": str(req.get("mid_battle_meta", {}).get("canonical_trigger_key", "") or ""),
+            "persist_ok": bool(persist.get("ok", False)),
+            "apply_ok": bool(apply_report.get("ok", False)),
+            "apply_total_exp": _sim_to_int(apply_report.get("total_exp", 0), 0),
+            "apply_total_oro": _sim_to_int(apply_report.get("total_oro", 0), 0),
+        })
+        if len(log) > 300:
+            log = log[-300:]
+        S.sim_mid_battle_event_log_v1 = log
+
+        return {
+            "ok": True,
+            "errors": list(bridge.get("errors", [])),
+            "warnings": list(bridge.get("warnings", [])),
+            "request": req,
+            "result": res,
+            "persist": persist,
+            "apply": apply_report,
+        }
+
     def sim_build_min_request():
         """
         Request mínimo válido para pruebas de contrato.
@@ -1553,6 +1628,63 @@ init -875 python:
         _push("d2_bridge_with_battle_ctx_ok", bool(bridge2.get("ok", False)))
         _push("d2_bridge_mode_2v2", str(req2.get("mode", "")) == "2v2")
         _push("d2_bridge_actors_shape", len(req2.get("actors", [])) == 4)
+
+        return out
+
+    def sim_run_d3_mid_battle_tests():
+        """
+        D3 - Smoke tests del pipeline mid-battle runtime.
+        """
+        import renpy.store as S
+
+        out = []
+
+        def _push(name, ok, detail=""):
+            out.append({"name": name, "ok": bool(ok), "detail": str(detail or "")})
+
+        snap_registry = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+        snap_log = copy.deepcopy(getattr(S, "sim_mid_battle_event_log_v1", []))
+        snap_apply = copy.deepcopy(getattr(S, "sim_battle_end_last_apply_v1", {}))
+
+        try:
+            ev = {
+                "event_key": "passive_proc",
+                "actor_id": "player_1",
+                "actor_type": "PLAYER",
+                "team": "A",
+                "match_id": "d3_smoke_m1",
+                "trigger_uid": "proc001",
+                "level": 10,
+                "register": 1,
+            }
+            bc = {
+                "mode": "1v1",
+                "team_a_actors": [{"actor_id": "player_1", "actor_type": "PLAYER", "level": 10, "register": 1}],
+                "team_b_actors": [{"actor_id": "beta_e1", "actor_type": "BETA", "level": 10, "register": 1}],
+                "idempotency_registry": copy.deepcopy(snap_registry),
+            }
+
+            r1 = sim_run_mid_battle_event(ev, bc)
+            _push("d3_first_trigger_ok", bool(r1.get("ok", False)))
+            _push("d3_first_trigger_applies", _sim_to_int(r1.get("apply", {}).get("total_exp", 0), 0) >= 0)
+
+            # Retry exacto con registry actualizado => no doble pago.
+            reg2 = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+            bc2 = copy.deepcopy(bc)
+            bc2["idempotency_registry"] = reg2
+            r2 = sim_run_mid_battle_event(ev, bc2)
+            no_double = (
+                _sim_to_int(r2.get("apply", {}).get("total_exp", -1), -1) == 0 and
+                _sim_to_int(r2.get("apply", {}).get("total_oro", -1), -1) == 0
+            )
+            _push("d3_retry_no_double_pay", no_double)
+
+            log = getattr(S, "sim_mid_battle_event_log_v1", [])
+            _push("d3_event_log_written", isinstance(log, list) and len(log) >= 1)
+        finally:
+            S.sim_idempotency_registry_v1 = snap_registry
+            S.sim_mid_battle_event_log_v1 = snap_log
+            S.sim_battle_end_last_apply_v1 = snap_apply
 
         return out
 
