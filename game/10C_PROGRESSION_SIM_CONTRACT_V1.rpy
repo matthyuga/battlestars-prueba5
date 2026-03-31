@@ -815,8 +815,10 @@ init -875 python:
     def sim_apply_simulation_rewards_to_runtime(sim_pack):
         """
         C3 - Aplicación real de recompensas visibles (v1).
-        Alcance inicial:
-          - Aplica rewards del actor PLAYER al store runtime.
+        Alcance:
+          - Aplica rewards para actor_type PLAYER / ALPHA / DELTA.
+          - PLAYER: muta player_exp/player_oro + bridge opcional panel RPG.
+          - ALPHA/DELTA: muta wallet runtime por actor_id.
           - Mantiene trazabilidad en `sim_battle_end_last_apply_v1`.
         """
         import renpy.store as S
@@ -836,6 +838,11 @@ init -875 python:
         total_exp = 0
         total_oro = 0
 
+        # Wallet runtime para ALPHA/DELTA (persistencia de sesión).
+        wallet = getattr(S, "sim_actor_runtime_wallet_v1", None)
+        if not isinstance(wallet, dict):
+            wallet = {}
+
         for rr in results:
             if not isinstance(rr, dict):
                 continue
@@ -847,23 +854,32 @@ init -875 python:
             exp_gain = max(0, _sim_to_int(ff.get("exp_gain", 0), 0))
             oro_gain = max(0, _sim_to_int(ff.get("oro_gain", 0), 0))
 
-            if (not eligible) or actor_type != "PLAYER":
+            if (not eligible) or actor_type not in ("PLAYER", "ALPHA", "DELTA"):
                 continue
             if exp_gain <= 0 and oro_gain <= 0:
                 continue
 
-            # Store runtime principal.
-            S.player_exp = max(0, _sim_to_int(getattr(S, "player_exp", 0), 0) + exp_gain)
-            S.player_oro = max(0, _sim_to_int(getattr(S, "player_oro", 0), 0) + oro_gain)
+            if actor_type == "PLAYER":
+                # Store runtime principal (jugador).
+                S.player_exp = max(0, _sim_to_int(getattr(S, "player_exp", 0), 0) + exp_gain)
+                S.player_oro = max(0, _sim_to_int(getattr(S, "player_oro", 0), 0) + oro_gain)
 
-            # Bridge opcional con panel RPG.
-            st = getattr(S, "rpg_panel_state_v1", None)
-            if isinstance(st, dict):
-                p = st.get("player", {}) if isinstance(st.get("player", {}), dict) else {}
-                p["exp_current"] = max(0, _sim_to_int(p.get("exp_current", 0), 0) + exp_gain)
-                p["oro_current"] = max(0, _sim_to_int(p.get("oro_current", 0), 0) + oro_gain)
-                st["player"] = p
-                S.rpg_panel_state_v1 = st
+                # Bridge opcional con panel RPG.
+                st = getattr(S, "rpg_panel_state_v1", None)
+                if isinstance(st, dict):
+                    p = st.get("player", {}) if isinstance(st.get("player", {}), dict) else {}
+                    p["exp_current"] = max(0, _sim_to_int(p.get("exp_current", 0), 0) + exp_gain)
+                    p["oro_current"] = max(0, _sim_to_int(p.get("oro_current", 0), 0) + oro_gain)
+                    st["player"] = p
+                    S.rpg_panel_state_v1 = st
+            else:
+                # Runtime wallet para actores progresables no jugador (ALPHA/DELTA).
+                cur = wallet.get(actor_id, {}) if isinstance(wallet.get(actor_id, {}), dict) else {}
+                cur["actor_id"] = actor_id
+                cur["actor_type"] = actor_type
+                cur["exp"] = max(0, _sim_to_int(cur.get("exp", 0), 0) + exp_gain)
+                cur["oro"] = max(0, _sim_to_int(cur.get("oro", 0), 0) + oro_gain)
+                wallet[actor_id] = cur
 
             total_exp += exp_gain
             total_oro += oro_gain
@@ -873,6 +889,8 @@ init -875 python:
                 "exp_gain": exp_gain,
                 "oro_gain": oro_gain,
             })
+
+        S.sim_actor_runtime_wallet_v1 = wallet
 
         report = {
             "ok": True,
@@ -1217,6 +1235,7 @@ init -875 python:
         snap_player_oro = _sim_to_int(getattr(S, "player_oro", 0), 0)
         snap_registry = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
         snap_apply = copy.deepcopy(getattr(S, "sim_battle_end_last_apply_v1", {}))
+        snap_wallet = copy.deepcopy(getattr(S, "sim_actor_runtime_wallet_v1", {}))
 
         try:
             runtime = {
@@ -1256,6 +1275,34 @@ init -875 python:
             no_double = (_sim_to_int(apply2.get("total_exp", -1), -1) == 0 and _sim_to_int(apply2.get("total_oro", -1), -1) == 0)
             _push("c6_no_double_payment_retry", no_double)
 
+            # 2b) C3 ampliado: aplica también ALPHA/DELTA en wallet runtime.
+            req_ad = {
+                "sim_contract_version": SIM_CONTRACT_VERSION,
+                "simulation_id": "c6_alpha_delta",
+                "mode": "2v2",
+                "source": "battle_end",
+                "event_type": "victory",
+                "winner_team": "A",
+                "reward_event_id": "c6::alpha_delta::1",
+                "actors": [
+                    {"actor_id": "player_1", "actor_type": "PLAYER", "team": "A", "level": 10, "register": 1, "exp_current": snap_player_exp, "exp_max": 100, "oro_current": snap_player_oro, "stars": {"ofensiva": 4, "defensiva": 4, "control": 4, "eficiencia": 4, "tecnica": 4, "impacto": 4}, "flags": {"eligible_rewards": True}},
+                    {"actor_id": "alpha_a1", "actor_type": "ALPHA", "team": "A", "level": 20, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 3, "defensiva": 3, "control": 3, "eficiencia": 3, "tecnica": 3, "impacto": 3}, "flags": {"eligible_rewards": True}},
+                    {"actor_id": "delta_b1", "actor_type": "DELTA", "team": "B", "level": 20, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 2, "defensiva": 2, "control": 2, "eficiencia": 2, "tecnica": 2, "impacto": 2}, "flags": {"eligible_rewards": True}},
+                    {"actor_id": "beta_b2", "actor_type": "BETA", "team": "B", "level": 20, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 1, "defensiva": 1, "control": 1, "eficiencia": 1, "tecnica": 1, "impacto": 1}, "flags": {"eligible_rewards": True}},
+                ],
+                "config": {"preset": "medium_v2", "allow_mid_battle_grants": True, "repetition_count": 1, "multi_factor_enabled": True},
+            }
+            pack_ad = {"request": req_ad, "result": run_simulation(req_ad)}
+            sim_apply_simulation_rewards_to_runtime(pack_ad)
+            wallet_after = getattr(S, "sim_actor_runtime_wallet_v1", {})
+            ok_ad = (
+                isinstance(wallet_after, dict) and
+                "alpha_a1" in wallet_after and
+                "delta_b1" in wallet_after and
+                "beta_b2" not in wallet_after
+            )
+            _push("c6_c3_alpha_delta_wallet_apply", ok_ad)
+
             # 3) Coherencia cálculo vs resumen/aplicación (C4 consume estos mismos datos).
             sum_exp = 0
             sum_oro = 0
@@ -1267,8 +1314,7 @@ init -875 python:
                     sum_exp += max(0, _sim_to_int(ff.get("exp_gain", 0), 0))
                     sum_oro += max(0, _sim_to_int(ff.get("oro_gain", 0), 0))
 
-            # C3 aplica solo PLAYER por alcance v1.
-            # Verificamos que apply report sea <= suma total elegible.
+            # C3 aplica PLAYER/ALPHA/DELTA; el total aplicado no debe exceder elegible.
             ok3 = (
                 _sim_to_int(apply1.get("total_exp", -1), -1) >= 0 and
                 _sim_to_int(apply1.get("total_oro", -1), -1) >= 0 and
@@ -1286,5 +1332,6 @@ init -875 python:
             S.player_oro = snap_player_oro
             S.sim_idempotency_registry_v1 = snap_registry
             S.sim_battle_end_last_apply_v1 = snap_apply
+            S.sim_actor_runtime_wallet_v1 = snap_wallet
 
         return out
