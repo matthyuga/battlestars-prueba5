@@ -543,6 +543,8 @@ label sim_lab_open:
 
 screen sim_lab_v1():
     tag menu
+    modal True
+    zorder 200
 
     $ st = sim_lab_get_state()
     $ cfg = st.get("config", {}) if isinstance(st.get("config", {}), dict) else {}
