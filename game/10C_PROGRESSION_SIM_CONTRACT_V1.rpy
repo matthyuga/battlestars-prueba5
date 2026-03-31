@@ -17,6 +17,29 @@ init -875 python:
     SIM_ALLOWED_WINNER_TEAM = ("A", "B", "DRAW")
     SIM_ALLOWED_ACTOR_TYPES = ("PLAYER", "ALPHA", "BETA", "GAMMA", "DELTA")
     SIM_ALLOWED_TEAMS = ("A", "B")
+    SIM_ALLOWED_MID_BATTLE_EVENTS = ("passive_proc", "technique_proc", "item_proc")
+
+    # D1 - Catálogo canónico de eventos mid-battle.
+    SIM_MID_BATTLE_EVENT_CATALOG_V1 = {
+        "passive_proc": {
+            "enabled": True,
+            "description": "Proc de pasiva por condición de combate.",
+            "allowed_actor_types": ("PLAYER", "ALPHA", "DELTA"),
+            "required_fields": ("event_key", "actor_id", "match_id", "trigger_uid"),
+        },
+        "technique_proc": {
+            "enabled": True,
+            "description": "Activación exitosa de técnica especial.",
+            "allowed_actor_types": ("PLAYER", "ALPHA", "DELTA"),
+            "required_fields": ("event_key", "actor_id", "match_id", "trigger_uid"),
+        },
+        "item_proc": {
+            "enabled": True,
+            "description": "Disparo de recompensa condicional por item.",
+            "allowed_actor_types": ("PLAYER", "ALPHA", "DELTA"),
+            "required_fields": ("event_key", "actor_id", "match_id", "trigger_uid"),
+        },
+    }
 
     SIM_STAR_KEYS = ("ofensiva", "defensiva", "control", "eficiencia", "tecnica", "impacto")
     SIM_RISK_EXP_TABLE = {
@@ -41,6 +64,66 @@ init -875 python:
         if vv > hi:
             return hi
         return vv
+
+    def sim_build_mid_battle_reward_event_id(event_ctx):
+        ec = event_ctx if isinstance(event_ctx, dict) else {}
+        match_id = str(ec.get("match_id", "match_unknown") or "match_unknown")
+        event_key = str(ec.get("event_key", "event_unknown") or "event_unknown")
+        actor_id = str(ec.get("actor_id", "actor_unknown") or "actor_unknown")
+        trigger_uid = str(ec.get("trigger_uid", "t0") or "t0")
+        return "mbe::%s::%s::%s::%s" % (match_id, event_key, actor_id, trigger_uid)
+
+    def sim_validate_mid_battle_event(event_ctx):
+        """
+        D1 - Validador de catálogo de eventos mid-battle.
+        """
+        ec = copy.deepcopy(event_ctx if isinstance(event_ctx, dict) else {})
+        errors = []
+        warnings = []
+
+        event_key = str(ec.get("event_key", "") or "").strip()
+        if event_key not in SIM_ALLOWED_MID_BATTLE_EVENTS:
+            errors.append("event_key inválido/no catalogado: %s" % event_key)
+            return {"ok": False, "errors": errors, "warnings": warnings, "normalized": ec}
+
+        meta = SIM_MID_BATTLE_EVENT_CATALOG_V1.get(event_key, {})
+        if not bool(meta.get("enabled", False)):
+            errors.append("event_key deshabilitado: %s" % event_key)
+
+        req_fields = meta.get("required_fields", ())
+        for f in req_fields:
+            vv = ec.get(f, None)
+            if vv is None or str(vv).strip() == "":
+                errors.append("campo requerido ausente en mid_battle_event: %s" % f)
+
+        actor_type = str(ec.get("actor_type", "PLAYER") or "PLAYER").upper()
+        allowed_types = meta.get("allowed_actor_types", ())
+        if len(allowed_types) > 0 and actor_type not in allowed_types:
+            errors.append("actor_type no permitido para %s: %s" % (event_key, actor_type))
+
+        ec["source"] = "mid_battle_event"
+        ec["event_type"] = "conditional_gain"
+        ec["event_key"] = event_key
+        ec["actor_type"] = actor_type
+
+        if str(ec.get("reward_event_id", "") or "").strip() == "":
+            ec["reward_event_id"] = sim_build_mid_battle_reward_event_id(ec)
+            warnings.append("reward_event_id no provisto; se autogenera desde match/event/actor/trigger.")
+
+        # canon para dedupe semántico adicional
+        ec["canonical_trigger_key"] = "%s|%s|%s|%s" % (
+            str(ec.get("match_id", "") or ""),
+            event_key,
+            str(ec.get("actor_id", "") or ""),
+            str(ec.get("trigger_uid", "") or ""),
+        )
+
+        return {
+            "ok": (len(errors) == 0),
+            "errors": errors,
+            "warnings": warnings,
+            "normalized": ec,
+        }
 
     def sim_build_min_request():
         """
@@ -1282,6 +1365,41 @@ init -875 python:
         # Caso 3: event id autogenerado cuando no viene en runtime.
         rid = str(req2.get("reward_event_id", "") or "")
         _push("c1_reward_event_id_autogen", rid != "")
+
+        return out
+
+    def sim_run_d1_catalog_tests():
+        """
+        D1 - Smoke tests del catálogo mid-battle.
+        """
+        out = []
+
+        def _push(name, ok, detail=""):
+            out.append({"name": name, "ok": bool(ok), "detail": str(detail or "")})
+
+        ok_keys = list(SIM_ALLOWED_MID_BATTLE_EVENTS)
+        _push("d1_catalog_has_min_2_events", len(ok_keys) >= 2)
+
+        ev_ok = {
+            "event_key": "passive_proc",
+            "actor_id": "player_1",
+            "actor_type": "PLAYER",
+            "match_id": "m1",
+            "trigger_uid": "t01",
+        }
+        v1 = sim_validate_mid_battle_event(ev_ok)
+        _push("d1_validate_passive_ok", bool(v1.get("ok", False)))
+        _push("d1_reward_event_id_autogen", str(v1.get("normalized", {}).get("reward_event_id", "") or "") != "")
+
+        ev_bad = {
+            "event_key": "unknown_proc",
+            "actor_id": "player_1",
+            "actor_type": "PLAYER",
+            "match_id": "m1",
+            "trigger_uid": "t02",
+        }
+        v2 = sim_validate_mid_battle_event(ev_bad)
+        _push("d1_reject_unknown_event_key", not bool(v2.get("ok", True)))
 
         return out
 
