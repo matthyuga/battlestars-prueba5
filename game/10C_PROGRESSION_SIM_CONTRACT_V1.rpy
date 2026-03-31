@@ -65,6 +65,24 @@ init -875 python:
             return hi
         return vv
 
+    def _sim_save_persistent_compat():
+        """
+        Compat Ren'Py 7.x/8.x:
+        - algunas versiones exponen renpy.save_persistent()
+        - otras requieren renpy.loadsave.save_persistent()
+        """
+        import renpy
+        fn = getattr(renpy, "save_persistent", None)
+        if callable(fn):
+            fn()
+            return True
+        ls = getattr(renpy, "loadsave", None)
+        fn2 = getattr(ls, "save_persistent", None) if ls is not None else None
+        if callable(fn2):
+            fn2()
+            return True
+        return False
+
     def sim_build_mid_battle_reward_event_id(event_ctx):
         ec = event_ctx if isinstance(event_ctx, dict) else {}
         match_id = str(ec.get("match_id", "match_unknown") or "match_unknown")
@@ -1265,7 +1283,7 @@ init -875 python:
         if len(cur) > lim:
             cur = cur[-lim:]
         S.persistent.sim_audit_log_v1 = cur
-        renpy.save_persistent()
+        _sim_save_persistent_compat()
 
         return {
             "ok": True,
@@ -1423,7 +1441,7 @@ init -875 python:
             merged = {k: vv for (k, _, vv) in cut}
 
         S.persistent.sim_actor_wallet_v1 = merged
-        renpy.save_persistent()
+        _sim_save_persistent_compat()
 
         return {
             "ok": True,
@@ -2246,6 +2264,6 @@ init -875 python:
             if len(cur) > 200:
                 cur = cur[-200:]
             S.persistent.sim_c6_restore_log_v1 = cur
-            renpy.save_persistent()
+            _sim_save_persistent_compat()
 
         return out
