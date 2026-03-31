@@ -128,6 +128,11 @@ label battle_end:
                 "error": "sim_run_battle_end_simulation no disponible en store.",
             }
 
+    if renpy.has_screen("sim_battle_end_reward_summary_v1"):
+        $ _sim_result = getattr(S, "sim_battle_end_last_result_v1", {})
+        $ _sim_apply = getattr(S, "sim_battle_end_last_apply_v1", {})
+        call screen sim_battle_end_reward_summary_v1(_sim_result, _sim_apply)
+
     # --- Limpieza global de efectos visuales y HUD ---
     if renpy.has_label("battle_hide_hud"):
         $ battle_hide_hud()
@@ -143,6 +148,78 @@ label battle_end:
     $ S.battle_active = False
     $ renpy.full_restart()
     return
+
+
+# ===========================================================
+# 🔹 C4 - Resumen visual post-combate (simulador)
+# ===========================================================
+screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
+    modal True
+    zorder 300
+
+    default _sr = sim_result if isinstance(sim_result, dict) else {}
+    default _ap = apply_report if isinstance(apply_report, dict) else {}
+    default _audit = _sr.get("audit", {}) if isinstance(_sr.get("audit", {}), dict) else {}
+    default _warnings = _audit.get("warnings", []) if isinstance(_audit.get("warnings", []), list) else []
+    default _errors = _audit.get("errors", []) if isinstance(_audit.get("errors", []), list) else []
+    default _rows = _sr.get("results", []) if isinstance(_sr.get("results", []), list) else []
+
+    add Solid("#000000AA")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xmaximum 1220
+        ymaximum 660
+        padding (26, 22)
+
+        vbox:
+            spacing 12
+
+            text "Resumen de recompensas (C4)" size 34 color "#FFFFFF"
+            text "sim_id=[_sr.get('simulation_id', 'sim_unknown')]  |  mode=[_sr.get('mode', 'custom')]  |  winner=[_sr.get('winner_team', 'DRAW')]" size 20 color "#CFE8FF"
+            text "Aplicación: ok=[_ap.get('ok', False)]  |  count=[_ap.get('applied_count', 0)]  |  EXP=[_ap.get('total_exp', 0)]  |  Oro=[_ap.get('total_oro', 0)]" size 20 color "#A6FFCC"
+            text "Audit: warnings=[len(_warnings)]  |  errors=[len(_errors)]" size 18 color "#FFD27A"
+
+            frame:
+                xfill True
+                yfill True
+                padding (12, 10)
+
+                viewport:
+                    draggable True
+                    mousewheel True
+                    scrollbars "vertical"
+
+                    vbox:
+                        spacing 8
+
+                        for rr in _rows:
+                            $ _ff = rr.get("final", {}) if isinstance(rr.get("final", {}), dict) else {}
+                            $ _actor = rr.get("actor_id", "unknown")
+                            $ _out = rr.get("outcome", "unknown")
+                            $ _exp = _ff.get("exp_gain", 0)
+                            $ _oro = _ff.get("oro_gain", 0)
+                            $ _eligible = rr.get("eligible", False)
+                            text "[_actor] | outcome=[_out] | eligible=[_eligible] | EXP +[_exp] | Oro +[_oro]" size 20 color "#FFFFFF"
+
+                        if len(_rows) == 0:
+                            text "Sin filas de resultado para mostrar." size 20 color "#FFAAAA"
+
+                        if len(_warnings) > 0:
+                            text "Warnings:" size 20 color "#FFD27A"
+                            for w in _warnings:
+                                text " - [w]" size 18 color "#FFD27A"
+
+                        if len(_errors) > 0:
+                            text "Errores:" size 20 color "#FF8A8A"
+                            for e in _errors:
+                                text " - [e]" size 18 color "#FF8A8A"
+
+            hbox:
+                xalign 1.0
+                spacing 10
+                textbutton "Continuar" action Return(True)
 
 
 # ===========================================================
