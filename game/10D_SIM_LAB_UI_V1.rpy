@@ -409,6 +409,18 @@ init -870 python:
                 "detail": "sim_run_d4_reconcile_tests no disponible.",
             })
 
+        fn_d5 = getattr(S, "sim_run_d5_guard_rail_tests", None)
+        if callable(fn_d5):
+            raw_d5 = fn_d5()
+            if isinstance(raw_d5, list):
+                out.extend(raw_d5)
+        else:
+            out.append({
+                "name": "d5_guard_rail_tests_unavailable",
+                "ok": False,
+                "detail": "sim_run_d5_guard_rail_tests no disponible.",
+            })
+
         S.sim_lab_smoke_results_v1 = out
         return S.sim_lab_smoke_results_v1
 

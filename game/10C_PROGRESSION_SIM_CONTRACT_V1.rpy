@@ -249,6 +249,14 @@ init -875 python:
             bc["idempotency_registry"] = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
         if "match_id" not in bc:
             bc["match_id"] = str(getattr(S, "story_pilot_battle_id", "match_unknown") or "match_unknown")
+        if "max_mid_battle_grants_per_match" not in bc:
+            bc["max_mid_battle_grants_per_match"] = 12
+        if "max_mid_battle_reward_ratio" not in bc:
+            bc["max_mid_battle_reward_ratio"] = 0.40
+        if "projected_end_exp" not in bc:
+            bc["projected_end_exp"] = 1000
+        if "projected_end_oro" not in bc:
+            bc["projected_end_oro"] = 600
 
         bridge = sim_build_request_from_mid_battle_event(ec, bc)
         if not bridge.get("ok", False):
@@ -264,6 +272,9 @@ init -875 python:
 
         req = bridge.get("request", {}) if isinstance(bridge.get("request", {}), dict) else {}
         cfg = req.get("config", {}) if isinstance(req.get("config", {}), dict) else {}
+        mm = req.get("mid_battle_meta", {}) if isinstance(req.get("mid_battle_meta", {}), dict) else {}
+        match_id = str(mm.get("match_id", bc.get("match_id", "match_unknown")) or "match_unknown")
+
         if not bool(cfg.get("allow_mid_battle_grants", True)):
             return {
                 "ok": False,
@@ -275,18 +286,72 @@ init -875 python:
                 "apply": {"ok": False, "skipped": True},
             }
 
+        # D5 Guard rail #1: límite de grants por match.
+        guards = getattr(S, "sim_mid_battle_guard_v1", None)
+        if not isinstance(guards, dict):
+            guards = {}
+        g = guards.get(match_id, {}) if isinstance(guards.get(match_id, {}), dict) else {}
+        grants_count = max(0, _sim_to_int(g.get("grants_count", 0), 0))
+        max_count = max(1, _sim_to_int(bc.get("max_mid_battle_grants_per_match", 12), 12))
+        if grants_count >= max_count:
+            return {
+                "ok": False,
+                "errors": [],
+                "warnings": ["guard_rail: max_mid_battle_grants_per_match alcanzado."],
+                "request": req,
+                "result": {},
+                "persist": {"ok": False, "skipped": True, "reason": "max_grants_per_match"},
+                "apply": {"ok": False, "skipped": True, "reason": "max_grants_per_match"},
+            }
+
         res = run_simulation(req)
         pack = {
             "request": req,
             "result": res,
             "event": bridge.get("event", {}),
         }
+
+        # D5 Guard rail #2: ratio máximo mid-battle respecto al cierre proyectado.
+        rows = res.get("results", []) if isinstance(res.get("results", []), list) else []
+        event_exp = 0
+        event_oro = 0
+        for rr in rows:
+            if not isinstance(rr, dict):
+                continue
+            if not bool(rr.get("eligible", False)):
+                continue
+            ff = rr.get("final", {}) if isinstance(rr.get("final", {}), dict) else {}
+            event_exp += max(0, _sim_to_int(ff.get("exp_gain", 0), 0))
+            event_oro += max(0, _sim_to_int(ff.get("oro_gain", 0), 0))
+
+        current_exp = max(0, _sim_to_int(g.get("total_exp", 0), 0))
+        current_oro = max(0, _sim_to_int(g.get("total_oro", 0), 0))
+        ratio = float(bc.get("max_mid_battle_reward_ratio", 0.40) or 0.40)
+        if ratio < 0.05:
+            ratio = 0.05
+        if ratio > 1.00:
+            ratio = 1.00
+        projected_end_exp = max(1, _sim_to_int(bc.get("projected_end_exp", 1000), 1000))
+        projected_end_oro = max(1, _sim_to_int(bc.get("projected_end_oro", 600), 600))
+        cap_exp = int(round(float(projected_end_exp) * ratio))
+        cap_oro = int(round(float(projected_end_oro) * ratio))
+        if (current_exp + event_exp) > cap_exp or (current_oro + event_oro) > cap_oro:
+            # Persistimos intento, pero sin aplicar ni registrar en ledger de pagos.
+            persist = sim_persist_simulation_artifacts(pack)
+            return {
+                "ok": False,
+                "errors": [],
+                "warnings": ["guard_rail: max_mid_battle_reward_ratio excedido."],
+                "request": req,
+                "result": res,
+                "persist": persist,
+                "apply": {"ok": False, "skipped": True, "reason": "max_mid_battle_reward_ratio"},
+            }
+
         persist = sim_persist_simulation_artifacts(pack)
         apply_report = sim_apply_simulation_rewards_to_runtime(pack)
 
         # D4 base: ledger de pagos mid-battle por match/actor para reconciliación en battle_end.
-        mm = req.get("mid_battle_meta", {}) if isinstance(req.get("mid_battle_meta", {}), dict) else {}
-        match_id = str(mm.get("match_id", bc.get("match_id", "match_unknown")) or "match_unknown")
         grants = getattr(S, "sim_mid_battle_grants_v1", None)
         if not isinstance(grants, dict):
             grants = {}
@@ -303,6 +368,13 @@ init -875 python:
             by_match[aid] = row
         grants[match_id] = by_match
         S.sim_mid_battle_grants_v1 = grants
+
+        # D5 guard ledger update.
+        g["grants_count"] = grants_count + 1
+        g["total_exp"] = current_exp + max(0, _sim_to_int(apply_report.get("total_exp", 0), 0))
+        g["total_oro"] = current_oro + max(0, _sim_to_int(apply_report.get("total_oro", 0), 0))
+        guards[match_id] = g
+        S.sim_mid_battle_guard_v1 = guards
 
         log = getattr(S, "sim_mid_battle_event_log_v1", None)
         if not isinstance(log, list):
@@ -403,6 +475,13 @@ init -875 python:
         if match_id in grants:
             del grants[match_id]
         S.sim_mid_battle_grants_v1 = grants
+
+        guards = getattr(S, "sim_mid_battle_guard_v1", None)
+        if not isinstance(guards, dict):
+            guards = {}
+        if match_id in guards:
+            del guards[match_id]
+        S.sim_mid_battle_guard_v1 = guards
         return pack
 
     def sim_build_min_request():
@@ -1868,6 +1947,74 @@ init -875 python:
             S.sim_idempotency_registry_v1 = snap_registry
             S.sim_mid_battle_grants_v1 = snap_grants
             S.sim_battle_end_last_apply_v1 = snap_apply
+
+        return out
+
+    def sim_run_d5_guard_rail_tests():
+        """
+        D5 - Smoke tests de guard rails anti-spam mid-battle.
+        """
+        import renpy.store as S
+
+        out = []
+
+        def _push(name, ok, detail=""):
+            out.append({"name": name, "ok": bool(ok), "detail": str(detail or "")})
+
+        snap_registry = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+        snap_guards = copy.deepcopy(getattr(S, "sim_mid_battle_guard_v1", {}))
+        snap_grants = copy.deepcopy(getattr(S, "sim_mid_battle_grants_v1", {}))
+
+        try:
+            ev = {
+                "event_key": "passive_proc",
+                "actor_id": "player_1",
+                "actor_type": "PLAYER",
+                "team": "A",
+                "match_id": "d5_match_1",
+                "trigger_uid": "d5_t01",
+                "level": 10,
+                "register": 1,
+            }
+            base_ctx = {
+                "mode": "1v1",
+                "team_a_actors": [{"actor_id": "player_1", "actor_type": "PLAYER", "level": 10, "register": 1}],
+                "team_b_actors": [{"actor_id": "beta_e1", "actor_type": "BETA", "level": 10, "register": 1}],
+                "idempotency_registry": copy.deepcopy(snap_registry),
+                "max_mid_battle_grants_per_match": 1,
+                "max_mid_battle_reward_ratio": 0.40,
+                "projected_end_exp": 1000,
+                "projected_end_oro": 600,
+            }
+
+            r1 = sim_run_mid_battle_event(ev, base_ctx)
+            _push("d5_first_grant_allowed", bool(r1.get("ok", False)))
+
+            ev2 = copy.deepcopy(ev)
+            ev2["trigger_uid"] = "d5_t02"
+            ctx2 = copy.deepcopy(base_ctx)
+            ctx2["idempotency_registry"] = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+            r2 = sim_run_mid_battle_event(ev2, ctx2)
+            blocked_count = (not bool(r2.get("ok", True))) and ("max_mid_battle_grants_per_match" in " ".join(r2.get("warnings", [])))
+            _push("d5_blocks_max_grants_per_match", blocked_count)
+
+            # Ratio cap: muy bajo para forzar bloqueo.
+            ev3 = copy.deepcopy(ev)
+            ev3["match_id"] = "d5_match_2"
+            ev3["trigger_uid"] = "d5_t03"
+            ctx3 = copy.deepcopy(base_ctx)
+            ctx3["idempotency_registry"] = copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {}))
+            ctx3["max_mid_battle_grants_per_match"] = 99
+            ctx3["max_mid_battle_reward_ratio"] = 0.05
+            ctx3["projected_end_exp"] = 10
+            ctx3["projected_end_oro"] = 10
+            r3 = sim_run_mid_battle_event(ev3, ctx3)
+            blocked_ratio = (not bool(r3.get("ok", True))) and ("max_mid_battle_reward_ratio" in " ".join(r3.get("warnings", [])))
+            _push("d5_blocks_reward_ratio", blocked_ratio)
+        finally:
+            S.sim_idempotency_registry_v1 = snap_registry
+            S.sim_mid_battle_guard_v1 = snap_guards
+            S.sim_mid_battle_grants_v1 = snap_grants
 
         return out
 
