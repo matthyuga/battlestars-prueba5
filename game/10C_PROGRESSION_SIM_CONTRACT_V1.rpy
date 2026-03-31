@@ -1223,6 +1223,7 @@ init -875 python:
         C6 - QA E2E mínimo para integración C2/C5/C3/C4.
         Retorna lista [{name, ok, detail}].
         """
+        import renpy
         import renpy.store as S
 
         out = []
@@ -1275,24 +1276,23 @@ init -875 python:
             no_double = (_sim_to_int(apply2.get("total_exp", -1), -1) == 0 and _sim_to_int(apply2.get("total_oro", -1), -1) == 0)
             _push("c6_no_double_payment_retry", no_double)
 
-            # 2b) C3 ampliado: aplica también ALPHA/DELTA en wallet runtime.
-            req_ad = {
-                "sim_contract_version": SIM_CONTRACT_VERSION,
-                "simulation_id": "c6_alpha_delta",
-                "mode": "2v2",
+            # 2b) C3 ampliado sobre flujo real C2/C5/C3: caso multi 2v2.
+            rt_2v2 = {
                 "source": "battle_end",
-                "event_type": "victory",
-                "winner_team": "A",
-                "reward_event_id": "c6::alpha_delta::1",
-                "actors": [
-                    {"actor_id": "player_1", "actor_type": "PLAYER", "team": "A", "level": 10, "register": 1, "exp_current": snap_player_exp, "exp_max": 100, "oro_current": snap_player_oro, "stars": {"ofensiva": 4, "defensiva": 4, "control": 4, "eficiencia": 4, "tecnica": 4, "impacto": 4}, "flags": {"eligible_rewards": True}},
-                    {"actor_id": "alpha_a1", "actor_type": "ALPHA", "team": "A", "level": 20, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 3, "defensiva": 3, "control": 3, "eficiencia": 3, "tecnica": 3, "impacto": 3}, "flags": {"eligible_rewards": True}},
-                    {"actor_id": "delta_b1", "actor_type": "DELTA", "team": "B", "level": 20, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 2, "defensiva": 2, "control": 2, "eficiencia": 2, "tecnica": 2, "impacto": 2}, "flags": {"eligible_rewards": True}},
-                    {"actor_id": "beta_b2", "actor_type": "BETA", "team": "B", "level": 20, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 1, "defensiva": 1, "control": 1, "eficiencia": 1, "tecnica": 1, "impacto": 1}, "flags": {"eligible_rewards": True}},
+                "battle_id": "c6_multi_2v2",
+                "result": "victory",
+                "team_a_actors": [
+                    {"actor_id": "player_1", "actor_type": "PLAYER", "level": 10, "register": 1, "exp_current": snap_player_exp, "exp_max": 100, "oro_current": snap_player_oro, "stars": {"ofensiva": 4, "defensiva": 4, "control": 4, "eficiencia": 4, "tecnica": 4, "impacto": 4}, "flags": {"eligible_rewards": True}},
+                    {"actor_id": "alpha_a1", "actor_type": "ALPHA", "level": 20, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 3, "defensiva": 3, "control": 3, "eficiencia": 3, "tecnica": 3, "impacto": 3}, "flags": {"eligible_rewards": True}},
                 ],
-                "config": {"preset": "medium_v2", "allow_mid_battle_grants": True, "repetition_count": 1, "multi_factor_enabled": True},
+                "team_b_actors": [
+                    {"actor_id": "delta_b1", "actor_type": "DELTA", "level": 20, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 2, "defensiva": 2, "control": 2, "eficiencia": 2, "tecnica": 2, "impacto": 2}, "flags": {"eligible_rewards": True}},
+                    {"actor_id": "beta_b2", "actor_type": "BETA", "level": 20, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 1, "defensiva": 1, "control": 1, "eficiencia": 1, "tecnica": 1, "impacto": 1}, "flags": {"eligible_rewards": True}},
+                ],
+                "idempotency_registry": copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {})),
             }
-            pack_ad = {"request": req_ad, "result": run_simulation(req_ad)}
+            pack_ad = sim_run_battle_end_simulation(runtime=rt_2v2)
+            sim_persist_simulation_artifacts(pack_ad)
             sim_apply_simulation_rewards_to_runtime(pack_ad)
             wallet_after = getattr(S, "sim_actor_runtime_wallet_v1", {})
             ok_ad = (
@@ -1301,7 +1301,27 @@ init -875 python:
                 "delta_b1" in wallet_after and
                 "beta_b2" not in wallet_after
             )
-            _push("c6_c3_alpha_delta_wallet_apply", ok_ad)
+            _push("c6_multi_2v2_wallet_apply", ok_ad)
+
+            # 2c) Caso multi 2v1 en flujo real.
+            rt_2v1 = {
+                "source": "battle_end",
+                "battle_id": "c6_multi_2v1",
+                "result": "defeat",
+                "team_a_actors": [
+                    {"actor_id": "player_1", "actor_type": "PLAYER", "level": 10, "register": 1, "exp_current": snap_player_exp, "exp_max": 100, "oro_current": snap_player_oro, "stars": {"ofensiva": 3, "defensiva": 3, "control": 3, "eficiencia": 3, "tecnica": 3, "impacto": 3}, "flags": {"eligible_rewards": True}},
+                    {"actor_id": "alpha_a2", "actor_type": "ALPHA", "level": 12, "register": 1, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 2, "defensiva": 2, "control": 2, "eficiencia": 2, "tecnica": 2, "impacto": 2}, "flags": {"eligible_rewards": True}},
+                ],
+                "team_b_actors": [
+                    {"actor_id": "delta_b2", "actor_type": "DELTA", "level": 25, "register": 2, "exp_current": 0, "exp_max": 100, "oro_current": 0, "stars": {"ofensiva": 4, "defensiva": 4, "control": 4, "eficiencia": 4, "tecnica": 4, "impacto": 4}, "flags": {"eligible_rewards": True}},
+                ],
+                "idempotency_registry": copy.deepcopy(getattr(S, "sim_idempotency_registry_v1", {})),
+            }
+            pack_2v1 = sim_run_battle_end_simulation(runtime=rt_2v1)
+            sim_persist_simulation_artifacts(pack_2v1)
+            ap_2v1 = sim_apply_simulation_rewards_to_runtime(pack_2v1)
+            ok_2v1 = bool(ap_2v1.get("ok", False)) and _sim_to_int(ap_2v1.get("applied_count", 0), 0) >= 1
+            _push("c6_multi_2v1_flow", ok_2v1)
 
             # 3) Coherencia cálculo vs resumen/aplicación (C4 consume estos mismos datos).
             sum_exp = 0
@@ -1333,5 +1353,22 @@ init -875 python:
             S.sim_idempotency_registry_v1 = snap_registry
             S.sim_battle_end_last_apply_v1 = snap_apply
             S.sim_actor_runtime_wallet_v1 = snap_wallet
+
+            # Persist restore snapshot para trazabilidad QA.
+            cur = getattr(S.persistent, "sim_c6_restore_log_v1", None)
+            if not isinstance(cur, list):
+                cur = []
+            cur.append({
+                "ts_unix": int(time.time()),
+                "restored": True,
+                "player_exp_before": snap_player_exp,
+                "player_oro_before": snap_player_oro,
+                "registry_size_before": len(snap_registry) if isinstance(snap_registry, dict) else 0,
+                "wallet_size_before": len(snap_wallet) if isinstance(snap_wallet, dict) else 0,
+            })
+            if len(cur) > 200:
+                cur = cur[-200:]
+            S.persistent.sim_c6_restore_log_v1 = cur
+            renpy.save_persistent()
 
         return out
