@@ -561,7 +561,10 @@ screen sim_lab_v1():
             spacing 10
 
             text "SIM LAB V1 — Incremento 3 (B7+B8+B9+B10+B11)" size 34
-            text "Contrato: [st.get('sim_contract_version', 'v1')] | Simulation ID: [st.get('simulation_id', 'sim_unknown')]" size 18
+            text ("Contrato: %s | Simulation ID: %s" % (
+                st.get("sim_contract_version", "v1"),
+                st.get("simulation_id", "sim_unknown"),
+            )) size 18
 
             frame:
                 xfill True
@@ -570,7 +573,7 @@ screen sim_lab_v1():
                     spacing 8
                     text "Editor principal" size 24
 
-                    text "Mode actual: [st.get('mode', '1v1')]" size 18
+                    text ("Mode actual: %s" % st.get("mode", "1v1")) size 18
                     hbox:
                         spacing 8
                         textbutton "1v1" action Function(sim_lab_set_mode, "1v1")
@@ -579,14 +582,14 @@ screen sim_lab_v1():
                         textbutton "2v2" action Function(sim_lab_set_mode, "2v2")
                         textbutton "Custom" action Function(sim_lab_set_mode, "custom")
 
-                    text "Winner Team: [st.get('winner_team', 'DRAW')]" size 18
+                    text ("Winner Team: %s" % st.get("winner_team", "DRAW")) size 18
                     hbox:
                         spacing 8
                         textbutton "A" action Function(sim_lab_set_winner, "A")
                         textbutton "B" action Function(sim_lab_set_winner, "B")
                         textbutton "DRAW" action Function(sim_lab_set_winner, "DRAW")
 
-                    text "Event Type: [st.get('event_type', 'draw')]" size 18
+                    text ("Event Type: %s" % st.get("event_type", "draw")) size 18
                     hbox:
                         spacing 8
                         textbutton "victory" action Function(sim_lab_set_event_type, "victory")
@@ -594,7 +597,7 @@ screen sim_lab_v1():
                         textbutton "draw" action Function(sim_lab_set_event_type, "draw")
                         textbutton "conditional_gain" action Function(sim_lab_set_event_type, "conditional_gain")
 
-                    text "Source: [st.get('source', 'lab_manual')]" size 18
+                    text ("Source: %s" % st.get("source", "lab_manual")) size 18
                     hbox:
                         spacing 8
                         textbutton "lab_manual" action Function(sim_lab_set_source, "lab_manual")
@@ -607,8 +610,14 @@ screen sim_lab_v1():
                 vbox:
                     spacing 8
                     text "Config" size 24
-                    text "Preset: [cfg.get('preset', 'medium_v2')] | Repetition: [cfg.get('repetition_count', 1)]" size 18
-                    text "multi_factor_enabled: [('ON' if cfg.get('multi_factor_enabled', True) else 'OFF')] | allow_mid_battle_grants: [('ON' if cfg.get('allow_mid_battle_grants', True) else 'OFF')]" size 18
+                    text ("Preset: %s | Repetition: %s" % (
+                        cfg.get("preset", "medium_v2"),
+                        cfg.get("repetition_count", 1),
+                    )) size 18
+                    text ("multi_factor_enabled: %s | allow_mid_battle_grants: %s" % (
+                        "ON" if cfg.get("multi_factor_enabled", True) else "OFF",
+                        "ON" if cfg.get("allow_mid_battle_grants", True) else "OFF",
+                    )) size 18
                     hbox:
                         spacing 8
                         textbutton "Preset medium_v2" action Function(sim_lab_set_preset, "medium_v2")
