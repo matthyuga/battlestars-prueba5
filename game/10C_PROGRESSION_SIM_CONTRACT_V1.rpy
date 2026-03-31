@@ -508,6 +508,241 @@ init -875 python:
             },
         }
 
+    # ===================================================
+    # Fase C (C1): Adaptador runtime -> SimulationRequest
+    # ===================================================
+
+    def _sim_get_from_sources(sources, keys, default=None):
+        srcs = sources if isinstance(sources, list) else []
+        for src in srcs:
+            if src is None:
+                continue
+            for k in keys:
+                try:
+                    if isinstance(src, dict):
+                        if k in src:
+                            return src.get(k)
+                    else:
+                        if hasattr(src, k):
+                            return getattr(src, k)
+                except:
+                    pass
+        return default
+
+    def _sim_level_to_register(level):
+        lvl = max(1, _sim_to_int(level, 1))
+        # Usa compute_register del panel si está disponible.
+        fn = globals().get("compute_register", None)
+        if callable(fn):
+            try:
+                return _sim_clamp(fn(lvl), 0, 50)
+            except:
+                pass
+        # Fallback estable (Acordado en diseño): 10 niveles = 1 registro.
+        return _sim_clamp(int(lvl // 10), 0, 50)
+
+    def _sim_resolve_winner_team(runtime):
+        rt = runtime if isinstance(runtime, dict) else {}
+        w = str(rt.get("winner_team", "") or "").upper()
+        if w in SIM_ALLOWED_WINNER_TEAM:
+            return w
+
+        # Permite mapear desde story_pilot_last_result o result textual.
+        result_raw = str(rt.get("result", rt.get("story_pilot_last_result", "")) or "").strip().lower()
+        if result_raw in ("victory", "win", "player_win"):
+            return "A"
+        if result_raw in ("defeat", "lose", "loss", "enemy_win"):
+            return "B"
+        if result_raw in ("draw", "tie", "empate"):
+            return "DRAW"
+
+        # Heurística por hp final.
+        a_hp = _sim_to_int(rt.get("team_a_hp", rt.get("player_hp", 0)), 0)
+        b_hp = _sim_to_int(rt.get("team_b_hp", rt.get("enemy_hp", 0)), 0)
+        if a_hp > 0 and b_hp <= 0:
+            return "A"
+        if b_hp > 0 and a_hp <= 0:
+            return "B"
+        if a_hp <= 0 and b_hp <= 0:
+            return "DRAW"
+        return "DRAW"
+
+    def _sim_build_reward_event_id(runtime, winner_team, source):
+        rt = runtime if isinstance(runtime, dict) else {}
+        match_id = str(rt.get("match_id", rt.get("battle_id", rt.get("simulation_id", "battle_unknown"))) or "battle_unknown")
+        turn = _sim_to_int(rt.get("turn_index", rt.get("turn", 0)), 0)
+        return "be::%s::%s::%s::t%s" % (str(source or "battle_end"), match_id, winner_team, turn)
+
+    def _sim_build_actor_from_runtime(team, role, base, index):
+        b = base if isinstance(base, dict) else {}
+        idx = _sim_to_int(index, 0)
+        role_s = str(role or "ally").strip().lower()
+        actor_id = str(b.get("actor_id", "%s_%d" % (role_s, idx + 1)) or ("%s_%d" % (role_s, idx + 1)))
+
+        actor_type = str(b.get("actor_type", "ALPHA") or "ALPHA").upper()
+        if role_s in ("player", "host_player", "main_player"):
+            actor_type = "PLAYER"
+
+        level = max(1, _sim_to_int(b.get("level", 1), 1))
+        register = b.get("register", None)
+        register = _sim_level_to_register(level) if register is None else _sim_clamp(register, 0, 50)
+        exp_current = max(0, _sim_to_int(b.get("exp_current", 0), 0))
+        exp_max = max(1, _sim_to_int(b.get("exp_max", 100), 100))
+        oro_current = max(0, _sim_to_int(b.get("oro_current", b.get("gold_current", 0)), 0))
+
+        stars_in = b.get("stars", {}) if isinstance(b.get("stars", {}), dict) else {}
+        stars = {}
+        for k in SIM_STAR_KEYS:
+            stars[k] = _sim_clamp(stars_in.get(k, 0), 0, 5)
+
+        # Defaults por tipo, alineados con blueprint.
+        default_eligible = actor_type not in ("GAMMA", "BETA")
+        flags_in = b.get("flags", {}) if isinstance(b.get("flags", {}), dict) else {}
+        flags = {
+            "eligible_rewards": bool(flags_in.get("eligible_rewards", default_eligible)),
+            "allow_level_up": bool(flags_in.get("allow_level_up", actor_type in ("PLAYER", "ALPHA", "DELTA"))),
+            "allow_inventory_rewards": bool(flags_in.get("allow_inventory_rewards", actor_type in ("PLAYER", "ALPHA", "DELTA"))),
+        }
+
+        return {
+            "actor_id": actor_id,
+            "actor_type": actor_type if actor_type in SIM_ALLOWED_ACTOR_TYPES else "ALPHA",
+            "team": str(team or "A").upper(),
+            "level": level,
+            "register": register,
+            "exp_current": exp_current,
+            "exp_max": exp_max,
+            "oro_current": oro_current,
+            "stars": stars,
+            "flags": flags,
+        }
+
+    def sim_build_request_from_battle_state(runtime=None, overrides=None):
+        """
+        C1 - Adaptador runtime -> SimulationRequest.
+        Convierte un estado de combate real (o parcial) al contrato v1.
+
+        Parámetros:
+          runtime: dict opcional con estado del combate.
+          overrides: dict opcional para sobreescribir campos del request final.
+        """
+        import renpy.store as S
+
+        rt = runtime if isinstance(runtime, dict) else {}
+        ov = overrides if isinstance(overrides, dict) else {}
+        sources = [ov, rt, S]
+
+        source = str(_sim_get_from_sources(sources, ("source",), "battle_end") or "battle_end")
+        if source not in SIM_ALLOWED_SOURCES:
+            source = "battle_end"
+
+        event_type = str(_sim_get_from_sources(sources, ("event_type",), "draw") or "draw").lower()
+        if event_type not in SIM_ALLOWED_EVENT_TYPES:
+            event_type = "draw"
+
+        winner_team = _sim_resolve_winner_team({
+            "winner_team": _sim_get_from_sources(sources, ("winner_team",), ""),
+            "result": _sim_get_from_sources(sources, ("result", "story_pilot_last_result"), ""),
+            "player_hp": _sim_get_from_sources(sources, ("player_hp", "team_a_hp"), 0),
+            "enemy_hp": _sim_get_from_sources(sources, ("enemy_hp", "team_b_hp"), 0),
+            "team_a_hp": _sim_get_from_sources(sources, ("team_a_hp", "player_hp"), 0),
+            "team_b_hp": _sim_get_from_sources(sources, ("team_b_hp", "enemy_hp"), 0),
+        })
+
+        if winner_team == "A":
+            event_type = "victory"
+        elif winner_team == "B":
+            event_type = "defeat"
+        elif winner_team == "DRAW":
+            event_type = "draw"
+
+        # Actores A/B: permite arrays o fallback 1v1.
+        actors_team_a = _sim_get_from_sources(sources, ("team_a_actors", "player_team_actors"), None)
+        actors_team_b = _sim_get_from_sources(sources, ("team_b_actors", "enemy_team_actors"), None)
+
+        norm_actors = []
+
+        if isinstance(actors_team_a, list) and len(actors_team_a) > 0:
+            for i, a in enumerate(actors_team_a):
+                norm_actors.append(_sim_build_actor_from_runtime("A", "ally", a, i))
+        else:
+            a1 = {
+                "actor_id": _sim_get_from_sources(sources, ("player_actor_id", "player_id"), "player_1"),
+                "actor_type": _sim_get_from_sources(sources, ("player_actor_type",), "PLAYER"),
+                "level": _sim_get_from_sources(sources, ("player_level", "level"), 1),
+                "register": _sim_get_from_sources(sources, ("player_register", "register"), None),
+                "exp_current": _sim_get_from_sources(sources, ("player_exp", "exp_current"), 0),
+                "exp_max": _sim_get_from_sources(sources, ("player_exp_max", "exp_max"), 100),
+                "oro_current": _sim_get_from_sources(sources, ("player_oro", "player_gold", "oro_current"), 0),
+                "stars": _sim_get_from_sources(sources, ("player_stars",), {}),
+                "flags": _sim_get_from_sources(sources, ("player_flags",), {}),
+            }
+            norm_actors.append(_sim_build_actor_from_runtime("A", "player", a1, 0))
+
+        if isinstance(actors_team_b, list) and len(actors_team_b) > 0:
+            for i, a in enumerate(actors_team_b):
+                norm_actors.append(_sim_build_actor_from_runtime("B", "enemy", a, i))
+        else:
+            b1 = {
+                "actor_id": _sim_get_from_sources(sources, ("enemy_actor_id", "enemy_id"), "enemy_1"),
+                "actor_type": _sim_get_from_sources(sources, ("enemy_actor_type",), "BETA"),
+                "level": _sim_get_from_sources(sources, ("enemy_level",), 1),
+                "register": _sim_get_from_sources(sources, ("enemy_register",), None),
+                "exp_current": _sim_get_from_sources(sources, ("enemy_exp",), 0),
+                "exp_max": _sim_get_from_sources(sources, ("enemy_exp_max",), 100),
+                "oro_current": _sim_get_from_sources(sources, ("enemy_oro", "enemy_gold"), 0),
+                "stars": _sim_get_from_sources(sources, ("enemy_stars",), {}),
+                "flags": _sim_get_from_sources(sources, ("enemy_flags",), {}),
+            }
+            norm_actors.append(_sim_build_actor_from_runtime("B", "enemy", b1, 0))
+
+        team_a_count = len([x for x in norm_actors if x.get("team") == "A"])
+        team_b_count = len([x for x in norm_actors if x.get("team") == "B"])
+        mode = "custom"
+        if team_a_count == 1 and team_b_count == 1:
+            mode = "1v1"
+        elif team_a_count == 2 and team_b_count == 1:
+            mode = "2v1"
+        elif team_a_count == 1 and team_b_count == 2:
+            mode = "1v2"
+        elif team_a_count == 2 and team_b_count == 2:
+            mode = "2v2"
+
+        simulation_id = str(_sim_get_from_sources(sources, ("simulation_id", "battle_id", "match_id"), "battle_sim_v1") or "battle_sim_v1")
+        reward_event_id = str(_sim_get_from_sources(sources, ("reward_event_id",), "") or "").strip()
+        if reward_event_id == "":
+            reward_event_id = _sim_build_reward_event_id({
+                "simulation_id": simulation_id,
+                "battle_id": _sim_get_from_sources(sources, ("battle_id",), simulation_id),
+                "match_id": _sim_get_from_sources(sources, ("match_id",), simulation_id),
+                "turn_index": _sim_get_from_sources(sources, ("turn_index", "turn"), 0),
+            }, winner_team, source)
+
+        req = {
+            "sim_contract_version": SIM_CONTRACT_VERSION,
+            "simulation_id": simulation_id,
+            "mode": mode,
+            "source": source,
+            "event_type": event_type,
+            "winner_team": winner_team,
+            "reward_event_id": reward_event_id,
+            "actors": norm_actors,
+            "config": {
+                "preset": str(_sim_get_from_sources(sources, ("preset",), "medium_v2") or "medium_v2"),
+                "allow_mid_battle_grants": bool(_sim_get_from_sources(sources, ("allow_mid_battle_grants",), True)),
+                "repetition_count": max(1, _sim_to_int(_sim_get_from_sources(sources, ("repetition_count",), 1), 1)),
+                "multi_factor_enabled": bool(_sim_get_from_sources(sources, ("multi_factor_enabled",), True)),
+                "idempotency_registry": _sim_get_from_sources(sources, ("idempotency_registry",), {}),
+            },
+        }
+
+        # Overrides finales explícitos.
+        for k, v in ov.items():
+            if k in ("sim_contract_version", "simulation_id", "mode", "source", "event_type", "winner_team", "reward_event_id", "actors", "config"):
+                req[k] = copy.deepcopy(v)
+
+        return req
+
     def sim_apply_reward_event_idempotency(normalized_request, results):
         """
         A5 - Anti-duplicación por reward_event_id.
@@ -780,3 +1015,46 @@ init -875 python:
                 "idempotency_key": "reward_event_id|actor_id|source",
             },
         }
+
+    def sim_run_c1_adapter_smoke_tests():
+        """
+        C1 - Smoke tests del adaptador runtime->request.
+        """
+        out = []
+
+        def _push(name, ok, detail=""):
+            out.append({"name": name, "ok": bool(ok), "detail": str(detail or "")})
+
+        # Caso 1: fallback mínimo 1v1 desde estado base.
+        req1 = sim_build_request_from_battle_state({
+            "battle_id": "smoke_c1_1",
+            "player_hp": 150,
+            "enemy_hp": 0,
+            "player_level": 12,
+            "enemy_level": 6,
+        })
+        v1 = sim_validate_request(req1)
+        _push("c1_min_1v1_request_valid", bool(v1.get("ok", False)))
+
+        # Caso 2: 2v2 desde listas explícitas.
+        req2 = sim_build_request_from_battle_state({
+            "battle_id": "smoke_c1_2",
+            "result": "victory",
+            "team_a_actors": [
+                {"actor_id": "a1", "actor_type": "PLAYER", "level": 10, "register": 1},
+                {"actor_id": "a2", "actor_type": "ALPHA", "level": 20, "register": 2},
+            ],
+            "team_b_actors": [
+                {"actor_id": "b1", "actor_type": "BETA", "level": 20, "register": 2},
+                {"actor_id": "b2", "actor_type": "BETA", "level": 30, "register": 3},
+            ],
+        })
+        v2 = sim_validate_request(req2)
+        ok2 = bool(v2.get("ok", False)) and str(v2.get("normalized", {}).get("mode", "")) == "2v2"
+        _push("c1_explicit_2v2_valid", ok2)
+
+        # Caso 3: event id autogenerado cuando no viene en runtime.
+        rid = str(req2.get("reward_event_id", "") or "")
+        _push("c1_reward_event_id_autogen", rid != "")
+
+        return out
