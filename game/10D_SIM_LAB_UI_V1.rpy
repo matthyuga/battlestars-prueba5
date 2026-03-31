@@ -542,7 +542,7 @@ label sim_lab_open:
 
 
 screen sim_lab_v1():
-    tag menu
+    tag sim_lab
     modal True
     zorder 200
 
