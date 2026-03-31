@@ -2018,6 +2018,61 @@ init -875 python:
 
         return out
 
+    def sim_run_phaseD_e2e_tests():
+        """
+        D6 - Suite E2E consolidada para cierre de Fase D.
+        """
+        suites = []
+
+        for fn_name in (
+            "sim_run_d1_catalog_tests",
+            "sim_run_d2_bridge_tests",
+            "sim_run_d3_mid_battle_tests",
+            "sim_run_d4_reconcile_tests",
+            "sim_run_d5_guard_rail_tests",
+        ):
+            fn = globals().get(fn_name, None)
+            if callable(fn):
+                try:
+                    rr = fn()
+                    if isinstance(rr, list):
+                        suites.extend(rr)
+                    else:
+                        suites.append({"name": fn_name, "ok": False, "detail": "suite retornó formato inválido"})
+                except Exception as ex:
+                    suites.append({"name": fn_name, "ok": False, "detail": "suite lanzó excepción: %s" % ex})
+            else:
+                suites.append({"name": fn_name, "ok": False, "detail": "suite no disponible"})
+
+        required = set([
+            "d1_catalog_has_min_2_events",
+            "d2_bridge_with_battle_ctx_ok",
+            "d3_retry_no_double_pay",
+            "d4_reconciliation_audit_present",
+            "d4_match_ledger_consumed",
+            "d5_blocks_max_grants_per_match",
+            "d5_blocks_reward_ratio",
+        ])
+        by_name = {}
+        for row in suites:
+            if isinstance(row, dict):
+                by_name[str(row.get("name", ""))] = bool(row.get("ok", False))
+
+        required_ok = True
+        missing = []
+        for k in required:
+            if not bool(by_name.get(k, False)):
+                required_ok = False
+                missing.append(k)
+
+        suites.append({
+            "name": "phaseD_e2e_required_gate",
+            "ok": required_ok,
+            "detail": ("missing_or_failed=%s" % ",".join(missing)) if len(missing) > 0 else "all_required_checks_ok",
+        })
+
+        return suites
+
     def sim_run_phaseC_e2e_tests():
         """
         C6 - QA E2E mínimo para integración C2/C5/C3/C4.
