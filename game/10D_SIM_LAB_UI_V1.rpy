@@ -653,7 +653,7 @@ screen sim_lab_v1():
                                     padding (8, 8)
                                     vbox:
                                         spacing 6
-                                        text ("[%d] %s | Tipo: %s | Team: %s | Elig: %s" % (
+                                        text ("(%d) %s | Tipo: %s | Team: %s | Elig: %s" % (
                                             i,
                                             a.get("actor_id", "actor"),
                                             a.get("actor_type", "ALPHA"),
@@ -877,7 +877,7 @@ screen sim_lab_v1():
                     if len(smoke) > 0:
                         for t in smoke:
                             $ ok = bool((t or {}).get("ok", False))
-                            text ("[%s] %s — %s" % (
+                            text ("(%s) %s — %s" % (
                                 "OK" if ok else "FAIL",
                                 (t or {}).get("name", "unknown"),
                                 (t or {}).get("detail", "")
