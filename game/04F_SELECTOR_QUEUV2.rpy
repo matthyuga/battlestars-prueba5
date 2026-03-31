@@ -410,7 +410,11 @@ screen technique_selector():
                                                         action SetScreenVariable("_tech_opts_index", (-1 if _tech_opts_index == i else i))
 
                                         if _is_fury_selected and battle_mode == "offensive" and (not is_focus):
-                                            text "🔥 Furia cargada" size 14 color "#FF9966"
+                                            frame:
+                                                background "#FF6A0030"
+                                                padding (8, 4)
+                                                xmaximum 240
+                                                text "🔥 Dados de furia cargados" size 14 color "#FFC080"
                                             if not _fury_can_now:
                                                 text "Se ejecuta cuando HP ≤ 25% o con ítem." size 12 color "#BBBBBB"
 
@@ -465,6 +469,9 @@ screen technique_selector():
                                         spacing 6
                                         text "🔥 Furia cargada" size 15 color "#B9FFB9"
                                         text "[_fury_name_side]" size 14 color "#D5FFD5"
+                                        $ _fn_fc = getattr(store, "fury_activation_costs", None)
+                                        $ _fc = _fn_fc("player") if callable(_fn_fc) else {}
+                                        text "Coste: Reiatsu [int((_fc or {}).get('reiatsu_need', 0) or 0)] | Energía [int((_fc or {}).get('energy_need', 0) or 0)]" size 12 color "#DDEECC"
                                         textbutton "✖ Cancelar furia":
                                             text_size 15
                                             action Function(toggle_fury_target_queue_index, _fury_idx_side)

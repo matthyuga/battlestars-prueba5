@@ -267,6 +267,103 @@ init -990 python:
 
         return bool(hp_now > 0 and (hp_now <= threshold or has_item))
 
+    def fury_activation_costs(side="player", unit_key=None):
+        """
+        Coste de activación de Dados de Furia.
+        Regla acordada:
+        - Consume 10% del Reiatsu TOTAL (base/max), no del actual.
+        - Consume 10% de la Energía TOTAL (base/max), no de la actual.
+        """
+        try:
+            side_s = str(side or "player").strip().lower()
+        except:
+            side_s = "player"
+        if side_s not in ("player", "enemy"):
+            side_s = "player"
+
+        rei_total = 0
+        ene_total = 0
+        rei_cur = 0
+        ene_cur = 0
+
+        if side_s == "player":
+            rei_total = int(getattr(S, "player_reiatsu_base", getattr(S, "player_reiatsu", 0)) or 0)
+            ene_total = int(getattr(S, "player_energy_base", getattr(S, "player_energy", 0)) or 0)
+            rei_cur = int(getattr(S, "player_reiatsu", 0) or 0)
+            ene_cur = int(getattr(S, "player_energy", 0) or 0)
+        else:
+            rei_total = int(getattr(S, "enemy_reiatsu_base", getattr(S, "enemy_reiatsu", 0)) or 0)
+            ene_total = int(getattr(S, "enemy_energy_base", getattr(S, "enemy_energy", 0)) or 0)
+            rei_cur = int(getattr(S, "enemy_reiatsu", 0) or 0)
+            ene_cur = int(getattr(S, "enemy_energy", 0) or 0)
+
+        mode = str(getattr(S, "battle_team_mode", "1v1") or "1v1").strip().lower()
+        if mode == "2v2":
+            _uk = str(unit_key or "")
+            fn_get = getattr(S, "bs_get_unit_by_key", None)
+            if _uk and callable(fn_get):
+                u = fn_get(_uk)
+                if isinstance(u, dict):
+                    rei_total = int(u.get("base_reiatsu", u.get("max_reiatsu", rei_total)) or rei_total)
+                    ene_total = int(u.get("base_energy", u.get("max_energy", ene_total)) or ene_total)
+                    rei_cur = int(u.get("reiatsu", rei_cur) or rei_cur)
+                    ene_cur = int(u.get("energy", ene_cur) or ene_cur)
+
+        rei_need = max(0, int(rei_total * 0.10))
+        ene_need = max(0, int(ene_total * 0.10))
+
+        return {
+            "side": str(side_s),
+            "unit_key": str(unit_key or ""),
+            "reiatsu_total": int(rei_total),
+            "energy_total": int(ene_total),
+            "reiatsu_need": int(rei_need),
+            "energy_need": int(ene_need),
+            "reiatsu_current": int(rei_cur),
+            "energy_current": int(ene_cur),
+            "can_pay": bool(rei_cur >= rei_need and ene_cur >= ene_need),
+        }
+
+    def can_pay_fury_activation(side="player", unit_key=None):
+        info = fury_activation_costs(side=side, unit_key=unit_key)
+        return bool(info.get("can_pay", False))
+
+    def consume_fury_activation_cost(side="player", unit_key=None):
+        """
+        Descuenta el coste de activación de furia y retorna telemetría.
+        """
+        info = fury_activation_costs(side=side, unit_key=unit_key)
+        if not bool(info.get("can_pay", False)):
+            out = dict(info)
+            out["consumed"] = False
+            return out
+
+        rei_need = int(info.get("reiatsu_need", 0) or 0)
+        ene_need = int(info.get("energy_need", 0) or 0)
+        side_s = str(info.get("side", "player") or "player")
+
+        try:
+            fn_consume = getattr(S, "consume_resources", None)
+            if callable(fn_consume):
+                fn_consume(rei_need, ene_need, actor=side_s)
+                out = fury_activation_costs(side=side_s, unit_key=unit_key)
+                out["consumed"] = True
+                return out
+        except:
+            pass
+
+        # Fallback minimalista.
+        if side_s == "player":
+            S.player_reiatsu = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - rei_need)
+            S.player_energy = max(0, int(getattr(S, "player_energy", 0) or 0) - ene_need)
+        else:
+            S.enemy_reiatsu = max(0, int(getattr(S, "enemy_reiatsu", 0) or 0) - rei_need)
+            S.enemy_energy = max(0, int(getattr(S, "enemy_energy", 0) or 0) - ene_need)
+
+        out = fury_activation_costs(side=side_s, unit_key=unit_key)
+        out["consumed"] = True
+        return out
+
     def roll_recovery_die():
         import random
         # Dado discreto de recuperación: 0 / 25 / 50 / 75 / 100
@@ -490,6 +587,9 @@ init -990 python:
     store.roll_5d_fury = roll_5d_fury
     store.roll_5d_infernal_fury = roll_5d_infernal_fury
     store.can_use_fury_dice = can_use_fury_dice
+    store.fury_activation_costs = fury_activation_costs
+    store.can_pay_fury_activation = can_pay_fury_activation
+    store.consume_fury_activation_cost = consume_fury_activation_cost
     store.can_use_infernal_fury_dice = can_use_infernal_fury_dice
     store.bs_try_apply_infernal_fury = bs_try_apply_infernal_fury
     store.roll_recovery_die = roll_recovery_die
