@@ -1,0 +1,20 @@
+$description=New course
+$longdesc=Enter here the course description
+$version=7.0
+$language=eng
+$copyright=TypingMaster inc 2005, all rights reserved.
+'Created by TMEditor v2.0 @ 28.09.2021 14.09
+
+newkeysloops=0
+wordloop=0
+wordmaxloop=0
+load icr=
+goalinfo=
+short name=
+default time=0
+
+contents name=New course
+keyboard=all
+wizardname=
+simplewizard=1
+last free=0
