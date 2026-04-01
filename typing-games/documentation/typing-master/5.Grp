@@ -1,0 +1,9 @@
+Date=45980.31640625
+Name=Hindi InScript (Beta)
+KeyboardLayout=Hindi InScript
+KeyboardAutoDetect=0
+ContentsFile=1universal.cnt
+DefaultWizard=1universal
+NewKeysKeyboardDelay=100
+WordDrillKeyboardDelay=100
+HindiFont=1

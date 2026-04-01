@@ -1,0 +1,9 @@
+Date=45980.31640625
+Name=Custom Layout/Colemak User
+ContentsFile=1universal.cnt
+NewKeysKeyboardDelay=200
+WordDrillKeyboardDelay=200
+Message=Use the Settings tab to adjust your keyboard layout or import a custom layout. Advanced typing review and TypingMeter are ready to track your speed and accuracy. 
+MessageID=154909000
+KeyboardLayout=*101-Keyboard (US)
+KeyboardAutoDetect=0
