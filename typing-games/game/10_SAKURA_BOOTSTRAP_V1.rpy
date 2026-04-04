@@ -35,7 +35,7 @@ default tl_selected_academy = "sakura"  # epic | sakura
 
 # Rutas de imagen recomendadas:
 # typing-games/game/images/tl/
-#   portal_main.jpg
+#   typing-games-menu.jpg
 #   sakura_gate.jpg
 #   sakura_hallway.jpg
 #   sakura_classroom.jpg
@@ -52,72 +52,63 @@ screen tl_main_menu_screen():
     tag menu
     modal True
 
-    $ bg = tl_asset("images/tl/portal_main.jpg")
+    $ bg = tl_asset("images/typing-games-menu.jpg")
     if bg:
         add bg
     else:
         add "tl_fallback_dark"
-        text "⚠ Falta asset: images/tl/portal_main.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+        text "⚠ Falta asset: images/typing-games-menu.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     # Capa para contraste
-    add Solid("#00000030")
-
-    text "TYPING LEGENDS" xalign 0.5 yalign 0.08 size 68 color "#FFD884" outlines [(2, "#3a2200", 0, 0)]
+    add Solid("#00000012")
 
     # Hotspots sobre puertas (coordenadas pensadas para 1280x720 aprox)
-    # Epic: visible pero bloqueado
+    # Epic: seleccionable pero bloqueado al iniciar (solo Sakura habilita START)
     button:
-        xpos 165
-        ypos 220
-        xsize 360
-        ysize 330
+        xpos 120
+        ypos 170
+        xsize 420
+        ysize 380
         background Solid("#FFFFFF00")
-        hovered SetVariable("tl_selected_academy", "epic")
-        action NullAction()
+        action SetVariable("tl_selected_academy", "epic")
 
     # Sakura: seleccionable
     button:
-        xpos 740
-        ypos 220
-        xsize 380
-        ysize 330
+        xpos 700
+        ypos 170
+        xsize 440
+        ysize 380
         background Solid("#FFFFFF00")
         action SetVariable("tl_selected_academy", "sakura")
 
-    # Indicadores de selección
+    # Indicadores visuales de selección (sin textos superpuestos)
     if tl_selected_academy == "epic":
         frame:
-            xpos 150
-            ypos 205
-            xsize 390
-            ysize 360
-            background Solid("#5DA9FF33")
-        text "Epic Spell Academy (bloqueado)" xalign 0.26 yalign 0.73 size 28
-    else:
-        text "Epic Spell Academy (bloqueado)" xalign 0.26 yalign 0.73 size 28 color "#DDDDDD"
+            xpos 112
+            ypos 162
+            xsize 436
+            ysize 396
+            background Solid("#5DA9FF22")
 
     if tl_selected_academy == "sakura":
         frame:
-            xpos 725
-            ypos 205
-            xsize 410
-            ysize 360
-            background Solid("#FF8ACD44")
-        text "Sakura Sunshine Academy (seleccionada)" xalign 0.73 yalign 0.73 size 28 color "#FFD5EC"
-    else:
-        text "Sakura Sunshine Academy" xalign 0.73 yalign 0.73 size 28 color "#DDDDDD"
+            xpos 692
+            ypos 162
+            xsize 456
+            ysize 396
+            background Solid("#FF8ACD22")
 
-    # START usa el botón central de la imagen (recuadro invisible)
+    # START en el botón central de la imagen
     button:
-        xpos 495
-        ypos 585
-        xsize 290
-        ysize 85
+        xpos 430
+        ypos 540
+        xsize 420
+        ysize 110
         background Solid("#FFFFFF00")
         action Return("goto_sakura_gate")
         sensitive (tl_selected_academy == "sakura")
 
-    textbutton "SETTINGS" action ShowMenu("preferences") xalign 0.18 yalign 0.95
+    textbutton "SETTINGS" action ShowMenu("preferences") xpos 170 ypos 655
 
 screen tl_sakura_gate_screen():
     tag menu
