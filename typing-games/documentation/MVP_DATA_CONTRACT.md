@@ -31,9 +31,48 @@ Ubicadas en `typing-games/game/images`:
 Ubicadas en `typing-games/game/gui`:
 
 - Afinidad (barra): `gui/barra-progreso/c0.png` a `gui/barra-progreso/c10.png`
-- Romance (corazón): `gui/corazon/p1.png` a `gui/corazon/p25.png`
+- Romance (corazón): `gui/corazon/p0.png` a `gui/corazon/p25.png`
 
-> Nota: Para representar estado visual 0 del corazón, se recomienda agregar `gui/corazon/p0.png`.
+> Estado confirmado en repo: `gui/corazon/p0.png` a `gui/corazon/p25.png`.
+
+---
+
+
+## F0-T4 — IDs estables de personajes (cerrados)
+
+Los IDs de personaje quedan fijados en `snake_case` y en minúscula para evitar drift entre scripts/UI/guardado.
+
+### Lista oficial (13)
+
+- Estudiantes: `airi`, `momoka`, `rinka`, `sora`, `aki`, `ren`, `tetsu`
+- Profesores: `misaki`, `ayame`, `kaoru`, `haru`, `yuto`, `masato`
+
+Reglas de ID:
+- No usar espacios ni mayúsculas.
+- El `character_id` nunca depende del texto mostrado al jugador.
+- Si cambia el nombre de display, el ID se conserva.
+
+---
+
+## F0-T5 — Naming de estados visuales (cerrado)
+
+## 1) Barra de afinidad
+- Convención: `c{n}.png`
+- Rango válido: `c0..c10`
+- Estados totales: 11
+- Piso: `c0`
+- Techo: `c10`
+
+## 2) Corazón de romance
+- Convención: `p{n}.png`
+- Rango válido: `p0..p25`
+- Estados totales: 26
+- Piso: `p0`
+- Techo: `p25`
+
+Reglas de validación:
+- Si un estado no existe en disco, aplicar fallback al más cercano válido (preferencia: clamp a piso/techo).
+- Toda lógica de render usa clamp antes de resolver la ruta del archivo.
 
 ---
 
@@ -70,8 +109,7 @@ Reglas:
 `romance_points: dict[str, int]`
 
 - Rango actual: `0..25` (clamp lógico)
-- Render visual actual disponible: `p1..p25`
-- Recomendación visual: incorporar `p0.png` para representar explícitamente estado 0.
+- Render visual disponible: `p0..p25`.
 
 Reglas de activación:
 - Solo disponible si `tl_experience_mode == 3`.
@@ -118,4 +156,4 @@ Reglas de consistencia:
 1. Existe un único documento de contrato (este archivo) versionado.
 2. Equipos de UI/script comparten los mismos IDs y rangos.
 3. El avance académico queda formalmente separado de la afinidad/romance.
-4. Se deja definido el gap visual pendiente (`p0.png`) para estado vacío del corazón.
+4. Pisos y techos visuales quedan cerrados sin ambigüedad (`c0..c10`, `p0..p25`).
