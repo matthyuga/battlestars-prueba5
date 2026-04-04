@@ -114,7 +114,8 @@ screen tl_main_menu_screen():
         xsize 290
         ysize 85
         background Solid("#FFFFFF00")
-        action Return("goto_sakura_gate") if tl_selected_academy == "sakura" else NullAction()
+        action Return("goto_sakura_gate")
+        sensitive (tl_selected_academy == "sakura")
 
     textbutton "SETTINGS" action ShowMenu("preferences") xalign 0.18 yalign 0.95
 
@@ -329,7 +330,7 @@ screen tl_lessons_mock_screen():
                         Function(set_check, "clases", "lesson_1", "1_6_words_exercise", True),
                         Function(set_check, "clases", "lesson_1", "1_7_phrases_exercise", True),
                     ]
-                    textbutton "Finalizar Lección 1" action Return("complete_lesson_1") if _lesson_done >= 7 else NullAction()
+                    textbutton "Finalizar Lección 1" action Return("complete_lesson_1") sensitive (_lesson_done >= 7)
                     textbutton "Volver al hub" action Return("back")
 
             vbox:
