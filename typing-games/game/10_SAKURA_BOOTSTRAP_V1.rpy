@@ -432,6 +432,8 @@ screen tl_social_profile_screen():
                     spacing 8
                     for _cid in AFFINITY_CHARACTER_IDS:
                         $ _pts = get_affinity(_cid)
+                        $ _rom_enabled = is_romance_enabled(tl_experience_mode, tl_player_gender, _cid)
+                        $ _rom_msg = get_romance_lock_message(tl_experience_mode, tl_player_gender, _cid)
                         hbox:
                             spacing 12
                             xalign 0.5
@@ -454,6 +456,16 @@ screen tl_social_profile_screen():
 
                             textbutton "+ Interacción" action Function(award_affinity_event, _cid, "interaction_success")
                             textbutton "+ Misión" action Function(award_affinity_event, _cid, "social_mission_success")
+
+                            if _rom_enabled:
+                                frame:
+                                    xsize 48
+                                    ysize 48
+                                    background Solid("#00000000")
+                                    add get_romance_heart_image(_cid) fit "contain" xalign 0.5 yalign 0.5
+                                textbutton "+ Romance" action Function(add_romance, _cid, 1)
+                            else:
+                                text _rom_msg size 16 color "#FFB9D5" xmaximum 220
 
             text "[(_aff_tip)]" size 19 color "#FFD7F1" xalign 0.5
 

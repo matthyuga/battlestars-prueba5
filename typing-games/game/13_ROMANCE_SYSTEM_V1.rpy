@@ -96,5 +96,28 @@ init -100 python:
         S.romance_points = st
         return int(st[cid])
 
+    def get_romance_heart_image(character_id):
+        """Render visual p0..p25 usando puntos 0..24 actuales.
+        Mapea 0..24 -> 0..25 para aprovechar estado final visual.
+        """
+        points = get_romance(character_id)
+        if ROMANCE_MAX <= 0:
+            idx = 0
+        else:
+            idx = int(round((float(points) / float(ROMANCE_MAX)) * 25.0))
+        idx = max(0, min(25, idx))
+        return "gui/corazon/p%d.png" % idx
+
+    def get_romance_lock_message(player_mode, player_gender, character_id):
+        try:
+            mode = int(player_mode)
+        except:
+            mode = 1
+        if mode != 3:
+            return "Disponible solo en modo 3"
+        if not is_romance_enabled(player_mode, player_gender, character_id):
+            return "No elegible con configuración actual"
+        return ""
+
 
 default romance_points = romance_default_points()
