@@ -551,6 +551,194 @@ screen tl_exam_entry_screen():
                 textbutton "Rendir examen" action Return("start_exam")
                 textbutton "Volver al hub" action Return("back")
 
+screen tl_activities_quest_screen():
+    tag menu
+    modal True
+
+    default _msg = "Completa la quest social para subir afinidad."
+
+    $ bg = tl_asset("images/tl/sakura_hallway.jpg")
+    if bg:
+        add bg
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    $ _quest_done = get_check("actividades", "activity_1", "quest_1")
+    $ _airi_aff = get_affinity("airi")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 980
+        ysize 580
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 14
+            xalign 0.5
+            yalign 0.08
+
+            text "Actividades · Quest social 1" size 42 color "#FFD7F1" xalign 0.5
+            text "Quest: Ayuda a Airi a ordenar notas para la clase." size 24 color "#E8D9F0" xalign 0.5
+            text "Estado: {}".format("Completada ✓" if _quest_done else "Pendiente") size 24 xalign 0.5
+            text "Afinidad Airi: [(_airi_aff)]/10" size 24 color "#FFD7F1" xalign 0.5
+
+            if not _quest_done:
+                textbutton "Completar quest (+1 afinidad Airi)" action [
+                    Function(set_check, "actividades", "activity_1", "quest_1", True),
+                    Function(award_affinity_event, "airi", "social_mission_success"),
+                    SetScreenVariable("_msg", "Quest completada. +1 afinidad para Airi."),
+                ] xalign 0.5
+            else:
+                text "Ya completaste esta quest en esta partida." size 20 color "#BEECC6" xalign 0.5
+
+            text "[(_msg)]" size 20 color "#FFE5B1" xalign 0.5
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Ver ficha social" action [Hide("tl_activities_quest_screen"), Show("tl_social_profile_screen")]
+                textbutton "Volver al hub" action Return("back")
+
+screen tl_diary_tabs_screen():
+    tag menu
+    modal True
+
+    default _tab = "academic"
+
+    $ bg = tl_asset("images/tl/sakura_hallway.jpg")
+    if bg:
+        add bg
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    $ _checks = _academic_ensure_store()
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 1160
+        ysize 660
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 10
+            xalign 0.5
+            yalign 0.04
+
+            text "Diario" size 42 color "#FFD7F1" xalign 0.5
+
+            hbox:
+                spacing 12
+                xalign 0.5
+                textbutton "Académico (checks)" action SetScreenVariable("_tab", "academic")
+                textbutton "Social (barras/corazón)" action SetScreenVariable("_tab", "social")
+
+            if _tab == "academic":
+                viewport:
+                    draggable True
+                    mousewheel True
+                    ymaximum 470
+
+                    vbox:
+                        spacing 8
+                        for _module_id, _lessons in _checks.items():
+                            $ _mod_prog = get_check_progress(_module_id)
+                            text "[(_module_id.title())]  [(_mod_prog['done'])]/[(_mod_prog['total'])]" size 28 color "#F7E8FF"
+                            for _lesson_id, _steps in _lessons.items():
+                                $ _lesson_done = sum([1 for _v in _steps.values() if _v])
+                                $ _lesson_total = len(_steps)
+                                text "  - [(_lesson_id)]  [(_lesson_done)]/[(_lesson_total)]" size 22 color "#DDD0E7"
+            else:
+                viewport:
+                    draggable True
+                    mousewheel True
+                    ymaximum 470
+
+                    vbox:
+                        spacing 8
+                        for _cid in AFFINITY_CHARACTER_IDS:
+                            $ _pts = get_affinity(_cid)
+                            $ _rom_enabled = is_romance_enabled(tl_experience_mode, tl_player_gender, _cid)
+                            hbox:
+                                spacing 12
+                                text "[(_cid.title())]" size 24 xminimum 160
+                                add get_affinity_bar_image(_cid) xsize 220 ysize 30
+                                text "[(_pts)]/10" size 20 color "#FFD7F1"
+                                if _rom_enabled:
+                                    add get_romance_heart_image(_cid) xsize 38 ysize 38
+                                    text "[get_romance(_cid)]/24" size 18 color "#FFB9D5"
+                                else:
+                                    text "[get_romance_lock_message(tl_experience_mode, tl_player_gender, _cid)]" size 16 color "#FFB9D5"
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Volver al hub" action Return("back")
+
+screen tl_library_index_screen():
+    tag menu
+    modal True
+
+    default _tab = "courses"
+
+    $ bg = tl_asset("images/tl/sakura_classroom.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 1140
+        ysize 650
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 10
+            xalign 0.5
+            yalign 0.04
+
+            text "Biblioteca" size 42 color "#FFD7F1" xalign 0.5
+            hbox:
+                spacing 12
+                xalign 0.5
+                textbutton "Cursos" action SetScreenVariable("_tab", "courses")
+                textbutton "Personajes" action SetScreenVariable("_tab", "characters")
+
+            if _tab == "courses":
+                vbox:
+                    spacing 8
+                    $ _cl = get_check_progress("clases")
+                    $ _pr = get_check_progress("practica")
+                    $ _ex = get_check_progress("examenes")
+                    $ _ac = get_check_progress("actividades")
+                    text "Clases · Desbloqueado · [(_cl['done'])]/[(_cl['total'])]" size 24
+                    text "Práctica · Desbloqueado · [(_pr['done'])]/[(_pr['total'])]" size 24
+                    text "Exámenes · Desbloqueado · [(_ex['done'])]/[(_ex['total'])]" size 24
+                    text "Actividades · Desbloqueado · [(_ac['done'])]/[(_ac['total'])]" size 24
+            else:
+                viewport:
+                    draggable True
+                    mousewheel True
+                    ymaximum 470
+
+                    vbox:
+                        spacing 8
+                        for _cid in AFFINITY_CHARACTER_IDS:
+                            $ _aff = get_affinity(_cid)
+                            $ _unlocked = (_aff >= 1)
+                            text "[(_cid.title())] · {} · Afinidad: [(_aff)]/10".format("Desbloqueado" if _unlocked else "Bloqueado") size 22
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Volver al hub" action Return("back")
+
 label tl_boot_start:
     $ _academic_ensure_store()
     $ _affinity_ensure_store()
@@ -612,17 +800,17 @@ label tl_sakura_hub:
 
     if _return == "go_activities":
         $ tl_current_module = "Actividades"
-        call screen tl_social_profile_screen
+        call screen tl_activities_quest_screen
         jump tl_sakura_hub
 
     if _return == "go_diary":
         $ tl_current_module = "Diario"
-        call screen tl_diary_checklist_screen
+        call screen tl_diary_tabs_screen
         jump tl_sakura_hub
 
     if _return == "go_library":
         $ tl_current_module = "Biblioteca"
-        "Módulo Biblioteca en construcción."
+        call screen tl_library_index_screen
         jump tl_sakura_hub
 
     if _return == "to_main":

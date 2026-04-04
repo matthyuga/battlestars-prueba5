@@ -1,7 +1,7 @@
 # Phase 5 Implementation — Módulos del hub (mínimo viable real)
 
 Fecha: 2026-04-04
-Alcance implementado: F5-C, F5-P, F5-E
+Alcance implementado: F5-C, F5-P, F5-E, F5-A, F5-D, F5-B
 
 ---
 
@@ -49,8 +49,55 @@ Resultado:
 
 ---
 
-## DoD Fase 5 (alcance parcial solicitado)
 
-- Clases: ✅ Lección 1 completa con checks.
-- Práctica: ✅ modo libre configurable operativo.
-- Exámenes: ✅ 1 examen con umbral de aprobación operativo.
+
+---
+
+## F5-A — Actividades
+
+Estado: ✅ Implementado.
+
+- Se creó `tl_activities_quest_screen`.
+- Incluye 1 quest social funcional:
+  - marca check `actividades/activity_1/quest_1`
+  - aplica `+1` afinidad a Airi (`social_mission_success`).
+
+Resultado:
+- Actividades deja de ser placeholder y ya afecta el sistema social.
+
+---
+
+## F5-D — Diario
+
+Estado: ✅ Implementado.
+
+- Se creó `tl_diary_tabs_screen` con 2 tabs:
+  - `Académico (checks)`
+  - `Social (barras/corazón)`
+- La tab social muestra afinidad y estado de romance por personaje sin mezclar lógica académica.
+
+Resultado:
+- Diario centraliza visualmente progreso académico y social en una sola pantalla.
+
+---
+
+## F5-B — Biblioteca
+
+Estado: ✅ Implementado.
+
+- Se creó `tl_library_index_screen` con fichas de:
+  - Cursos (progreso y estado)
+  - Personajes (afinidad + estado de desbloqueo)
+- Estado de desbloqueo de personajes:
+  - `Desbloqueado` si afinidad >= 1
+  - `Bloqueado` si afinidad == 0
+
+Resultado:
+- Biblioteca deja de estar en construcción y entrega información útil del progreso.
+
+---
+
+## DoD Fase 5 (estado actualizado)
+
+- Ningún módulo queda en “en construcción”: ✅
+- MVP jugable de principio a fin: ✅ (flujo completo con módulos funcionales mínimos).
