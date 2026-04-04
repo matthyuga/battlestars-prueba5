@@ -1,7 +1,7 @@
 # Phase 1 Validation — Vertical Slice jugable estable
 
 Fecha: 2026-04-04
-Alcance validado: F1-T1, F1-T2, F1-T3
+Alcance validado: F1-T1, F1-T2, F1-T3, F1-T4, F1-T5
 
 ---
 
@@ -42,6 +42,32 @@ Evidencia:
 
 ---
 
+
+## F1-T4 — Conectar botón “Probar Typing Lab” y retorno limpio al hub
+
+Resultado (inspección de scripts): **PASS**
+
+Evidencia:
+- En lecciones, el botón ahora retorna `open_typing_lab` en lugar de hacer `Jump` directo.
+- En `tl_sakura_hub`, al volver de `tl_lessons_mock_screen`, se detecta `open_typing_lab`, se hace `call typing_lab_start` y luego se regresa al hub.
+- Este patrón evita salida abrupta del flujo y garantiza ida/vuelta limpia desde Clases.
+
+---
+
+## F1-T5 — Mensajes fallback claros cuando falta asset
+
+Resultado (inspección de scripts): **PASS**
+
+Evidencia:
+- Se añadieron mensajes explícitos de fallback para fondos faltantes en:
+  - menú principal,
+  - puerta Sakura,
+  - registro,
+  - hub,
+  - lecciones.
+- Los mensajes informan ruta faltante y uso de fallback visual.
+
+---
 ## Riesgo / limitación de entorno
 
 No se pudo ejecutar validación runtime con Ren'Py en esta sesión de CLI porque el binario `renpy` no está disponible en PATH.
@@ -57,4 +83,12 @@ Recomendación de cierre de fase:
 - F1-T1: ✅ Cumplida por inspección de código.
 - F1-T2: ✅ Cumplida por inspección de código.
 - F1-T3: ✅ Cumplida por inspección de código.
+- F1-T4: ✅ Cumplida por inspección de código.
+- F1-T5: ✅ Cumplida por inspección de código.
 - Runtime end-to-end en engine: ⚠️ Pendiente por dependencia de entorno.
+
+
+## DoD Fase 1 (estado)
+
+- Demo continua 3–5 min sin bloqueos: ⚠️ Pendiente de prueba in-engine (renpy no disponible en esta CLI).
+- Navegación ida/vuelta 100% funcional: ✅ Verificada por inspección de flujo y retornos de labels/screens.

@@ -57,6 +57,7 @@ screen tl_main_menu_screen():
         add bg
     else:
         add "tl_fallback_dark"
+        text "⚠ Falta asset: images/tl/portal_main.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     # Capa para contraste
     add Solid("#00000030")
@@ -126,6 +127,7 @@ screen tl_sakura_gate_screen():
         add bg
     else:
         add "tl_fallback_rose"
+        text "⚠ Falta asset: images/tl/sakura_gate.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     add Solid("#00000022")
 
@@ -151,6 +153,7 @@ screen tl_registration_screen():
         add bg
     else:
         add "tl_fallback_rose"
+        text "⚠ Falta asset: images/tl/sakura_hallway.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     add Solid("#00000088")
 
@@ -208,6 +211,7 @@ screen tl_sakura_hub_screen():
         add bg
     else:
         add "tl_fallback_rose"
+        text "⚠ Falta asset: images/tl/sakura_hallway.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     add Solid("#0000005F")
 
@@ -269,6 +273,7 @@ screen tl_lessons_mock_screen():
         add bg at tl_soft_focus
     else:
         add "tl_fallback_rose"
+        text "⚠ Falta asset: images/tl/sakura_classroom.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     # Oscurecido para que la UI se lea mejor
     add Solid("#00000088")
@@ -302,7 +307,7 @@ screen tl_lessons_mock_screen():
 
                 hbox:
                     spacing 18
-                    textbutton "Probar Typing Lab" action [Hide("tl_lessons_mock_screen"), Jump("typing_lab_start")]
+                    textbutton "Probar Typing Lab" action Return("open_typing_lab")
                     textbutton "Volver al hub" action Return("back")
 
             vbox:
@@ -348,6 +353,8 @@ label tl_sakura_hub:
     if _return == "go_lessons":
         $ tl_current_module = "Clases"
         call screen tl_lessons_mock_screen
+        if _return == "open_typing_lab":
+            call typing_lab_start
         jump tl_sakura_hub
 
     if _return == "go_practice":
