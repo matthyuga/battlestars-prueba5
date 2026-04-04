@@ -93,6 +93,13 @@ init -120 python:
         S.academic_checks = st
         return bool(st[module_key][lesson_key][step_key])
 
+    def get_check(module_id, lesson_id, step_id):
+        module_key = _academic_normalize_module(module_id)
+        lesson_key = str(lesson_id or "").strip().lower()
+        step_key = str(step_id or "").strip().lower()
+        st = _academic_ensure_store()
+        return bool(st.get(module_key, {}).get(lesson_key, {}).get(step_key, False))
+
     def get_check_progress(module_id):
         """Retorna avance por módulo para UI: total, completados y ratio."""
         module_key = _academic_normalize_module(module_id)

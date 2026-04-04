@@ -295,14 +295,22 @@ screen tl_lessons_mock_screen():
             vbox:
                 spacing 10
                 xsize 560
+                $ _c11 = get_check("clases", "lesson_1", "1_1_intro")
+                $ _c12 = get_check("clases", "lesson_1", "1_2_home_row")
+                $ _c13 = get_check("clases", "lesson_1", "1_3_results")
+                $ _c14 = get_check("clases", "lesson_1", "1_4_keys_exercise")
+                $ _c15 = get_check("clases", "lesson_1", "1_5_exam_help")
+                $ _c16 = get_check("clases", "lesson_1", "1_6_words_exercise")
+                $ _c17 = get_check("clases", "lesson_1", "1_7_phrases_exercise")
+
                 text "Clases · Lección 1 (mock)" size 38 color "#FFD7F1"
-                text "1.1 Introducción" size 30
-                text "1.2 Teclas de la Fila Central" size 30
-                text "1.3 Ver resultados" size 30
-                text "1.4 Ejercicio de Teclas" size 30
-                text "1.5 Ayuda: Exámenes" size 30
-                text "1.6 Ejercicio de Palabras" size 30
-                text "1.7 Ejercicio de Párrafos" size 30
+                textbutton "1.1 Introducción{}".format("  ✓" if _c11 else "") action Function(set_check, "clases", "lesson_1", "1_1_intro", True)
+                textbutton "1.2 Teclas de la Fila Central{}".format("  ✓" if _c12 else "") action Function(set_check, "clases", "lesson_1", "1_2_home_row", True)
+                textbutton "1.3 Ver resultados{}".format("  ✓" if _c13 else "") action Function(set_check, "clases", "lesson_1", "1_3_results", True)
+                textbutton "1.4 Ejercicio de Teclas{}".format("  ✓" if _c14 else "") action Function(set_check, "clases", "lesson_1", "1_4_keys_exercise", True)
+                textbutton "1.5 Ayuda: Exámenes{}".format("  ✓" if _c15 else "") action Function(set_check, "clases", "lesson_1", "1_5_exam_help", True)
+                textbutton "1.6 Ejercicio de Palabras{}".format("  ✓" if _c16 else "") action Function(set_check, "clases", "lesson_1", "1_6_words_exercise", True)
+                textbutton "1.7 Ejercicio de Párrafos{}".format("  ✓" if _c17 else "") action Function(set_check, "clases", "lesson_1", "1_7_phrases_exercise", True)
 
                 null height 18
                 text "Puedes usar capturas de Typing Master en esta etapa (sí, totalmente)." size 20 color "#DCCEE6"
@@ -310,6 +318,15 @@ screen tl_lessons_mock_screen():
                 hbox:
                     spacing 18
                     textbutton "Probar Typing Lab" action Return("open_typing_lab")
+                    textbutton "Marcar todo Lección 1" action [
+                        Function(set_check, "clases", "lesson_1", "1_1_intro", True),
+                        Function(set_check, "clases", "lesson_1", "1_2_home_row", True),
+                        Function(set_check, "clases", "lesson_1", "1_3_results", True),
+                        Function(set_check, "clases", "lesson_1", "1_4_keys_exercise", True),
+                        Function(set_check, "clases", "lesson_1", "1_5_exam_help", True),
+                        Function(set_check, "clases", "lesson_1", "1_6_words_exercise", True),
+                        Function(set_check, "clases", "lesson_1", "1_7_phrases_exercise", True),
+                    ]
                     textbutton "Volver al hub" action Return("back")
 
             vbox:
@@ -326,7 +343,58 @@ screen tl_lessons_mock_screen():
                         background Solid("#2A2230")
                         text "Sube aquí: images/tl/tm_lesson_slide_01.png" xalign 0.5 yalign 0.5 size 22
 
+screen tl_diary_checklist_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/tl/sakura_hallway.jpg")
+    if bg:
+        add bg
+    else:
+        add "tl_fallback_rose"
+        text "⚠ Falta asset: images/tl/sakura_hallway.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+
+    add Solid("#00000088")
+    $ _checks = _academic_ensure_store()
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 1120
+        ysize 640
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 10
+            xalign 0.5
+            yalign 0.04
+
+            text "Diario académico · Checklist" size 42 color "#FFD7F1" xalign 0.5
+
+            viewport:
+                draggable True
+                mousewheel True
+                ymaximum 470
+
+                vbox:
+                    spacing 8
+                    for _module_id, _lessons in _checks.items():
+                        $ _mod_prog = get_check_progress(_module_id)
+                        text "[(_module_id.title())]  [(_mod_prog['done'])]/[(_mod_prog['total'])]" size 28 color "#F7E8FF"
+                        for _lesson_id, _steps in _lessons.items():
+                            $ _lesson_done = sum([1 for _v in _steps.values() if _v])
+                            $ _lesson_total = len(_steps)
+                            text "  - [(_lesson_id)]  [(_lesson_done)]/[(_lesson_total)]" size 22 color "#DDD0E7"
+                            for _step_id, _done in _steps.items():
+                                text "      {} {}".format("✓" if _done else "□", _step_id) size 19 color ("#8FFFAD" if _done else "#D2C6DE")
+
+            hbox:
+                spacing 16
+                xalign 0.5
+                textbutton "Volver al hub" action Return("back")
+
 label tl_boot_start:
+    $ _academic_ensure_store()
     call screen tl_main_menu_screen
     if _return == "goto_sakura_gate":
         jump tl_sakura_gate
@@ -376,7 +444,7 @@ label tl_sakura_hub:
 
     if _return == "go_diary":
         $ tl_current_module = "Diario"
-        "Módulo Diario en construcción."
+        call screen tl_diary_checklist_screen
         jump tl_sakura_hub
 
     if _return == "go_library":

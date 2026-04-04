@@ -1,7 +1,7 @@
 # Phase 2 Implementation — Sistema académico por checks
 
 Fecha: 2026-04-04
-Alcance implementado: F2-T1, F2-T2, F2-T3
+Alcance implementado: F2-T1, F2-T2, F2-T3, F2-T4, F2-T5, F2-T6
 
 ---
 
@@ -51,3 +51,37 @@ Integración UI:
 
 - Se añadió migración suave para saves previos vía `_academic_ensure_store` (agrega claves faltantes sin romper datos existentes).
 - El sistema académico queda separado de barras de afinidad/corazón de romance.
+
+
+---
+
+## F2-T4 — Integrar checks en “Clases” (Lección 1.1–1.7)
+
+Estado: ✅ Implementado.
+
+Integración aplicada:
+- En `tl_lessons_mock_screen` se conectaron los 7 ítems de Lección 1 como `textbutton` que marcan check con `set_check(...)`.
+- Cada sublección muestra `✓` cuando su check está activo.
+- Se añadió acción rápida "Marcar todo Lección 1" para pruebas del flujo de progreso.
+
+---
+
+## F2-T5 — Vista en Diario (checklist académico)
+
+Estado: ✅ Implementado.
+
+Integración aplicada:
+- Se creó `tl_diary_checklist_screen`.
+- Muestra checklist académico por módulo/lección/sublección en formato de checks (`✓` / `□`).
+- Se evita cualquier barra de progreso en esta vista (solo checks + conteos X/Y).
+
+---
+
+## F2-T6 — Persistencia en save/load
+
+Estado: ✅ Implementado.
+
+Soporte de persistencia:
+- `default academic_checks = academic_default_checks()` permite guardar/cargar estado en save de Ren'Py.
+- `_academic_ensure_store()` migra/agrega claves faltantes para compatibilidad con saves previos.
+- Se invoca `_academic_ensure_store()` al entrar al bootstrap para garantizar estructura válida en runtime.
