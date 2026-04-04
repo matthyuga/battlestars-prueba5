@@ -393,6 +393,75 @@ screen tl_diary_checklist_screen():
                 xalign 0.5
                 textbutton "Volver al hub" action Return("back")
 
+screen tl_social_profile_screen():
+    tag menu
+    modal True
+
+    default _aff_tip = "Pasa el cursor por una barra para ver la afinidad actual."
+
+    $ bg = tl_asset("images/tl/sakura_hallway.jpg")
+    if bg:
+        add bg
+    else:
+        add "tl_fallback_rose"
+        text "⚠ Falta asset: images/tl/sakura_hallway.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+
+    add Solid("#00000088")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 1160
+        ysize 660
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 10
+            xalign 0.5
+            yalign 0.04
+
+            text "Ficha social · Afinidad por personaje" size 42 color "#FFD7F1" xalign 0.5
+            text "Sistema social separado del académico (solo barras c0..c10)." size 20 color "#E5D5EE" xalign 0.5
+
+            viewport:
+                draggable True
+                mousewheel True
+                ymaximum 470
+
+                vbox:
+                    spacing 8
+                    for _cid in AFFINITY_CHARACTER_IDS:
+                        $ _pts = get_affinity(_cid)
+                        hbox:
+                            spacing 12
+                            xalign 0.5
+
+                            text "[(_cid.title())]" size 24 xminimum 160
+
+                            frame:
+                                xsize 220
+                                ysize 30
+                                background Solid("#00000000")
+                                add get_affinity_bar_image(_cid) xalign 0.0 yalign 0.5
+
+                                button:
+                                    xfill True
+                                    yfill True
+                                    background Solid("#00000000")
+                                    hovered SetScreenVariable("_aff_tip", "Afinidad actual {} / 10 ({})".format(_pts, _cid))
+                                    unhovered SetScreenVariable("_aff_tip", "Pasa el cursor por una barra para ver la afinidad actual.")
+                                    action NullAction()
+
+                            textbutton "+ Interacción" action Function(award_affinity_event, _cid, "interaction_success")
+                            textbutton "+ Misión" action Function(award_affinity_event, _cid, "social_mission_success")
+
+            text "[(_aff_tip)]" size 19 color "#FFD7F1" xalign 0.5
+
+            hbox:
+                spacing 16
+                xalign 0.5
+                textbutton "Volver al hub" action Return("back")
+
 label tl_boot_start:
     $ _academic_ensure_store()
     $ _affinity_ensure_store()
@@ -440,16 +509,7 @@ label tl_sakura_hub:
 
     if _return == "go_activities":
         $ tl_current_module = "Actividades"
-        menu:
-            "Eventos sociales (demo afinidad)":
-                "Interacción exitosa con Airi (+1)":
-                    $ _new_aff = award_affinity_event("airi", "interaction_success")
-                    "Afinidad Airi actual: [_new_aff]/10"
-                "Misión social exitosa con Ren (+1)":
-                    $ _new_aff = award_affinity_event("ren", "social_mission_success")
-                    "Afinidad Ren actual: [_new_aff]/10"
-                "Volver":
-                    pass
+        call screen tl_social_profile_screen
         jump tl_sakura_hub
 
     if _return == "go_diary":
