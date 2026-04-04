@@ -1,3 +1,3 @@
 label start:
     scene black
-    jump typing_lab_start
+    jump tl_boot_start
