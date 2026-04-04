@@ -261,6 +261,8 @@ screen tl_sakura_hub_screen():
 
             text "Vista previa del módulo" size 36 color "#FFD7F1" xalign 0.5
             text "Módulo actual: [tl_current_module]" size 28 xalign 0.5
+            $ _mod_progress = get_check_progress(tl_current_module)
+            text "Progreso académico (checks): [(_mod_progress['done'])]/[(_mod_progress['total'])]" size 22 xalign 0.5
             text "En esta etapa construiremos primero Clases (lecciones)." size 22 xalign 0.5
             text "Luego conectamos Práctica / Exámenes / Actividades / Diario / Biblioteca." size 20 xalign 0.5
 
