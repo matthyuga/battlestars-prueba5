@@ -31,8 +31,9 @@ default tl_player_name = ""
 default tl_player_gender = "none"       # male | female | none
 default tl_experience_mode = 1           # 1=lore off, 2=lore normal, 3=lore+romance
 default tl_current_module = "Clases"
+default tl_selected_academy = "sakura"  # epic | sakura
 
-# Rutas de imagen recomendadas (sube tus fondos aquí cuando quieras):
+# Rutas de imagen recomendadas:
 # typing-games/game/images/tl/
 #   portal_main.jpg
 #   sakura_gate.jpg
@@ -58,14 +59,62 @@ screen tl_main_menu_screen():
         add "tl_fallback_dark"
 
     # Capa para contraste
-    add Solid("#00000055")
+    add Solid("#00000030")
 
     text "TYPING LEGENDS" xalign 0.5 yalign 0.08 size 68 color "#FFD884" outlines [(2, "#3a2200", 0, 0)]
 
-    textbutton "Epic Spell Academy (Bloqueado)" action NullAction() xalign 0.25 yalign 0.73
-    textbutton "Sakura Sunshine Academy" action Return("goto_sakura_gate") xalign 0.74 yalign 0.73
+    # Hotspots sobre puertas (coordenadas pensadas para 1280x720 aprox)
+    # Epic: visible pero bloqueado
+    button:
+        xpos 165
+        ypos 220
+        xsize 360
+        ysize 330
+        background Solid("#FFFFFF00")
+        hovered SetVariable("tl_selected_academy", "epic")
+        action NullAction()
 
-    textbutton "START" action Return("goto_sakura_gate") xalign 0.5 yalign 0.86
+    # Sakura: seleccionable
+    button:
+        xpos 740
+        ypos 220
+        xsize 380
+        ysize 330
+        background Solid("#FFFFFF00")
+        action SetVariable("tl_selected_academy", "sakura")
+
+    # Indicadores de selección
+    if tl_selected_academy == "epic":
+        frame:
+            xpos 150
+            ypos 205
+            xsize 390
+            ysize 360
+            background Solid("#5DA9FF33")
+        text "Epic Spell Academy (bloqueado)" xalign 0.26 yalign 0.73 size 28
+    else:
+        text "Epic Spell Academy (bloqueado)" xalign 0.26 yalign 0.73 size 28 color "#DDDDDD"
+
+    if tl_selected_academy == "sakura":
+        frame:
+            xpos 725
+            ypos 205
+            xsize 410
+            ysize 360
+            background Solid("#FF8ACD44")
+        text "Sakura Sunshine Academy (seleccionada)" xalign 0.73 yalign 0.73 size 28 color "#FFD5EC"
+    else:
+        text "Sakura Sunshine Academy" xalign 0.73 yalign 0.73 size 28 color "#DDDDDD"
+
+    # START usa el botón central de la imagen (recuadro invisible)
+    button:
+        xpos 495
+        ypos 585
+        xsize 290
+        ysize 85
+        background Solid("#FFFFFF00")
+        action Return("goto_sakura_gate") if tl_selected_academy == "sakura" else NullAction()
+
     textbutton "SETTINGS" action ShowMenu("preferences") xalign 0.18 yalign 0.95
 
 screen tl_sakura_gate_screen():
@@ -78,11 +127,19 @@ screen tl_sakura_gate_screen():
     else:
         add "tl_fallback_rose"
 
-    add Solid("#00000033")
+    add Solid("#00000022")
 
     text "SAKURA SUNSHINE ACADEMY" xalign 0.5 yalign 0.09 size 56 color "#FFD7F1" outlines [(2, "#5a1d4a", 0, 0)]
 
-    textbutton "ENTER" action Return("register") xalign 0.5 yalign 0.9
+    # Recuadro sobre botón ENTER de la imagen
+    button:
+        xpos 500
+        ypos 600
+        xsize 280
+        ysize 90
+        background Solid("#FFFFFF00")
+        action Return("register")
+
     textbutton "Volver" action Return("back") xalign 0.1 yalign 0.93
 
 screen tl_registration_screen():
@@ -100,8 +157,8 @@ screen tl_registration_screen():
     frame:
         xalign 0.5
         yalign 0.5
-        xsize 980
-        ysize 560
+        xsize 1060
+        ysize 600
         background Solid("#1B1524DD")
 
         vbox:
@@ -109,29 +166,32 @@ screen tl_registration_screen():
             xalign 0.5
             yalign 0.5
 
-            text "Registro de Jugador" xalign 0.5 size 48 color "#FFD7F1"
+            text "Registro de Jugador" xalign 0.5 size 52 color "#FFD7F1"
 
             hbox:
                 spacing 24
-                text "Nombre:" size 30
+                xalign 0.5
+                text "Nombre:" size 32
                 input value VariableInputValue("tl_player_name") length 20 allow " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZáéíóúÁÉÍÓÚñÑ0123456789_-." xmaximum 520
 
-            text "Sexo del jugador" size 30
+            text "Sexo del jugador" size 32
             hbox:
                 spacing 18
-                textbutton "Masculino" action SetVariable("tl_player_gender", "male")
-                textbutton "Femenino" action SetVariable("tl_player_gender", "female")
-                textbutton "Ninguno" action SetVariable("tl_player_gender", "none")
+                xalign 0.5
+                textbutton "Masculino{}".format(" ✓" if tl_player_gender == "male" else "") action SetVariable("tl_player_gender", "male")
+                textbutton "Femenino{}".format(" ✓" if tl_player_gender == "female" else "") action SetVariable("tl_player_gender", "female")
+                textbutton "Ninguno{}".format(" ✓" if tl_player_gender == "none" else "") action SetVariable("tl_player_gender", "none")
 
-            text "Modo de experiencia" size 30
+            text "Modo de experiencia" size 32
             hbox:
                 spacing 18
-                textbutton "1) Lore desactivado" action SetVariable("tl_experience_mode", 1)
-                textbutton "2) Lore normal" action SetVariable("tl_experience_mode", 2)
-                textbutton "3) Lore + romance" action SetVariable("tl_experience_mode", 3)
+                xalign 0.5
+                textbutton "1) Lore desactivado{}".format(" ✓" if tl_experience_mode == 1 else "") action SetVariable("tl_experience_mode", 1)
+                textbutton "2) Lore normal{}".format(" ✓" if tl_experience_mode == 2 else "") action SetVariable("tl_experience_mode", 2)
+                textbutton "3) Lore + romance{}".format(" ✓" if tl_experience_mode == 3 else "") action SetVariable("tl_experience_mode", 3)
 
-            text "Regla activa: si eliges 'Ninguno', el modo se fuerza a 1 (sin lore ni romance)." size 20 color "#D0BFD6"
-            text "Estado actual -> Sexo: [tl_player_gender] | Modo: [tl_experience_mode]" size 22 color "#F6E5FF"
+            text "Regla activa: si eliges 'Ninguno', el modo se fuerza a 1 (sin lore ni romance)." size 22 color "#D0BFD6"
+            text "Estado actual -> Sexo: [tl_player_gender] | Modo: [tl_experience_mode]" size 24 color "#F6E5FF"
 
             hbox:
                 spacing 20
@@ -152,7 +212,11 @@ screen tl_sakura_hub_screen():
     add Solid("#0000005F")
 
     text "Sakura Sunshine Academy" xalign 0.5 yalign 0.06 size 56 color "#FFD7F1" outlines [(2, "#5a1d4a", 0, 0)]
-    text "Jugador: [tl_player_name if tl_player_name else 'Invitado']  |  Sexo: [tl_player_gender]  |  Modo: [tl_experience_mode]" xalign 0.5 yalign 0.13 size 22
+
+    if tl_player_name:
+        text "Jugador: [tl_player_name]  |  Sexo: [tl_player_gender]  |  Modo: [tl_experience_mode]" xalign 0.5 yalign 0.13 size 22
+    else:
+        text "Jugador: Invitado  |  Sexo: [tl_player_gender]  |  Modo: [tl_experience_mode]" xalign 0.5 yalign 0.13 size 22
 
     # Opciones (tuerca) separado arriba a la derecha
     textbutton "⚙" action ShowMenu("preferences") xalign 0.965 yalign 0.05
