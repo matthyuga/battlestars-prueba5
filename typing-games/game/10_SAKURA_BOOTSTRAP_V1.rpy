@@ -36,9 +36,9 @@ default tl_selected_academy = "sakura"  # epic | sakura
 # Rutas de imagen recomendadas:
 # typing-games/game/images/tl/
 #   typing-games-menu.jpg
-#   sakura_gate.jpg
-#   sakura_hallway.jpg
-#   sakura_classroom.jpg
+#   sakura-sunshine/sakura-sunshine-academy-entrada.jpg
+#   sakura-sunshine/sakura-sunshine-academy-pasillo.jpg
+#   sakura-sunshine/sakura-sunshine-academy-salon.jpg
 #   tm_lesson_slide_01.png ...
 
 image tl_fallback_dark = Solid("#131321")
@@ -114,38 +114,36 @@ screen tl_sakura_gate_screen():
     tag menu
     modal True
 
-    $ bg = tl_asset("images/tl/sakura_gate.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-entrada.jpg")
     if bg:
         add bg
     else:
         add "tl_fallback_rose"
-        text "⚠ Falta asset: images/tl/sakura_gate.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-entrada.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
-    add Solid("#00000022")
+    add Solid("#00000010")
 
-    text "SAKURA SUNSHINE ACADEMY" xalign 0.5 yalign 0.09 size 56 color "#FFD7F1" outlines [(2, "#5a1d4a", 0, 0)]
-
-    # Recuadro sobre botón ENTER de la imagen
+    # Recuadro sobre botón ENTER de la imagen (1280x720)
     button:
-        xpos 500
-        ypos 600
-        xsize 280
-        ysize 90
+        xpos 430
+        ypos 560
+        xsize 420
+        ysize 110
         background Solid("#FFFFFF00")
         action Return("register")
 
-    textbutton "Volver" action Return("back") xalign 0.1 yalign 0.93
+    textbutton "Volver" action Return("back") xpos 110 ypos 650
 
 screen tl_registration_screen():
     tag menu
     modal True
 
-    $ bg = tl_asset("images/tl/sakura_hallway.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
     if bg:
         add bg
     else:
         add "tl_fallback_rose"
-        text "⚠ Falta asset: images/tl/sakura_hallway.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     add Solid("#00000088")
 
@@ -198,12 +196,12 @@ screen tl_sakura_hub_screen():
     tag menu
     modal True
 
-    $ bg = tl_asset("images/tl/sakura_hallway.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
     if bg:
         add bg
     else:
         add "tl_fallback_rose"
-        text "⚠ Falta asset: images/tl/sakura_hallway.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     add Solid("#0000005F")
 
@@ -262,12 +260,12 @@ screen tl_lessons_mock_screen():
     tag menu
     modal True
 
-    $ bg = tl_asset("images/tl/sakura_classroom.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
         add bg at tl_soft_focus
     else:
         add "tl_fallback_rose"
-        text "⚠ Falta asset: images/tl/sakura_classroom.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-salon.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     # Oscurecido para que la UI se lea mejor
     add Solid("#00000088")
@@ -342,12 +340,12 @@ screen tl_diary_checklist_screen():
     tag menu
     modal True
 
-    $ bg = tl_asset("images/tl/sakura_hallway.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
     if bg:
         add bg
     else:
         add "tl_fallback_rose"
-        text "⚠ Falta asset: images/tl/sakura_hallway.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     add Solid("#00000088")
     $ _checks = _academic_ensure_store()
@@ -394,12 +392,12 @@ screen tl_social_profile_screen():
 
     default _aff_tip = "Pasa el cursor por una barra para ver la afinidad actual."
 
-    $ bg = tl_asset("images/tl/sakura_hallway.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
     if bg:
         add bg
     else:
         add "tl_fallback_rose"
-        text "⚠ Falta asset: images/tl/sakura_hallway.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     add Solid("#00000088")
 
@@ -473,7 +471,7 @@ screen tl_practice_mode_screen():
     tag menu
     modal True
 
-    $ bg = tl_asset("images/tl/sakura_classroom.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
         add bg at tl_soft_focus
     else:
@@ -514,7 +512,7 @@ screen tl_exam_entry_screen():
     tag menu
     modal True
 
-    $ bg = tl_asset("images/tl/sakura_classroom.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
         add bg at tl_soft_focus
     else:
@@ -549,7 +547,7 @@ screen tl_activities_quest_screen():
 
     default _msg = "Completa la quest social para subir afinidad."
 
-    $ bg = tl_asset("images/tl/sakura_hallway.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
     if bg:
         add bg
     else:
@@ -599,7 +597,7 @@ screen tl_diary_tabs_screen():
 
     default _tab = "academic"
 
-    $ bg = tl_asset("images/tl/sakura_hallway.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
     if bg:
         add bg
     else:
@@ -676,7 +674,7 @@ screen tl_library_index_screen():
 
     default _tab = "courses"
 
-    $ bg = tl_asset("images/tl/sakura_classroom.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
         add bg at tl_soft_focus
     else:
