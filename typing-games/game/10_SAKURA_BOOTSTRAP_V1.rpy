@@ -302,8 +302,10 @@ screen tl_lessons_mock_screen():
                 $ _c15 = get_check("clases", "lesson_1", "1_5_exam_help")
                 $ _c16 = get_check("clases", "lesson_1", "1_6_words_exercise")
                 $ _c17 = get_check("clases", "lesson_1", "1_7_phrases_exercise")
+                $ _lesson_done = sum([1 for _v in [_c11, _c12, _c13, _c14, _c15, _c16, _c17] if _v])
 
                 text "Clases · Lección 1 (mock)" size 38 color "#FFD7F1"
+                text "Progreso Lección 1: [(_lesson_done)]/7" size 24 color "#EADAF2"
                 textbutton "1.1 Introducción{}".format("  ✓" if _c11 else "") action Function(set_check, "clases", "lesson_1", "1_1_intro", True)
                 textbutton "1.2 Teclas de la Fila Central{}".format("  ✓" if _c12 else "") action Function(set_check, "clases", "lesson_1", "1_2_home_row", True)
                 textbutton "1.3 Ver resultados{}".format("  ✓" if _c13 else "") action Function(set_check, "clases", "lesson_1", "1_3_results", True)
@@ -327,6 +329,7 @@ screen tl_lessons_mock_screen():
                         Function(set_check, "clases", "lesson_1", "1_6_words_exercise", True),
                         Function(set_check, "clases", "lesson_1", "1_7_phrases_exercise", True),
                     ]
+                    textbutton "Finalizar Lección 1" action Return("complete_lesson_1") if _lesson_done >= 7 else NullAction()
                     textbutton "Volver al hub" action Return("back")
 
             vbox:
@@ -474,6 +477,80 @@ screen tl_social_profile_screen():
                 xalign 0.5
                 textbutton "Volver al hub" action Return("back")
 
+screen tl_practice_mode_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/tl/sakura_classroom.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 880
+        ysize 520
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 16
+            xalign 0.5
+            yalign 0.08
+
+            text "Práctica · Modo libre" size 42 color "#FFD7F1" xalign 0.5
+            text "Selecciona modo de práctica para Typing Lab" size 22 color "#E8D9F0" xalign 0.5
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Letras" action SetVariable("typing_lab_selected_mode", "letters")
+                textbutton "Palabras" action SetVariable("typing_lab_selected_mode", "words")
+                textbutton "Frases" action SetVariable("typing_lab_selected_mode", "phrases")
+
+            text "Modo actual: [typing_lab_selected_mode]" size 24 xalign 0.5
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Iniciar práctica" action Return("start_practice")
+                textbutton "Volver al hub" action Return("back")
+
+screen tl_exam_entry_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/tl/sakura_classroom.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 900
+        ysize 520
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 16
+            xalign 0.5
+            yalign 0.08
+
+            text "Examen académico · Intento 1" size 42 color "#FFD7F1" xalign 0.5
+            text "Umbral de aprobación: 50 puntos" size 26 color "#FFE5B1" xalign 0.5
+            text "Modo del examen: frases" size 22 color "#E8D9F0" xalign 0.5
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Rendir examen" action Return("start_exam")
+                textbutton "Volver al hub" action Return("back")
+
 label tl_boot_start:
     $ _academic_ensure_store()
     $ _affinity_ensure_store()
@@ -508,16 +585,29 @@ label tl_sakura_hub:
         call screen tl_lessons_mock_screen
         if _return == "open_typing_lab":
             call typing_lab_start
+        if _return == "complete_lesson_1":
+            "Lección 1 completada con checks."
         jump tl_sakura_hub
 
     if _return == "go_practice":
         $ tl_current_module = "Práctica"
-        "Módulo Práctica (modo libre) en construcción."
+        call screen tl_practice_mode_screen
+        if _return == "start_practice":
+            call typing_lab_start
         jump tl_sakura_hub
 
     if _return == "go_exams":
         $ tl_current_module = "Exámenes"
-        "Módulo Exámenes en construcción."
+        call screen tl_exam_entry_screen
+        if _return == "start_exam":
+            $ typing_lab_selected_mode = "phrases"
+            call typing_lab_start
+            $ _exam_score = int(typing_lab_state.get("total_score", 0) if isinstance(typing_lab_state, dict) else 0)
+            if _exam_score >= 50:
+                $ set_check("examenes", "exam_1", "attempt_1", True)
+                "Examen aprobado. Puntaje: [(_exam_score)]"
+            else:
+                "Examen no aprobado. Puntaje: [(_exam_score)] (mínimo 50)."
         jump tl_sakura_hub
 
     if _return == "go_activities":
