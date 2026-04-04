@@ -465,6 +465,7 @@ screen tl_social_profile_screen():
 label tl_boot_start:
     $ _academic_ensure_store()
     $ _affinity_ensure_store()
+    $ _romance_ensure_store()
     call screen tl_main_menu_screen
     if _return == "goto_sakura_gate":
         jump tl_sakura_gate
