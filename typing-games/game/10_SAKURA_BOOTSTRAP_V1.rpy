@@ -395,6 +395,7 @@ screen tl_diary_checklist_screen():
 
 label tl_boot_start:
     $ _academic_ensure_store()
+    $ _affinity_ensure_store()
     call screen tl_main_menu_screen
     if _return == "goto_sakura_gate":
         jump tl_sakura_gate
@@ -439,7 +440,16 @@ label tl_sakura_hub:
 
     if _return == "go_activities":
         $ tl_current_module = "Actividades"
-        "Módulo Actividades en construcción."
+        menu:
+            "Eventos sociales (demo afinidad)":
+                "Interacción exitosa con Airi (+1)":
+                    $ _new_aff = award_affinity_event("airi", "interaction_success")
+                    "Afinidad Airi actual: [_new_aff]/10"
+                "Misión social exitosa con Ren (+1)":
+                    $ _new_aff = award_affinity_event("ren", "social_mission_success")
+                    "Afinidad Ren actual: [_new_aff]/10"
+                "Volver":
+                    pass
         jump tl_sakura_hub
 
     if _return == "go_diary":
