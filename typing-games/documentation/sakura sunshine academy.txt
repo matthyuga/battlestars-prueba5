@@ -1,0 +1,553 @@
+Sí, y de hecho me parece una muy buena decisión empezar por **Sakura Sunshine Academy** primero.
+
+Tiene varias ventajas:
+
+* es más simple de producir que Epic Spell Academy,
+* reutiliza mejor la lógica de lecciones de typing,
+* permite meter narrativa, afinidad y romance sin tener que construir primero sistemas pesados de combate,
+* y puede servir como base técnica para luego escalar al modo épico.
+
+Yo lo pensaría así:
+
+# Núcleo de Sakura Sunshine Academy
+
+La fantasía principal no sería “salvar el mundo”, sino:
+
+**entrar a una academia encantadora, asistir a clases, mejorar tu mecanografía, conocer personajes, ayudar en pequeñas quests escolares y desbloquear vínculos, escenas y rutas.**
+
+O sea, el typing no se siente como un examen seco, sino como parte de la vida en la academia.
+
+---
+
+# Estructura general del modo Sakura
+
+## 1. Ciclo principal de juego
+
+El loop podría ser:
+
+**ir a clase → hacer práctica o misión → ganar rendimiento y afinidad → desbloquear eventos → rendir examen → avanzar de nivel**
+
+Eso ya te da una estructura clara.
+
+Podría quedar dividido en:
+
+* **Clases**
+
+  * Básico
+  * Intermedio
+  * Avanzado
+
+* **Repaso**
+
+  * teclas difíciles
+  * palabras conflictivas
+  * frases personalizadas
+  * práctica temática
+
+* **Exámenes**
+
+  * pruebas por nivel
+  * prueba final de curso
+  * evaluación especial por personaje o club
+
+* **Vida escolar**
+
+  * quests
+  * conversaciones
+  * eventos
+  * afinidad
+  * rutas
+
+---
+
+# Cómo encaja el romance sin complicarlo demasiado
+
+Como decías, el tema romance está medio en blanco. La mejor forma de resolverlo es **no arrancar pensando en romance puro**, sino en esto:
+
+## primero: vínculo
+
+Cada personaje tiene:
+
+* afinidad
+* confianza
+* interés
+* eventos personales
+
+## después: ruta opcional
+
+Si el jugador quiere, ese vínculo puede ir a:
+
+* amistad fuerte
+* compañerismo
+* romance suave
+* romance más marcado
+
+Así no obligas al juego a ser una dating sim pura.
+Puede seguir siendo una **academia de typing con narrativa social**.
+
+---
+
+# Propuesta de estructura de rutas
+
+Yo haría **3 capas**:
+
+## Capa 1 — Ruta general de academia
+
+La historia base que todos viven:
+
+* llegada a la academia
+* presentación de clases
+* primeros compañeros
+* primer examen
+* festivales / actividades
+* progreso académico
+
+## Capa 2 — Eventos de personaje
+
+Cada personaje tiene escenas propias:
+
+* te ayuda a estudiar
+* te pide ayuda con algo
+* entrenan juntos
+* comparten un momento casual
+* se abre su trasfondo
+
+## Capa 3 — Ruta exclusiva
+
+Cuando subes suficiente afinidad y cumples ciertas condiciones:
+
+* eliges pasar más tiempo con ese personaje
+* se activa su ruta
+* desbloqueas escenas únicas
+* final de amistad o romance
+
+Así puedes empezar simple y luego ampliar.
+
+---
+
+# Qué personajes conviene tener
+
+Para empezar, no haría demasiados.
+Yo arrancaría con:
+
+* **3 personajes principales romanceables**
+* **2 personajes secundarios importantes**
+* **1 director/a o guía general**
+
+Por ejemplo:
+
+## Personajes romanceables
+
+### 1. La estudiante ejemplar
+
+Ordenada, elegante, responsable, algo estricta.
+Ideal para quests de estudio, exámenes, disciplina, biblioteca.
+
+### 2. La chica alegre y social
+
+Energía alta, optimista, torpe pero encantadora.
+Ideal para eventos cotidianos, festivales, club, patio, bromas.
+
+### 3. La reservada o misteriosa
+
+Más callada, sensible, quizás brillante pero insegura.
+Ideal para escenas nocturnas, jardín, observatorio, lluvia, cartas.
+
+Y si quieres también:
+
+* un chico serio,
+* un chico amable,
+* o un tutor joven,
+  si luego decides ampliar opciones.
+
+Pero para arrancar, **3 rutas bien hechas valen más que 8 vacías**.
+
+---
+
+# Cómo unir el typing con las quests
+
+Acá está la clave para que no parezca “menú de lecciones con diálogos pegados”.
+
+Las quests tienen que justificar ejercicios de tipeo.
+
+## Ejemplos:
+
+### Quest de biblioteca
+
+Un personaje te pide ayudar a catalogar libros.
+Eso activa ejercicios de:
+
+* palabras largas
+* vocabulario formal
+* precisión
+
+### Quest de club de cocina
+
+Hay que copiar recetas o instrucciones.
+Eso activa:
+
+* frases medianas
+* símbolos
+* ritmo constante
+
+### Quest de organización del festival
+
+Debes redactar carteles, invitaciones o listas.
+Eso activa:
+
+* palabras variadas
+* velocidad
+* multitarea narrativa
+
+### Quest de tutoría
+
+Ayudas a un personaje a estudiar.
+Eso activa:
+
+* práctica guiada
+* repaso de teclas problemáticas
+* mini examen compartido
+
+### Quest de cartas o mensajes
+
+Ideal para romance.
+Debes escribir una respuesta, un mensaje, una nota.
+Eso activa:
+
+* fragmentos cortos
+* precisión alta
+* escenas emotivas
+
+Entonces el typing se vuelve parte natural del mundo.
+
+---
+
+# Sistema de afinidad
+
+Lo haría simple al inicio.
+
+Cada personaje tendría:
+
+* **Afinidad**
+* **Confianza**
+* **Eventos vistos**
+* **Estado de ruta**
+
+## Afinidad sube por:
+
+* hacer quests con ese personaje
+* elegir ciertas respuestas
+* rendir bien en actividades relacionadas con él/ella
+* regalar objetos pequeños o ayudar en eventos
+
+## Confianza sube por:
+
+* constancia
+* aprobar exámenes
+* estar en escenas clave
+* cumplir favores importantes
+
+La diferencia puede ser:
+
+* **afinidad** = cariño / cercanía
+* **confianza** = cuánto cree en ti
+
+Eso da más profundidad sin complicarlo mucho.
+
+---
+
+# Propuesta concreta de progresión académica
+
+## Curso básico
+
+Objetivo narrativo: adaptación a la academia.
+
+Contenido:
+
+* fila guía
+* letras comunes
+* palabras cortas
+* introducción a postura y ritmo
+* primer examen sencillo
+
+Quests asociadas:
+
+* recorrer la academia
+* conocer personajes
+* ayudar con tareas simples
+* un evento de bienvenida
+* primer estudio compartido
+
+Sensación:
+
+* cálido
+* ligero
+* descubrimiento
+
+---
+
+## Curso intermedio
+
+Objetivo narrativo: consolidación y primeros conflictos.
+
+Contenido:
+
+* combinaciones complejas
+* palabras más largas
+* frases
+* velocidad estable
+* precisión sostenida
+* examen más exigente
+
+Quests asociadas:
+
+* clubes
+* mini competencias
+* festival escolar
+* ayudar a personajes con problemas personales
+* decisiones que suben afinidad
+
+Sensación:
+
+* más vida escolar
+* más vínculos
+* primeras rutas definidas
+
+---
+
+## Curso avanzado
+
+Objetivo narrativo: especialización, cierre de rutas y graduación.
+
+Contenido:
+
+* textos largos
+* puntuación
+* ritmo alto
+* exámenes completos
+* desafío final
+
+Quests asociadas:
+
+* apoyo emocional a personajes
+* proyecto final
+* examen de graduación
+* confesión / desenlace / promesa futura
+* cierre de ruta
+
+Sensación:
+
+* madurez
+* recompensa
+* finales
+
+---
+
+# Sección de repaso
+
+Esto puede ser muy fuerte y además encaja perfecto con el espíritu “personalizado”.
+
+Yo la dividiría así:
+
+## 1. Repaso libre
+
+El jugador elige:
+
+* letras
+* sílabas
+* palabras
+* frases
+
+## 2. Repaso inteligente
+
+El juego detecta:
+
+* teclas falladas
+* combinaciones lentas
+* errores frecuentes
+
+Y genera ejercicios según eso.
+
+## 3. Repaso temático
+
+Ejercicios ligados a personajes o ambientación:
+
+* vocabulario escolar
+* cartas románticas
+* recetas
+* carteles del festival
+* poemas
+* mensajes del club
+
+Eso le da identidad propia y evita que parezca una copia seca de Typing Master.
+
+---
+
+# Exámenes
+
+## Exámenes normales
+
+Para pasar de básico a intermedio y de intermedio a avanzado.
+
+Miden:
+
+* ppm
+* precisión
+* errores
+* consistencia
+
+## Exámenes narrativos
+
+Más interesantes que un examen común:
+
+* ayudar a redactar algo importante
+* completar una actividad del festival
+* prueba conjunta con un personaje
+* examen final ceremonial de la academia
+
+Así el examen tiene peso emocional.
+
+---
+
+# Quests: cómo organizarlas
+
+Yo usaría 4 tipos:
+
+## 1. Quests principales
+
+Avanzan el curso y la historia general.
+
+## 2. Quests de personaje
+
+Suben afinidad y desbloquean eventos.
+
+## 3. Quests de academia
+
+Tareas escolares, clubes, biblioteca, festivales.
+
+## 4. Quests de práctica
+
+Actividades cortas opcionales para farmear:
+
+* puntos
+* monedas
+* cosméticos
+* escenas menores
+
+---
+
+# Recompensas posibles
+
+Para que el jugador sienta progreso aunque no esté en romance:
+
+* puntos académicos
+* rango de alumna/o
+* afinidad
+* escenas
+* ilustraciones
+* cartas o mensajes guardados en crónica
+* fondos / temas visuales
+* accesorios o detalles cosméticos del perfil
+* títulos tipo:
+
+  * Alumno aplicado
+  * Asistente del club
+  * Estrella del festival
+  * Confidente
+  * Prodigio de Sakura
+
+---
+
+# Rutas: conviene o no conviene
+
+Sí conviene, pero con control.
+
+No haría rutas gigantes desde el inicio.
+Haría esto:
+
+## Ruta ligera en versión 1
+
+Cada personaje tiene:
+
+* 5 a 7 eventos
+* 1 decisión importante
+* 1 cierre de amistad
+* 1 cierre romántico
+
+Eso ya alcanza para que se sienta real.
+
+Más adelante puedes expandir.
+
+---
+
+# Forma práctica de arrancar sin abrumarte
+
+Te recomiendo definir primero esta versión mínima:
+
+## Versión base de Sakura Sunshine Academy
+
+* 1 mapa simple de academia
+* 3 personajes principales
+* 1 curso básico completo
+* 1 sistema de afinidad sencillo
+* 10 a 15 quests
+* 1 examen final de básico
+* 1 ruta inicial por personaje con 2 o 3 eventos
+
+Con eso ya tienes un prototipo con identidad.
+
+Luego escalas a:
+
+* intermedio
+* avanzado
+* más rutas
+* más eventos
+* más personalización
+
+---
+
+# Mi propuesta de identidad para Sakura
+
+Para diferenciarlo de Epic Spell Academy:
+
+## Sakura Sunshine Academy debería sentirse:
+
+* más cálido
+* más humano
+* más cotidiano
+* más bonito y relajante
+* más centrado en progreso personal y vínculos
+
+Mientras Epic Spell Academy sería:
+
+* más épico
+* más oscuro
+* más desafiante
+* más mecánico
+* más orientado a pruebas y poder
+
+Entonces uno no reemplaza al otro: se complementan.
+
+---
+
+# Una fórmula muy buena para Sakura
+
+Te la resumiría así:
+
+**Typing Master reinterpretado como una academia escolar con vínculos, quests, repaso personalizado, exámenes narrativos y rutas opcionales de amistad/romance.**
+
+Ese concepto ya está bastante sólido.
+
+---
+
+# Qué haría yo como siguiente paso
+
+Armaría ahora mismo estas 5 piezas:
+
+1. **estructura del modo Sakura Sunshine Academy**
+2. **lista de pantallas o módulos**
+3. **3 personajes base con personalidad y rol jugable**
+4. **sistema de afinidad y quests**
+5. **plan por fases para construirlo en Ren'Py**
+
+Puedo hacerlo todo ya y dejarte la base bastante ordenada para llevarla al proyecto.

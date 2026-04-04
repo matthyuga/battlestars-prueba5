@@ -1,0 +1,242 @@
+Backlog maestro (MVP Sakura/Typing Legends)
+Basado en la estructura ya existente de flujo/hub/módulos y registro de modo experiencia.
+
+FASE 0 — Consolidación técnica y contrato de datos
+Objetivo
+Dejar una base limpia para no romper al integrar checks + afinidad + romance.
+
+Tareas (granular)
+F0-T1 Inventariar rutas de assets usadas en scripts (menu, gate, hallway, classroom, GUI).
+
+F0-T2 Definir estructura de datos persistente:
+
+academic_checks
+
+affinity_points[character_id]
+
+romance_points[character_id]
+
+flags de desbloqueo/gating.
+
+F0-T3 Crear documento de contrato (MVP_DATA_CONTRACT.md) con tipos/rangos.
+
+F0-T4 Definir IDs estables de personajes (ej. airi, ren, misaki).
+
+F0-T5 Definir naming de estados visuales:
+
+barra: c0..c10
+
+corazón: p0..p24 (y reservar p25 futuro).
+
+Dependencias
+Ninguna (arranque).
+
+DoD
+Contrato aprobado.
+
+IDs y rangos cerrados.
+
+No hay ambigüedad en pisos/techos.
+
+FASE 1 — Vertical slice jugable estable (flujo principal)
+Objetivo
+Ruta completa jugable sin crash desde start hasta volver al hub.
+
+Tareas
+F1-T1 Verificar flujo actual: start -> tl_boot_start -> gate -> registro -> hub -> clases.
+
+F1-T2 Confirmar hotspots de START/ENTER y navegación de retorno.
+
+F1-T3 Mantener blur+dark overlay en aula de lecciones.
+
+F1-T4 Conectar botón de “Probar Typing Lab” y retorno limpio al hub.
+
+F1-T5 Añadir mensajes de fallback claros si falta asset.
+
+Dependencias
+Fase 0 completada.
+
+DoD
+Demo de 3–5 min continua sin bloqueos.
+
+Navegación ida/vuelta 100% funcional.
+
+FASE 2 — Sistema académico por checks (sin barras)
+Objetivo
+Progreso académico solo como checks por módulo/lección.
+
+Tareas
+F2-T1 Diseñar estructura academic_checks (módulo > lección > sublección).
+
+F2-T2 Crear función set_check(module, lesson, step, value=True).
+
+F2-T3 Crear función get_check_progress(module) para mostrar completado.
+
+F2-T4 Integrar checks en “Clases” (Lección 1.1–1.7).
+
+F2-T5 Crear vista en Diario: checklist académico.
+
+F2-T6 Persistencia en save/load.
+
+Dependencias
+Fase 1.
+
+DoD
+Las lecciones marcan checks correctamente.
+
+Diario muestra progreso académico sin usar barras.
+
+FASE 3 — Afinidad social con barras (0..10)
+Objetivo
+Barras reservadas exclusivamente a afinidad de personaje.
+
+Tareas
+F3-T1 Crear affinity_points por personaje (default 0).
+
+F3-T2 Función add_affinity(character_id, +1) con clamp 0..10.
+
+F3-T3 Definir eventos que suman afinidad:
+
+interacción exitosa,
+
+misión social exitosa.
+
+F3-T4 Render visual con c0..c10.
+
+F3-T5 Pantalla de ficha social (lista de personajes + barra).
+
+F3-T6 Tooltips: “Afinidad actual X/10”.
+
+Dependencias
+Fase 2 (para separar académico/social).
+
+DoD
+Todos los personajes tienen barra funcional.
+
+No hay mezcla con progreso académico.
+
+FASE 4 — Romance opcional (modo 3 + elegibilidad)
+Objetivo
+Corazón fragmentado solo cuando se cumplan tus reglas.
+
+Tareas
+F4-T1 Implementar is_romance_enabled(player_mode, player_gender, character_id).
+
+F4-T2 romance_points por personaje (default 0).
+
+F4-T3 Función add_romance(character_id, +1) con clamp 0..24 (hoy).
+
+F4-T4 Agregar estado visual p0 (corazón vacío).
+
+F4-T5 Renderizar corazón p0..p24; reservar p25 futuro.
+
+F4-T6 Mensaje UI si romance bloqueado:
+
+“Disponible solo en modo 3”
+
+“No elegible con configuración actual”.
+
+Dependencias
+Fase 3 (porque romance es capa sobre social).
+
+DoD
+Romance solo aparece en modo 3.
+
+Reglas de elegibilidad funcionan.
+
+Corazón no rompe flujo de jugadores no-romance.
+
+FASE 5 — Completar módulos del hub (mínimo viable real)
+Objetivo
+Que los 6 módulos tengan funcionalidad mínima real.
+
+Tareas por módulo
+F5-C Clases
+
+Lección 1 completa con checks.
+
+F5-P Práctica
+
+Modo libre configurable (letras/palabras/frases).
+
+F5-E Exámenes
+
+1 examen con umbral de aprobación.
+
+F5-A Actividades
+
+1 quest social que afecte afinidad.
+
+F5-D Diario
+
+Tab “Académico (checks)” + “Social (barras/corazón)”.
+
+F5-B Biblioteca
+
+Fichas de cursos + personajes + estado de desbloqueo.
+
+Dependencias
+Fases 2, 3 y 4.
+
+DoD
+Ningún módulo queda en “en construcción”.
+
+MVP jugable de principio a fin.
+
+FASE 6 — QA, balance y expansión
+Objetivo
+Pulir experiencia antes de escalar contenido.
+
+Tareas
+F6-T1 QA funcional (rutas, retorno, save/load, edge cases).
+
+F6-T2 Balance de puntos:
+
+afinidad (+1 por éxito),
+
+romance (ritmo por eventos).
+
+F6-T3 QA visual (barras, corazón, fallback assets).
+
+F6-T4 Preparar expansión:
+
+pieza p25,
+
+rutas por personaje,
+
+más quests/lecciones.
+
+Dependencias
+Todas las anteriores.
+
+DoD
+Build estable para pruebas externas.
+
+Sin bloqueos críticos.
+
+Tablero sugerido (para ejecución fácil)
+Now (inmediato): F0 + F2
+
+Next: F3
+
+Then: F4
+
+After: F5
+
+Ongoing: F6
+
+Mini plantilla por tarea (para copiar/pegar)
+ID: F3-T2
+
+Resumen: Crear add_affinity(character_id, amount=1)
+
+Entrada: interacción/misión exitosa
+
+Salida: puntos 0..10 + refresh UI
+
+Criterio aceptación: no pasa de 10 ni baja de 0; persistencia OK
+
+Dependencias: F0-T2, F3-T1
+
+Estimación: 2–3h
+
