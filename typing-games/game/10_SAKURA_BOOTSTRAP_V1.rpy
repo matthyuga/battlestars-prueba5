@@ -46,6 +46,9 @@ default tl_player_gender = "none"       # male | female | none
 default tl_experience_mode = 1           # 1=lore off, 2=lore normal, 3=lore+romance
 default tl_current_module = "Clases"
 default tl_selected_academy = "sakura"  # epic | sakura
+default tl_class_category = "basic"     # basic | intermediate | advanced
+default tl_selected_teacher = ""        # haru | misaki
+default tl_selected_sublesson = ""      # 1_1_intro ... 1_7_phrases_exercise
 
 # Rutas de imagen recomendadas:
 # typing-games/game/images/tl/
@@ -347,6 +350,276 @@ screen tl_place_placeholder_screen(place_name="Lugar"):
             text "[place_name]" size 44 color "#FFD7F1" xalign 0.5
             text "Zona en construcción (placeholder)." size 24 color "#E8D9F0" xalign 0.5
             textbutton "Volver al hub" action Return("back") xalign 0.5
+
+screen tl_classes_category_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 980
+        ysize 560
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 18
+            xalign 0.5
+            yalign 0.08
+
+            text "Clases · Selección académica" size 42 color "#FFD7F1" xalign 0.5
+            text "Elige categoría para iniciar el curso." size 24 color "#E8D9F0" xalign 0.5
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Básica{}".format(" ✓" if tl_class_category == "basic" else "") action SetVariable("tl_class_category", "basic")
+                textbutton "Intermedia (próximamente)" action NullAction() sensitive False
+                textbutton "Avanzada (próximamente)" action NullAction() sensitive False
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Continuar" action Return("continue_basic") sensitive (tl_class_category == "basic")
+                textbutton "Volver al hub" action Return("back")
+
+screen tl_classes_teacher_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 1100
+        ysize 620
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 16
+            xalign 0.5
+            yalign 0.06
+
+            text "Clases Básica · Selección docente" size 40 color "#FFD7F1" xalign 0.5
+            text "Selecciona docente para continuar." size 22 color "#E8D9F0" xalign 0.5
+
+            hbox:
+                spacing 28
+                xalign 0.5
+
+                button:
+                    background Solid("#00000000")
+                    action SetVariable("tl_selected_teacher", "haru")
+                    frame:
+                        xsize 360
+                        ysize 380
+                        background Solid("#FFFFFF00")
+                        if tl_selected_teacher == "haru":
+                            add Solid("#FFD7F133")
+                        $ _haru = tl_asset("images/sakura-sunshine/characters/haru.png")
+                        if _haru:
+                            add _haru fit "contain" xalign 0.5 yalign 0.5
+                        else:
+                            frame:
+                                xalign 0.5
+                                yalign 0.45
+                                xsize 280
+                                ysize 270
+                                background Solid("#2A2230")
+                                text "Sprite Haru" xalign 0.5 yalign 0.5 size 28
+                        text "Haru" xalign 0.5 yalign 0.92 size 30 color "#F7E8FF"
+
+                button:
+                    background Solid("#00000000")
+                    action SetVariable("tl_selected_teacher", "misaki")
+                    frame:
+                        xsize 360
+                        ysize 380
+                        background Solid("#FFFFFF00")
+                        if tl_selected_teacher == "misaki":
+                            add Solid("#FFD7F133")
+                        $ _misaki = tl_asset("images/sakura-sunshine/characters/misaki.png")
+                        if _misaki:
+                            add _misaki fit "contain" xalign 0.5 yalign 0.5
+                        else:
+                            frame:
+                                xalign 0.5
+                                yalign 0.45
+                                xsize 280
+                                ysize 270
+                                background Solid("#2A2230")
+                                text "Sprite Misaki" xalign 0.5 yalign 0.5 size 28
+                        text "Misaki" xalign 0.5 yalign 0.92 size 30 color "#F7E8FF"
+
+            text "Docente elegida/o: [tl_selected_teacher if tl_selected_teacher else '—']" xalign 0.5 size 22 color "#E8D9F0"
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Continuar" action Return("continue") sensitive (len((tl_selected_teacher or "").strip()) > 0)
+                textbutton "Atrás" action Return("back")
+
+screen tl_classes_course_intro_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 980
+        ysize 560
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 16
+            xalign 0.5
+            yalign 0.08
+
+            text "Curso de Escritura al Tacto" size 44 color "#FFD7F1" xalign 0.5
+            text "Resumen rápido estilo Typing Master:" size 24 color "#E8D9F0" xalign 0.5
+            text "• Postura y posición de manos en fila central." size 22 xalign 0.5
+            text "• Precisión antes que velocidad, con práctica progresiva." size 22 xalign 0.5
+            text "• Letras → palabras → frases para consolidar memoria muscular." size 22 xalign 0.5
+            text "Docente actual: [tl_selected_teacher.title() if tl_selected_teacher else 'Sin asignar']" size 22 color "#E8D9F0" xalign 0.5
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Continuar curso" action Return("continue")
+                textbutton "Atrás" action Return("back")
+
+screen tl_classes_lesson_panel_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    $ _s11 = get_check("clases", "lesson_1", "1_1_intro")
+    $ _s12 = get_check("clases", "lesson_1", "1_2_home_row")
+    $ _s13 = get_check("clases", "lesson_1", "1_3_results")
+    $ _s14 = get_check("clases", "lesson_1", "1_4_keys_exercise")
+    $ _s15 = get_check("clases", "lesson_1", "1_5_exam_help")
+    $ _s16 = get_check("clases", "lesson_1", "1_6_words_exercise")
+    $ _s17 = get_check("clases", "lesson_1", "1_7_phrases_exercise")
+    $ _lesson_done = sum([1 for _v in [_s11, _s12, _s13, _s14, _s15, _s16, _s17] if _v])
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 1120
+        ysize 650
+        background Solid("#151019DE")
+
+        hbox:
+            spacing 20
+            xalign 0.5
+            yalign 0.06
+
+            vbox:
+                spacing 8
+                xsize 620
+                text "Lección 1 · Panel de submódulos" size 40 color "#FFD7F1"
+                text "Progreso: [_lesson_done]/7 checks" size 24 color "#E8D9F0"
+
+                textbutton "1.1 Introducción {}".format("✓" if _s11 else "□") action SetVariable("tl_selected_sublesson", "1_1_intro")
+                textbutton "1.2 Fila central {}".format("✓" if _s12 else "□") action SetVariable("tl_selected_sublesson", "1_2_home_row")
+                textbutton "1.3 Ver resultados {}".format("✓" if _s13 else "□") action SetVariable("tl_selected_sublesson", "1_3_results")
+                textbutton "1.4 Ejercicio teclas {}".format("✓" if _s14 else "□") action SetVariable("tl_selected_sublesson", "1_4_keys_exercise")
+                textbutton "1.5 Ayuda exámenes {}".format("✓" if _s15 else "□") action SetVariable("tl_selected_sublesson", "1_5_exam_help")
+                textbutton "1.6 Ejercicio palabras {}".format("✓" if _s16 else "□") action SetVariable("tl_selected_sublesson", "1_6_words_exercise")
+                textbutton "1.7 Ejercicio frases {}".format("✓" if _s17 else "□") action SetVariable("tl_selected_sublesson", "1_7_phrases_exercise")
+
+            vbox:
+                spacing 14
+                xsize 420
+                text "Sublección seleccionada" size 30 color "#FFD7F1" xalign 0.5
+                frame:
+                    xsize 400
+                    ysize 210
+                    background Solid("#241D2C")
+                    text "[tl_selected_sublesson if tl_selected_sublesson else 'Ninguna']" xalign 0.5 yalign 0.5 size 24
+
+                textbutton "Iniciar sublección" action Return("start_selected") sensitive (len((tl_selected_sublesson or "").strip()) > 0) xalign 0.5
+                textbutton "Volver a curso" action Return("back_course") xalign 0.5
+                textbutton "Volver al hub" action Return("back_hub") xalign 0.5
+
+label tl_classes_basic_flow:
+    $ tl_current_module = "Clases"
+    $ tl_selected_sublesson = ""
+    call screen tl_classes_category_screen
+    if _return == "back":
+        jump tl_sakura_hub
+    if _return != "continue_basic":
+        jump tl_classes_basic_flow
+
+label tl_classes_teacher_flow:
+    call screen tl_classes_teacher_screen
+    if _return == "back":
+        jump tl_classes_basic_flow
+    if _return != "continue":
+        jump tl_classes_teacher_flow
+
+label tl_classes_course_intro_flow:
+    call screen tl_classes_course_intro_screen
+    if _return == "back":
+        jump tl_classes_teacher_flow
+    if _return != "continue":
+        jump tl_classes_course_intro_flow
+
+label tl_classes_lesson_panel_flow:
+    call screen tl_classes_lesson_panel_screen
+    if _return == "back_hub":
+        jump tl_sakura_hub
+    if _return == "back_course":
+        jump tl_classes_course_intro_flow
+    if _return == "start_selected":
+        $ _selected = str(tl_selected_sublesson or "")
+        if _selected == "1_1_intro":
+            $ typing_lab_selected_mode = "letters"
+        elif _selected == "1_2_home_row":
+            $ typing_lab_selected_mode = "letters"
+        elif _selected == "1_3_results":
+            $ typing_lab_selected_mode = "letters"
+        elif _selected == "1_4_keys_exercise":
+            $ typing_lab_selected_mode = "letters"
+        elif _selected == "1_5_exam_help":
+            $ typing_lab_selected_mode = "words"
+        elif _selected == "1_6_words_exercise":
+            $ typing_lab_selected_mode = "words"
+        else:
+            $ typing_lab_selected_mode = "phrases"
+
+        call typing_lab_start
+        $ set_check("clases", "lesson_1", _selected, True)
+        "Sublección completada: [_selected]. Check actualizado."
+        jump tl_classes_lesson_panel_flow
+
+    jump tl_classes_lesson_panel_flow
 
 screen tl_lessons_mock_screen():
     tag menu
@@ -863,13 +1136,7 @@ label tl_sakura_hub:
     call screen tl_sakura_hub_screen
 
     if _return == "go_lessons":
-        $ tl_current_module = "Clases"
-        call screen tl_lessons_mock_screen
-        if _return == "open_typing_lab":
-            call typing_lab_start
-        if _return == "complete_lesson_1":
-            "Lección 1 completada con checks."
-        jump tl_sakura_hub
+        jump tl_classes_basic_flow
 
     if _return == "go_practice":
         $ tl_current_module = "Práctica"
