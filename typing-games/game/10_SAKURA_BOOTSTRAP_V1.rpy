@@ -499,6 +499,7 @@ screen tl_classes_teacher_screen():
 screen tl_classes_course_intro_screen():
     tag menu
     modal True
+    default _dialog_step = 0
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
@@ -508,20 +509,28 @@ screen tl_classes_course_intro_screen():
     add Solid("#00000088")
     $ _teacher_name = tl_selected_teacher.title() if tl_selected_teacher else "Docente"
     if tl_selected_teacher == "haru":
-        $ _teacher_intro_1 = "Haru: Soy Haru, vamos a construir precisión desde la base."
-        $ _teacher_intro_2 = "Haru: Te recomiendo iniciar por Introducción y Fila central."
+        $ _teacher_intro_1 = "Soy Haru, vamos a construir precisión desde la base."
+        $ _teacher_intro_2 = "Te recomiendo iniciar por Introducción y Fila central."
+        $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/male/teachers/Haru.png")
+        if not _teacher_portrait:
+            $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/female/teachers/Ayame.png")
     elif tl_selected_teacher == "misaki":
-        $ _teacher_intro_1 = "Misaki: Soy Misaki, avanzaremos paso a paso con buena postura."
-        $ _teacher_intro_2 = "Misaki: Empezaremos por Introducción y luego ejercicios guiados."
+        $ _teacher_intro_1 = "Soy Misaki, avanzaremos paso a paso con buena postura."
+        $ _teacher_intro_2 = "Empezaremos por Introducción y luego ejercicios guiados."
+        $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/female/teachers/Misaki.png")
+        if not _teacher_portrait:
+            $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/male/teachers/Masato.png")
     else:
-        $ _teacher_intro_1 = "Docente: Vamos a comenzar con el plan básico de mecanografía."
-        $ _teacher_intro_2 = "Docente: Elige una sublección y avanzamos."
+        $ _teacher_intro_1 = "Vamos a comenzar con el plan básico de mecanografía."
+        $ _teacher_intro_2 = "Elige una sublección y avanzamos."
+        $ _teacher_portrait = None
+    $ _dialog_line = _teacher_intro_1 if _dialog_step == 0 else _teacher_intro_2
 
     frame:
         xalign 0.5
-        yalign 0.5
+        yalign 0.38
         xsize 980
-        ysize 560
+        ysize 360
         background Solid("#151019DE")
 
         vbox:
@@ -535,24 +544,52 @@ screen tl_classes_course_intro_screen():
             text "• Precisión antes que velocidad, con práctica progresiva." size 22 xalign 0.5
             text "• Técnica para escribir sin mirar el teclado." size 22 xalign 0.5
             text "Docente actual: [_teacher_name]" size 22 color "#E8D9F0" xalign 0.5
-            frame:
-                xsize 880
-                ysize 140
-                background Solid("#20182AE6")
-                vbox:
-                    spacing 8
-                    xalign 0.5
-                    yalign 0.5
-                    text "[_teacher_intro_1]" size 20 color "#F7E8FF" xalign 0.5
-                    text "[_teacher_intro_2]" size 20 color "#F7E8FF" xalign 0.5
             if tl_experience_mode == 1:
                 text "Modo 1: aprendizaje puro (sin lore ni romance)." size 20 color "#E8D9F0" xalign 0.5
 
-            hbox:
-                spacing 14
-                xalign 0.5
-                textbutton "Continuar" action Return("continue")
-                textbutton "Atrás" action Return("back")
+    frame:
+        xalign 0.5
+        yalign 0.80
+        xsize 980
+        ysize 230
+        background Solid("#17121EEC")
+
+        hbox:
+            spacing 16
+            xalign 0.5
+            yalign 0.5
+
+            frame:
+                xsize 190
+                ysize 190
+                background Solid("#241D2C")
+                if _teacher_portrait:
+                    add _teacher_portrait fit "contain" xalign 0.5 yalign 0.5
+                else:
+                    text "Sin retrato" xalign 0.5 yalign 0.5 size 22 color "#E8D9F0"
+
+            vbox:
+                spacing 10
+                xsize 730
+                yalign 0.5
+
+                frame:
+                    xsize 220
+                    ysize 42
+                    background Solid("#2A2230")
+                    text "[_teacher_name]" xalign 0.5 yalign 0.5 size 24 color "#FFD7F1"
+
+                frame:
+                    xsize 730
+                    ysize 92
+                    background Solid("#211A29")
+                    text "[_dialog_line]" xalign 0.02 yalign 0.5 size 24 color "#F7E8FF"
+
+                hbox:
+                    spacing 14
+                    textbutton "Continuar" action SetScreenVariable("_dialog_step", 1) sensitive (_dialog_step == 0)
+                    textbutton "Avanzar" action Return("continue") sensitive (_dialog_step == 1)
+                    textbutton "Atrás" action Return("back")
 
 screen tl_classes_course_lessons_screen():
     tag menu
