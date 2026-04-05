@@ -8,11 +8,6 @@
 
 init -15 python:
     import re
-    import sys
-    if sys.version_info[0] >= 3:
-        from html.parser import HTMLParser
-    else:
-        from HTMLParser import HTMLParser
     import renpy.store as S
 
     def tl_asset(path):
@@ -63,7 +58,6 @@ init -15 python:
 
     def tl_extract_readable_text_from_html(html_text):
         """Limpieza mínima de HTML para texto legible (sin parser complejo)."""
-        parser = HTMLParser()
         txt = unicode(html_text or u"")
         txt = re.sub(ur"(?is)<script.*?>.*?</script>", u" ", txt)
         txt = re.sub(ur"(?is)<style.*?>.*?</style>", u" ", txt)
@@ -71,10 +65,60 @@ init -15 python:
         txt = re.sub(ur"(?i)<br\s*/?>", u"\n", txt)
         txt = re.sub(ur"(?i)</p>|</li>|</tr>|</h[1-6]>", u"\n", txt)
         txt = re.sub(ur"(?s)<[^>]+>", u" ", txt)
-        txt = parser.unescape(txt)
+        txt = tl_html_unescape_basic(txt)
         txt = re.sub(ur"[ \t\r\f\v]+", u" ", txt)
         txt = re.sub(ur"\n\s*\n+", u"\n\n", txt)
         return txt.strip()
+
+    def tl_html_unescape_basic(text):
+        """Unescape manual básico (sin dependencia de HTMLParser)."""
+        s = unicode(text or u"")
+
+        entity_map = {
+            u"&nbsp;": u" ",
+            u"&quot;": u"\"",
+            u"&apos;": u"'",
+            u"&amp;": u"&",
+            u"&lt;": u"<",
+            u"&gt;": u">",
+            u"&iexcl;": u"¡",
+            u"&iquest;": u"¿",
+            u"&aacute;": u"á",
+            u"&eacute;": u"é",
+            u"&iacute;": u"í",
+            u"&oacute;": u"ó",
+            u"&uacute;": u"ú",
+            u"&Aacute;": u"Á",
+            u"&Eacute;": u"É",
+            u"&Iacute;": u"Í",
+            u"&Oacute;": u"Ó",
+            u"&Uacute;": u"Ú",
+            u"&ntilde;": u"ñ",
+            u"&Ntilde;": u"Ñ",
+            u"&uuml;": u"ü",
+            u"&Uuml;": u"Ü",
+            u"&deg;": u"°",
+        }
+        for k, v in entity_map.items():
+            s = s.replace(k, v)
+
+        # Entidades numéricas decimales: &#225;
+        def _dec_entity(m):
+            code = int(m.group(1))
+            if 0 <= code <= 65535:
+                return unichr(code)
+            return m.group(0)
+
+        # Entidades numéricas hexadecimales: &#xE1;
+        def _hex_entity(m):
+            code = int(m.group(1), 16)
+            if 0 <= code <= 65535:
+                return unichr(code)
+            return m.group(0)
+
+        s = re.sub(ur"&#([0-9]+);", _dec_entity, s)
+        s = re.sub(ur"&#x([0-9A-Fa-f]+);", _hex_entity, s)
+        return s
 
     def tl_load_tm_intro_slides_text():
         """Carga 1.1 real desde Typing Master (lesson14) con decode latin-1."""
