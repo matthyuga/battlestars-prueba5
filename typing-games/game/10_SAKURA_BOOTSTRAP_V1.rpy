@@ -137,6 +137,7 @@ screen tl_sakura_gate_screen():
 screen tl_registration_screen():
     tag menu
     modal True
+    default _reg_step = 1
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
     if bg:
@@ -160,37 +161,55 @@ screen tl_registration_screen():
             yalign 0.5
 
             text "Registro de Jugador" xalign 0.5 size 52 color "#FFD7F1"
+            text "Paso [_reg_step]/3" size 24 color "#D0BFD6" xalign 0.5
 
-            hbox:
-                spacing 24
-                xalign 0.5
-                text "Nombre:" size 32
-                input value VariableInputValue("tl_player_name") length 20 allow " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZáéíóúÁÉÍÓÚñÑ0123456789_-." xmaximum 520
+            if _reg_step == 1:
+                hbox:
+                    spacing 24
+                    xalign 0.5
+                    text "Nombre:" size 32
+                    input value VariableInputValue("tl_player_name") length 20 allow " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZáéíóúÁÉÍÓÚñÑ0123456789_-." xmaximum 520
 
-            text "Sexo del jugador" size 32
-            hbox:
-                spacing 18
-                xalign 0.5
-                textbutton "Masculino{}".format(" ✓" if tl_player_gender == "male" else "") action SetVariable("tl_player_gender", "male")
-                textbutton "Femenino{}".format(" ✓" if tl_player_gender == "female" else "") action SetVariable("tl_player_gender", "female")
-                textbutton "Ninguno{}".format(" ✓" if tl_player_gender == "none" else "") action SetVariable("tl_player_gender", "none")
+                text "Debes ingresar un nombre para continuar." size 22 color "#D0BFD6"
 
-            text "Modo de experiencia" size 32
-            hbox:
-                spacing 18
-                xalign 0.5
-                textbutton "1) Lore desactivado{}".format(" ✓" if tl_experience_mode == 1 else "") action SetVariable("tl_experience_mode", 1)
-                textbutton "2) Lore normal{}".format(" ✓" if tl_experience_mode == 2 else "") action SetVariable("tl_experience_mode", 2)
-                textbutton "3) Lore + romance{}".format(" ✓" if tl_experience_mode == 3 else "") action SetVariable("tl_experience_mode", 3)
+                hbox:
+                    spacing 20
+                    xalign 0.5
+                    textbutton "Siguiente" action SetScreenVariable("_reg_step", 2) sensitive (len((tl_player_name or "").strip()) > 0)
+                    textbutton "Volver" action Return("back")
 
-            text "Regla activa: si eliges 'Ninguno', el modo se fuerza a 1 (sin lore ni romance)." size 22 color "#D0BFD6"
-            text "Estado actual -> Sexo: [tl_player_gender] | Modo: [tl_experience_mode]" size 24 color "#F6E5FF"
+            elif _reg_step == 2:
+                text "Sexo del jugador" size 32
+                hbox:
+                    spacing 18
+                    xalign 0.5
+                    textbutton "Masculino{}".format(" ✓" if tl_player_gender == "male" else "") action SetVariable("tl_player_gender", "male")
+                    textbutton "Femenino{}".format(" ✓" if tl_player_gender == "female" else "") action SetVariable("tl_player_gender", "female")
+                    textbutton "Ninguno{}".format(" ✓" if tl_player_gender == "none" else "") action SetVariable("tl_player_gender", "none")
 
-            hbox:
-                spacing 20
-                xalign 0.5
-                textbutton "Continuar" action Return("continue")
-                textbutton "Volver" action Return("back")
+                hbox:
+                    spacing 20
+                    xalign 0.5
+                    textbutton "Siguiente" action SetScreenVariable("_reg_step", 3)
+                    textbutton "Atrás" action SetScreenVariable("_reg_step", 1)
+
+            else:
+                text "Modo de experiencia" size 32
+                hbox:
+                    spacing 18
+                    xalign 0.5
+                    textbutton "1) Lore desactivado{}".format(" ✓" if tl_experience_mode == 1 else "") action SetVariable("tl_experience_mode", 1)
+                    textbutton "2) Lore normal{}".format(" ✓" if tl_experience_mode == 2 else "") action SetVariable("tl_experience_mode", 2)
+                    textbutton "3) Lore + romance{}".format(" ✓" if tl_experience_mode == 3 else "") action SetVariable("tl_experience_mode", 3)
+
+                text "Regla activa: si eliges 'Ninguno', el modo se fuerza a 1 (sin lore ni romance)." size 22 color "#D0BFD6"
+                text "Estado actual -> Nombre: [tl_player_name] | Sexo: [tl_player_gender] | Modo: [tl_experience_mode]" size 24 color "#F6E5FF"
+
+                hbox:
+                    spacing 20
+                    xalign 0.5
+                    textbutton "Continuar" action Return("continue") sensitive (len((tl_player_name or "").strip()) > 0)
+                    textbutton "Atrás" action SetScreenVariable("_reg_step", 2)
 
 screen tl_sakura_hub_screen():
     tag menu
@@ -252,7 +271,7 @@ screen tl_sakura_hub_screen():
             text "Vista previa del módulo" size 36 color "#FFD7F1" xalign 0.5
             text "Módulo actual: [tl_current_module]" size 28 xalign 0.5
             $ _mod_progress = get_check_progress(tl_current_module)
-            text "Progreso académico (checks): [(_mod_progress['done'])]/[(_mod_progress['total'])]" size 22 xalign 0.5
+            text "Progreso académico (checks): [_mod_progress['done']]/[_mod_progress['total']]" size 22 xalign 0.5
             text "En esta etapa construiremos primero Clases (lecciones)." size 22 xalign 0.5
             text "Luego conectamos Práctica / Exámenes / Actividades / Diario / Biblioteca." size 20 xalign 0.5
 
@@ -295,7 +314,7 @@ screen tl_lessons_mock_screen():
                 $ _lesson_done = sum([1 for _v in [_c11, _c12, _c13, _c14, _c15, _c16, _c17] if _v])
 
                 text "Clases · Lección 1 (mock)" size 38 color "#FFD7F1"
-                text "Progreso Lección 1: [(_lesson_done)]/7" size 24 color "#EADAF2"
+                text "Progreso Lección 1: [_lesson_done]/7" size 24 color "#EADAF2"
                 textbutton "1.1 Introducción{}".format("  ✓" if _c11 else "") action Function(set_check, "clases", "lesson_1", "1_1_intro", True)
                 textbutton "1.2 Teclas de la Fila Central{}".format("  ✓" if _c12 else "") action Function(set_check, "clases", "lesson_1", "1_2_home_row", True)
                 textbutton "1.3 Ver resultados{}".format("  ✓" if _c13 else "") action Function(set_check, "clases", "lesson_1", "1_3_results", True)
@@ -373,11 +392,11 @@ screen tl_diary_checklist_screen():
                     spacing 8
                     for _module_id, _lessons in _checks.items():
                         $ _mod_prog = get_check_progress(_module_id)
-                        text "[(_module_id.title())]  [(_mod_prog['done'])]/[(_mod_prog['total'])]" size 28 color "#F7E8FF"
+                        text "[_module_id.title()]  [_mod_prog['done']]/[_mod_prog['total']]" size 28 color "#F7E8FF"
                         for _lesson_id, _steps in _lessons.items():
                             $ _lesson_done = sum([1 for _v in _steps.values() if _v])
                             $ _lesson_total = len(_steps)
-                            text "  - [(_lesson_id)]  [(_lesson_done)]/[(_lesson_total)]" size 22 color "#DDD0E7"
+                            text "  - [_lesson_id]  [_lesson_done]/[_lesson_total]" size 22 color "#DDD0E7"
                             for _step_id, _done in _steps.items():
                                 text "      {} {}".format("✓" if _done else "□", _step_id) size 19 color ("#8FFFAD" if _done else "#D2C6DE")
 
@@ -431,7 +450,7 @@ screen tl_social_profile_screen():
                             spacing 12
                             xalign 0.5
 
-                            text "[(_cid.title())]" size 24 xminimum 160
+                            text "[_cid.title()]" size 24 xminimum 160
 
                             frame:
                                 xsize 220
@@ -460,7 +479,7 @@ screen tl_social_profile_screen():
                             else:
                                 text _rom_msg size 16 color "#FFB9D5" xmaximum 220
 
-            text "[(_aff_tip)]" size 19 color "#FFD7F1" xalign 0.5
+            text "[_aff_tip]" size 19 color "#FFD7F1" xalign 0.5
 
             hbox:
                 spacing 16
@@ -572,7 +591,7 @@ screen tl_activities_quest_screen():
             text "Actividades · Quest social 1" size 42 color "#FFD7F1" xalign 0.5
             text "Quest: Ayuda a Airi a ordenar notas para la clase." size 24 color "#E8D9F0" xalign 0.5
             text "Estado: {}".format("Completada ✓" if _quest_done else "Pendiente") size 24 xalign 0.5
-            text "Afinidad Airi: [(_airi_aff)]/10" size 24 color "#FFD7F1" xalign 0.5
+            text "Afinidad Airi: [_airi_aff]/10" size 24 color "#FFD7F1" xalign 0.5
 
             if not _quest_done:
                 textbutton "Completar quest (+1 afinidad Airi)" action [
@@ -583,7 +602,7 @@ screen tl_activities_quest_screen():
             else:
                 text "Ya completaste esta quest en esta partida." size 20 color "#BEECC6" xalign 0.5
 
-            text "[(_msg)]" size 20 color "#FFE5B1" xalign 0.5
+            text "[_msg]" size 20 color "#FFE5B1" xalign 0.5
 
             hbox:
                 spacing 14
@@ -636,11 +655,11 @@ screen tl_diary_tabs_screen():
                         spacing 8
                         for _module_id, _lessons in _checks.items():
                             $ _mod_prog = get_check_progress(_module_id)
-                            text "[(_module_id.title())]  [(_mod_prog['done'])]/[(_mod_prog['total'])]" size 28 color "#F7E8FF"
+                            text "[_module_id.title()]  [_mod_prog['done']]/[_mod_prog['total']]" size 28 color "#F7E8FF"
                             for _lesson_id, _steps in _lessons.items():
                                 $ _lesson_done = sum([1 for _v in _steps.values() if _v])
                                 $ _lesson_total = len(_steps)
-                                text "  - [(_lesson_id)]  [(_lesson_done)]/[(_lesson_total)]" size 22 color "#DDD0E7"
+                                text "  - [_lesson_id]  [_lesson_done]/[_lesson_total]" size 22 color "#DDD0E7"
             else:
                 viewport:
                     draggable True
@@ -654,9 +673,9 @@ screen tl_diary_tabs_screen():
                             $ _rom_enabled = is_romance_enabled(tl_experience_mode, tl_player_gender, _cid)
                             hbox:
                                 spacing 12
-                                text "[(_cid.title())]" size 24 xminimum 160
+                                text "[_cid.title()]" size 24 xminimum 160
                                 add get_affinity_bar_image(_cid) xsize 220 ysize 30
-                                text "[(_pts)]/10" size 20 color "#FFD7F1"
+                                text "[_pts]/10" size 20 color "#FFD7F1"
                                 if _rom_enabled:
                                     add get_romance_heart_image(_cid) xsize 38 ysize 38
                                     text "[get_romance(_cid)]/24" size 18 color "#FFB9D5"
@@ -707,10 +726,10 @@ screen tl_library_index_screen():
                     $ _pr = get_check_progress("practica")
                     $ _ex = get_check_progress("examenes")
                     $ _ac = get_check_progress("actividades")
-                    text "Clases · Desbloqueado · [(_cl['done'])]/[(_cl['total'])]" size 24
-                    text "Práctica · Desbloqueado · [(_pr['done'])]/[(_pr['total'])]" size 24
-                    text "Exámenes · Desbloqueado · [(_ex['done'])]/[(_ex['total'])]" size 24
-                    text "Actividades · Desbloqueado · [(_ac['done'])]/[(_ac['total'])]" size 24
+                    text "Clases · Desbloqueado · [_cl['done']]/[_cl['total']]" size 24
+                    text "Práctica · Desbloqueado · [_pr['done']]/[_pr['total']]" size 24
+                    text "Exámenes · Desbloqueado · [_ex['done']]/[_ex['total']]" size 24
+                    text "Actividades · Desbloqueado · [_ac['done']]/[_ac['total']]" size 24
             else:
                 viewport:
                     draggable True
@@ -722,7 +741,7 @@ screen tl_library_index_screen():
                         for _cid in AFFINITY_CHARACTER_IDS:
                             $ _aff = get_affinity(_cid)
                             $ _unlocked = (_aff >= 1)
-                            text "[(_cid.title())] · {} · Afinidad: [(_aff)]/10".format("Desbloqueado" if _unlocked else "Bloqueado") size 22
+                            text "[_cid.title()] · {} · Afinidad: [_aff]/10".format("Desbloqueado" if _unlocked else "Bloqueado") size 22
 
             hbox:
                 spacing 14
@@ -783,9 +802,9 @@ label tl_sakura_hub:
             $ _exam_score = int(typing_lab_state.get("total_score", 0) if isinstance(typing_lab_state, dict) else 0)
             if _exam_score >= 50:
                 $ set_check("examenes", "exam_1", "attempt_1", True)
-                "Examen aprobado. Puntaje: [(_exam_score)]"
+                "Examen aprobado. Puntaje: [_exam_score]"
             else:
-                "Examen no aprobado. Puntaje: [(_exam_score)] (mínimo 50)."
+                "Examen no aprobado. Puntaje: [_exam_score] (mínimo 50)."
         jump tl_sakura_hub
 
     if _return == "go_activities":
