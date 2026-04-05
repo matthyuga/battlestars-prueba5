@@ -7,6 +7,8 @@
 # 5) Vista de lecciones (aula con desenfoque + oscurecido suave)
 
 init -15 python:
+    import re
+    from HTMLParser import HTMLParser
     import renpy.store as S
 
     def tl_asset(path):
@@ -39,6 +41,60 @@ init -15 python:
         except:
             total = 0
         return done, total
+
+    def tl_get_lesson11_intro_slide_files():
+        """Toma la lista oficial desde blueprint si está disponible en store."""
+        blueprint_slides = getattr(S, "TL_SP7_LESSON1_INTRO_SLIDES", None)
+        if isinstance(blueprint_slides, (list, tuple)) and len(blueprint_slides) > 0:
+            return [unicode(x) for x in blueprint_slides]
+
+        # Fallback seguro (misma lista oficial esperada para 1.1).
+        return [
+            u"msg_spa_sp7qwert_1_1_1.htm",
+            u"msg_spa_sp7qwert_1_1_2.htm",
+            u"msg_spa_sp7qwert_1_1_3.htm",
+            u"msg_spa_sp7qwert_1_1_4.htm",
+            u"msg_spa_sp7qwert_1_1_5.htm",
+        ]
+
+    def tl_extract_readable_text_from_html(html_text):
+        """Limpieza mínima de HTML para texto legible (sin parser complejo)."""
+        parser = HTMLParser()
+        txt = unicode(html_text or u"")
+        txt = re.sub(ur"(?is)<script.*?>.*?</script>", u" ", txt)
+        txt = re.sub(ur"(?is)<style.*?>.*?</style>", u" ", txt)
+        txt = re.sub(ur"(?is)<!--.*?-->", u" ", txt)
+        txt = re.sub(ur"(?i)<br\s*/?>", u"\n", txt)
+        txt = re.sub(ur"(?i)</p>|</li>|</tr>|</h[1-6]>", u"\n", txt)
+        txt = re.sub(ur"(?s)<[^>]+>", u" ", txt)
+        txt = parser.unescape(txt)
+        txt = re.sub(ur"[ \t\r\f\v]+", u" ", txt)
+        txt = re.sub(ur"\n\s*\n+", u"\n\n", txt)
+        return txt.strip()
+
+    def tl_load_tm_intro_slides_text():
+        """Carga 1.1 real desde Typing Master (lesson14) con decode latin-1."""
+        base = u"typing-master/lesson14/"
+        slides = []
+        for fname in tl_get_lesson11_intro_slide_files():
+            rel = u"{}{}".format(base, unicode(fname))
+            if renpy.loadable(rel):
+                raw = renpy.file(rel).read()
+                if isinstance(raw, unicode):
+                    data = raw
+                else:
+                    data = raw.decode("latin-1", "replace")
+                text = tl_extract_readable_text_from_html(data)
+                slides.append({
+                    "file": unicode(fname),
+                    "text": text if len(text) > 0 else u"(Sin texto legible en la diapositiva)",
+                })
+            else:
+                slides.append({
+                    "file": unicode(fname),
+                    "text": u"(Archivo no encontrado: {})".format(unicode(fname)),
+                })
+        return slides
 
 
 default tl_player_name = ""
@@ -719,16 +775,12 @@ screen tl_sublesson_intro_screen():
     modal True
     default _page = 0
 
-    $ _slides = [
-        "La mecanografía al tacto es escribir sin mirar el teclado, usando memoria muscular y postura correcta.",
-        "Primero priorizamos precisión. La velocidad llega después con repetición y buena técnica.",
-        "Fila central recomendada: mano izquierda en A-S-D-F y mano derecha en J-K-L-Ñ.",
-        "Mantén hombros relajados, espalda recta y dedos curvos para evitar tensión.",
-        "Objetivo de esta introducción: preparar base técnica antes de pasar a ejercicios."
-    ]
+    $ _slides = tl_load_tm_intro_slides_text()
     $ _last = max(0, len(_slides) - 1)
     $ _safe_page = max(0, min(_last, int(_page if _page is not None else 0)))
-    $ _slide_text = _slides[_safe_page] if len(_slides) > 0 else "Contenido de introducción no disponible."
+    $ _slide_entry = _slides[_safe_page] if len(_slides) > 0 else {"file": "n/a", "text": "Contenido de introducción no disponible."}
+    $ _slide_text = unicode(_slide_entry.get("text", "Contenido de introducción no disponible."))
+    $ _slide_file = unicode(_slide_entry.get("file", "n/a"))
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
@@ -753,11 +805,19 @@ screen tl_sublesson_intro_screen():
 
             frame:
                 xsize 860
-                ysize 280
+                ysize 300
                 background Solid("#221A2CEB")
-                text "[_slide_text]" xalign 0.5 yalign 0.5 size 30 text_align 0.5
+                viewport:
+                    draggable True
+                    mousewheel True
+                    xmaximum 820
+                    ymaximum 260
+                    xalign 0.5
+                    yalign 0.5
+                    text "[_slide_text]" size 24 text_align 0.0
 
             text "Página [(_safe_page + 1)]/[max(1, len(_slides))]" size 22 color "#E8D9F0" xalign 0.5
+            text "Fuente: [_slide_file]" size 17 color "#C9B8D5" xalign 0.5
 
             hbox:
                 spacing 14
