@@ -301,6 +301,7 @@ screen tl_sakura_hub_screen():
             text "Lugares" size 32 color "#FFD7F1" xalign 0.5
             textbutton "Entrada (placeholder)" action Return("go_place_entrance")
             textbutton "Patio (placeholder)" action Return("go_place_patio")
+            textbutton "QA técnico" action Return("go_qa_tech")
             textbutton "Salir al menú" action Return("to_main")
 
     frame:
@@ -390,6 +391,9 @@ screen tl_classes_category_screen():
                 textbutton "Continuar" action Return("continue_basic") sensitive (tl_class_category == "basic")
                 textbutton "Volver al hub" action Return("back")
 
+            if tl_class_category != "basic":
+                text "Selecciona 'Básica' para continuar en esta versión." size 20 color "#FFD7C1" xalign 0.5
+
 screen tl_classes_teacher_screen():
     tag menu
     modal True
@@ -471,6 +475,9 @@ screen tl_classes_teacher_screen():
                 xalign 0.5
                 textbutton "Continuar" action Return("continue") sensitive (len((tl_selected_teacher or "").strip()) > 0)
                 textbutton "Atrás" action Return("back")
+
+            if len((tl_selected_teacher or "").strip()) == 0:
+                text "Debes seleccionar Haru o Misaki para habilitar 'Continuar'." size 20 color "#FFD7C1" xalign 0.5
 
 screen tl_classes_course_intro_screen():
     tag menu
@@ -569,6 +576,58 @@ screen tl_classes_lesson_panel_screen():
                 textbutton "Iniciar sublección" action Return("start_selected") sensitive (len((tl_selected_sublesson or "").strip()) > 0) xalign 0.5
                 textbutton "Volver a curso" action Return("back_course") xalign 0.5
                 textbutton "Volver al hub" action Return("back_hub") xalign 0.5
+                textbutton "Guardar partida" action ShowMenu("save") xalign 0.5
+                textbutton "Cargar partida" action ShowMenu("load") xalign 0.5
+
+                if len((tl_selected_sublesson or "").strip()) == 0:
+                    text "Selecciona un submódulo para habilitar 'Iniciar sublección'." size 18 color "#FFD7C1" xalign 0.5
+
+screen tl_qa_tech_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
+    if bg:
+        add bg
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    $ _a_gate = tl_asset("images/sakura-sunshine/sakura_intro.jpg")
+    $ _a_reg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-entrada.jpg")
+    $ _a_hub = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
+    $ _a_cls = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 1080
+        ysize 620
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 12
+            xalign 0.5
+            yalign 0.05
+
+            text "QA técnico y UX · Fase 5" size 42 color "#FFD7F1" xalign 0.5
+            text "Checklist rápido para pruebas externas." size 22 color "#E8D9F0" xalign 0.5
+
+            text "P5-1 Ruta clases: Inicio -> Gate -> Registro -> Bienvenida -> Hub -> Clases -> retorno Hub" size 20
+            text "P5-2 Save/Load: usar botones Guardar/Cargar en panel de sublecciones" size 20
+            text "P5-3 Fallback assets no bloqueante:" size 20
+            text "  • gate (sakura_intro): {}".format("OK" if _a_gate else "Fallback activo") size 18 color ("#BEECC6" if _a_gate else "#FFE5B1")
+            text "  • registro (entrada): {}".format("OK" if _a_reg else "Fallback activo") size 18 color ("#BEECC6" if _a_reg else "#FFE5B1")
+            text "  • hub (pasillo): {}".format("OK" if _a_hub else "Fallback activo") size 18 color ("#BEECC6" if _a_hub else "#FFE5B1")
+            text "  • clases (salón): {}".format("OK" if _a_cls else "Fallback activo") size 18 color ("#BEECC6" if _a_cls else "#FFE5B1")
+            text "P5-4 Botones sensibles: siempre muestran feedback textual cuando están bloqueados." size 20
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Abrir Guardar" action ShowMenu("save")
+                textbutton "Abrir Cargar" action ShowMenu("load")
+                textbutton "Volver al hub" action Return("back")
 
 label tl_classes_basic_flow:
     $ tl_current_module = "Clases"
@@ -1200,6 +1259,11 @@ label tl_sakura_hub:
     if _return == "go_place_patio":
         $ tl_current_module = "Lugar · Patio"
         call screen tl_place_placeholder_screen("Patio")
+        jump tl_sakura_hub
+
+    if _return == "go_qa_tech":
+        $ tl_current_module = "QA técnico"
+        call screen tl_qa_tech_screen
         jump tl_sakura_hub
 
     if _return == "to_main":
