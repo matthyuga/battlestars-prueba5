@@ -128,19 +128,16 @@ screen tl_sakura_gate_screen():
     tag menu
     modal True
 
-    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-entrada.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura_intro.jpg")
     if bg:
         add bg
     else:
         add "tl_fallback_rose"
-        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-entrada.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
-    add Solid("#00000010")
-
-    # Recuadro sobre botón ENTER de la imagen (1280x720)
+    # Hotspot ENTER ajustado para el fondo sakura_intro (1280x720).
     button:
-        xpos 430
-        ypos 560
+        xpos 450
+        ypos 545
         xsize 420
         ysize 110
         background Solid("#FFFFFF00")
@@ -153,12 +150,12 @@ screen tl_registration_screen():
     modal True
     default _reg_step = 1
 
-    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-entrada.jpg")
     if bg:
         add bg
     else:
         add "tl_fallback_rose"
-        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-entrada.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
 
     add Solid("#00000088")
 
@@ -224,6 +221,34 @@ screen tl_registration_screen():
                     xalign 0.5
                     textbutton "Continuar" action Return("continue") sensitive (len((tl_player_name or "").strip()) > 0)
                     textbutton "Atrás" action SetScreenVariable("_reg_step", 2)
+
+screen tl_sakura_welcome_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-entrada.jpg")
+    if bg:
+        add bg
+    else:
+        add "tl_fallback_rose"
+
+    add Solid("#00000055")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 960
+        ysize 420
+        background Solid("#1B1524E8")
+
+        vbox:
+            spacing 24
+            xalign 0.5
+            yalign 0.5
+
+            text "Welcome to Sakura Sunshine Academy" xalign 0.5 size 52 color "#FFD7F1"
+            text "Tu registro se completó correctamente." xalign 0.5 size 24 color "#E7DAEF"
+            textbutton "Avanzar" action Return("to_hub") xalign 0.5
 
 screen tl_sakura_hub_screen():
     tag menu
@@ -790,10 +815,16 @@ label tl_player_registration:
     call screen tl_registration_screen
     if _return == "continue":
         $ tl_experience_mode = tl_set_mode_guard(tl_player_gender, tl_experience_mode)
-        jump tl_sakura_hub
+        jump tl_sakura_welcome
     if _return == "back":
         jump tl_sakura_gate
     jump tl_player_registration
+
+label tl_sakura_welcome:
+    call screen tl_sakura_welcome_screen
+    if _return == "to_hub":
+        jump tl_sakura_hub
+    jump tl_sakura_welcome
 
 label tl_sakura_hub:
     call screen tl_sakura_hub_screen
