@@ -678,7 +678,9 @@ screen tl_sublesson_intro_screen():
         "Mantén hombros relajados, espalda recta y dedos curvos para evitar tensión.",
         "Objetivo de esta introducción: preparar base técnica antes de pasar a ejercicios."
     ]
-    $ _last = len(_slides) - 1
+    $ _last = max(0, len(_slides) - 1)
+    $ _safe_page = max(0, min(_last, int(_page if _page is not None else 0)))
+    $ _slide_text = _slides[_safe_page] if len(_slides) > 0 else "Contenido de introducción no disponible."
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
@@ -705,16 +707,16 @@ screen tl_sublesson_intro_screen():
                 xsize 860
                 ysize 280
                 background Solid("#221A2CEB")
-                text "[_slides[_page]]" xalign 0.5 yalign 0.5 size 30 text_align 0.5
+                text "[_slide_text]" xalign 0.5 yalign 0.5 size 30 text_align 0.5
 
-            text "Página [(_page + 1)]/[len(_slides)]" size 22 color "#E8D9F0" xalign 0.5
+            text "Página [(_safe_page + 1)]/[max(1, len(_slides))]" size 22 color "#E8D9F0" xalign 0.5
 
             hbox:
                 spacing 14
                 xalign 0.5
-                textbutton "Anterior" action SetScreenVariable("_page", max(0, _page - 1)) sensitive (_page > 0)
-                textbutton "Siguiente" action SetScreenVariable("_page", min(_last, _page + 1)) sensitive (_page < _last)
-                textbutton "Completar introducción" action Return("complete") sensitive (_page == _last)
+                textbutton "Anterior" action SetScreenVariable("_page", max(0, _safe_page - 1)) sensitive (_safe_page > 0)
+                textbutton "Siguiente" action SetScreenVariable("_page", min(_last, _safe_page + 1)) sensitive (_safe_page < _last)
+                textbutton "Completar introducción" action Return("complete") sensitive (_safe_page == _last)
                 textbutton "Volver a clase" action Return("back_class")
 
 screen tl_sublesson_content_screen(sub_id="", sub_title="", objective="", summary="", next_hint=""):
