@@ -26,6 +26,20 @@ init -15 python:
             return 1
         return 1 if m not in (1, 2, 3) else m
 
+    def tl_progress_counts(progress):
+        """Extrae done/total de forma segura para evitar KeyError en pantallas."""
+        if not isinstance(progress, dict):
+            return 0, 0
+        try:
+            done = int(progress.get("done", 0) or 0)
+        except:
+            done = 0
+        try:
+            total = int(progress.get("total", 0) or 0)
+        except:
+            total = 0
+        return done, total
+
 
 default tl_player_name = ""
 default tl_player_gender = "none"       # male | female | none
@@ -271,7 +285,8 @@ screen tl_sakura_hub_screen():
             text "Vista previa del módulo" size 36 color "#FFD7F1" xalign 0.5
             text "Módulo actual: [tl_current_module]" size 28 xalign 0.5
             $ _mod_progress = get_check_progress(tl_current_module)
-            text "Progreso académico (checks): [_mod_progress['done']]/[_mod_progress['total']]" size 22 xalign 0.5
+            $ _mod_done, _mod_total = tl_progress_counts(_mod_progress)
+            text "Progreso académico (checks): [_mod_done]/[_mod_total]" size 22 xalign 0.5
             text "En esta etapa construiremos primero Clases (lecciones)." size 22 xalign 0.5
             text "Luego conectamos Práctica / Exámenes / Actividades / Diario / Biblioteca." size 20 xalign 0.5
 
@@ -392,7 +407,8 @@ screen tl_diary_checklist_screen():
                     spacing 8
                     for _module_id, _lessons in _checks.items():
                         $ _mod_prog = get_check_progress(_module_id)
-                        text "[_module_id.title()]  [_mod_prog['done']]/[_mod_prog['total']]" size 28 color "#F7E8FF"
+                        $ _mod_done, _mod_total = tl_progress_counts(_mod_prog)
+                        text "[_module_id.title()]  [_mod_done]/[_mod_total]" size 28 color "#F7E8FF"
                         for _lesson_id, _steps in _lessons.items():
                             $ _lesson_done = sum([1 for _v in _steps.values() if _v])
                             $ _lesson_total = len(_steps)
@@ -655,7 +671,8 @@ screen tl_diary_tabs_screen():
                         spacing 8
                         for _module_id, _lessons in _checks.items():
                             $ _mod_prog = get_check_progress(_module_id)
-                            text "[_module_id.title()]  [_mod_prog['done']]/[_mod_prog['total']]" size 28 color "#F7E8FF"
+                            $ _mod_done, _mod_total = tl_progress_counts(_mod_prog)
+                            text "[_module_id.title()]  [_mod_done]/[_mod_total]" size 28 color "#F7E8FF"
                             for _lesson_id, _steps in _lessons.items():
                                 $ _lesson_done = sum([1 for _v in _steps.values() if _v])
                                 $ _lesson_total = len(_steps)
@@ -726,10 +743,14 @@ screen tl_library_index_screen():
                     $ _pr = get_check_progress("practica")
                     $ _ex = get_check_progress("examenes")
                     $ _ac = get_check_progress("actividades")
-                    text "Clases · Desbloqueado · [_cl['done']]/[_cl['total']]" size 24
-                    text "Práctica · Desbloqueado · [_pr['done']]/[_pr['total']]" size 24
-                    text "Exámenes · Desbloqueado · [_ex['done']]/[_ex['total']]" size 24
-                    text "Actividades · Desbloqueado · [_ac['done']]/[_ac['total']]" size 24
+                    $ _cl_done, _cl_total = tl_progress_counts(_cl)
+                    $ _pr_done, _pr_total = tl_progress_counts(_pr)
+                    $ _ex_done, _ex_total = tl_progress_counts(_ex)
+                    $ _ac_done, _ac_total = tl_progress_counts(_ac)
+                    text "Clases · Desbloqueado · [_cl_done]/[_cl_total]" size 24
+                    text "Práctica · Desbloqueado · [_pr_done]/[_pr_total]" size 24
+                    text "Exámenes · Desbloqueado · [_ex_done]/[_ex_total]" size 24
+                    text "Actividades · Desbloqueado · [_ac_done]/[_ac_total]" size 24
             else:
                 viewport:
                     draggable True
