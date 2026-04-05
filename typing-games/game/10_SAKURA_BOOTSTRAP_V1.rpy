@@ -288,11 +288,16 @@ screen tl_sakura_hub_screen():
             text "Módulos" size 40 color "#FFD7F1" xalign 0.5
 
             textbutton "Clases" action Return("go_lessons")
-            textbutton "Práctica" action Return("go_practice")
+            textbutton "Repaso / Práctica" action Return("go_practice")
             textbutton "Exámenes" action Return("go_exams")
-            textbutton "Actividades" action Return("go_activities")
+            textbutton "Juegos / Actividades" action Return("go_activities")
             textbutton "Diario" action Return("go_diary")
             textbutton "Biblioteca" action Return("go_library")
+
+            null height 8
+            text "Lugares" size 32 color "#FFD7F1" xalign 0.5
+            textbutton "Entrada (placeholder)" action Return("go_place_entrance")
+            textbutton "Patio (placeholder)" action Return("go_place_patio")
             textbutton "Salir al menú" action Return("to_main")
 
     frame:
@@ -314,6 +319,34 @@ screen tl_sakura_hub_screen():
             text "Progreso académico (checks): [_mod_done]/[_mod_total]" size 22 xalign 0.5
             text "En esta etapa construiremos primero Clases (lecciones)." size 22 xalign 0.5
             text "Luego conectamos Práctica / Exámenes / Actividades / Diario / Biblioteca." size 20 xalign 0.5
+
+screen tl_place_placeholder_screen(place_name="Lugar"):
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
+    if bg:
+        add bg
+    else:
+        add "tl_fallback_rose"
+
+    add Solid("#00000088")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 920
+        ysize 420
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 20
+            xalign 0.5
+            yalign 0.5
+
+            text "[place_name]" size 44 color "#FFD7F1" xalign 0.5
+            text "Zona en construcción (placeholder)." size 24 color "#E8D9F0" xalign 0.5
+            textbutton "Volver al hub" action Return("back") xalign 0.5
 
 screen tl_lessons_mock_screen():
     tag menu
@@ -872,6 +905,16 @@ label tl_sakura_hub:
     if _return == "go_library":
         $ tl_current_module = "Biblioteca"
         call screen tl_library_index_screen
+        jump tl_sakura_hub
+
+    if _return == "go_place_entrance":
+        $ tl_current_module = "Lugar · Entrada"
+        call screen tl_place_placeholder_screen("Entrada")
+        jump tl_sakura_hub
+
+    if _return == "go_place_patio":
+        $ tl_current_module = "Lugar · Patio"
+        call screen tl_place_placeholder_screen("Patio")
         jump tl_sakura_hub
 
     if _return == "to_main":
