@@ -249,7 +249,7 @@ screen tl_sakura_welcome_screen():
             xalign 0.5
             yalign 0.5
 
-            text "Welcome to Sakura Sunshine Academy" xalign 0.5 size 52 color "#FFD7F1"
+            text "Bienvenido a la Academia Sakura Sunshine" xalign 0.5 size 52 color "#FFD7F1"
             text "Tu registro se completó correctamente." xalign 0.5 size 24 color "#E7DAEF"
             textbutton "Avanzar" action Return("to_hub") xalign 0.5
 
@@ -277,14 +277,14 @@ screen tl_sakura_hub_screen():
     textbutton "⚙" action ShowMenu("preferences") xalign 0.965 yalign 0.05
 
     frame:
-        xalign 0.13
-        yalign 0.56
-        xsize 420
-        ysize 610
+        xalign 0.11
+        yalign 0.60
+        xsize 400
+        ysize 600
         background Solid("#1A1120D8")
 
         vbox:
-            spacing 14
+            spacing 18
             xalign 0.5
             yalign 0.06
 
@@ -305,14 +305,14 @@ screen tl_sakura_hub_screen():
             textbutton "Salir al menú" action Return("to_main")
 
     frame:
-        xalign 0.62
-        yalign 0.60
-        xsize 680
-        ysize 560
+        xalign 0.66
+        yalign 0.63
+        xsize 700
+        ysize 540
         background Solid("#251A2EDD")
 
         vbox:
-            spacing 14
+            spacing 16
             xalign 0.5
             yalign 0.08
 
@@ -433,7 +433,9 @@ screen tl_classes_teacher_screen():
                         background Solid("#FFFFFF00")
                         if tl_selected_teacher == "haru":
                             add Solid("#FFD7F133")
-                        $ _haru = tl_asset("images/sakura-sunshine/characters/haru.png")
+                        $ _haru = tl_asset("gui/characters-sakura-sunshine/male/teachers/Haru.png")
+                        if not _haru:
+                            $ _haru = tl_asset("gui/characters-sakura-sunshine/female/teachers/Ayame.png")
                         if _haru:
                             add _haru fit "contain" xalign 0.5 yalign 0.5
                         else:
@@ -443,7 +445,7 @@ screen tl_classes_teacher_screen():
                                 xsize 280
                                 ysize 270
                                 background Solid("#2A2230")
-                                text "Sprite Haru" xalign 0.5 yalign 0.5 size 28
+                                text "Retrato no disponible" xalign 0.5 yalign 0.5 size 24
                         text "Haru" xalign 0.5 yalign 0.92 size 30 color "#F7E8FF"
 
                 button:
@@ -455,7 +457,9 @@ screen tl_classes_teacher_screen():
                         background Solid("#FFFFFF00")
                         if tl_selected_teacher == "misaki":
                             add Solid("#FFD7F133")
-                        $ _misaki = tl_asset("images/sakura-sunshine/characters/misaki.png")
+                        $ _misaki = tl_asset("gui/characters-sakura-sunshine/female/teachers/Misaki.png")
+                        if not _misaki:
+                            $ _misaki = tl_asset("gui/characters-sakura-sunshine/male/teachers/Masato.png")
                         if _misaki:
                             add _misaki fit "contain" xalign 0.5 yalign 0.5
                         else:
@@ -465,7 +469,7 @@ screen tl_classes_teacher_screen():
                                 xsize 280
                                 ysize 270
                                 background Solid("#2A2230")
-                                text "Sprite Misaki" xalign 0.5 yalign 0.5 size 28
+                                text "Retrato no disponible" xalign 0.5 yalign 0.5 size 24
                         text "Misaki" xalign 0.5 yalign 0.92 size 30 color "#F7E8FF"
 
             $ _teacher_label = tl_selected_teacher.title() if tl_selected_teacher else "—"
@@ -1184,6 +1188,7 @@ screen tl_library_index_screen():
                 textbutton "Volver al hub" action Return("back")
 
 label tl_boot_start:
+    $ quick_menu = False
     $ _academic_ensure_store()
     $ _affinity_ensure_store()
     $ _romance_ensure_store()
