@@ -501,6 +501,8 @@ screen tl_classes_course_intro_screen():
             text "• Precisión antes que velocidad, con práctica progresiva." size 22 xalign 0.5
             text "• Letras → palabras → frases para consolidar memoria muscular." size 22 xalign 0.5
             text "Docente actual: [tl_selected_teacher.title() if tl_selected_teacher else 'Sin asignar']" size 22 color "#E8D9F0" xalign 0.5
+            if tl_experience_mode == 1:
+                text "Modo 1: aprendizaje puro (sin lore ni romance)." size 20 color "#E8D9F0" xalign 0.5
 
             hbox:
                 spacing 14
@@ -614,6 +616,16 @@ label tl_classes_lesson_panel_flow:
         else:
             $ typing_lab_selected_mode = "phrases"
 
+        if tl_selected_teacher == "haru":
+            "Haru: Soy Haru, tu docente de mecanografía."
+            "Haru: En esta sublección trabajaremos precisión y ritmo constante."
+        elif tl_selected_teacher == "misaki":
+            "Misaki: Soy Misaki, te guiaré en este bloque."
+            "Misaki: Mantén postura correcta y prioriza precisión."
+        else:
+            "Docente: Iniciaremos una práctica breve de mecanografía."
+
+        "Objetivo TM: escribe con precisión y corrige errores al instante."
         call typing_lab_start
         $ set_check("clases", "lesson_1", _selected, True)
         "Sublección completada: [_selected]. Check actualizado."
@@ -781,6 +793,8 @@ screen tl_social_profile_screen():
 
             text "Ficha social · Afinidad por personaje" size 42 color "#FFD7F1" xalign 0.5
             text "Sistema social separado del académico (solo barras c0..c10)." size 20 color "#E5D5EE" xalign 0.5
+            if tl_experience_mode == 1:
+                text "Modo 1 activo: romance oculto para foco total en mecanografía." size 18 color "#E8D9F0" xalign 0.5
 
             viewport:
                 draggable True
@@ -816,7 +830,9 @@ screen tl_social_profile_screen():
                             textbutton "+ Interacción" action Function(award_affinity_event, _cid, "interaction_success")
                             textbutton "+ Misión" action Function(award_affinity_event, _cid, "social_mission_success")
 
-                            if _rom_enabled:
+                            if tl_experience_mode == 1:
+                                null width 280
+                            elif _rom_enabled:
                                 frame:
                                     xsize 48
                                     ysize 48
@@ -1024,7 +1040,9 @@ screen tl_diary_tabs_screen():
                                 text "[_cid.title()]" size 24 xminimum 160
                                 add get_affinity_bar_image(_cid) xsize 220 ysize 30
                                 text "[_pts]/10" size 20 color "#FFD7F1"
-                                if _rom_enabled:
+                                if tl_experience_mode == 1:
+                                    text "Romance oculto (Modo 1)" size 16 color "#E8D9F0"
+                                elif _rom_enabled:
                                     add get_romance_heart_image(_cid) xsize 38 ysize 38
                                     text "[get_romance(_cid)]/24" size 18 color "#FFB9D5"
                                 else:
