@@ -106,6 +106,7 @@ default tl_class_category = "basic"     # basic | intermediate | advanced
 default tl_selected_teacher = ""        # haru | misaki
 default tl_selected_lesson = "lesson_1" # lesson_1 ... lesson_11
 default tl_selected_sublesson = ""      # 1_1_intro ... 1_7_phrases_exercise
+default tl_intro_page = 0               # página de intro 1.1 persistente (save/load)
 
 # Rutas de imagen recomendadas:
 # typing-games/game/images/tl/
@@ -773,11 +774,10 @@ screen tl_classes_lesson_panel_screen():
 screen tl_sublesson_intro_screen():
     tag menu
     modal True
-    default _page = 0
 
     $ _slides = tl_load_tm_intro_slides_text()
     $ _last = max(0, len(_slides) - 1)
-    $ _safe_page = max(0, min(_last, int(_page if _page is not None else 0)))
+    $ _safe_page = max(0, min(_last, int(tl_intro_page if tl_intro_page is not None else 0)))
     $ _slide_entry = _slides[_safe_page] if len(_slides) > 0 else {"file": "n/a", "text": "Contenido de introducción no disponible."}
     $ _slide_text = unicode(_slide_entry.get("text", "Contenido de introducción no disponible."))
     $ _slide_file = unicode(_slide_entry.get("file", "n/a"))
@@ -822,10 +822,10 @@ screen tl_sublesson_intro_screen():
             hbox:
                 spacing 14
                 xalign 0.5
-                textbutton "Anterior" action SetScreenVariable("_page", max(0, _safe_page - 1)) sensitive (_safe_page > 0)
-                textbutton "Siguiente" action SetScreenVariable("_page", min(_last, _safe_page + 1)) sensitive (_safe_page < _last)
-                textbutton "Completar introducción" action Return("complete") sensitive (_safe_page == _last)
-                textbutton "Volver a clase" action Return("back_class")
+                textbutton "Anterior" action SetVariable("tl_intro_page", max(0, _safe_page - 1)) sensitive (_safe_page > 0)
+                textbutton "Siguiente" action SetVariable("tl_intro_page", min(_last, _safe_page + 1)) sensitive (_safe_page < _last)
+                textbutton "Completar introducción" action [SetVariable("tl_intro_page", 0), Return("complete")] sensitive (_safe_page == _last)
+                textbutton "Volver a clase" action [SetVariable("tl_intro_page", 0), Return("back_class")]
 
 screen tl_sublesson_content_screen(sub_id="", sub_title="", objective="", summary="", next_hint=""):
     tag menu
@@ -911,6 +911,8 @@ screen tl_qa_tech_screen():
             text "  • hub (pasillo): {}".format("OK" if _a_hub else "Fallback activo") size 18 color ("#BEECC6" if _a_hub else "#FFE5B1")
             text "  • clases (salón): {}".format("OK" if _a_cls else "Fallback activo") size 18 color ("#BEECC6" if _a_cls else "#FFE5B1")
             text "P5-4 Botones sensibles: siempre muestran feedback textual cuando están bloqueados." size 20
+            text "P5-5 Ruta final: Hub -> Clases -> Docente -> Curso -> Lecciones -> 1.1 -> retorno." size 20
+            text "P5-6 Save/Load en 1.1 conserva página con tl_intro_page." size 20
 
             hbox:
                 spacing 14
