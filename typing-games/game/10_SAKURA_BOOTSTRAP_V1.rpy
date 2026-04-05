@@ -260,7 +260,7 @@ screen tl_sakura_hub_screen():
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
     if bg:
-        add bg
+        add bg at tl_soft_focus
     else:
         add "tl_fallback_rose"
         text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
@@ -278,14 +278,14 @@ screen tl_sakura_hub_screen():
     textbutton "⚙" action ShowMenu("preferences") xalign 0.965 yalign 0.05
 
     frame:
-        xalign 0.11
-        yalign 0.60
-        xsize 400
-        ysize 600
+        xalign 0.14
+        yalign 0.56
+        xsize 350
+        ysize 430
         background Solid("#1A1120D8")
 
         vbox:
-            spacing 18
+            spacing 16
             xalign 0.5
             yalign 0.06
 
@@ -298,22 +298,15 @@ screen tl_sakura_hub_screen():
             textbutton "Diario" action Return("go_diary")
             textbutton "Biblioteca" action Return("go_library")
 
-            null height 8
-            text "Lugares" size 32 color "#FFD7F1" xalign 0.5
-            textbutton "Entrada (placeholder)" action Return("go_place_entrance")
-            textbutton "Patio (placeholder)" action Return("go_place_patio")
-            textbutton "QA técnico" action Return("go_qa_tech")
-            textbutton "Salir al menú" action Return("to_main")
-
     frame:
-        xalign 0.66
-        yalign 0.63
-        xsize 700
-        ysize 540
+        xalign 0.50
+        yalign 0.53
+        xsize 560
+        ysize 420
         background Solid("#251A2EDD")
 
         vbox:
-            spacing 16
+            spacing 12
             xalign 0.5
             yalign 0.08
 
@@ -322,8 +315,26 @@ screen tl_sakura_hub_screen():
             $ _mod_progress = get_check_progress(tl_current_module)
             $ _mod_done, _mod_total = tl_progress_counts(_mod_progress)
             text "Progreso académico (checks): [_mod_done]/[_mod_total]" size 22 xalign 0.5
-            text "En esta etapa construiremos primero Clases (lecciones)." size 22 xalign 0.5
-            text "Luego conectamos Práctica / Exámenes / Actividades / Diario / Biblioteca." size 20 xalign 0.5
+            text "En esta etapa construiremos primero Clases (lecciones)." size 20 xalign 0.5
+            text "Luego conectamos Práctica, Exámenes y actividades." size 18 xalign 0.5
+
+    frame:
+        xalign 0.80
+        yalign 0.82
+        xsize 360
+        ysize 260
+        background Solid("#1A1120D8")
+
+        vbox:
+            spacing 12
+            xalign 0.5
+            yalign 0.08
+
+            text "Lugares" size 34 color "#FFD7F1" xalign 0.5
+            textbutton "Entrada (placeholder)" action Return("go_place_entrance")
+            textbutton "Patio (placeholder)" action Return("go_place_patio")
+            textbutton "QA técnico" action Return("go_qa_tech")
+            textbutton "Salir al menú" action Return("to_main")
 
 screen tl_place_placeholder_screen(place_name="Lugar"):
     tag menu
