@@ -468,7 +468,8 @@ screen tl_classes_teacher_screen():
                                 text "Sprite Misaki" xalign 0.5 yalign 0.5 size 28
                         text "Misaki" xalign 0.5 yalign 0.92 size 30 color "#F7E8FF"
 
-            text "Docente elegida/o: [tl_selected_teacher if tl_selected_teacher else '—']" xalign 0.5 size 22 color "#E8D9F0"
+            $ _teacher_label = tl_selected_teacher.title() if tl_selected_teacher else "—"
+            text "Docente elegida/o: [_teacher_label]" xalign 0.5 size 22 color "#E8D9F0"
 
             hbox:
                 spacing 14
@@ -489,6 +490,16 @@ screen tl_classes_course_intro_screen():
     else:
         add "tl_fallback_rose"
     add Solid("#00000088")
+    $ _teacher_name = tl_selected_teacher.title() if tl_selected_teacher else "Docente"
+    if tl_selected_teacher == "haru":
+        $ _teacher_intro_1 = "Haru: Soy Haru, vamos a construir precisión desde la base."
+        $ _teacher_intro_2 = "Haru: Te recomiendo iniciar por Introducción y Fila central."
+    elif tl_selected_teacher == "misaki":
+        $ _teacher_intro_1 = "Misaki: Soy Misaki, avanzaremos paso a paso con buena postura."
+        $ _teacher_intro_2 = "Misaki: Empezaremos por Introducción y luego ejercicios guiados."
+    else:
+        $ _teacher_intro_1 = "Docente: Vamos a comenzar con el plan básico de mecanografía."
+        $ _teacher_intro_2 = "Docente: Elige una sublección y avanzamos."
 
     frame:
         xalign 0.5
@@ -507,14 +518,17 @@ screen tl_classes_course_intro_screen():
             text "• Postura y posición de manos en fila central." size 22 xalign 0.5
             text "• Precisión antes que velocidad, con práctica progresiva." size 22 xalign 0.5
             text "• Letras → palabras → frases para consolidar memoria muscular." size 22 xalign 0.5
-            text "Docente actual: [tl_selected_teacher.title() if tl_selected_teacher else 'Sin asignar']" size 22 color "#E8D9F0" xalign 0.5
+            text "Docente actual: [_teacher_name]" size 22 color "#E8D9F0" xalign 0.5
+            text "[_teacher_intro_1]" size 20 color "#F7E8FF" xalign 0.5
+            text "[_teacher_intro_2]" size 20 color "#F7E8FF" xalign 0.5
+            text "Lecciones disponibles: 1.1 Intro, 1.2 Fila central, 1.3 Resultados, 1.4 Teclas, 1.5 Ayuda examen, 1.6 Palabras, 1.7 Frases." size 18 color "#E8D9F0" xalign 0.5
             if tl_experience_mode == 1:
                 text "Modo 1: aprendizaje puro (sin lore ni romance)." size 20 color "#E8D9F0" xalign 0.5
 
             hbox:
                 spacing 14
                 xalign 0.5
-                textbutton "Continuar curso" action Return("continue")
+                textbutton "Ver lecciones" action Return("continue")
                 textbutton "Atrás" action Return("back")
 
 screen tl_classes_lesson_panel_screen():
@@ -571,7 +585,8 @@ screen tl_classes_lesson_panel_screen():
                     xsize 400
                     ysize 210
                     background Solid("#241D2C")
-                    text "[tl_selected_sublesson if tl_selected_sublesson else 'Ninguna']" xalign 0.5 yalign 0.5 size 24
+                    $ _selected_label = tl_selected_sublesson if tl_selected_sublesson else "Ninguna"
+                    text "[_selected_label]" xalign 0.5 yalign 0.5 size 24
 
                 textbutton "Iniciar sublección" action Return("start_selected") sensitive (len((tl_selected_sublesson or "").strip()) > 0) xalign 0.5
                 textbutton "Volver a curso" action Return("back_course") xalign 0.5
@@ -674,15 +689,6 @@ label tl_classes_lesson_panel_flow:
             $ typing_lab_selected_mode = "words"
         else:
             $ typing_lab_selected_mode = "phrases"
-
-        if tl_selected_teacher == "haru":
-            "Haru: Soy Haru, tu docente de mecanografía."
-            "Haru: En esta sublección trabajaremos precisión y ritmo constante."
-        elif tl_selected_teacher == "misaki":
-            "Misaki: Soy Misaki, te guiaré en este bloque."
-            "Misaki: Mantén postura correcta y prioriza precisión."
-        else:
-            "Docente: Iniciaremos una práctica breve de mecanografía."
 
         "Objetivo TM: escribe con precisión y corrige errores al instante."
         call typing_lab_start
