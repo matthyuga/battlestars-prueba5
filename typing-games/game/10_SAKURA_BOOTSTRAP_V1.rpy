@@ -962,6 +962,11 @@ label tl_classes_lesson_panel_flow:
         jump tl_classes_course_lessons_flow
     if _return == "start_selected":
         $ _selected = str(tl_selected_sublesson or "")
+        $ _sub_return = "back_class"
+
+        # Flujo académico puro:
+        # - En sublecciones de Clases NO se llama Typing Lab.
+        # - Typing Lab queda para Práctica/Exámenes fuera de este panel.
         if _selected == "1_1_intro":
             call screen tl_sublesson_intro_screen
             $ _sub_return = _return
@@ -1023,6 +1028,10 @@ label tl_classes_lesson_panel_flow:
         if _sub_return == "complete":
             $ set_check("clases", "lesson_1", _selected, True)
             "Subsección completada: [_selected]. Contenido académico registrado."
+        elif _sub_return == "back_class":
+            pass
+        else:
+            "Subsección no completada. Vuelve cuando quieras continuar."
         jump tl_classes_lesson_panel_flow
 
     jump tl_classes_lesson_panel_flow
