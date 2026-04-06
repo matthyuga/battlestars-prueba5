@@ -831,57 +831,164 @@ screen tl_sublesson_intro_screen():
     tag menu
     modal True
 
-    $ _slides = tl_load_tm_intro_slides_text()
-    $ _last = max(0, len(_slides) - 1)
+    $ _cards = [
+        {
+            "title": u"¿Qué es escribir al tacto?",
+            "core_lines": [
+                u"Es una técnica para escribir sin mirar el teclado.",
+                u"Se basa en memoria muscular, ritmo y precisión.",
+                u"Nuestro objetivo inicial: controlar la fila central con calma.",
+            ],
+            "teacher_line": u"Primero buscamos postura y confianza; la velocidad llega después.",
+        },
+        {
+            "title": u"Postura base y punto de partida",
+            "core_lines": [
+                u"Siéntate erguido, hombros sueltos y muñecas neutras.",
+                u"Apoya los dedos en A S D F y J K L Ñ.",
+                u"Pulgares listos para la barra espaciadora.",
+            ],
+            "teacher_line": u"Si la postura es estable, tus dedos se mueven con menos esfuerzo.",
+        },
+        {
+            "title": u"Cómo practicar mejor",
+            "core_lines": [
+                u"Prioriza exactitud antes que rapidez.",
+                u"Escribe con pulsaciones suaves y regreso al punto base.",
+                u"Respira y mantén un ritmo constante.",
+            ],
+            "teacher_line": u"No corras: cada tecla correcta fortalece tu memoria muscular.",
+        },
+        {
+            "title": u"Errores comunes al empezar",
+            "core_lines": [
+                u"Mirar el teclado en cada tecla.",
+                u"Tensionar hombros o muñecas.",
+                u"Apretar demasiado fuerte las teclas.",
+            ],
+            "teacher_line": u"Si te equivocas, corrige con calma y continúa: eso también es progreso.",
+        },
+        {
+            "title": u"Preparación para la primera práctica",
+            "core_lines": [
+                u"Meta de esta sesión: precisión y control.",
+                u"Haz pausas cortas cada pocos minutos.",
+                u"Al terminar, revisaremos aciertos y hábitos.",
+            ],
+            "teacher_line": u"Excelente, ya tienes la base. Pasemos al primer ejercicio guiado.",
+        },
+    ]
+    $ _last = max(0, len(_cards) - 1)
     $ _safe_page = max(0, min(_last, int(tl_intro_page if tl_intro_page is not None else 0)))
-    $ _slide_entry = _slides[_safe_page] if len(_slides) > 0 else {"file": "n/a", "text": "Contenido de introducción no disponible."}
-    $ _slide_text = unicode(_slide_entry.get("text", "Contenido de introducción no disponible."))
-    $ _slide_file = unicode(_slide_entry.get("file", "n/a"))
+    $ _card = _cards[_safe_page] if len(_cards) > 0 else {"title": u"Introducción", "core_lines": [u"Contenido no disponible"], "teacher_line": u"Continuemos."}
+    $ _title = unicode(_card.get("title", u"Introducción"))
+    $ _lines = _card.get("core_lines", [])
+    $ _teacher_line = unicode(_card.get("teacher_line", u"Continuemos con el módulo."))
+    $ _teacher_name = tl_selected_teacher.title() if tl_selected_teacher else "Docente"
+    if tl_selected_teacher == "haru":
+        $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/male/teachers/Haru.png")
+        if not _teacher_portrait:
+            $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/female/teachers/Ayame.png")
+    elif tl_selected_teacher == "misaki":
+        $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/female/teachers/Misaki.png")
+        if not _teacher_portrait:
+            $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/male/teachers/Masato.png")
+    else:
+        $ _teacher_portrait = None
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
         add bg at tl_soft_focus
     else:
         add "tl_fallback_rose"
-    add Solid("#00000099")
+    add Solid("#00000092")
 
     frame:
         xalign 0.5
-        yalign 0.5
-        xsize 980
-        ysize 580
+        yalign 0.42
+        xsize 1020
+        ysize 430
         background Solid("#151019EE")
 
-        vbox:
-            spacing 16
+        hbox:
+            spacing 20
             xalign 0.5
-            yalign 0.08
-
-            text "Lección 1.1 · Introducción real" size 40 color "#FFD7F1" xalign 0.5
+            yalign 0.5
 
             frame:
-                xsize 860
-                ysize 300
+                xsize 640
+                ysize 330
+                padding (14, 12)
                 background Solid("#221A2CEB")
+
                 viewport:
                     draggable True
                     mousewheel True
-                    xmaximum 820
-                    ymaximum 260
-                    xalign 0.5
-                    yalign 0.5
-                    text "[_slide_text]" size 24 text_align 0.0
+                    xmaximum 610
+                    ymaximum 306
+                    text "[_title]\n\n• [(_lines[0] if len(_lines) > 0 else u'')]\n• [(_lines[1] if len(_lines) > 1 else u'')]\n• [(_lines[2] if len(_lines) > 2 else u'')]\n\nFundamento clave:\nPracticar con constancia vale más que forzar velocidad desde el primer día." size 28 text_align 0.0
 
-            text "Página [(_safe_page + 1)]/[max(1, len(_slides))]" size 22 color "#E8D9F0" xalign 0.5
-            text "Fuente: [_slide_file]" size 17 color "#C9B8D5" xalign 0.5
+            frame:
+                xsize 300
+                ysize 330
+                background Solid("#2A2234CC")
+                text "Espacio para imagen personalizada\n\n(placeholder)" xalign 0.5 yalign 0.5 size 26 text_align 0.5 color "#E9DDF2"
 
-            hbox:
-                spacing 14
-                xalign 0.5
-                textbutton "Anterior" action SetVariable("tl_intro_page", max(0, _safe_page - 1)) sensitive (_safe_page > 0)
-                textbutton "Siguiente" action SetVariable("tl_intro_page", min(_last, _safe_page + 1)) sensitive (_safe_page < _last)
-                textbutton "Completar introducción" action [SetVariable("tl_intro_page", 0), Return("complete")] sensitive (_safe_page == _last)
-                textbutton "Volver a clase" action [SetVariable("tl_intro_page", 0), Return("back_class")]
+    frame:
+        xalign 0.5
+        yalign 0.79
+        xsize 880
+        ysize 70
+        background Solid("#0D0A14D8")
+
+        hbox:
+            spacing 14
+            xalign 0.5
+            yalign 0.5
+            textbutton "Anterior" action SetVariable("tl_intro_page", max(0, _safe_page - 1)) sensitive (_safe_page > 0)
+            text "Página [(_safe_page + 1)]/[max(1, len(_cards))]" size 28 color "#F4E6FF" yalign 0.5
+            textbutton "Siguiente" action SetVariable("tl_intro_page", min(_last, _safe_page + 1)) sensitive (_safe_page < _last)
+            textbutton "Completar introducción" action [SetVariable("tl_intro_page", 0), Return("complete")] sensitive (_safe_page == _last)
+            textbutton "Volver a clase" action [SetVariable("tl_intro_page", 0), Return("back_class")]
+
+    frame:
+        xalign 0.0
+        yalign 1.0
+        xoffset 26
+        yoffset -26
+        xsize 920
+        ysize 230
+        background Solid("#17121EEC")
+
+        hbox:
+            spacing 16
+            xalign 0.5
+            yalign 0.5
+
+            vbox:
+                spacing 8
+                xsize 190
+
+                frame:
+                    xsize 190
+                    ysize 150
+                    background Solid("#241D2C")
+                    if _teacher_portrait:
+                        add _teacher_portrait fit "contain" xalign 0.5 yalign 0.5
+                    else:
+                        text "Sin retrato" xalign 0.5 yalign 0.5 size 22 color "#E8D9F0"
+
+                frame:
+                    xsize 190
+                    ysize 34
+                    background Solid("#2A2230")
+                    text "[_teacher_name]" xalign 0.5 yalign 0.5 size 21 color "#FFD7F1"
+
+            frame:
+                xsize 680
+                ysize 96
+                background Solid("#211A29")
+                text "[_teacher_line]" xalign 0.03 yalign 0.5 size 24 color "#F7E8FF"
 
 screen tl_sublesson_content_screen(sub_id="", sub_title="", objective="", summary="", next_hint=""):
     tag menu
