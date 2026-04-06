@@ -82,14 +82,20 @@ Base de creación:
 - Distribución libre: +100
 - **Total base inicial: 400**
 
-### 4.1 Torneos (pendiente de normalización exacta)
+### 4.1 Torneos (regla confirmada)
 
-Para implementación estable, definir explícitamente una de estas 2 reglas:
+Regla confirmada para implementación:
 
-- **Regla A (incrementos acumulativos):** cada ronda superada suma puntos al pool.
-- **Regla B (cap fijo por ronda):** cada ronda fija un pool máximo.
+- **Incrementos acumulativos por ronda ganada.**
+- El **pool inicial** se asume invertido por el jugador al inicio (salvo puntos reservados).
+- Si el jugador deja puntos sin usar, esos puntos **se conservan** para reasignación táctica en rondas posteriores.
+- Cada victoria de ronda otorga nuevos puntos al pool para reforzar técnicas/stats de cara al siguiente combate.
 
-> Recomendación: usar Regla A para que la sensación de progreso sea más clara en UX.
+Implicación de diseño:
+- La economía de torneo debe mostrarse en UI como:
+  - `pool_actual`,
+  - `puntos_ganados_ronda`,
+  - `puntos_sin_asignar`.
 
 ### 4.2 Torre del Cielo (incremento por piso)
 
@@ -123,7 +129,7 @@ Dado el estado actual de la máquina de progresión EXP/Oro (en rediseño), se p
 3. Flujo de torneo C completo (16 participantes).
 4. Conversión de duplicados a estrellas.
 5. Tienda mínima de estrellas.
-6. Torre del Cielo v1 (bloques C y B primero).
+6. Torre del Cielo v1 (bloques C y B primero, sin tabla cerrada de drops).
 7. Telemetría simple (run, piso máximo, recompensas).
 
 ---
@@ -143,8 +149,11 @@ Dado el estado actual de la máquina de progresión EXP/Oro (en rediseño), se p
 
 ## 8) Definiciones pendientes
 
-- ¿Los bonus de torneo son acumulativos o cap de ronda?
-- ¿Probabilidades exactas de drop por bloque en Torre?
-- ¿Regla de permanencia para personajes temporales en Torre?
-- ¿Topes de puntos por modo para evitar desbordes en tiers altos?
-
+- **(Resuelto)** Bonus de torneo: acumulativos por ronda ganada.
+- **Pendiente fase posterior**: probabilidades exactas de drop por bloque en Torre.
+  - Se implementará primero una **tabla de tipos de premio** (loot/drop, buff, personaje, ítem/poción consumible o permanente, tickets C/B/A).
+  - El tuning de probabilidades se cierra cuando el modo ya esté jugable.
+- **Pendiente diseño de progresión**: permanencia de personajes temporales en Torre.
+  - Línea propuesta: personajes temporales pueden volverse permanentes al cumplir quests/desafíos opcionales de desempeño/protección de equipo.
+- **Pendiente balance alto tier**: topes y/o soft caps de puntos por modo.
+  - Decisión: priorizar calibración de tiers bajos (C/B/A) antes de cerrar límites de tiers altos.
