@@ -1110,77 +1110,16 @@ label tl_classes_lesson_panel_flow:
     if _return == "back_course":
         jump tl_classes_course_lessons_flow
     if _return == "start_selected":
+        call tl_route_selected_sublesson
+        $ _sub_return = _return
         $ _selected = str(tl_selected_sublesson or "")
-        $ _sub_return = "back_class"
-
-        # Flujo académico puro:
-        # - En sublecciones de Clases NO se llama Typing Lab.
-        # - Typing Lab queda para Práctica/Exámenes fuera de este panel.
-        if _selected == "1_1_intro":
-            call screen tl_sublesson_intro_screen
-            $ _sub_return = _return
-        elif _selected == "1_2_home_row":
-            call screen tl_sublesson_content_screen(
-                sub_id="1.2",
-                sub_title="Fila central",
-                objective="Ubicar dedos en A-S-D-F y J-K-L-Ñ sin mirar.",
-                summary="Practica pulsaciones controladas y ritmo constante en fila central.",
-                next_hint="Continúa con 1.3 para revisar resultados y control de errores."
-            )
-            $ _sub_return = _return
-        elif _selected == "1_3_results":
-            call screen tl_sublesson_content_screen(
-                sub_id="1.3",
-                sub_title="Ver resultados",
-                objective="Interpretar precisión, errores y consistencia.",
-                summary="Aprender a leer resultados permite corregir técnica antes de acelerar.",
-                next_hint="Pasa a 1.4 para reforzar precisión de teclas."
-            )
-            $ _sub_return = _return
-        elif _selected == "1_4_keys_exercise":
-            call screen tl_sublesson_content_screen(
-                sub_id="1.4",
-                sub_title="Ejercicio de teclas",
-                objective="Consolidar control de dedos en secuencias de teclas.",
-                summary="Ejercicio académico enfocado en precisión y postura, sin modo libre.",
-                next_hint="Luego revisa 1.5 para guía de exámenes."
-            )
-            $ _sub_return = _return
-        elif _selected == "1_5_exam_help":
-            call screen tl_sublesson_content_screen(
-                sub_id="1.5",
-                sub_title="Ayuda exámenes",
-                objective="Conocer criterios de evaluación y preparación.",
-                summary="Revisa consejos para gestionar errores, tiempo y consistencia.",
-                next_hint="Sigue con 1.6 para estructura de palabras."
-            )
-            $ _sub_return = _return
-        elif _selected == "1_6_words_exercise":
-            call screen tl_sublesson_content_screen(
-                sub_id="1.6",
-                sub_title="Ejercicio de palabras",
-                objective="Aplicar técnica de fila central en palabras completas.",
-                summary="Prioriza exactitud de cada palabra antes de aumentar velocidad.",
-                next_hint="Finaliza en 1.7 con frases completas."
-            )
-            $ _sub_return = _return
-        else:
-            call screen tl_sublesson_content_screen(
-                sub_id="1.7",
-                sub_title="Ejercicio de frases",
-                objective="Mantener precisión en secuencias largas.",
-                summary="Integra postura, ritmo y corrección consciente al escribir frases.",
-                next_hint="Al completar, tendrás cerrada la base de Lección 1."
-            )
-            $ _sub_return = _return
 
         if _sub_return == "complete":
-            $ set_check("clases", "lesson_1", _selected, True)
             "Subsección completada: [_selected]. Contenido académico registrado."
         elif _sub_return == "back_class":
             pass
         else:
-            "Subsección no completada. Vuelve cuando quieras continuar."
+            "Se detectó un problema al cargar la sublección. Reintenta o vuelve al panel."
         jump tl_classes_lesson_panel_flow
 
     jump tl_classes_lesson_panel_flow
