@@ -15,6 +15,7 @@ Avance actual:
 - ✅ Definido plan detallado de ejecución para Fase 1 (inventario MVP fuera de combate).
 - ✅ Definido plan detallado de ejecución para Fase 2 (inventario en combate + consumibles base).
 - ✅ Definido plan detallado de ejecución para Fase 3 (consumibles avanzados + amuletos raros).
+- ✅ Definido plan detallado de ejecución para Fase 4 (economía y meta-progresión).
 
 ---
 
