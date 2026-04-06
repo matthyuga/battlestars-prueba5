@@ -383,8 +383,10 @@ screen tl_sakura_hub_screen():
     textbutton "⚙" action ShowMenu("preferences") xalign 0.965 yalign 0.05
 
     frame:
-        xalign 0.09
-        yalign 0.56
+        xalign 0.0
+        yalign 1.0
+        xoffset 26
+        yoffset -22
         xsize 350
         ysize 430
         background Solid("#1A1120D8")
@@ -405,9 +407,10 @@ screen tl_sakura_hub_screen():
 
     frame:
         xalign 0.50
-        yalign 0.53
-        xsize 560
-        ysize 420
+        yalign 1.0
+        yoffset -130
+        xsize 500
+        ysize 350
         background Solid("#251A2EDD")
 
         vbox:
@@ -424,8 +427,10 @@ screen tl_sakura_hub_screen():
             text "Luego conectamos Práctica, Exámenes y actividades." size 18 xalign 0.5
 
     frame:
-        xalign 0.89
-        yalign 0.83
+        xalign 1.0
+        yalign 1.0
+        xoffset -26
+        yoffset -22
         xsize 300
         ysize 260
         background Solid("#1A1120D8")
@@ -650,8 +655,10 @@ screen tl_classes_course_intro_screen():
             text "• Técnica para escribir sin mirar el teclado." size 22 xalign 0.5
 
     frame:
-        xalign 0.39
-        yalign 0.84
+        xalign 0.0
+        yalign 1.0
+        xoffset 26
+        yoffset -26
         xsize 920
         ysize 230
         background Solid("#17121EEC")
