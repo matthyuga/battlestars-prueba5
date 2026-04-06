@@ -38,6 +38,10 @@ screen tl_ui_teacher_panel(
     on_advance=None,
     on_back=None
 ):
+    $ _continue_action = on_continue if on_continue is not None else NullAction()
+    $ _advance_action = on_advance if on_advance is not None else NullAction()
+    $ _back_action = on_back if on_back is not None else Return("back_class")
+
     frame:
         xalign 0.5
         yalign 1.0
@@ -82,9 +86,9 @@ screen tl_ui_teacher_panel(
 
                 hbox:
                     spacing 14
-                    textbutton "Continuar" action on_continue if on_continue is not None else NullAction() sensitive can_continue
-                    textbutton "Avanzar" action on_advance if on_advance is not None else NullAction() sensitive can_advance
-                    textbutton "Atrás" action on_back if on_back is not None else Return("back_class")
+                    textbutton "Continuar" action _continue_action sensitive can_continue
+                    textbutton "Avanzar" action _advance_action sensitive can_advance
+                    textbutton "Atrás" action _back_action
 
 
 screen tl_ui_sublesson_selector_panel(
@@ -125,4 +129,3 @@ screen tl_ui_sublesson_selector_panel(
                     ysize 210
                     background Solid("#241D2C")
                     text "[selected_label]" xalign 0.5 yalign 0.5 size 24
-
