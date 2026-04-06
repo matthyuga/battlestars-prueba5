@@ -68,50 +68,164 @@ init -125 python:
                 "1_2_home_row": {
                     "id": "1_2_home_row",
                     "title": "1.2 Fila central",
-                    "state": "placeholder",
-                    "scene_type": "placeholder",
-                    "objective": "Placeholder temporal para implementación manual.",
-                    "steps": [],
+                    "state": "real",
+                    "scene_type": "lesson_dialogue",
+                    "objective": "Dominar posición base y retorno a fila central.",
+                    "steps": [
+                        {
+                            "title": "Fila central: punto de control",
+                            "points": [
+                                "Ubica dedos en A-S-D-F y J-K-L-Ñ.",
+                                "Relaja manos y evita rigidez.",
+                                "Vuelve siempre al punto base tras cada pulsación.",
+                            ],
+                            "teacher_line": "Si dominas la fila central, todo el teclado se vuelve más predecible.",
+                        },
+                        {
+                            "title": "Memoria muscular inicial",
+                            "points": [
+                                "Repite secuencias cortas sin mirar.",
+                                "Mantén ritmo estable, no velocidad máxima.",
+                                "Corrige postura antes de corregir tiempo.",
+                            ],
+                            "teacher_line": "La consistencia vale más que un intento rápido e inestable.",
+                        },
+                    ],
                 },
                 "1_3_results": {
                     "id": "1_3_results",
                     "title": "1.3 Ver resultados",
-                    "state": "placeholder",
-                    "scene_type": "placeholder",
-                    "objective": "Placeholder temporal para implementación manual.",
-                    "steps": [],
+                    "state": "real",
+                    "scene_type": "lesson_dialogue",
+                    "objective": "Interpretar precisión y errores para mejorar técnica.",
+                    "steps": [
+                        {
+                            "title": "Leer resultados con criterio",
+                            "points": [
+                                "Prioriza precisión sobre velocidad.",
+                                "Observa dónde se concentran los errores.",
+                                "Usa resultados para ajustar postura y ritmo.",
+                            ],
+                            "teacher_line": "Los resultados no son castigo; son mapa de mejora.",
+                        },
+                        {
+                            "title": "Plan de ajuste",
+                            "points": [
+                                "Si hay muchos errores: baja ritmo.",
+                                "Si hay tensión: revisa hombros y muñecas.",
+                                "Si dudas de teclas: vuelve a la base.",
+                            ],
+                            "teacher_line": "Un buen análisis reduce errores futuros y acelera aprendizaje.",
+                        },
+                    ],
                 },
                 "1_4_keys_exercise": {
                     "id": "1_4_keys_exercise",
                     "title": "1.4 Ejercicio teclas",
-                    "state": "placeholder",
-                    "scene_type": "placeholder",
-                    "objective": "Placeholder temporal para implementación manual.",
-                    "steps": [],
+                    "state": "real",
+                    "scene_type": "lesson_dialogue",
+                    "objective": "Consolidar precisión en teclas individuales.",
+                    "steps": [
+                        {
+                            "title": "Ejercicio por teclas",
+                            "points": [
+                                "Pulsa una tecla objetivo y regresa al centro.",
+                                "Mantén dedos cercanos al teclado.",
+                                "No sacrifiques exactitud por rapidez.",
+                            ],
+                            "teacher_line": "Cada tecla bien ejecutada refuerza tu confianza.",
+                        },
+                        {
+                            "title": "Control de movimiento",
+                            "points": [
+                                "Mínimo desplazamiento por dedo.",
+                                "Pulso suave, sin golpear fuerte.",
+                                "Respiración constante durante práctica.",
+                            ],
+                            "teacher_line": "Control fino de movimiento = menos fatiga y más precisión.",
+                        },
+                    ],
                 },
                 "1_5_exam_help": {
                     "id": "1_5_exam_help",
                     "title": "1.5 Ayuda exámenes",
-                    "state": "placeholder",
-                    "scene_type": "placeholder",
-                    "objective": "Placeholder temporal para implementación manual.",
-                    "steps": [],
+                    "state": "real",
+                    "scene_type": "lesson_dialogue",
+                    "objective": "Preparar criterios de evaluación para examen.",
+                    "steps": [
+                        {
+                            "title": "Cómo afrontar el examen",
+                            "points": [
+                                "Empieza en ritmo cómodo.",
+                                "Concéntrate en errores repetidos.",
+                                "Mantén postura incluso con presión.",
+                            ],
+                            "teacher_line": "En examen, estabilidad mental y técnica ganan al apuro.",
+                        },
+                        {
+                            "title": "Antes de iniciar",
+                            "points": [
+                                "Revisa posición de manos.",
+                                "Define objetivo: precisión primero.",
+                                "Respira profundo y comienza.",
+                            ],
+                            "teacher_line": "Entrar con método reduce el estrés y mejora el resultado.",
+                        },
+                    ],
                 },
                 "1_6_words_exercise": {
                     "id": "1_6_words_exercise",
                     "title": "1.6 Ejercicio palabras",
-                    "state": "placeholder",
-                    "scene_type": "placeholder",
-                    "objective": "Placeholder temporal para implementación manual.",
-                    "steps": [],
+                    "state": "real",
+                    "scene_type": "lesson_dialogue",
+                    "objective": "Aplicar técnica en palabras completas.",
+                    "steps": [
+                        {
+                            "title": "De teclas a palabras",
+                            "points": [
+                                "Agrupa letras sin perder ritmo.",
+                                "Mantén ojos en pantalla.",
+                                "Corrige de inmediato errores de digitación.",
+                            ],
+                            "teacher_line": "Las palabras conectan técnica con lectura real.",
+                        },
+                        {
+                            "title": "Fluidez inicial",
+                            "points": [
+                                "No cortes el ritmo por una sola falla.",
+                                "Recupera postura tras cada palabra.",
+                                "Busca consistencia entre intentos.",
+                            ],
+                            "teacher_line": "Fluidez no es correr: es sostener calidad en cada palabra.",
+                        },
+                    ],
                 },
                 "1_7_phrases_exercise": {
                     "id": "1_7_phrases_exercise",
                     "title": "1.7 Ejercicio frases",
-                    "state": "placeholder",
-                    "scene_type": "placeholder",
-                    "objective": "Placeholder temporal para implementación manual.",
-                    "steps": [],
+                    "state": "real",
+                    "scene_type": "lesson_dialogue",
+                    "objective": "Integrar precisión y ritmo en frases largas.",
+                    "steps": [
+                        {
+                            "title": "Trabajo por frases",
+                            "points": [
+                                "Mantén continuidad entre palabras.",
+                                "Cuida signos y espacios.",
+                                "Evita tensión al aumentar longitud.",
+                            ],
+                            "teacher_line": "Las frases evalúan tu control completo, no solo reflejos.",
+                        },
+                        {
+                            "title": "Cierre de la lección 1",
+                            "points": [
+                                "Revisa precisión total de la sesión.",
+                                "Detecta patrón principal de error.",
+                                "Define foco para la siguiente lección.",
+                            ],
+                            "teacher_line": "Excelente avance: ya tienes base sólida para progresar.",
+                        },
+                    ],
                 },
             },
         },
@@ -144,4 +258,3 @@ init -125 python:
         lid = str(lesson_id or "").strip().lower()
         ids = LESSON_DB_ORDER_V1.get(lid, [])
         return list(ids)
-

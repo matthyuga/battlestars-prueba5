@@ -21,8 +21,8 @@ Estado actual: ✅ Revalidado post-fix T0 (Ren'Py 7.4.11)
 5. **`set_check("1_1_intro")` solo cuando `complete`.** ✅ (flujo activo)  
    Evidencia: router ejecuta `lesson_complete(...)` solo si `_result == "complete"`.
 
-6. **1.2..1.7 abren placeholders sin error.** ✅  
-   Evidencia: router envía casos no `intro_dialogue` a `tl_lesson_placeholder_scene`.
+6. **1.2..1.7 abren escenas reales sin error.** ✅  
+   Evidencia: DB marca `scene_type: lesson_dialogue` y router envía esos casos a `tl_lesson_intro_scene`.
 
 ## Nota de alcance
 
@@ -36,5 +36,5 @@ Estado actual: ✅ Revalidado post-fix T0 (Ren'Py 7.4.11)
 Evidencia funcional trazable:
 - Router activo desde panel: `call tl_route_selected_sublesson`.
 - Intro real en `1_1_intro`: `tl_lesson_intro_scene`.
-- Placeholder en `1.2..1.7`: `tl_lesson_placeholder_scene`.
+- Escenas reales en `1.2..1.7`: `scene_type=lesson_dialogue` -> `tl_lesson_intro_scene`.
 - `lesson_complete(...)` solo en retorno `complete`.

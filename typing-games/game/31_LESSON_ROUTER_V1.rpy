@@ -15,7 +15,7 @@ label tl_route_selected_sublesson:
     $ _scene_type = str(_meta.get("scene_type", "placeholder") or "placeholder").strip().lower()
     $ _result = "back_class"
 
-    if _scene_type == "intro_dialogue" and _selected == "1_1_intro":
+    if _scene_type in ("intro_dialogue", "lesson_dialogue"):
         call screen tl_lesson_intro_scene(
             sublesson_id=_selected,
             lesson_id="lesson_1"
