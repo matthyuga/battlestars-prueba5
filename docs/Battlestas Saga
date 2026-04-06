@@ -1,0 +1,2421 @@
+tengo una idea mas practica para battlestars, antes habiamos hablado sobre enfrentar a personajes de diferentes franquicias como dragon ball, naruto o bleach etc, tengo una idea para darle mas estructura y que sea interesante, el juego sera battlestars saga.
+
+contaremos con diversos personajes de cada franquicia, cada uno tendra un tier que va desde el C-B-A-S-SS-SSS-IV
+actualmente tengo 30 pjs C
+40 B
+57 A
+42 S
+9 SS
+6 SSS
+4 IV
+
+tendriamos varios modos de juego, duelo libre, el jugador puede escoger su pj y su rival. puede haber 1v1 o 2v2.
+
+modo torneo, clasificado por tiers, desde el C - B - A
+
+en tier c hay rondas de 16 pjs. si el jugador gana el torneo se lleva un pj de tier B al azar.
+
+en tier b hay rondas de 32 pjs, si el jugador gana se lleva un pj de tier A
+
+en tier a hay rondas de 32 pjs, si el jugador gana se lleva un pj de tier S
+
+por ahora no hay torneos de tier S
+
+la idea es que el jugador vaya ganando torneos para ganar pjs de diferentes tiers desde el B - A - S. ya que estan todos bloqueados menos los de tier C
+
+hay otro modo de juego, este lo llamaremos torre del cielo, el jugador va pasando por pisos y peleando contra el dueño de cada piso.
+
+empieza en el piso 1, este tendra que subir de pisos derrotando a los rivales que se tope en el camino. los bloques de dificultad varian por decimales, piso 1 - 10/ 11 - 20. esos corresponden al tier C, si pasa puede ganar un pj de tier B. luego tiene 21 - 30 / 31 - 40/ 41 - 50 son de tier B, cada bloque que pase puede tocarle o no un pj de tier B, puede haber un elemento aleatorio. si termina ese bloque de tier B puede ganar o no un pj de tier A, todo depende del azar, o puede ganar un iten o buff.
+piso 51 - 60/ 61 - 70 / 71 - 80 / 81 -90 son de tier A. si pasa puede o no ganar un pj de tier S
+91-100/ 101-110/11-120/121-130/131/140/141-150 son de tier S, si pasa puede o no ganar un pj de tier SS.
+
+para hacerlo mas facil los pisos de tier C corresponden a 2 bloques como habras visto
+tier B 3 bloques
+tier A 4 bloques
+tier S 5 bloques
+tier SS 6 bloques
+tier SSS 7 bloques
+tier IV 8 bloques, luego si el jugador llega a pasarlos puede que llegue al ultimo piso o que siga indefinidamente marcando nuevos records.
+
+otra cosa, actualmente tenemos un sistema hecho en codex para los stats y pool de puntos iniciales, pool de 200 puntos para tecnicas + atributo principal 100+100 de distribucion libre, eso nos da 400 puntos iniciales. 
+
+el modo torneo el jugador puede tener eso + 600 puntos en la ronda de 16. si pasa a ronda de 8 gana 800 puntos. si pasa a ronda de 4 gana 1000 y si pasa a la final gana 1500. eso en tier C que es cuando inicia
+
+en tier B inicia con pool total de 2000(400+1600). ronda 32 = 1000. ronda 16 = 1500. ronda 8 = 2000. ronda 4 = 2500. ronda final = 3000
+
+en tier A inicia con pool total de 5000(400+4600). ronda 32 = 1500. ronda 16= 2000. ronda 8 2500. ronda 4 3000. ronda fina = 3500
+
+para modo libre los tiers se arreglan con puntos por defecto.
+C=1000
+B=5000
+A=10.000
+S=50.000
+SS=100.000
+SSS=500.000
+IV=1.000.000
+ese seria el pool por defecto de puntos ya que son duelos independientes y libres, no se gana nada.
+
+en caso de los npc me encargaria de editar las tecnicas o crear un sistema de agregado automatico para ello.
+
+para el modo mas complejo que es la torre del cielo tendremos nuevamente el pool inicial de 200+ atributo principal 100+100 de distribucion libre en total 400.
+cada piso de tier C dara 50 puntos al pool. 
+cada piso de tier B dara 150 puntos al pool.
+cada piso de tier A dara 250puntos al pool
+cada piso de tier S dara 1000 puntos al pool
+cada piso de tier SS dara  1500 puntos al pool
+cada piso de tier SSS dara 5000 puntos al pool
+cada piso de tier IV dara 10.000 puntos al pool
+
+
+que te parece?
+
+
+Sí, así ya tiene mucha más forma de juego real.
+
+Lo que armaste para **Battlestars Saga** tiene 3 cosas muy valiosas:
+
+1. **progresión clara**
+2. **recompensas entendibles**
+3. **modos separados con identidades distintas**
+
+Eso hace que no todo dependa del “duelo libre”, sino que haya razones para seguir jugando.
+
+## Lo que más me gusta
+
+### 1. Los tiers ya sirven de columna vertebral
+
+No son solo etiquetas de poder. Ahora cumplen varias funciones:
+
+* ordenan el roster
+* determinan torneos
+* marcan la progresión
+* controlan recompensas
+* dan sensación de escalar de franquicias “más normales” a monstruos absurdos
+
+Y con tus números actuales ya hay bastante material:
+
+* C: 30
+* B: 40
+* A: 57
+* S: 42
+* SS: 9
+* SSS: 6
+* IV: 4
+
+En total son **188 personajes**, que ya es una base enorme.
+
+---
+
+## Los 3 modos funcionan bien
+
+### Duelo libre
+
+Es el modo sandbox. Sirve para:
+
+* probar personajes
+* hacer versus imposibles
+* probar builds
+* jugar 1v1 o 2v2 sin presión
+
+Está perfecto que acá uses puntos por defecto por tier.
+
+Tu escala actual:
+
+* C = 1.000
+* B = 5.000
+* A = 10.000
+* S = 50.000
+* SS = 100.000
+* SSS = 500.000
+* IV = 1.000.000
+
+La idea está bien, aunque te diría que revises después si el salto **A → S** y **SS → SSS** no se vuelve demasiado brusco en gameplay real. En papel suena épico, pero en combate puede hacer que algunos tiers queden demasiado lejos entre sí.
+
+---
+
+### Modo torneo
+
+Este me parece muy bueno porque da una progresión cerrada y fácil de entender.
+
+* torneo C → recompensa posible: personaje B
+* torneo B → recompensa posible: personaje A
+* torneo A → recompensa posible: personaje S
+
+Eso genera un loop muy sano:
+
+**empiezo con C → gano B → con B compito por A → con A compito por S**
+
+Eso está buenísimo porque el desbloqueo de personajes no se siente arbitrario.
+
+#### Lo único que te marcaría
+
+Conviene que el premio no sea totalmente cruel al azar.
+Porque si el jugador gana un torneo difícil y recibe un personaje B que no le interesa o repetido, puede sentirse mal.
+
+Podrías hacer algo así:
+
+* premio aleatorio entre 3 opciones y el jugador elige 1
+* o sistema de “fragmentos”
+* o si sale repetido, se transforma en:
+
+  * monedas
+  * buff permanente
+  * puntos extra
+  * item raro
+
+Así evitas frustración.
+
+---
+
+### Torre del Cielo
+
+Este es el modo más interesante de todos.
+
+Porque mezcla:
+
+* progresión larga
+* crecimiento del personaje
+* azar
+* recompensas variables
+* posibilidad de récord
+
+Y además tiene identidad propia. No se siente como “otro torneo”, sino como una subida de poder continua.
+
+La estructura por bloques me gusta:
+
+* C = 2 bloques
+* B = 3 bloques
+* A = 4 bloques
+* S = 5 bloques
+* SS = 6 bloques
+* SSS = 7 bloques
+* IV = 8 bloques
+
+Eso le da una lógica muy fácil de leer y expandir.
+
+También me gusta mucho la idea de que después de IV pueda:
+
+* terminar en un piso final
+* o seguir indefinidamente
+* o entrar en modo récord/infinito
+
+Eso le da rejugabilidad fuerte.
+
+---
+
+## El sistema de puntos también tiene potencial
+
+Acá hay una idea muy buena: que cada modo tenga su propia economía de poder.
+
+### Base inicial
+
+* 200 técnicas
+* +100 atributo principal
+* +100 libre
+* total 400
+
+Eso está bien como núcleo porque te da una base mínima de identidad para cualquier personaje/build.
+
+---
+
+## Lo mejor del torneo: escalado por ronda
+
+Acá hiciste algo muy importante: cada ronda no solo es un combate, sino una mejora.
+
+Eso da sensación de campaña.
+
+### Tier C
+
+* inicio: base 400 + extra
+* R16 = +600
+* R8 = +800
+* R4 = +1000
+* final = +1500
+
+La idea general está buena, pero te recomiendo ordenar bien si esos valores son:
+
+* puntos que se **suman**
+* o puntos de **pool total permitido**
+* o premio al pasar de ronda
+
+Porque leyendo rápido, por momentos parece acumulativo y por momentos parece valor fijo de ronda.
+
+Yo lo dejaría así, bien explícito:
+
+* **Pool inicial del torneo C:** 1000
+* al pasar a cuartos: +600
+* al pasar a semis: +800
+* al pasar a final: +1000
+* campeón: +1500 extra o recompensa final
+
+O bien:
+
+* R16: pool permitido 1000
+* R8: 1600
+* R4: 2400
+* final: 3400
+
+Conviene elegir una sola lógica y mantenerla siempre.
+
+---
+
+## Posible problema: inflación de puntos
+
+Acá está mi mayor observación.
+
+Tus números son épicos, pero podrías tener problemas de balance si:
+
+* los atributos escalan linealmente
+* las técnicas también escalan fuerte
+* defensa/cubre/durabilidad crecen demasiado
+
+Porque entonces los tiers altos pueden volver lentos o poco legibles los combates.
+
+Ejemplo:
+si un personaje IV tiene 1.000.000 de pool y eso se traduce casi directo en stats, cualquier diferencia pequeña puede romper todo.
+
+Entonces yo haría una de estas 2 cosas:
+
+### opción 1: mantener números altos, pero con escalado controlado
+
+Que no todo punto valga igual en tiers altos.
+Ejemplo:
+
+* en C/B cada punto rinde mucho
+* en S/SS/SSS empieza a rendir menos
+* así mantienes fantasía de números grandes, sin destrozar el balance
+
+### opción 2: comprimir números
+
+Mantener diferencias de poder, pero sin ir tan arriba.
+Ejemplo:
+
+* C = 1000
+* B = 2500
+* A = 5000
+* S = 12000
+* SS = 25000
+* SSS = 60000
+* IV = 120000
+
+No digo que tu escala esté mal. Solo digo que habría que probarla porque en juego real puede complicar mucho el tuning.
+
+---
+
+## Sobre Torre del Cielo: está bien pensado, pero necesita 3 reglas extra
+
+Para que no se vuelva injusta o caótica, yo le agregaría esto:
+
+### 1. checkpoints
+
+Por ejemplo cada 10 pisos.
+
+Así el jugador no pierde todo su avance.
+
+### 2. jefes de bloque
+
+Por ejemplo:
+
+* piso 10
+* piso 20
+* piso 30
+* etc.
+
+Eso hace que cada tramo tenga cierre dramático.
+
+### 3. eventos especiales
+
+Entre pisos podrían salir:
+
+* buff temporal
+* curación parcial
+* item
+* pelea élite
+* pelea sorpresa 2v2
+* mercader
+* piso trampa
+* cofre
+
+Eso vuelve la torre mucho más viva.
+
+---
+
+## Recompensas: excelente idea, pero conviene separar tipos
+
+Ahora mismo manejas:
+
+* personajes
+* items
+* buffs
+
+Eso está bien, pero yo lo ordenaría en capas:
+
+### recompensa mayor
+
+* personaje nuevo
+* personaje raro
+* ascenso de tier de recompensa
+
+### recompensa media
+
+* item especial
+* técnica
+* mejora permanente
+
+### recompensa menor
+
+* buff para la run
+* curación
+* puntos extra
+* reroll de recompensa
+
+Así la torre puede premiar incluso cuando no entrega personaje.
+
+---
+
+## Algo muy importante: esto ya define la economía del juego
+
+Con tu idea, el progreso del jugador quedaría algo así:
+
+* empieza con roster C desbloqueado
+* juega torneo C y torre C
+* consigue B
+* juega más modos
+* desbloquea A
+* luego S
+* luego empieza el verdadero endgame con SS / SSS / IV
+
+Eso está muy bien porque divide el juego en etapas naturales:
+
+### early game
+
+* personajes C
+* torneos C
+* pisos 1–20
+
+### mid game
+
+* roster B/A
+* torneos B/A
+* pisos 21–90
+
+### late game
+
+* roster S/SS
+* torre avanzada
+* builds complejas
+
+### endgame
+
+* SSS / IV
+* récord infinito
+* desafíos especiales
+* jefes imposibles
+
+Eso es exactamente lo que necesita un juego de roster grande.
+
+---
+
+## Sugerencia fuerte: agregar “dominios” o “licencias” de personaje
+
+Como trabajas con franquicias distintas, podrías añadir una capa extra:
+
+* personaje desbloqueado
+* personaje dominado
+* personaje ascendido
+* personaje afinado
+
+Ejemplo:
+
+* desbloquear a Naruto no significa tener su build ideal
+* para optimizarlo necesitas jugarlo, ganar duelos o completar desafíos
+
+Eso alarga muchísimo la vida útil del roster.
+
+---
+
+## También veo un modo extra posible
+
+Con lo que ya planteaste, casi nace solo un cuarto modo:
+
+### modo desafío / contratos
+
+Combates con reglas especiales, por ejemplo:
+
+* solo tier C
+* sin técnicas defensivas
+* 2v1
+* límite de pool
+* sin concentración
+* pelea con buff/debuff fijo
+* enemigos de franquicias mezcladas
+
+Premio:
+
+* items
+* tickets
+* fragmentos
+* rerolls de torre
+* desbloqueos cosméticos
+
+Eso serviría para dar variedad sin tener que crear otro sistema gigante.
+
+---
+
+## Cosas que te conviene definir ya
+
+### 1. si los premios son repetibles
+
+* ¿puede tocar personaje repetido?
+* ¿qué pasa si sale repetido?
+
+### 2. si los torneos se consumen o son farmeables
+
+* ¿puedo repetir torneo C infinitamente?
+* ¿o hay límite diario/semanal?
+
+### 3. si la Torre del Cielo guarda progreso
+
+* ¿se reinicia desde 1?
+* ¿se guarda el piso máximo?
+* ¿hay modo normal y modo récord?
+
+### 4. si el pool ganado en torre es permanente o solo para esa subida
+
+Esto es clave.
+
+Yo haría:
+
+* el pool ganado en torre es **solo de esa run**
+* las recompensas externas sí son permanentes
+
+Porque si no, la progresión puede explotar muy rápido.
+
+---
+
+## Una pequeña corrección
+
+Acá pusiste:
+
+* `91-100/ 101-110/11-120/121-130/131/140/141-150`
+
+Supongo que quisiste poner:
+
+* **111-120**
+* **131-140**
+
+Nada grave, pero te lo marco para dejarlo limpio.
+
+---
+
+## Mi veredicto
+
+La idea está **muy buena** y bastante más sólida que la anterior.
+
+Ya no es solo:
+“meter personajes famosos y hacerlos pelear”.
+
+Ahora es:
+
+* un juego con progresión
+* desbloqueo por mérito
+* estructura por tiers
+* modos diferenciados
+* sensación de ascenso
+* endgame potencial
+
+Lo que yo haría a continuación es convertir todo esto en un documento base con 5 apartados:
+
+1. **estructura de tiers**
+2. **modos de juego**
+3. **economía de recompensas**
+4. **progresión de pool y stats**
+5. **dudas de balance por testear**
+
+Eso te dejaría listo para pasárselo a Codex o usarlo como guía de implementación.
+
+Puedo ayudarte a convertir todo lo que acabas de plantear en un **documento de diseño prolijo para Battlestars Saga**, ya ordenado como si fuera para subir al repo.
+
+
+algo que olvide mencionar es que se trata de ir armando equipos de personajes, por ejemplo al inicio solo contas con pjs de tier c para tu disfrute en modo libre, o podes participar en torneos de tier C, si vas por los tier B ovbiamente vas a perder por la diferencia de poder y ya ni se diga tier A.
+
+la idea es que vayas participando en los modos torneo y torre del cielo para ganar personajes o desbloquearlos. tambien se pueden canjear, cada pj de tier C vale 1 estrella
+cada pj de tier B vale 5 estrellas
+pj de tier A vale de 10 a 15 estrellas
+pj de tier S vale 20 a 25 estrellas
+pj de tier SS vale 30 50 estrellas
+pj de tier SSS vale de 70 a 100 estrellas
+pj de tier IV vale de 120 a 150 estrellas
+
+si tenes un pj repetido podes ir acumulando como si fueran estrellas, los pjs repetidos los podes cambiar o hacer la conversion para tener estrellas, al juntar bastantes estrellas decidis que pj comprar o desbloquear, tambien podes ganarlos o desbloquearlos aleatoriamente ganando un torneo o pasando de piso en la torre del cielo.
+
+otra cosa, en la torre del cielo de momento es 1v1 salvo que haya un piso que exija 2v2, por otra parte para jugar ese modo necesitas armar un equipo de 5 pjs. si se te muere uno vas quedando con menos pjs, pero tambien existe la posibilidad de ganar un pj en cada ultimo piso, el tier del pj ganado aleatoriamente dependera del tier de piso que hayas pasado. ojo puede que no siempre te toque un pj, va a depender un tanto de la suerte tambien, pero te puede tocar un iten valioso o un buff o mas puntos.
+
+otra cosa es que se puede añadir el tema de puntos de stats, tendriamos puntos de atributo principal y puntos de atributo comun. no se pueden mesclar, asi si ganas 1 punto de atributo comun no te lo podes equipar al atributo principal y evitamos que se pongan siempre en uno solo, cada punto tendra su equivalencia a la caracteristica designada. para eso tenemos ya armado un esquema de stats.
+
+fuerza = ataque
+agilidad = defensa
+resistencia = hp
+inteligencia = energia
+espiritu = reiatsu (para el caso de bleach) o ki para el caso de dbz o chakra para naruto
+
+esto nos lleva a un tema que hay que ver si o si. cada franquicia tiene su forma de energia especial, ya sea reiatsu , chakra o ki o energia maldita, esta la llamaremos para generalizar y luego atribuir a cada pj dependiendo de su franquicia como energia especial. y la energia sera energia comun. EP y EC asi lo diferenciamos mejor
+entonces el rieatsu en este caso seria EC y la energia EC asi no nos volvemos locos con tantas franquicias
+
+Sí, esto lo mejora bastante más. Ahora ya no solo hay progresión por tiers, sino también **colección, gestión de equipo, economía de duplicados y supervivencia de run**. Ahí Battlestars Saga empieza a sentirse como un juego de verdad y no solo como un simulador de versus.
+
+## Lo nuevo que aporta esta idea
+
+### 1. El juego ya tiene loop central
+
+Queda algo así:
+
+* empiezas con personajes **C**
+* juegas **modo libre** para probarlos
+* juegas **torneos C** para ganar acceso a **B**
+* juegas **torre del cielo** para conseguir:
+
+  * personajes
+  * estrellas
+  * buffs
+  * items
+  * puntos
+* armas mejores equipos
+* subes a **B**, luego **A**, luego **S**
+
+Eso está muy bien porque el progreso ya no depende de una sola fuente.
+
+---
+
+## Sistema de estrellas: muy buena decisión
+
+Esto es clave porque arregla uno de los problemas más comunes: los duplicados inútiles.
+
+Tu idea de conversión funciona muy bien:
+
+* C = 1 estrella
+* B = 5 estrellas
+* A = 10–15
+* S = 20–25
+* SS = 30–50
+* SSS = 70–100
+* IV = 120–150
+
+### Lo bueno
+
+* los repetidos siguen teniendo valor
+* el jugador no siente que “perdió” una recompensa
+* puedes combinar azar + progreso garantizado
+* das libertad para ahorrar y comprar el personaje que uno quiere
+
+Eso es excelente.
+
+## Mi recomendación
+
+Te conviene definir dos valores por personaje:
+
+### valor de conversión
+
+Lo que da si lo conviertes a estrellas.
+
+### valor de compra
+
+Lo que cuesta comprarlo/desbloquearlo.
+
+Porque si ambos valores son iguales, el sistema puede romperse fácil.
+Ejemplo: si un personaje B da 5 estrellas y también cuesta 5, el jugador puede reciclar demasiado directo.
+
+Lo más sano sería algo así:
+
+* **conversión menor**
+* **compra mayor**
+
+Ejemplo orientativo:
+
+* C convierte a 1, comprar C cuesta 3
+* B convierte a 5, comprar B cuesta 12
+* A convierte a 12, comprar A cuesta 25
+* S convierte a 22, comprar S cuesta 45
+* etc.
+
+Así los duplicados ayudan, pero no regalan todo demasiado rápido.
+
+---
+
+## Torre del Cielo: ahora sí tiene identidad fuerte
+
+Con lo que añadiste, este modo ya tiene personalidad propia:
+
+* armas un **equipo de 5 personajes**
+* el combate es mayormente **1v1**
+* algunos pisos especiales pueden ser **2v2**
+* si un personaje muere, sigues con menos unidades
+* a veces puedes recuperar roster ganando un personaje nuevo
+* el premio no siempre es personaje: puede ser buff, item, puntos o estrellas
+
+Eso está muy bueno porque mezcla:
+
+* estrategia de armado
+* administración de riesgo
+* supervivencia
+* azar controlado
+
+Se siente más tipo **run de ascenso** que una simple serie de peleas.
+
+## Esto abre mecánicas muy interesantes
+
+Por ejemplo:
+
+### roles dentro del equipo de 5
+
+* carry principal
+* tanque
+* soporte
+* personaje de reserva
+* personaje para pisos raros o 2v2
+
+### decisiones tácticas
+
+* guardar al mejor para los pisos finales del bloque
+* sacrificar uno flojo en una pelea difícil
+* usar uno intermedio para no arriesgar al main
+* reservar dúos con buena sinergia para pisos 2v2
+
+Eso le da muchísimo valor al roster.
+
+---
+
+## Sugerencia importante para Torre del Cielo
+
+Te recomiendo usar estas 3 capas de estado:
+
+### 1. vida persistente dentro de la run
+
+Si terminaste una pelea herido, sigues herido.
+
+### 2. estado de KO
+
+Si un personaje cae, queda fuera hasta:
+
+* un item de resurrección
+* un piso de descanso
+* una recompensa especial
+* o el final de la run
+
+### 3. recuperación limitada
+
+Podrías tener:
+
+* pisos de descanso cada 5 o 10 pisos
+* curación parcial
+* elección entre curar o buffear
+
+Eso hace la torre más estratégica todavía.
+
+---
+
+## Lo de equipo de 5 me parece muy acertado
+
+Porque:
+
+* no es demasiado chico
+* no es demasiado grande
+* permite variedad táctica
+* hace sentir que el jugador arma una “escuadra”
+
+En Battlestars Saga esto encaja perfecto con la fantasía de crossover.
+
+Incluso podrías tener luego:
+
+* **formación guardada 1**
+* **formación guardada 2**
+* **formación ofensiva**
+* **formación balanceada**
+* **formación supervivencia**
+
+---
+
+## Lo de puntos de atributo principal y común me gusta mucho
+
+Eso soluciona bastante bien el problema de min-maxear todo a un solo lugar.
+
+Tu idea de separar:
+
+* **puntos de atributo principal**
+* **puntos de atributo común**
+
+es buena porque obliga a distribuir de forma más sana.
+
+### Beneficio
+
+Evitas que el jugador convierta todo siempre en el mismo stat más eficiente del meta.
+
+### Ejemplo de lógica sana
+
+* puntos principales solo van al atributo principal del personaje
+* puntos comunes van a los atributos secundarios permitidos
+* no se mezclan
+* cada tipo de punto tiene sus reglas
+
+Eso ayuda muchísimo al balance.
+
+---
+
+## Tu esquema base de stats está bien
+
+Quedaría:
+
+* **Fuerza = Ataque**
+* **Agilidad = Defensa**
+* **Resistencia = HP**
+* **Inteligencia = Energía común**
+* **Espíritu = Energía especial**
+
+Eso está ordenado y fácil de leer.
+
+---
+
+## Acá sí te marco una corrección importante
+
+Al final pusiste:
+
+> entonces el rieatsu en este caso seria EC y la energia EC
+
+Creo que ahí se te cruzaron las siglas.
+
+Por lo que vienes explicando, lo más lógico sería:
+
+* **EC = Energía Común**
+* **EP = Energía Especial**
+
+Entonces:
+
+* energía normal/general = **EC**
+* reiatsu / chakra / ki / energía maldita = **EP**
+
+Eso encaja mucho mejor.
+
+## Te sugiero esta nomenclatura
+
+### Recursos universales
+
+* **EC** = Energía Común
+* **EP** = Energía Especial
+
+### Visual por franquicia
+
+Internamente el sistema usa EP, pero visualmente cada personaje muestra su variante:
+
+* Bleach: EP = Reiatsu
+* Dragon Ball: EP = Ki
+* Naruto: EP = Chakra
+* Jujutsu Kaisen: EP = Energía Maldita
+* etc.
+
+Así consigues dos cosas:
+
+* el sistema sigue siendo uno solo
+* cada franquicia conserva identidad
+
+Eso me parece la mejor solución.
+
+---
+
+## Cómo lo implementaría conceptualmente
+
+### Recursos
+
+* HP
+* EC
+* EP
+
+### Atributos
+
+* Fuerza
+* Agilidad
+* Resistencia
+* Inteligencia
+* Espíritu
+
+### Conversión
+
+* Fuerza → Ataque
+* Agilidad → Defensa
+* Resistencia → HP
+* Inteligencia → EC
+* Espíritu → EP
+
+### Presentación temática
+
+Cada personaje renombra EP según su franquicia.
+
+Eso deja el sistema mucho más limpio.
+
+---
+
+## Podrías incluso hacer subetiquetas por franquicia
+
+Ejemplo en ficha del personaje:
+
+* **EC:** 1200
+* **EP (Reiatsu):** 3400
+
+o
+
+* **EC:** 900
+* **EP (Chakra):** 2800
+
+o
+
+* **EC:** 1500
+* **EP (Ki):** 5000
+
+Así tienes universalidad sin perder sabor.
+
+---
+
+## Lo más valioso de todo esto
+
+Ahora Battlestars Saga ya tiene **cuatro capas de progreso**:
+
+### 1. progreso de roster
+
+Desbloquear personajes nuevos.
+
+### 2. progreso de recursos
+
+Estrellas, items, buffs, puntos.
+
+### 3. progreso de equipo
+
+Armar squads de 5 más eficientes.
+
+### 4. progreso de build
+
+Distribución de stats, técnicas y roles.
+
+Eso es muy bueno porque hace que el jugador siempre sienta avance, aunque no gane exactamente el personaje que buscaba.
+
+---
+
+## Un par de recomendaciones extra
+
+### Recomendación 1: define si los personajes comprados salen bloqueados o listos
+
+Por ejemplo:
+
+* desbloqueado completo
+* o desbloqueado pero necesita asignar puntos/técnicas
+
+Yo haría que salga desbloqueado, pero con build básica editable.
+
+### Recomendación 2: cuidado con el rango amplio de estrellas
+
+Por ejemplo SS = 30 a 50 o SSS = 70 a 100.
+Eso está bien si cada personaje tiene rareza interna, pero conviene dejar una lógica clara.
+
+Ejemplo:
+
+* tier base
+* popularidad
+* poder real
+* versatilidad
+* rareza narrativa
+
+Porque si no, luego puede parecer arbitrario.
+
+### Recomendación 3: define si la torre puede dar repetidos
+
+Yo diría que sí, porque eso alimenta el sistema de estrellas.
+Si no, reduces mucho el valor del azar a largo plazo.
+
+---
+
+## Mi veredicto ahora
+
+Con esto, la idea ya quedó bastante más robusta.
+
+**Battlestars Saga** pasa a ser algo como:
+
+* juego de combate crossover por tiers
+* colección y desbloqueo de personajes
+* torneos como progresión guiada
+* torre como modo roguelite/supervivencia
+* sistema de estrellas para canjes
+* builds con stats separados
+* recursos universales adaptados a cada franquicia
+
+Eso ya suena a una base muy seria.
+
+## El único ajuste que te diría que hagas ya mismo
+
+Deja totalmente fijo esto:
+
+* **EC = Energía Común**
+* **EP = Energía Especial**
+
+Porque te va a ahorrar muchísimos dolores de cabeza en código, UI y documentación.
+
+Y después define en una tabla:
+
+* nombre visual por franquicia
+* nombre interno del sistema
+* atributo que la escala
+* técnicas que consumen EC o EP
+
+Eso te deja todo mucho más limpio para Codex.
+
+Puedo ordenarte todo esto en un esquema tipo **GDD base de Battlestars Saga**, con secciones claras de modos, progresión, estrellas, torre, teams y recursos.
+
+
+sobre los torneos y los premios, se podria hacer algo como mostrar en cada torneo los premios que seran otorgados, por ejemplo en los torneos tier C se presenta un tier B garantizado, puede ser entre 3 personajes, asi a pesar de ser aleatorio ya se reduce bastante el margen de eleccion y asi el jugador puede decidir si participar o no en dicho torneo. tambien se puede presentar como premio uno o dos tier C, a pesar de que ya estan todos desbloqueados el tener mas significa tener estrellas que poder cangear o hacer la conversion.
+se podria presentar un banner promocional del torneo, un tier B y 2 tier C. se presentan 3 alternativas para cada uno
+lo mismo para torneos Tier B. 1 tier A con 3 posibles opciones y 2 tier B con 3 posibles opciones
+y tambien para tier A. 1 tier S con 3 posibles opciones y 2 tier A con 3 posibles opciones.
+los torneos pueden tener un horario, cada 6 horas se renueva, nuevos premios, nuevos personajes, hubicaciones en la tabla o posiciones y builds, eso garantisa que cada torneo tenga enfrentamientos nuevos y dinamicos,
+
+por otra parte tocaste un punto interesante sobre la conversion, si tengo un tier c de 1 estrella no me van a dar nada por el pero si junto 5 me puedo ganar 5 estrellas, cada tier C entonces podria valer 3 estrellas y en conversion solo darte 1. (2 de diferencia)
+tier B 6 estrellas y 3 para conversión. (3 de diferencia)
+tier A 10 a 15  estrellas y 6 y 11 para conversión (4 de diferencia)
+tier S entre 20 y 25 estrellas y 15 y 20 para conversion (5 de diferencia)
+tier SS  entre 30 y 50 estrellas y para conversion entre 24 y 44 estrellas (6 de diferencia)
+tier SSS entre 70 y 100 estrellas y para conversion entre 60 y 90 estrellas (10 de diferencia)
+tier IV entre 120 y 150 estrellas y para conversion entre 105 y 135 estrellas (15 de diferencia)
+
+
+Sí, así queda bastante mejor.
+De hecho, esto resuelve **dos problemas al mismo tiempo**:
+
+* el premio aleatorio deja de sentirse injusto
+* los duplicados siguen teniendo valor sin romper la economía
+
+## Lo del torneo con “banner promocional” me parece muy buena idea
+
+Eso le da al torneo una identidad más fuerte. Ya no sería solo:
+
+* “torneo tier C cualquiera”
+
+sino algo más tipo:
+
+* **Copa del Trueno**
+* **Arena de Fuego**
+* **Torneo del Valle Hueco**
+* **Desafío del Bosque Oculto**
+
+Y cada uno muestra de antemano:
+
+* 1 premio principal
+* 2 premios secundarios
+* opciones visibles
+* rivales/builds renovados
+* duración limitada
+
+Eso es excelente porque hace que el jugador pienda:
+
+* “este torneo sí me conviene”
+* “este otro no me interesa”
+* “voy a esperar la próxima rotación”
+* “quiero ese B sí o sí”
+
+## La estructura de premios que propones está muy bien
+
+### Torneo tier C
+
+* 1 personaje **B** garantizado
+* entre **3 posibles opciones**
+* más **2 personajes C**
+* cada premio secundario con **3 posibles opciones**
+
+### Torneo tier B
+
+* 1 personaje **A** garantizado
+* 3 opciones
+* * 2 personajes **B**
+* 3 opciones cada uno
+
+### Torneo tier A
+
+* 1 personaje **S** garantizado
+* 3 opciones
+* * 2 personajes **A**
+* 3 opciones cada uno
+
+Esto está muy bien porque combina:
+
+* azar
+* anticipación
+* decisión del jugador
+* farming útil aunque ya tenga parte del tier
+
+## Mi sugerencia exacta para que funcione mejor
+
+Mostrar el torneo así:
+
+### Banner del torneo
+
+* nombre
+* tiempo restante
+* tipo de tier
+* reglas especiales
+* premio principal
+* premios secundarios
+* participantes destacados
+
+### Premio principal
+
+“Uno de estos 3”
+
+* Personaje 1
+* Personaje 2
+* Personaje 3
+
+### Premios secundarios
+
+“Uno de estos 3” para cada slot secundario.
+
+Así el jugador entiende:
+
+* no gano cualquier cosa del universo
+* gano algo dentro de una selección visible
+
+Eso baja muchísimo la frustración.
+
+---
+
+## Lo de renovar cada 6 horas me gusta bastante
+
+Eso puede funcionar muy bien para dar vida al juego.
+
+Cada rotación puede cambiar:
+
+* premios
+* rivales
+* posiciones del bracket
+* builds
+* reglas del torneo
+* escenario
+
+Eso hace que el contenido se sienta dinámico sin tener que crear sistemas nuevos todo el tiempo.
+
+## Lo único a cuidar
+
+Si todo cambia cada 6 horas, no conviene que el torneo sea demasiado largo o pesado.
+Porque si no el jugador puede sentir que pierde eventos fácilmente.
+
+Yo lo dejaría así:
+
+* torneos visibles por **6 horas**
+* una vez iniciado, ese torneo queda “congelado” para esa run
+* aunque rote el calendario global, el jugador puede terminar el suyo
+
+Eso evita frustración.
+
+Porque si no podría pasar esto:
+
+* entra al torneo
+* juega 2 rondas
+* pasan 6 horas
+* desaparece el torneo/premio que quería
+
+Y eso sería feo.
+
+---
+
+## También me gusta que los premios secundarios sean tier bajo
+
+Eso es importante porque hace que incluso los tiers ya desbloqueados sigan siendo útiles.
+
+Si el jugador recibe un C extra:
+
+* suma estrellas
+* alimenta canjes
+* no siente que fue un premio muerto
+
+Eso está muy sano para la economía.
+
+---
+
+# Sobre la conversión: ahora sí va mucho mejor
+
+La lógica de:
+
+* **valor de compra más alto**
+* **valor de conversión más bajo**
+
+es la correcta.
+
+Eso evita que el jugador recicle personajes infinitamente con eficiencia perfecta.
+
+## La idea general está bien
+
+Tu diferencia por tier me parece razonable:
+
+* C: diferencia 2
+* B: diferencia 3
+* A: diferencia 4
+* S: diferencia 5
+* SS: diferencia 6
+* SSS: diferencia 10
+* IV: diferencia 15
+
+Eso transmite que:
+
+* los tiers altos conservan mucho valor
+* pero comprar sigue siendo más caro que convertir
+
+Y eso está bien.
+
+---
+
+## Solo te haría una observación importante
+
+En tiers altos, la conversión quedó **muy generosa**.
+
+Ejemplo:
+
+* IV compra: 120–150
+* IV conversión: 105–135
+
+Eso deja una diferencia muy pequeña para un tier tan raro.
+
+Lo mismo con:
+
+* SSS compra 70–100
+* conversión 60–90
+
+Eso puede generar un efecto peligroso:
+si un jugador consigue duplicados altos, casi compra otro personaje del mismo valor muy rápido.
+
+## Mi recomendación
+
+Mantener la idea, pero abrir más la brecha en tiers altos.
+
+### Algo más sano podría ser:
+
+#### C
+
+* compra: 3
+* conversión: 1
+
+#### B
+
+* compra: 6
+* conversión: 3
+
+#### A
+
+* compra: 10–15
+* conversión: 5–9
+
+#### S
+
+* compra: 20–25
+* conversión: 10–16
+
+#### SS
+
+* compra: 30–50
+* conversión: 16–30
+
+#### SSS
+
+* compra: 70–100
+* conversión: 35–55
+
+#### IV
+
+* compra: 120–150
+* conversión: 55–80
+
+Así los duplicados siguen siendo valiosos, pero no demasiado explosivos.
+
+---
+
+## Regla muy útil: compra y conversión según “subrango”
+
+Como dentro de cada tier hay margen, podrías tener subgrupos.
+
+Por ejemplo:
+
+### Tier A
+
+* A bajo: compra 10 / conversión 5
+* A medio: compra 12 / conversión 7
+* A alto: compra 15 / conversión 9
+
+### Tier S
+
+* S bajo: compra 20 / conversión 10
+* S medio: compra 22 / conversión 13
+* S alto: compra 25 / conversión 16
+
+Y así sucesivamente.
+
+Eso te ayuda a valorar personajes dentro del mismo tier sin que todo sea idéntico.
+
+---
+
+## Incluso podrías hacer que el banner muestre “valor estimado”
+
+Ejemplo:
+
+**Premio principal del torneo C**
+
+* Ichigo (B alto)
+* Rock Lee (B medio)
+* Zabuza (B bajo)
+
+Así el jugador puede elegir mejor dónde invertir tiempo.
+
+---
+
+## Otra idea que encaja perfecto con esto
+
+Podrías añadir un sistema de **tickets de torneo**.
+
+Ejemplo:
+
+* participar cuesta 1 ticket
+* perder temprano devuelve algo mínimo
+* ganar da premios y estrellas
+* tickets se regeneran o se obtienen jugando torre/modos
+
+Eso evita spam infinito y da más peso a elegir un torneo.
+
+No es obligatorio, pero encaja muy bien con tu sistema de rotaciones cada 6 horas.
+
+---
+
+## Sobre la presentación del torneo
+
+Me imagino una pantalla así:
+
+### Nombre del torneo
+
+**Copa del Relámpago – Tier C**
+
+### Tiempo restante
+
+**03:42:11**
+
+### Premio principal garantizado
+
+**1 personaje tier B**
+Posibles:
+
+* Personaje A
+* Personaje B
+* Personaje C
+
+### Premios secundarios
+
+**2 personajes tier C**
+Posibles slot 1:
+
+* C1
+* C2
+* C3
+
+Posibles slot 2:
+
+* C4
+* C5
+* C6
+
+### Modificadores
+
+* Escenario: Bosque
+* Regla: +10% EC
+* Enemigos con builds renovadas
+
+### Botones
+
+* Participar
+* Ver bracket
+* Ver recompensas
+* Ver rivales
+
+Eso quedaría muy atractivo.
+
+---
+
+## También está bueno lo de renovar builds y posiciones
+
+Eso le da una gran ventaja al sistema, porque no será siempre:
+
+* mismos rivales
+* mismo orden
+* mismas builds
+
+Entonces incluso un torneo repetido se siente diferente.
+
+Podrías variar:
+
+* build ofensiva
+* build defensiva
+* build balanceada
+* build técnica
+* build glass cannon
+* build sustain
+
+Eso hace que cada rotación tenga personalidad.
+
+---
+
+## Mi conclusión
+
+Vas muy bien.
+Lo del **banner con premios visibles** me parece una de las mejores ideas que agregaste porque transforma el azar bruto en **azar informado**.
+
+Y lo de compra/conversión separadas también va en la dirección correcta, aunque yo sí ajustaría más la brecha en tiers altos para que no se rompa la economía.
+
+## Mi recomendación concreta
+
+Dejaría esto como regla general:
+
+* tiers bajos: brecha pequeña
+* tiers medios: brecha moderada
+* tiers altos: brecha bastante mayor
+
+Porque cuanto más raro es un personaje, menos conviene que su duplicado compre casi otro igual.
+
+Si quieres, en el próximo mensaje te lo ordeno como una **tabla final de economía de estrellas + estructura oficial de torneos rotativos**, listo para usar en Battlestars Saga.
+
+
+Claro. Te lo ilustro de forma práctica, como si ya fuera la lógica base de **Battlestars Saga**.
+
+# 1. Idea general del sistema
+
+El jugador empieza con:
+
+* todos los **tier C desbloqueados**
+* sin acceso libre a B, A, S, SS, SSS, IV
+* debe progresar mediante:
+
+  * **torneos**
+  * **torre del cielo**
+  * **estrellas**
+  * **duplicados**
+
+La gracia del sistema es esta:
+
+* el azar existe
+* pero no es ciego
+* el jugador ve premios antes de entrar
+* si consigue repetidos, esos repetidos siguen sirviendo
+
+---
+
+# 2. Ejemplo de un torneo tier C
+
+## Banner del torneo
+
+**Torneo Tier C – Arena del Trueno**
+Duración: **6 horas**
+Formato: **1v1**
+Premios visibles:
+
+### Premio principal garantizado
+
+**1 personaje tier B**
+Posibles opciones:
+
+* Rock Lee
+* Renji
+* Krillin
+
+### Premio secundario 1
+
+**1 personaje tier C**
+Posibles opciones:
+
+* Sakura
+* Chad
+* Tenten
+
+### Premio secundario 2
+
+**1 personaje tier C**
+Posibles opciones:
+
+* Hinata
+* Rukia base
+* Yamcha
+
+## Qué entiende el jugador
+
+El jugador mira eso y piensa:
+
+* “el premio principal me sirve porque quiero a Rock Lee o Renji”
+* “aunque no salga el B que quiero, al menos los C me sirven como estrellas”
+* “vale la pena entrar”
+
+Eso ya es mucho mejor que un premio totalmente oculto.
+
+---
+
+# 3. Ejemplo de resultado del torneo
+
+Supongamos que el jugador gana.
+
+## Recompensa recibida
+
+* Premio principal: **Renji (tier B)**
+* Premio secundario 1: **Sakura (tier C)**
+* Premio secundario 2: **Yamcha (tier C)**
+
+Ahora pueden pasar 2 cosas.
+
+### Caso A: no tenía a Renji
+
+Entonces:
+
+* Renji se desbloquea
+
+### Caso B: ya tenía a Renji
+
+Entonces:
+
+* Renji se convierte en estrellas
+
+Y lo mismo con Sakura y Yamcha.
+
+---
+
+# 4. Economía de estrellas ilustrada
+
+Acá es donde entra tu idea de **valor de compra** y **valor de conversión**.
+
+La lógica sería:
+
+* **comprar/desbloquear** cuesta más
+* **convertir duplicados** da menos
+
+Así el sistema no se rompe.
+
+---
+
+# 5. Tabla ilustrativa de estrellas
+
+Te la ordeno limpia:
+
+| Tier | Valor de compra | Valor de conversión |
+| ---- | --------------- | ------------------- |
+| C    | 3               | 1                   |
+| B    | 6               | 3                   |
+| A    | 10 / 12 / 15    | 6 / 8 / 11          |
+| S    | 20 / 22 / 25    | 15 / 17 / 20        |
+| SS   | 30 / 40 / 50    | 24 / 34 / 44        |
+| SSS  | 70 / 85 / 100   | 60 / 75 / 90        |
+| IV   | 120 / 135 / 150 | 105 / 120 / 135     |
+
+## Cómo leer esto
+
+Dentro de un mismo tier puede haber:
+
+* valor bajo
+* valor medio
+* valor alto
+
+Ejemplo:
+
+* un B común cuesta 6
+* un A bajo cuesta 10
+* un A alto cuesta 15
+* un S alto cuesta 25
+
+Eso te da flexibilidad para que no todos los personajes del mismo tier valgan igual.
+
+---
+
+# 6. Ejemplo práctico de duplicados
+
+Supongamos que el jugador tiene:
+
+* 3 duplicados C
+* 2 duplicados B
+* 1 duplicado A medio
+
+Entonces gana:
+
+* 3 C = 1 + 1 + 1 = **3 estrellas**
+* 2 B = 3 + 3 = **6 estrellas**
+* 1 A medio = **8 estrellas**
+
+## Total acumulado
+
+**17 estrellas**
+
+Con eso podría, por ejemplo:
+
+* comprar un **A bajo** si cuesta 10
+* comprar un **A medio** si cuesta 12
+* guardar para un **A alto** de 15
+* o seguir ahorrando para un **S**
+
+---
+
+# 7. Ejemplo de decisión del jugador
+
+Supongamos que en la tienda o canje aparecen:
+
+* Neji (A bajo) = 10 estrellas
+* Byakuya base (A alto) = 15 estrellas
+* Gaara (S bajo) = 20 estrellas
+
+El jugador tiene 17 estrellas.
+
+Entonces decide:
+
+### opción 1
+
+Comprar a Neji y le sobran 7
+
+### opción 2
+
+Comprar a Byakuya y le sobran 2
+
+### opción 3
+
+Esperar y ahorrar 3 más para Gaara
+
+Eso es muy bueno, porque el jugador siente control sobre el progreso.
+
+---
+
+# 8. Ejemplo de torneo tier B
+
+## Banner del torneo
+
+**Torneo Tier B – Coliseo Carmesí**
+Duración: **6 horas**
+Premios visibles:
+
+### Premio principal
+
+**1 personaje tier A**
+Opciones:
+
+* Neji
+* Uryu
+* Piccolo
+
+### Premio secundario 1
+
+**1 personaje tier B**
+Opciones:
+
+* Renji
+* Kiba
+* Krillin
+
+### Premio secundario 2
+
+**1 personaje tier B**
+Opciones:
+
+* Hinata avanzada
+* Ikkaku
+* Tenshinhan
+
+## Qué genera esto
+
+El jugador no entra “a ciegas”.
+Entra sabiendo:
+
+* si el premio principal le interesa
+* si aunque no le salga el A que quiere, los B sirven
+* si el torneo vale su tiempo
+
+---
+
+# 9. Rotación cada 6 horas
+
+La rotación puede cambiar:
+
+* nombre del torneo
+* escenario
+* premio principal
+* premios secundarios
+* rivales
+* builds
+* bracket
+
+## Ejemplo
+
+### Rotación 1
+
+**Arena del Trueno**
+
+* premio B: Rock Lee / Renji / Krillin
+
+### Rotación 2
+
+**Copa del Valle Oculto**
+
+* premio B: Kiba / Chad / Yamcha
+
+### Rotación 3
+
+**Torneo del Acantilado Blanco**
+
+* premio B: Shikamaru / Ikkaku / Ten Shin Han
+
+Entonces el jugador puede decir:
+
+* “esta rotación me interesa”
+* “esta no”
+* “voy a esperar la próxima”
+
+Eso hace el sistema mucho más vivo.
+
+---
+
+# 10. Ejemplo completo de Torre del Cielo
+
+Ahora vamos al modo más interesante.
+
+## Preparación
+
+El jugador arma un equipo de 5:
+
+* Ichigo C
+* Naruto C
+* Rock Lee C
+* Chad C
+* Rukia C
+
+La torre arranca en **piso 1**.
+Mayormente es **1v1**, pero puede haber pisos especiales **2v2**.
+
+## Regla clave
+
+Si un personaje cae, queda fuera de la run.
+
+Entonces el jugador no solo debe ganar, también debe administrar a su equipo.
+
+---
+
+# 11. Ejemplo de recorrido en torre
+
+## Pisos 1–10
+
+Tier C
+
+Recompensa por piso:
+
+* +50 puntos de pool
+* posibilidad baja de:
+
+  * item
+  * buff
+  * personaje C
+  * personaje B al cerrar bloque
+
+Supongamos que tras el piso 10 obtiene:
+
+* +500 puntos acumulados
+* buff de defensa
+* personaje B aleatorio: **Renji**
+
+Entonces ahora puede pasar esto:
+
+### Si Renji no estaba en su equipo activo
+
+Puede:
+
+* guardarlo para el roster general
+* o incorporarlo si tu sistema lo permite en mitad de run
+
+### Si ya tenía a Renji
+
+Lo convierte en estrellas
+
+---
+
+# 12. Ejemplo de supervivencia de equipo
+
+Supongamos esta situación:
+
+* Ichigo muere en el piso 6
+* Naruto queda muy herido
+* Rock Lee sigue bien
+* Chad sigue medio tanque
+* Rukia está intacta
+
+Entonces ya no juegas igual.
+
+Ahora tu estrategia cambia:
+
+* guardas a Rukia para un jefe
+* usas a Chad para resistir
+* no arriesgas a Naruto
+* dejas a Rock Lee para cerrar peleas rápidas
+
+Eso le da muchísimo valor táctico a la torre.
+
+---
+
+# 13. Ejemplo de piso especial 2v2
+
+## Piso 25 – Combate especial
+
+Enemigos:
+
+* Neji B
+* Kiba B
+
+El jugador debe elegir 2 de sus 5.
+
+Escoge:
+
+* Rock Lee
+* Naruto
+
+Si gana:
+
+* recibe puntos
+* puede ganar buff
+* puede obtener personaje B o A según bloque
+
+Esto hace que el roster no se piense solo para 1v1, sino también para sinergias.
+
+---
+
+# 14. Cómo se conectan torneos, torre y estrellas
+
+Ahí está la magia del sistema.
+
+## Torneos
+
+Sirven para:
+
+* progresión controlada
+* premios visibles
+* desbloquear tiers superiores
+
+## Torre
+
+Sirve para:
+
+* runs largas
+* supervivencia
+* azar
+* buffs
+* récord
+* drops variados
+
+## Estrellas
+
+Sirven para:
+
+* compensar mala suerte
+* aprovechar repetidos
+* desbloquear lo que uno quiere
+
+---
+
+# 15. Loop completo del jugador
+
+Te lo dejo resumido en un flujo real:
+
+### Etapa 1
+
+Empieza con personajes C.
+
+### Etapa 2
+
+Juega torneo C.
+Gana:
+
+* 1 B
+* 2 C repetidos
+* acumula estrellas
+
+### Etapa 3
+
+Juega torre.
+Gana:
+
+* puntos
+* algún buff
+* quizás otro B
+* más duplicados
+* más estrellas
+
+### Etapa 4
+
+Con estrellas compra un A bajo o guarda para uno mejor.
+
+### Etapa 5
+
+Arma mejor equipo.
+Empieza a jugar torneos B.
+
+### Etapa 6
+
+Consigue A, luego S.
+
+Eso ya es un loop sólido y divertido.
+
+---
+
+# 16. Cómo presentarlo visualmente en UI
+
+## Pantalla de torneo
+
+Podría tener:
+
+* nombre del torneo
+* tiempo restante
+* tier
+* reglas
+* premio principal
+* premios secundarios
+* rivales destacados
+* botón participar
+
+## Pantalla de recompensas
+
+Al finalizar:
+
+* personaje obtenido
+* si es nuevo: “desbloqueado”
+* si es repetido: “convertido en estrellas”
+* total de estrellas actualizado
+
+## Pantalla de tienda/canje
+
+* filtro por tier
+* costo en estrellas
+* personaje bloqueado/desbloqueado
+* botón comprar
+
+---
+
+# 17. Lo más importante que logra este sistema
+
+Con esto consigues que:
+
+* el jugador no dependa solo de suerte
+* los duplicados nunca sean basura
+* los torneos sean atractivos
+* la torre tenga tensión real
+* el roster tenga valor estratégico
+* la colección tenga propósito
+
+---
+
+# 18. Mi versión resumida del sistema
+
+## Regla base
+
+* los premios de torneo se muestran antes
+* el jugador decide si entrar o no
+
+## Recompensas
+
+* 1 premio principal del tier superior
+* 2 secundarios del mismo tier actual
+* cada slot muestra 3 opciones posibles
+
+## Rotación
+
+* cambia cada 6 horas
+
+## Duplicados
+
+* se convierten en estrellas
+
+## Estrellas
+
+* sirven para canjear personajes específicos
+
+## Torre
+
+* requiere equipo de 5
+* predominio 1v1
+* algunos pisos 2v2
+* si una unidad cae, la run se complica
+* puede dar personajes, buffs, items, puntos o estrellas
+
+---
+
+Si quieres, el siguiente paso te lo hago como **documento formal de diseño**, con tablas limpias de:
+**tiers, estrellas, torneos, recompensas y torre del cielo**, listo para guardar en Battlestars Saga.
+
+
+Sí, ahora quedó mucho más redondo. Con esas aclaraciones, los modos empiezan a **alimentarse entre sí** de forma muy natural.
+
+## Lo de los torneos quedó mejor así
+
+La precisión importante sería:
+
+* los torneos **no expiran a las 6 horas una vez iniciados**
+* lo que se **regenera cada 6 horas** es la oferta disponible
+* cuando el jugador entra a uno, puede jugarlo a su ritmo
+
+Eso está mucho mejor porque evita frustración y mantiene la rotación viva.
+
+### Entonces la lógica sería:
+
+* cada 6 horas aparece una nueva tanda de torneos
+* cada torneo muestra:
+
+  * premios
+  * rivales
+  * builds
+  * reglas
+  * bracket
+* si el jugador entra, esa versión del torneo queda “guardada” para él hasta terminarla o abandonarla
+
+Eso es una base muy sana.
+
+---
+
+# Lo más importante: ahora los 3 modos se conectan
+
+## 1. Duelo libre
+
+Sirve para:
+
+* probar personajes
+* practicar
+* experimentar builds
+* **farmear oro**
+
+## 2. Torre del Cielo
+
+Sirve para:
+
+* progresar
+* conseguir personajes
+* conseguir buffs
+* conseguir items
+* conseguir puntos
+* conseguir **tickets**
+* poner a prueba equipos de 5
+
+## 3. Torneos
+
+Sirven para:
+
+* progresión dirigida por tier
+* premios visibles
+* desbloqueos
+* conversión a estrellas si hay repetidos
+
+Eso forma un triángulo muy bueno:
+
+### Duelo libre → oro
+
+### Oro → pociones / amuletos / consumibles
+
+### Torre → tickets + recompensas + progreso
+
+### Tickets → acceso a torneos
+
+### Torneos → personajes y duplicados
+
+### Duplicados → estrellas
+
+### Estrellas → desbloqueos dirigidos
+
+Eso ya es una economía bastante elegante.
+
+---
+
+# La triangulación de modos está muy bien pensada
+
+Antes cada modo podía sentirse aislado.
+Ahora cada uno tiene función propia:
+
+### Duelo libre
+
+Modo estable y farmeable.
+
+### Torre del Cielo
+
+Modo de riesgo, progresión y drops.
+
+### Torneos
+
+Modo de recompensa dirigida.
+
+Eso evita que un modo invalide a los otros.
+
+---
+
+# Tickets desde la Torre del Cielo: muy buena idea
+
+Esto hace que el torneo tenga “entrada” con sentido, en lugar de estar siempre disponible gratis.
+
+Y además incentiva jugar torre incluso si el jugador quiere enfocarse en torneos.
+
+## Quedaría algo así:
+
+* ticket torneo C: puede salir en pisos tier C
+* ticket torneo B: puede salir en pisos tier B
+* ticket torneo A: puede salir en pisos tier A
+
+O incluso más claro:
+
+* pisos 1–20 → chance de ticket C
+* pisos 21–50 → chance de ticket B
+* pisos 51–90 → chance de ticket A
+
+Eso sería muy entendible.
+
+## También puedes usar dos variantes
+
+### opción simple
+
+Un ticket por tier:
+
+* Ticket C
+* Ticket B
+* Ticket A
+
+### opción más flexible
+
+Un ticket universal, pero con requisitos de acceso:
+
+* tienes ticket
+* y además necesitas roster mínimo o progreso mínimo
+
+Yo prefiero la primera. Es más clara.
+
+---
+
+# Oro en duelo libre: excelente decisión
+
+Eso le da por fin una razón fuerte a ese modo.
+
+Porque si no, el duelo libre corría riesgo de ser solo “modo prueba”.
+
+Pero si ahora da oro, pasa a ser:
+
+* entrenamiento
+* farmeo
+* preparación
+
+Y eso encaja perfecto con el resto.
+
+## Entonces el loop sería:
+
+* juegas libre
+* ganas oro
+* compras pociones y amuletos
+* te preparas para torre o torneo
+* en torre consigues tickets, drops, personajes y más recursos
+* en torneo consigues premios dirigidos
+
+Muy bien.
+
+---
+
+# Items por oro: también suma mucho
+
+Esto da otra capa de estrategia previa.
+
+## Tipos de items que encajan bien
+
+### Pociones
+
+* curación HP
+* recuperación EC
+* recuperación EP
+* curación parcial general
+
+### Amuletos
+
+* +ataque
+* +defensa
+* +HP
+* +EC
+* +EP
+* resistencia a estados
+* mejor tasa de drop
+* suerte
+
+### Consumibles tácticos
+
+* revive parcial
+* escudo inicial
+* reducción de costo de técnica
+* protección contra KO una vez
+
+Eso puede darle mucho sabor al armado antes de entrar a torre o torneo.
+
+---
+
+# Ojo con una diferencia importante
+
+Yo separaría:
+
+## consumibles de run
+
+Se usan dentro de la torre o torneo y se gastan.
+
+## equipables permanentes o semipermanentes
+
+Amuletos o reliquias que se colocan antes de entrar.
+
+Así no todo queda mezclado.
+
+---
+
+# La maniobra de reemplazo me parece muy buena
+
+Esa idea puede ser excelente porque agrega profundidad táctica sin complicar demasiado el sistema.
+
+## Como la entiendo:
+
+En combate **1v1**, una vez por batalla el jugador puede:
+
+* retirar al personaje activo
+* mandar a otro miembro del equipo
+
+Eso sirve para:
+
+* salvar una unidad herida
+* evitar una derrota segura
+* responder a matchup malo
+* reservar un personaje importante
+* preparar un contraataque
+
+Eso está muy bueno.
+
+---
+
+# Por qué funciona tan bien
+
+Porque introduce una decisión de alto valor:
+
+### “¿Gasto ahora mi reemplazo o me lo guardo?”
+
+Eso genera tensión real.
+
+Además le da más sentido a llevar un equipo de 5, incluso en combates 1v1.
+
+Porque no solo importan los titulares, también importan los relevos.
+
+---
+
+# Te recomiendo fijar reglas muy claras para esa maniobra
+
+Porque si no puede ser demasiado fuerte.
+
+## Versión sana
+
+### Relevo táctico
+
+* 1 uso por batalla
+* solo en 1v1
+* consume el turno
+* el personaje que entra recibe el golpe si el rival aún actúa después
+* no cura al personaje que sale
+* el que sale queda con la vida actual
+* no puede volver a entrar en esa misma pelea, o sí según el balance que quieras
+
+---
+
+# Dos versiones posibles
+
+## Opción A: relevo conservador
+
+* el personaje sale
+* entra otro
+* el que salió no puede volver en esa pelea
+
+Esto hace que el reemplazo sea una salvada, no un abuso.
+
+## Opción B: relevo flexible
+
+* el personaje sale
+* puede volver más tarde una sola vez
+
+Esto da más estrategia, pero también más riesgo de exploits.
+
+Yo empezaría con la **opción A**. Más simple y más fácil de balancear.
+
+---
+
+# También podrías ligarlo a costo
+
+Para que no sea demasiado gratis, el relevo podría costar algo:
+
+* EC
+* EP
+* acción
+* o una “carga táctica”
+
+Ejemplo:
+
+### Cambio de Formación
+
+* 1 uso por batalla
+* consume la acción del turno
+* cuesta 20 EC
+* reemplaza al combatiente actual
+
+Eso ya le da un precio táctico razonable.
+
+---
+
+# Cómo encaja esto con la Torre del Cielo
+
+Muy bien, porque en la torre el desgaste importa.
+
+Entonces el relevo sirve para:
+
+* salvar un personaje importante para pisos futuros
+* absorber un matchup malo con otro miembro
+* evitar perder una unidad valiosa
+* repartir daño entre el equipo
+
+Eso le agrega mucha estrategia macro a la run.
+
+---
+
+# Cómo encaja con Torneos
+
+También funciona, pero acá yo tendría más cuidado.
+
+Porque en torneo, si el combate está muy estructurado, un cambio mal balanceado puede romper demasiado el meta.
+
+## Mi sugerencia:
+
+* habilitarlo en torre casi siempre
+* en torneo solo si la regla del torneo lo permite
+* o dejarlo como regla general pero muy controlada
+
+Incluso algunos torneos podrían decir:
+
+* **Relevo permitido**
+* **Relevo prohibido**
+* **Relevo cuesta menos EC**
+* **2v2 sin relevo**
+
+Eso le da variedad.
+
+---
+
+# Esto además crea una capa táctica muy linda
+
+Porque el jugador ya no solo piensa:
+
+* qué personaje usar
+
+Sino también:
+
+* a quién guardar
+* a quién sacrificar
+* cuándo cambiar
+* si usar un tanque como puente
+* si reservar al carry para un final de bloque
+
+Eso en Battlestars Saga queda muy bien.
+
+---
+
+# El sistema completo ya empieza a verse así
+
+## Duelo libre
+
+* 1v1 o 2v2
+* prueba de builds
+* farm de oro
+
+## Tienda
+
+* compra de pociones
+* compra de amuletos
+* preparación de incursiones
+
+## Torre del Cielo
+
+* equipo de 5
+* combates mayormente 1v1
+* algunos pisos 2v2
+* desgaste persistente
+* drops de tickets
+* drops de items
+* drops de personajes
+* buffs
+* pool de puntos
+* posibilidad de relevo 1 vez por batalla
+
+## Torneos
+
+* entrada con ticket
+* premios visibles
+* regeneración cada 6 horas
+* bracket con builds renovadas
+* desbloqueos por tier
+* repetidos convertibles en estrellas
+
+## Estrellas
+
+* compra de personajes
+* compensación por duplicados
+
+Eso ya tiene muchísimo más cuerpo.
+
+---
+
+# Mi opinión puntual
+
+Las tres mejores piezas nuevas que acabas de agregar son:
+
+### 1. regeneración de torneos cada 6 horas, no expiración
+
+Eso arregla una fricción enorme.
+
+### 2. tickets que salen en la torre
+
+Eso conecta los modos de forma orgánica.
+
+### 3. oro del duelo libre para comprar consumibles
+
+Eso convierte el modo libre en una parte útil del ecosistema.
+
+Y la maniobra de cambio también me parece muy buena, siempre que tenga costo y límites.
+
+---
+
+# Te dejo una versión muy compacta de la lógica
+
+## Economía
+
+* libre = oro
+* torre = tickets + drops + progreso
+* torneo = premios dirigidos
+* duplicados = estrellas
+* estrellas = canje de personajes
+
+## Torre
+
+* equipo de 5
+* desgaste real
+* posible relevo 1 vez por combate
+* algunos pisos 2v2
+
+## Torneos
+
+* visibles
+* regeneran cada 6 horas
+* una vez iniciados se juegan al ritmo del jugador
+* requieren ticket según tier
+
+## Objetivo del jugador
+
+* formar mejores equipos
+* administrar recursos
+* progresar entre tiers
+* desbloquear roster más fuerte
+
+La verdad: ahora sí se está sintiendo como un sistema bastante sólido.
+
+Puedo hacerte el siguiente paso como una **estructura oficial de diseño**, separada en:
+**modos, recursos, economía, tickets, tienda, torre y torneos**, para que quede limpio y listo para repo o para pasárselo a Codex.
