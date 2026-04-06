@@ -301,21 +301,7 @@ screen navigation():
         spacing gui.navigation_spacing
 
         if main_menu:
-
-            $ _quick_pid = str(getattr(store, "spa_editor_profile_id", "A") or "A")
-            $ _load_and_start_action = [Start()]
-            if hasattr(store, "spa_ui_load_profile_feedback"):
-                $ _load_and_start_action = [Function(store.spa_ui_load_profile_feedback, _quick_pid), Start()]
-
-            $ _quick_1v1_action = [Start()]
-            if hasattr(store, "bs_prepare_quick_random_1v1"):
-                $ _quick_1v1_action = [Function(store.bs_prepare_quick_random_1v1, _quick_pid), Start()]
-
-            textbutton _("Load & Start [[{}]]").format(_quick_pid) action _load_and_start_action
-            textbutton _("Start 1v1 random [[{}]]").format(_quick_pid) action _quick_1v1_action
-
             textbutton _("Start") action Start()
-            textbutton _("Start Historia (Piloto)") action Start("story_phaseA_intro")
 
         else:
 
@@ -381,6 +367,7 @@ screen main_menu():
     ## The use statement includes another screen inside this one. The actual
     ## contents of the main menu are in the navigation screen.
     use navigation
+    use typing_legends_menu_panels
 
     if gui.show_name:
 
@@ -394,11 +381,54 @@ screen main_menu():
                 style "main_menu_version"
 
 
+screen typing_legends_menu_panels():
+
+    frame:
+        style "tl_module_panel"
+        vbox:
+            spacing 14
+            text "Módulos" style "tl_panel_title"
+            text "Clases" style "tl_panel_item"
+            text "Repaso / Práctica" style "tl_panel_item"
+            text "Exámenes" style "tl_panel_item"
+            text "Juegos / Actividades" style "tl_panel_item"
+            text "Diario" style "tl_panel_item"
+            text "Biblioteca" style "tl_panel_item"
+
+    frame:
+        style "tl_places_panel"
+        vbox:
+            spacing 14
+            text "Lugares" style "tl_panel_title"
+            text "Entrada (placeholder)" style "tl_panel_item"
+            text "Patio (placeholder)" style "tl_panel_item"
+            text "QA técnico" style "tl_panel_item"
+            text "Salir al menú" style "tl_panel_item"
+
+    frame:
+        style "tl_center_preview_panel"
+        vbox:
+            spacing 10
+            text "Vista previa del módulo" style "tl_preview_title"
+            text "Módulo actual: Clases" style "tl_preview_subtitle"
+            text "Progreso académico (checks): 0/7" style "tl_preview_body"
+            text "En esta etapa construiremos primero Clases (lecciones)." style "tl_preview_body"
+            text "Luego conectamos Práctica, Exámenes y actividades." style "tl_preview_body"
+
+
 style main_menu_frame is empty
 style main_menu_vbox is vbox
 style main_menu_text is gui_text
 style main_menu_title is main_menu_text
 style main_menu_version is main_menu_text
+style tl_module_panel is frame
+style tl_places_panel is frame
+style tl_center_preview_panel is frame
+style tl_panel_title is default
+style tl_panel_item is default
+style tl_preview_title is default
+style tl_preview_subtitle is default
+style tl_preview_body is default
 
 style main_menu_frame:
     xsize 280
@@ -418,6 +448,59 @@ style main_menu_text:
 
 style main_menu_title:
     properties gui.text_properties("title")
+
+style tl_module_panel:
+    xpos 30
+    yalign 1.0
+    yoffset -16
+    xsize 430
+    ysize 360
+    padding (26, 22)
+    background "#20152CCC"
+
+style tl_places_panel:
+    xalign 1.0
+    xoffset -30
+    yalign 1.0
+    yoffset -16
+    xsize 430
+    ysize 280
+    padding (26, 22)
+    background "#20152CCC"
+
+style tl_center_preview_panel:
+    xalign 0.5
+    yalign 1.0
+    yoffset -160
+    xsize 620
+    padding (28, 20)
+    background "#22172FDD"
+
+style tl_panel_title:
+    size 56
+    color "#F0D4F4"
+
+style tl_panel_item:
+    size 40
+    color "#E3DDEA"
+
+style tl_preview_title:
+    size 56
+    color "#F0D4F4"
+    xalign 0.5
+    text_align 0.5
+
+style tl_preview_subtitle:
+    size 48
+    color "#F4EFF9"
+    xalign 0.5
+    text_align 0.5
+
+style tl_preview_body:
+    size 38
+    color "#ECE7F2"
+    xalign 0.5
+    text_align 0.5
 
 style main_menu_version:
     properties gui.text_properties("version")
