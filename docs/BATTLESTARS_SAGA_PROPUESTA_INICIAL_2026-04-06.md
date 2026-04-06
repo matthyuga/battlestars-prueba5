@@ -229,63 +229,47 @@ Implementación MVP:
 
 ---
 
-## 10) Conversión de estrellas por personajes (dos propuestas)
+## 10) Conversión de estrellas por personajes (ajustada)
 
-Se documentan ambas opciones para decidir en playtest interno.
+Se reemplazan los valores anteriores por dos escalas más sanas de economía de estrellas.
 
-### Propuesta 1 — Escalonada moderada (enfoque económico estable)
+### Propuesta 1 — Tabla ilustrativa original (tu versión)
 
-Conversión de duplicados a estrellas:
-- Duplicado C: +10
-- Duplicado B: +25
-- Duplicado A: +60
-- Duplicado S: +140
-- Duplicado SS: +320
-- Duplicado SSS: +700
-- Duplicado IV: +1,500
+| Tier | Valor de compra | Valor de conversión (duplicado) |
+|---|---|---|
+| C | 3 | 1 |
+| B | 6 | 3 |
+| A | 10 / 12 / 15 | 6 / 8 / 11 |
+| S | 20 / 22 / 25 | 15 / 17 / 20 |
+| SS | 30 / 40 / 50 | 24 / 34 / 44 |
+| SSS | 70 / 85 / 100 | 60 / 75 / 90 |
+| IV | 120 / 135 / 150 | 105 / 120 / 135 |
 
-Costo de compra en tienda:
-- Personaje B: 120 estrellas
-- Personaje A: 300 estrellas
-- Personaje S: 800 estrellas
-- Personaje SS: 1,800 estrellas
-- Personaje SSS: 4,000 estrellas
-- Personaje IV: 8,500 estrellas
+Notas:
+- En el texto original aparecía `13` al final de IV; se normaliza a **135** para mantener consistencia con la tabla visual.
+- Esta propuesta hace que los duplicados altos sean muy valiosos y acelera bastante el acceso a tiers altos.
 
-Perfil:
-- Menor inflación.
-- Progreso más gradual.
-- Menos riesgo de saltar tiers demasiado rápido.
+### Propuesta 2 — Escala “más sana” (chatgpt/ajustada)
 
-### Propuesta 2 — Escalonada agresiva (enfoque progreso rápido)
+| Tier | Valor de compra | Valor de conversión (duplicado) |
+|---|---|---|
+| C | 3 | 1 |
+| B | 6 | 3 |
+| A | 10–15 | 5–9 |
+| S | 20–25 | 10–16 |
+| SS | 30–50 | 16–30 |
+| SSS | 70–100 | 35–55 |
+| IV | 120–150 | 55–80 |
 
-Conversión de duplicados a estrellas:
-- Duplicado C: +20
-- Duplicado B: +50
-- Duplicado A: +120
-- Duplicado S: +260
-- Duplicado SS: +550
-- Duplicado SSS: +1,200
-- Duplicado IV: +2,500
-
-Costo de compra en tienda:
-- Personaje B: 100 estrellas
-- Personaje A: 240 estrellas
-- Personaje S: 650 estrellas
-- Personaje SS: 1,400 estrellas
-- Personaje SSS: 3,000 estrellas
-- Personaje IV: 6,500 estrellas
-
-Perfil:
-- Recompensa más alta por torneo/duplicado.
-- Sensación de avance más rápida.
-- Mayor riesgo de acortar demasiado el ciclo de desbloqueo.
+Notas:
+- Mantiene utilidad de duplicados, pero reduce explosividad en SS/SSS/IV.
+- Favorece una progresión más larga antes de llegar a tiers altos.
 
 ### Recomendación operativa
 
-- Empezar con **Propuesta 1** en producción interna.
-- Correr 2-3 sesiones de QA con telemetría de:
-  - estrellas/hora,
-  - tiempo promedio para primer desbloqueo A/S,
-  - tasa de frustración por duplicados.
-- Si el avance se siente lento, mover parcialmente hacia Propuesta 2.
+- Usar **Propuesta 2** como baseline para primera implementación.
+- Conservar Propuesta 1 como configuración alternativa para eventos/temporadas rápidas.
+- Medir durante QA:
+  - estrellas por hora,
+  - tiempo a primer desbloqueo A/S/SS,
+  - porcentaje de desbloqueos por compra vs drop directo.
