@@ -1,7 +1,8 @@
 # ===========================================================
-# 90_LEGACY_SUBLESSON_SCREENS_V1.rpy
-# Legacy: pantallas inline previas de sublecciones (referencia)
-# Nota: el flujo activo usa 41_LESSON_SCENES_V1 + 31_LESSON_ROUTER_V1.
+# 90_LEGACY_LESSONS_V1.rpy
+# Legacy: implementación anterior de lecciones/sublecciones (referencia)
+# Nota: NO forma parte del flujo activo.
+# Flujo activo: 21_LESSONS_DB_V1 + 30_LESSON_ENGINE_V1 + 31_LESSON_ROUTER_V1 + 41_LESSON_SCENES_V1.
 # ===========================================================
 
 screen tl_sublesson_intro_screen():
@@ -196,4 +197,3 @@ screen tl_sublesson_content_screen(sub_id="", sub_title="", objective="", summar
                 xalign 0.5
                 textbutton "Completar subsección" action Return("complete")
                 textbutton "Volver a clase" action Return("back_class")
-
