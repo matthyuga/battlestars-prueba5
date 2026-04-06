@@ -1,13 +1,17 @@
 # Battlestars Saga — Roadmap por fases y pasos (v1)
 
 Fecha: 2026-04-06  
-Estado: Propuesta de implementación incremental (MVP → expansión)
+Estado: En ejecución (Fase 0 iniciada)
 
 ---
 
 ## Objetivo
 
 Implementar Battlestars Saga por fases controladas, priorizando estabilidad del núcleo de combate y evitando sobrecargar el sistema con demasiados ítems/reglas al inicio.
+
+Avance actual:
+- ✅ Definido roadmap por fases.
+- ✅ Iniciada Fase 0 con contratos base de inventario, reglas de consumo/durabilidad y recompensas.
 
 ---
 
@@ -231,4 +235,3 @@ Definir en documentación y luego en código las entidades mínimas:
 2. `CHECKLIST_QA_INVENTARIO_Y_CONSUMO_V1.md`
 3. `TABLA_FORMULA_ORO_DESEMPENO_V1.md`
 4. `POLITICA_ROTACION_PERSONAJES_V1.md`
-
