@@ -47,6 +47,104 @@ label battle_end:
         "El combate ha terminado."
         $ S.story_pilot_last_result = "unknown"
 
+    # --- C2: ejecutar simulador al cierre (sin aplicar todavía) ---
+    python:
+        import renpy.store as S
+
+        # Estado base de runtime para el adaptador C1.
+        runtime = {
+            "source": "battle_end",
+            "result": str(getattr(S, "story_pilot_last_result", "draw") or "draw"),
+            "battle_id": str(getattr(S, "story_pilot_battle_id", "battle_runtime") or "battle_runtime"),
+            "player_hp": int(getattr(S, "player_hp", 0) or 0),
+            "enemy_hp": int(getattr(S, "enemy_hp", 0) or 0),
+            "repetition_count": int(getattr(S, "story_pilot_repetition_count", 1) or 1),
+            "preset": str(getattr(S, "story_pilot_reward_preset", "medium_v2") or "medium_v2"),
+            "multi_factor_enabled": bool(getattr(S, "story_pilot_multi_factor_enabled", True)),
+            "idempotency_registry": getattr(S, "sim_idempotency_registry_v1", {}),
+        }
+
+        # Bridge opcional con panel RPG si existe estado persistente.
+        st = getattr(S, "rpg_panel_state_v1", None)
+        if isinstance(st, dict):
+            p = st.get("player", {}) if isinstance(st.get("player", {}), dict) else {}
+            runtime["player_level"] = int(p.get("level", getattr(S, "player_level", 1)) or 1)
+            runtime["player_register"] = int(p.get("register", getattr(S, "player_register", 0)) or 0)
+            runtime["player_exp"] = int(p.get("exp_current", getattr(S, "player_exp", 0)) or 0)
+            runtime["player_exp_max"] = int(p.get("exp_max", getattr(S, "player_exp_max", 100)) or 100)
+            runtime["player_oro"] = int(p.get("oro_current", getattr(S, "player_oro", 0)) or 0)
+        else:
+            runtime["player_level"] = int(getattr(S, "player_level", 1) or 1)
+            runtime["player_register"] = int(getattr(S, "player_register", 0) or 0)
+            runtime["player_exp"] = int(getattr(S, "player_exp", 0) or 0)
+            runtime["player_exp_max"] = int(getattr(S, "player_exp_max", 100) or 100)
+            runtime["player_oro"] = int(getattr(S, "player_oro", 0) or 0)
+
+        # Enemigo v1 (fallback simple 1v1). En C3/C4 se amplía a equipos múltiples runtime.
+        runtime["enemy_level"] = int(getattr(S, "enemy_level", 1) or 1)
+        runtime["enemy_register"] = int(getattr(S, "enemy_register", 0) or 0)
+        runtime["enemy_exp"] = int(getattr(S, "enemy_exp", 0) or 0)
+        runtime["enemy_exp_max"] = int(getattr(S, "enemy_exp_max", 100) or 100)
+        runtime["enemy_oro"] = int(getattr(S, "enemy_oro", 0) or 0)
+
+        fn_sim = getattr(S, "sim_run_battle_end_simulation", None)
+        if callable(fn_sim):
+            pack = fn_sim(runtime=runtime)
+            S.sim_battle_end_last_request_v1 = pack.get("request", {})
+            S.sim_battle_end_last_result_v1 = pack.get("result", {})
+            fn_persist = getattr(S, "sim_persist_simulation_artifacts", None)
+            if callable(fn_persist):
+                try:
+                    S.sim_battle_end_last_persist_v1 = fn_persist(pack)
+                except Exception as ex:
+                    S.sim_battle_end_last_persist_v1 = {
+                        "ok": False,
+                        "error": "persist_exception: %s" % ex,
+                    }
+            else:
+                S.sim_battle_end_last_persist_v1 = {
+                    "ok": False,
+                    "error": "sim_persist_simulation_artifacts no disponible en store.",
+                }
+            fn_apply = getattr(S, "sim_apply_simulation_rewards_to_runtime", None)
+            if callable(fn_apply):
+                try:
+                    S.sim_battle_end_last_apply_v1 = fn_apply(pack)
+                except Exception as ex:
+                    S.sim_battle_end_last_apply_v1 = {
+                        "ok": False,
+                        "error": "apply_exception: %s" % ex,
+                    }
+            else:
+                S.sim_battle_end_last_apply_v1 = {
+                    "ok": False,
+                    "error": "sim_apply_simulation_rewards_to_runtime no disponible en store.",
+                }
+        else:
+            # Fallback seguro: sin crash, deja evidencia en audit-like.
+            S.sim_battle_end_last_request_v1 = {}
+            S.sim_battle_end_last_result_v1 = {
+                "results": [],
+                "audit": {
+                    "warnings": [],
+                    "errors": ["sim_run_battle_end_simulation no disponible en store."],
+                    "sim_contract_version": "v1",
+                },
+            }
+            S.sim_battle_end_last_persist_v1 = {
+                "ok": False,
+                "error": "sim_run_battle_end_simulation no disponible en store.",
+            }
+            S.sim_battle_end_last_apply_v1 = {
+                "ok": False,
+                "error": "sim_run_battle_end_simulation no disponible en store.",
+            }
+
+    if renpy.has_screen("sim_battle_end_reward_summary_v1"):
+        $ _sim_result = getattr(S, "sim_battle_end_last_result_v1", {})
+        $ _sim_apply = getattr(S, "sim_battle_end_last_apply_v1", {})
+        call screen sim_battle_end_reward_summary_v1(_sim_result, _sim_apply)
+
     # --- Limpieza global de efectos visuales y HUD ---
     if renpy.has_label("battle_hide_hud"):
         $ battle_hide_hud()
@@ -62,6 +160,78 @@ label battle_end:
     $ S.battle_active = False
     $ renpy.full_restart()
     return
+
+
+# ===========================================================
+# 🔹 C4 - Resumen visual post-combate (simulador)
+# ===========================================================
+screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
+    modal True
+    zorder 300
+
+    default _sr = sim_result if isinstance(sim_result, dict) else {}
+    default _ap = apply_report if isinstance(apply_report, dict) else {}
+    default _audit = _sr.get("audit", {}) if isinstance(_sr.get("audit", {}), dict) else {}
+    default _warnings = _audit.get("warnings", []) if isinstance(_audit.get("warnings", []), list) else []
+    default _errors = _audit.get("errors", []) if isinstance(_audit.get("errors", []), list) else []
+    default _rows = _sr.get("results", []) if isinstance(_sr.get("results", []), list) else []
+
+    add Solid("#000000AA")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xmaximum 1220
+        ymaximum 660
+        padding (26, 22)
+
+        vbox:
+            spacing 12
+
+            text "Resumen de recompensas (C4)" size 34 color "#FFFFFF"
+            text "sim_id=[_sr.get('simulation_id', 'sim_unknown')]  |  mode=[_sr.get('mode', 'custom')]  |  winner=[_sr.get('winner_team', 'DRAW')]" size 20 color "#CFE8FF"
+            text "Aplicación: ok=[_ap.get('ok', False)]  |  count=[_ap.get('applied_count', 0)]  |  EXP=[_ap.get('total_exp', 0)]  |  Oro=[_ap.get('total_oro', 0)]" size 20 color "#A6FFCC"
+            text "Audit: warnings=[len(_warnings)]  |  errors=[len(_errors)]" size 18 color "#FFD27A"
+
+            frame:
+                xfill True
+                yfill True
+                padding (12, 10)
+
+                viewport:
+                    draggable True
+                    mousewheel True
+                    scrollbars "vertical"
+
+                    vbox:
+                        spacing 8
+
+                        for rr in _rows:
+                            $ _ff = rr.get("final", {}) if isinstance(rr.get("final", {}), dict) else {}
+                            $ _actor = rr.get("actor_id", "unknown")
+                            $ _out = rr.get("outcome", "unknown")
+                            $ _exp = _ff.get("exp_gain", 0)
+                            $ _oro = _ff.get("oro_gain", 0)
+                            $ _eligible = rr.get("eligible", False)
+                            text "[_actor] | outcome=[_out] | eligible=[_eligible] | EXP +[_exp] | Oro +[_oro]" size 20 color "#FFFFFF"
+
+                        if len(_rows) == 0:
+                            text "Sin filas de resultado para mostrar." size 20 color "#FFAAAA"
+
+                        if len(_warnings) > 0:
+                            text "Warnings:" size 20 color "#FFD27A"
+                            for w in _warnings:
+                                text " - [w]" size 18 color "#FFD27A"
+
+                        if len(_errors) > 0:
+                            text "Errores:" size 20 color "#FF8A8A"
+                            for e in _errors:
+                                text " - [e]" size 18 color "#FF8A8A"
+
+            hbox:
+                xalign 1.0
+                spacing 10
+                textbutton "Continuar" action Return(True)
 
 
 # ===========================================================

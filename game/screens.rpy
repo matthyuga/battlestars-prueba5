@@ -315,6 +315,8 @@ screen navigation():
 
             textbutton _("Start") action Start()
             textbutton _("Start Historia (Piloto)") action Start("story_phaseA_intro")
+            if config.developer:
+                textbutton _("Sim Lab Sandbox (Dev)") action Start("sim_lab_open")
 
         else:
 
@@ -1002,6 +1004,12 @@ screen help():
                 textbutton _("Mouse") action SetScreenVariable("device", "mouse")
                 textbutton _("Hotkeys") action SetScreenVariable("device", "hotkeys")
                 textbutton _("Design Perks") action SetScreenVariable("device", "design_perks")
+                textbutton _("RPG Caps") action SetScreenVariable("device", "rpg_caps")
+                textbutton _("EXP Grid") action SetScreenVariable("device", "exp_grid")
+                textbutton _("Oro Grid") action SetScreenVariable("device", "oro_grid")
+                textbutton _("Stars Score") action SetScreenVariable("device", "stars_score")
+                if config.developer:
+                    textbutton _("SIM Lab (Dev)") action Call("sim_lab_open")
 
                 if GamepadExists():
                     textbutton _("Gamepad") action SetScreenVariable("device", "gamepad")
@@ -1014,6 +1022,14 @@ screen help():
                 use hotkeys_help
             elif device == "design_perks":
                 use design_perks_help
+            elif device == "rpg_caps":
+                use rpg_caps_help
+            elif device == "exp_grid":
+                use exp_grid_help
+            elif device == "oro_grid":
+                use oro_grid_help
+            elif device == "stars_score":
+                use stars_score_help
             elif device == "gamepad":
                 use gamepad_help
 
@@ -1166,6 +1182,101 @@ screen design_perks_help():
         hbox:
             label _("Refino Espiritual")
             text _("stamina_target_to_reiatsu. Convierte estamina rival en reiatsu. Uso: puntual o sostenido en baja proporción. Límite: cap por turno y por recurso máximo.")
+
+
+screen rpg_caps_help():
+
+    vbox:
+        spacing 10
+
+        text _("RPG Caps por Registro (referencia rápida)") style "help_text"
+        text _("PvE usa cap base del tier. PvP aplica factor por tier sobre Of/Def.") style "help_text"
+
+        hbox:
+            label _("Tier D (Reg 0–1)")
+            text _("PvE Of 401→900 | Def 451→1000 · PvP factor 1.00")
+
+        hbox:
+            label _("Tier C (Reg 2–3)")
+            text _("PvE Of 901→2000 | Def 1001→2300 · PvP factor 1.00")
+
+        hbox:
+            label _("Tier B (Reg 4–5)")
+            text _("PvE Of 2001→5000 | Def 2301→5500 · PvP factor 1.00")
+
+        hbox:
+            label _("Tier A (Reg 6–7)")
+            text _("PvE Of 5001→12000 | Def 5501→13000 · PvP factor 1.00")
+
+        hbox:
+            label _("Tier S (Reg 8–9)")
+            text _("PvE Of 12001→25000 | Def 13001→27000 · PvP factor 0.95 (Of 11401→23750 | Def 12351→25650)")
+
+        hbox:
+            label _("Tier SS (Reg 10–29)")
+            text _("PvE Of 25001→80000 | Def 27001→90000 · PvP factor 0.85 (Of 21251→68000 | Def 22951→76500)")
+
+        hbox:
+            label _("Tier SSS (Reg 30–50)")
+            text _("PvE Of 80001→200000 | Def 90001→240000 · PvP factor 0.75 (Of 60001→150000 | Def 67501→180000)")
+
+
+screen exp_grid_help():
+
+    vbox:
+        spacing 10
+
+        text _("EXP — Grilla 1v1 por diferencia de registro (preset medio)") style "help_text"
+        text _("Base por estrellas: EXP = 35 + 3.5×stars.") style "help_text"
+        text _("ΔR -5..+5 (mult): 0.15 | 0.25 | 0.40 | 0.60 | 0.82 | 1.00 | 1.25 | 1.55 | 1.90 | 2.30 | 2.80.") style "help_text"
+        text _("Referencia 1v1 @15⭐ (EXP base 88): ΔR -5→13.2 | -3→35.2 | -1→72.2 | 0→88 | +1→110 | +3→167.2 | +5→246.4.") style "help_text"
+
+        null height 6
+        text _("EXP — Combates múltiples (ejemplos rápidos)") style "help_text"
+        text _("Regla simple: ΔR jugador = promedio_reg_rivales - reg_jugador.") style "help_text"
+        text _("Factor numérico sugerido: m_multi = clamp((enemigos/aliados)^0.5, 0.85, 1.35).") style "help_text"
+        text _("2v1: dúo penaliza (≈0.85), solo bonifica (≈1.35). 2v2: factor ≈1.00.") style "help_text"
+        text _("Ejemplo A: lvl1(reg0)+lvl30(reg3) vs lvl30(reg3)+lvl10(reg1): ΔR individuales (+2,-1) y (-1,+1).") style "help_text"
+        text _("Ejemplo B (abuso): lvl20(reg2)+lvl30(reg3) vs lvl10(reg1): dúo recibe menos por ΔR negativo + penalización numérica.") style "help_text"
+
+
+screen oro_grid_help():
+
+    vbox:
+        spacing 10
+
+        text _("Oro — Grilla 1v1 por diferencia de registro (preset medio)") style "help_text"
+        text _("Base por estrellas: Oro = 15 + 2×stars.") style "help_text"
+        text _("ΔR -5..+5 (mult): 0.25 | 0.40 | 0.55 | 0.72 | 0.88 | 1.00 | 1.12 | 1.28 | 1.45 | 1.65 | 1.85.") style "help_text"
+        text _("Referencia 1v1 @15⭐ (Oro base 45): ΔR -5→11.25 | -3→24.75 | -1→39.6 | 0→45 | +1→50.4 | +3→65.25 | +5→83.25.") style "help_text"
+
+        null height 6
+        text _("Oro — Combates múltiples (ejemplos rápidos)") style "help_text"
+        text _("Se usa la misma regla de ΔR individual por promedio rival + factor numérico por tamaño de equipos.") style "help_text"
+        text _("2v1: jugadores del dúo ganan menos Oro por desventaja de mérito; el solo gana más si rinde y/o gana.") style "help_text"
+        text _("1v2: equivalente al caso anterior, invertido por equipo.") style "help_text"
+        text _("2v2: neutro por número de jugadores; decide ΔR + estrellas + resultado + antiabuso.") style "help_text"
+        text _("Variantes: si ΔR excede +5, aplicar crecimiento suave por registro extra (sin tabla infinita).") style "help_text"
+
+
+screen stars_score_help():
+
+    vbox:
+        spacing 10
+
+        text _("Medición de estrellas (desempeño)") style "help_text"
+        text _("Modelo base: 6 categorías de 0–5 estrellas. Total 0..30.") style "help_text"
+        text _("1) Ofensiva · 2) Defensiva · 3) Control · 4) Eficiencia · 5) Técnica · 6) Impacto decisivo.") style "help_text"
+        text _("Rúbrica global por categoría: 0 nulo | 1 bajo | 2 aceptable | 3 bueno | 4 alto | 5 sobresaliente.") style "help_text"
+
+        null height 6
+        text _("Indicadores sugeridos por categoría:") style "help_text"
+        text _("Ofensiva: %HP/%durabilidad removida, mayor golpe, aciertos ofensivos.") style "help_text"
+        text _("Defensiva: %HP/%durabilidad preservada, mitigación efectiva, contraataque efectivo.") style "help_text"
+        text _("Control: negaciones/cancelaciones exitosas (incluye ítems de control).") style "help_text"
+        text _("Eficiencia: menor gasto de energía/reiatsu y menor dependencia de descansos/pociones.") style "help_text"
+        text _("Técnica: uso correcto de focus/boost/furia y concatenación efectiva de técnicas.") style "help_text"
+        text _("Impacto: jugadas clave que cambian o cierran la pelea.") style "help_text"
 
 
 screen gamepad_help():
