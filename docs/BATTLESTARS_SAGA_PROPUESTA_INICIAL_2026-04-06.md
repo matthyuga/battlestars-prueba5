@@ -157,3 +157,135 @@ Dado el estado actual de la máquina de progresión EXP/Oro (en rediseño), se p
   - Línea propuesta: personajes temporales pueden volverse permanentes al cumplir quests/desafíos opcionales de desempeño/protección de equipo.
 - **Pendiente balance alto tier**: topes y/o soft caps de puntos por modo.
   - Decisión: priorizar calibración de tiers bajos (C/B/A) antes de cerrar límites de tiers altos.
+
+---
+
+## 9) Tabla inicial de balance (tiers bajos C/B/A)
+
+> Objetivo: tener una primera versión operativa para QA interna.  
+> Nota: valores sujetos a tuning tras primeras 20-30 corridas por modo.
+
+### 9.1 Duelo libre (pool total por tier)
+
+| Tier | Pool total sugerido | Comentario |
+|---|---:|---|
+| C | 1,000 | Entrada rápida para pruebas base. |
+| B | 5,000 | Aumenta complejidad sin romper ritmo. |
+| A | 10,000 | Punto de transición antes de escalas altas. |
+
+### 9.2 Torneos (acumulativo por ronda ganada)
+
+Regla común:
+- Pool base inicial: 400 (200 técnicas + 100 atributo principal + 100 libre).
+- Cada ronda ganada suma puntos al pool.
+- Los puntos sin usar se conservan para la siguiente ronda.
+
+#### Torneo Tier C (16 jugadores)
+
+| Etapa | Premio de ronda | Pool acumulado de referencia* |
+|---|---:|---:|
+| Inicio | — | 400 |
+| Gana R16 | +600 | 1,000 |
+| Gana R8 | +800 | 1,800 |
+| Gana R4 | +1,000 | 2,800 |
+| Campeón (Final) | +1,500 | 4,300 |
+
+#### Torneo Tier B (32 jugadores)
+
+| Etapa | Premio de ronda | Pool acumulado de referencia* |
+|---|---:|---:|
+| Inicio | — | 2,000 (400 + 1,600 de entrada tier B) |
+| Gana R32 | +1,000 | 3,000 |
+| Gana R16 | +1,500 | 4,500 |
+| Gana R8 | +2,000 | 6,500 |
+| Gana R4 | +2,500 | 9,000 |
+| Campeón (Final) | +3,000 | 12,000 |
+
+#### Torneo Tier A (32 jugadores)
+
+| Etapa | Premio de ronda | Pool acumulado de referencia* |
+|---|---:|---:|
+| Inicio | — | 5,000 (400 + 4,600 de entrada tier A) |
+| Gana R32 | +1,500 | 6,500 |
+| Gana R16 | +2,000 | 8,500 |
+| Gana R8 | +2,500 | 11,000 |
+| Gana R4 | +3,000 | 14,000 |
+| Campeón (Final) | +3,500 | 17,500 |
+
+\* El acumulado de referencia asume gasto 0 entre rondas (solo para lectura rápida).  
+En runtime real puede variar según gasto en técnicas/stats.
+
+### 9.3 Torre del Cielo (MVP C/B/A)
+
+| Tier de piso | Ganancia por piso | Bloques MVP |
+|---|---:|---|
+| C | +50 | 2 bloques (1-20) |
+| B | +150 | 3 bloques (21-50) |
+| A | +250 | 4 bloques (51-90) |
+
+Implementación MVP:
+- Lanzar primero pisos 1-50 (C/B).
+- Habilitar A (51-90) tras validar estabilidad y ritmo de progresión.
+
+---
+
+## 10) Conversión de estrellas por personajes (dos propuestas)
+
+Se documentan ambas opciones para decidir en playtest interno.
+
+### Propuesta 1 — Escalonada moderada (enfoque económico estable)
+
+Conversión de duplicados a estrellas:
+- Duplicado C: +10
+- Duplicado B: +25
+- Duplicado A: +60
+- Duplicado S: +140
+- Duplicado SS: +320
+- Duplicado SSS: +700
+- Duplicado IV: +1,500
+
+Costo de compra en tienda:
+- Personaje B: 120 estrellas
+- Personaje A: 300 estrellas
+- Personaje S: 800 estrellas
+- Personaje SS: 1,800 estrellas
+- Personaje SSS: 4,000 estrellas
+- Personaje IV: 8,500 estrellas
+
+Perfil:
+- Menor inflación.
+- Progreso más gradual.
+- Menos riesgo de saltar tiers demasiado rápido.
+
+### Propuesta 2 — Escalonada agresiva (enfoque progreso rápido)
+
+Conversión de duplicados a estrellas:
+- Duplicado C: +20
+- Duplicado B: +50
+- Duplicado A: +120
+- Duplicado S: +260
+- Duplicado SS: +550
+- Duplicado SSS: +1,200
+- Duplicado IV: +2,500
+
+Costo de compra en tienda:
+- Personaje B: 100 estrellas
+- Personaje A: 240 estrellas
+- Personaje S: 650 estrellas
+- Personaje SS: 1,400 estrellas
+- Personaje SSS: 3,000 estrellas
+- Personaje IV: 6,500 estrellas
+
+Perfil:
+- Recompensa más alta por torneo/duplicado.
+- Sensación de avance más rápida.
+- Mayor riesgo de acortar demasiado el ciclo de desbloqueo.
+
+### Recomendación operativa
+
+- Empezar con **Propuesta 1** en producción interna.
+- Correr 2-3 sesiones de QA con telemetría de:
+  - estrellas/hora,
+  - tiempo promedio para primer desbloqueo A/S,
+  - tasa de frustración por duplicados.
+- Si el avance se siente lento, mover parcialmente hacia Propuesta 2.
