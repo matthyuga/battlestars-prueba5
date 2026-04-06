@@ -383,7 +383,7 @@ screen tl_sakura_hub_screen():
     textbutton "⚙" action ShowMenu("preferences") xalign 0.965 yalign 0.05
 
     frame:
-        xalign 0.14
+        xalign 0.09
         yalign 0.56
         xsize 350
         ysize 430
@@ -424,9 +424,9 @@ screen tl_sakura_hub_screen():
             text "Luego conectamos Práctica, Exámenes y actividades." size 18 xalign 0.5
 
     frame:
-        xalign 0.80
-        yalign 0.82
-        xsize 360
+        xalign 0.89
+        yalign 0.83
+        xsize 300
         ysize 260
         background Solid("#1A1120D8")
 
@@ -633,9 +633,9 @@ screen tl_classes_course_intro_screen():
 
     frame:
         xalign 0.5
-        yalign 0.38
+        yalign 0.34
         xsize 980
-        ysize 360
+        ysize 280
         background Solid("#151019DE")
 
         vbox:
@@ -648,14 +648,11 @@ screen tl_classes_course_intro_screen():
             text "• Postura y posición de manos en fila central." size 22 xalign 0.5
             text "• Precisión antes que velocidad, con práctica progresiva." size 22 xalign 0.5
             text "• Técnica para escribir sin mirar el teclado." size 22 xalign 0.5
-            text "Docente actual: [_teacher_name]" size 22 color "#E8D9F0" xalign 0.5
-            if tl_experience_mode == 1:
-                text "Modo 1: aprendizaje puro (sin lore ni romance)." size 20 color "#E8D9F0" xalign 0.5
 
     frame:
-        xalign 0.5
-        yalign 0.80
-        xsize 980
+        xalign 0.39
+        yalign 0.84
+        xsize 920
         ysize 230
         background Solid("#17121EEC")
 
@@ -664,28 +661,32 @@ screen tl_classes_course_intro_screen():
             xalign 0.5
             yalign 0.5
 
-            frame:
+            vbox:
+                spacing 8
                 xsize 190
-                ysize 190
-                background Solid("#241D2C")
-                if _teacher_portrait:
-                    add _teacher_portrait fit "contain" xalign 0.5 yalign 0.5
-                else:
-                    text "Sin retrato" xalign 0.5 yalign 0.5 size 22 color "#E8D9F0"
+
+                frame:
+                    xsize 190
+                    ysize 150
+                    background Solid("#241D2C")
+                    if _teacher_portrait:
+                        add _teacher_portrait fit "contain" xalign 0.5 yalign 0.5
+                    else:
+                        text "Sin retrato" xalign 0.5 yalign 0.5 size 22 color "#E8D9F0"
+
+                frame:
+                    xsize 190
+                    ysize 34
+                    background Solid("#2A2230")
+                    text "[_teacher_name]" xalign 0.5 yalign 0.5 size 21 color "#FFD7F1"
 
             vbox:
                 spacing 10
-                xsize 730
+                xsize 680
                 yalign 0.5
 
                 frame:
-                    xsize 220
-                    ysize 42
-                    background Solid("#2A2230")
-                    text "[_teacher_name]" xalign 0.5 yalign 0.5 size 24 color "#FFD7F1"
-
-                frame:
-                    xsize 730
+                    xsize 680
                     ysize 92
                     background Solid("#211A29")
                     text "[_dialog_line]" xalign 0.02 yalign 0.5 size 24 color "#F7E8FF"
