@@ -12,6 +12,7 @@ Implementar Battlestars Saga por fases controladas, priorizando estabilidad del 
 Avance actual:
 - ✅ Definido roadmap por fases.
 - ✅ Iniciada Fase 0 con contratos base de inventario, reglas de consumo/durabilidad y recompensas.
+- ✅ Definido plan detallado de ejecución para Fase 1 (inventario MVP fuera de combate).
 
 ---
 
