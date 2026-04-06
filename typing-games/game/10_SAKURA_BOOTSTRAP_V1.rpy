@@ -7,6 +7,7 @@
 # 5) Vista de lecciones (aula con desenfoque + oscurecido suave)
 
 init -15 python:
+    import re
     import renpy.store as S
 
     def tl_asset(path):
@@ -40,6 +41,109 @@ init -15 python:
             total = 0
         return done, total
 
+    def tl_get_lesson11_intro_slide_files():
+        """Toma la lista oficial desde blueprint si está disponible en store."""
+        blueprint_slides = getattr(S, "TL_SP7_LESSON1_INTRO_SLIDES", None)
+        if isinstance(blueprint_slides, (list, tuple)) and len(blueprint_slides) > 0:
+            return [unicode(x) for x in blueprint_slides]
+
+        # Fallback seguro (misma lista oficial esperada para 1.1).
+        return [
+            u"msg_spa_sp7qwert_1_1_1.htm",
+            u"msg_spa_sp7qwert_1_1_2.htm",
+            u"msg_spa_sp7qwert_1_1_3.htm",
+            u"msg_spa_sp7qwert_1_1_4.htm",
+            u"msg_spa_sp7qwert_1_1_5.htm",
+        ]
+
+    def tl_extract_readable_text_from_html(html_text):
+        """Limpieza mínima de HTML para texto legible (sin parser complejo)."""
+        txt = unicode(html_text or u"")
+        txt = re.sub(ur"(?is)<script.*?>.*?</script>", u" ", txt)
+        txt = re.sub(ur"(?is)<style.*?>.*?</style>", u" ", txt)
+        txt = re.sub(ur"(?is)<!--.*?-->", u" ", txt)
+        txt = re.sub(ur"(?i)<br\s*/?>", u"\n", txt)
+        txt = re.sub(ur"(?i)</p>|</li>|</tr>|</h[1-6]>", u"\n", txt)
+        txt = re.sub(ur"(?s)<[^>]+>", u" ", txt)
+        txt = tl_html_unescape_basic(txt)
+        txt = re.sub(ur"[ \t\r\f\v]+", u" ", txt)
+        txt = re.sub(ur"\n\s*\n+", u"\n\n", txt)
+        return txt.strip()
+
+    def tl_html_unescape_basic(text):
+        """Unescape manual básico (sin dependencia de HTMLParser)."""
+        s = unicode(text or u"")
+
+        entity_map = {
+            u"&nbsp;": u" ",
+            u"&quot;": u"\"",
+            u"&apos;": u"'",
+            u"&amp;": u"&",
+            u"&lt;": u"<",
+            u"&gt;": u">",
+            u"&iexcl;": u"¡",
+            u"&iquest;": u"¿",
+            u"&aacute;": u"á",
+            u"&eacute;": u"é",
+            u"&iacute;": u"í",
+            u"&oacute;": u"ó",
+            u"&uacute;": u"ú",
+            u"&Aacute;": u"Á",
+            u"&Eacute;": u"É",
+            u"&Iacute;": u"Í",
+            u"&Oacute;": u"Ó",
+            u"&Uacute;": u"Ú",
+            u"&ntilde;": u"ñ",
+            u"&Ntilde;": u"Ñ",
+            u"&uuml;": u"ü",
+            u"&Uuml;": u"Ü",
+            u"&deg;": u"°",
+        }
+        for k, v in entity_map.items():
+            s = s.replace(k, v)
+
+        # Entidades numéricas decimales: &#225;
+        def _dec_entity(m):
+            code = int(m.group(1))
+            if 0 <= code <= 65535:
+                return unichr(code)
+            return m.group(0)
+
+        # Entidades numéricas hexadecimales: &#xE1;
+        def _hex_entity(m):
+            code = int(m.group(1), 16)
+            if 0 <= code <= 65535:
+                return unichr(code)
+            return m.group(0)
+
+        s = re.sub(ur"&#([0-9]+);", _dec_entity, s)
+        s = re.sub(ur"&#x([0-9A-Fa-f]+);", _hex_entity, s)
+        return s
+
+    def tl_load_tm_intro_slides_text():
+        """Carga 1.1 real desde Typing Master (lesson14) con decode latin-1."""
+        base = u"typing-master/lesson14/"
+        slides = []
+        for fname in tl_get_lesson11_intro_slide_files():
+            rel = u"{}{}".format(base, unicode(fname))
+            if renpy.loadable(rel):
+                raw = renpy.file(rel).read()
+                if isinstance(raw, unicode):
+                    data = raw
+                else:
+                    data = raw.decode("latin-1", "replace")
+                text = tl_extract_readable_text_from_html(data)
+                slides.append({
+                    "file": unicode(fname),
+                    "text": text if len(text) > 0 else u"(Sin texto legible en la diapositiva)",
+                })
+            else:
+                slides.append({
+                    "file": unicode(fname),
+                    "text": u"(Archivo no encontrado: {})".format(unicode(fname)),
+                })
+        return slides
+
 
 default tl_player_name = ""
 default tl_player_gender = "none"       # male | female | none
@@ -48,7 +152,9 @@ default tl_current_module = "Clases"
 default tl_selected_academy = "sakura"  # epic | sakura
 default tl_class_category = "basic"     # basic | intermediate | advanced
 default tl_selected_teacher = ""        # haru | misaki
+default tl_selected_lesson = "lesson_1" # lesson_1 ... lesson_11
 default tl_selected_sublesson = ""      # 1_1_intro ... 1_7_phrases_exercise
+default tl_intro_page = 0               # página de intro 1.1 persistente (save/load)
 
 # Rutas de imagen recomendadas:
 # typing-games/game/images/tl/
@@ -249,7 +355,7 @@ screen tl_sakura_welcome_screen():
             xalign 0.5
             yalign 0.5
 
-            text "Welcome to Sakura Sunshine Academy" xalign 0.5 size 52 color "#FFD7F1"
+            text "Bienvenido a la Academia Sakura Sunshine" xalign 0.5 size 52 color "#FFD7F1"
             text "Tu registro se completó correctamente." xalign 0.5 size 24 color "#E7DAEF"
             textbutton "Avanzar" action Return("to_hub") xalign 0.5
 
@@ -259,7 +365,7 @@ screen tl_sakura_hub_screen():
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg")
     if bg:
-        add bg
+        add bg at tl_soft_focus
     else:
         add "tl_fallback_rose"
         text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-pasillo.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
@@ -277,14 +383,14 @@ screen tl_sakura_hub_screen():
     textbutton "⚙" action ShowMenu("preferences") xalign 0.965 yalign 0.05
 
     frame:
-        xalign 0.13
+        xalign 0.09
         yalign 0.56
-        xsize 420
-        ysize 610
+        xsize 350
+        ysize 430
         background Solid("#1A1120D8")
 
         vbox:
-            spacing 14
+            spacing 16
             xalign 0.5
             yalign 0.06
 
@@ -297,22 +403,15 @@ screen tl_sakura_hub_screen():
             textbutton "Diario" action Return("go_diary")
             textbutton "Biblioteca" action Return("go_library")
 
-            null height 8
-            text "Lugares" size 32 color "#FFD7F1" xalign 0.5
-            textbutton "Entrada (placeholder)" action Return("go_place_entrance")
-            textbutton "Patio (placeholder)" action Return("go_place_patio")
-            textbutton "QA técnico" action Return("go_qa_tech")
-            textbutton "Salir al menú" action Return("to_main")
-
     frame:
-        xalign 0.62
-        yalign 0.60
-        xsize 680
-        ysize 560
+        xalign 0.50
+        yalign 0.53
+        xsize 560
+        ysize 420
         background Solid("#251A2EDD")
 
         vbox:
-            spacing 14
+            spacing 12
             xalign 0.5
             yalign 0.08
 
@@ -321,8 +420,26 @@ screen tl_sakura_hub_screen():
             $ _mod_progress = get_check_progress(tl_current_module)
             $ _mod_done, _mod_total = tl_progress_counts(_mod_progress)
             text "Progreso académico (checks): [_mod_done]/[_mod_total]" size 22 xalign 0.5
-            text "En esta etapa construiremos primero Clases (lecciones)." size 22 xalign 0.5
-            text "Luego conectamos Práctica / Exámenes / Actividades / Diario / Biblioteca." size 20 xalign 0.5
+            text "En esta etapa construiremos primero Clases (lecciones)." size 20 xalign 0.5
+            text "Luego conectamos Práctica, Exámenes y actividades." size 18 xalign 0.5
+
+    frame:
+        xalign 0.89
+        yalign 0.83
+        xsize 300
+        ysize 260
+        background Solid("#1A1120D8")
+
+        vbox:
+            spacing 12
+            xalign 0.5
+            yalign 0.08
+
+            text "Lugares" size 34 color "#FFD7F1" xalign 0.5
+            textbutton "Entrada (placeholder)" action Return("go_place_entrance")
+            textbutton "Patio (placeholder)" action Return("go_place_patio")
+            textbutton "QA técnico" action Return("go_qa_tech")
+            textbutton "Salir al menú" action Return("to_main")
 
 screen tl_place_placeholder_screen(place_name="Lugar"):
     tag menu
@@ -433,7 +550,9 @@ screen tl_classes_teacher_screen():
                         background Solid("#FFFFFF00")
                         if tl_selected_teacher == "haru":
                             add Solid("#FFD7F133")
-                        $ _haru = tl_asset("images/sakura-sunshine/characters/haru.png")
+                        $ _haru = tl_asset("gui/characters-sakura-sunshine/male/teachers/Haru.png")
+                        if not _haru:
+                            $ _haru = tl_asset("gui/characters-sakura-sunshine/female/teachers/Ayame.png")
                         if _haru:
                             add _haru fit "contain" xalign 0.5 yalign 0.5
                         else:
@@ -443,7 +562,7 @@ screen tl_classes_teacher_screen():
                                 xsize 280
                                 ysize 270
                                 background Solid("#2A2230")
-                                text "Sprite Haru" xalign 0.5 yalign 0.5 size 28
+                                text "Retrato no disponible" xalign 0.5 yalign 0.5 size 24
                         text "Haru" xalign 0.5 yalign 0.92 size 30 color "#F7E8FF"
 
                 button:
@@ -455,7 +574,9 @@ screen tl_classes_teacher_screen():
                         background Solid("#FFFFFF00")
                         if tl_selected_teacher == "misaki":
                             add Solid("#FFD7F133")
-                        $ _misaki = tl_asset("images/sakura-sunshine/characters/misaki.png")
+                        $ _misaki = tl_asset("gui/characters-sakura-sunshine/female/teachers/Misaki.png")
+                        if not _misaki:
+                            $ _misaki = tl_asset("gui/characters-sakura-sunshine/male/teachers/Masato.png")
                         if _misaki:
                             add _misaki fit "contain" xalign 0.5 yalign 0.5
                         else:
@@ -465,7 +586,7 @@ screen tl_classes_teacher_screen():
                                 xsize 280
                                 ysize 270
                                 background Solid("#2A2230")
-                                text "Sprite Misaki" xalign 0.5 yalign 0.5 size 28
+                                text "Retrato no disponible" xalign 0.5 yalign 0.5 size 24
                         text "Misaki" xalign 0.5 yalign 0.92 size 30 color "#F7E8FF"
 
             $ _teacher_label = tl_selected_teacher.title() if tl_selected_teacher else "—"
@@ -483,6 +604,7 @@ screen tl_classes_teacher_screen():
 screen tl_classes_course_intro_screen():
     tag menu
     modal True
+    default _dialog_step = 0
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
@@ -492,20 +614,28 @@ screen tl_classes_course_intro_screen():
     add Solid("#00000088")
     $ _teacher_name = tl_selected_teacher.title() if tl_selected_teacher else "Docente"
     if tl_selected_teacher == "haru":
-        $ _teacher_intro_1 = "Haru: Soy Haru, vamos a construir precisión desde la base."
-        $ _teacher_intro_2 = "Haru: Te recomiendo iniciar por Introducción y Fila central."
+        $ _teacher_intro_1 = "Soy Haru, vamos a construir precisión desde la base."
+        $ _teacher_intro_2 = "Te recomiendo iniciar por Introducción y Fila central."
+        $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/male/teachers/Haru.png")
+        if not _teacher_portrait:
+            $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/female/teachers/Ayame.png")
     elif tl_selected_teacher == "misaki":
-        $ _teacher_intro_1 = "Misaki: Soy Misaki, avanzaremos paso a paso con buena postura."
-        $ _teacher_intro_2 = "Misaki: Empezaremos por Introducción y luego ejercicios guiados."
+        $ _teacher_intro_1 = "Soy Misaki, avanzaremos paso a paso con buena postura."
+        $ _teacher_intro_2 = "Empezaremos por Introducción y luego ejercicios guiados."
+        $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/female/teachers/Misaki.png")
+        if not _teacher_portrait:
+            $ _teacher_portrait = tl_asset("gui/characters-sakura-sunshine/male/teachers/Masato.png")
     else:
-        $ _teacher_intro_1 = "Docente: Vamos a comenzar con el plan básico de mecanografía."
-        $ _teacher_intro_2 = "Docente: Elige una sublección y avanzamos."
+        $ _teacher_intro_1 = "Vamos a comenzar con el plan básico de mecanografía."
+        $ _teacher_intro_2 = "Elige una sublección y avanzamos."
+        $ _teacher_portrait = None
+    $ _dialog_line = _teacher_intro_1 if _dialog_step == 0 else _teacher_intro_2
 
     frame:
         xalign 0.5
-        yalign 0.5
+        yalign 0.34
         xsize 980
-        ysize 560
+        ysize 280
         background Solid("#151019DE")
 
         vbox:
@@ -514,22 +644,115 @@ screen tl_classes_course_intro_screen():
             yalign 0.08
 
             text "Curso de Escritura al Tacto" size 44 color "#FFD7F1" xalign 0.5
-            text "Resumen rápido estilo Typing Master:" size 24 color "#E8D9F0" xalign 0.5
+            text "Qué aprenderás con este curso:" size 24 color "#E8D9F0" xalign 0.5
             text "• Postura y posición de manos en fila central." size 22 xalign 0.5
             text "• Precisión antes que velocidad, con práctica progresiva." size 22 xalign 0.5
-            text "• Letras → palabras → frases para consolidar memoria muscular." size 22 xalign 0.5
-            text "Docente actual: [_teacher_name]" size 22 color "#E8D9F0" xalign 0.5
-            text "[_teacher_intro_1]" size 20 color "#F7E8FF" xalign 0.5
-            text "[_teacher_intro_2]" size 20 color "#F7E8FF" xalign 0.5
-            text "Lecciones disponibles: 1.1 Intro, 1.2 Fila central, 1.3 Resultados, 1.4 Teclas, 1.5 Ayuda examen, 1.6 Palabras, 1.7 Frases." size 18 color "#E8D9F0" xalign 0.5
-            if tl_experience_mode == 1:
-                text "Modo 1: aprendizaje puro (sin lore ni romance)." size 20 color "#E8D9F0" xalign 0.5
+            text "• Técnica para escribir sin mirar el teclado." size 22 xalign 0.5
+
+    frame:
+        xalign 0.39
+        yalign 0.84
+        xsize 920
+        ysize 230
+        background Solid("#17121EEC")
+
+        hbox:
+            spacing 16
+            xalign 0.5
+            yalign 0.5
+
+            vbox:
+                spacing 8
+                xsize 190
+
+                frame:
+                    xsize 190
+                    ysize 150
+                    background Solid("#241D2C")
+                    if _teacher_portrait:
+                        add _teacher_portrait fit "contain" xalign 0.5 yalign 0.5
+                    else:
+                        text "Sin retrato" xalign 0.5 yalign 0.5 size 22 color "#E8D9F0"
+
+                frame:
+                    xsize 190
+                    ysize 34
+                    background Solid("#2A2230")
+                    text "[_teacher_name]" xalign 0.5 yalign 0.5 size 21 color "#FFD7F1"
+
+            vbox:
+                spacing 10
+                xsize 680
+                yalign 0.5
+
+                frame:
+                    xsize 680
+                    ysize 92
+                    background Solid("#211A29")
+                    text "[_dialog_line]" xalign 0.02 yalign 0.5 size 24 color "#F7E8FF"
+
+                hbox:
+                    spacing 14
+                    textbutton "Continuar" action SetScreenVariable("_dialog_step", 1) sensitive (_dialog_step == 0)
+                    textbutton "Avanzar" action Return("continue") sensitive (_dialog_step == 1)
+                    textbutton "Atrás" action Return("back")
+
+screen tl_classes_course_lessons_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000088")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 1040
+        ysize 620
+        background Solid("#151019DE")
+
+        vbox:
+            spacing 14
+            xalign 0.5
+            yalign 0.06
+
+            text "Curso básico · Lecciones disponibles" size 40 color "#FFD7F1" xalign 0.5
+            text "Selecciona una de las 11 lecciones de Typing Master." size 22 color "#E8D9F0" xalign 0.5
+
+            viewport:
+                draggable True
+                mousewheel True
+                ymaximum 400
+
+                vbox:
+                    spacing 8
+                    xalign 0.5
+
+                    textbutton "Lección 1 · La fila central{}".format(" ✓" if tl_selected_lesson == "lesson_1" else "") action SetVariable("tl_selected_lesson", "lesson_1")
+                    textbutton "Lección 2 · Teclas E e I (próximamente)" action NullAction() sensitive False
+                    textbutton "Lección 3 · Teclas R y N (próximamente)" action NullAction() sensitive False
+                    textbutton "Lección 4 · Teclas C y O (próximamente)" action NullAction() sensitive False
+                    textbutton "Lección 5 · Teclas T U y Q (próximamente)" action NullAction() sensitive False
+                    textbutton "Lección 6 · Mayúsculas, punto y tilde (próximamente)" action NullAction() sensitive False
+                    textbutton "Lección 7 · Teclas G y P (próximamente)" action NullAction() sensitive False
+                    textbutton "Lección 8 · Teclas B M y coma (próximamente)" action NullAction() sensitive False
+                    textbutton "Lección 9 · Teclas V Y y ¿ ? (próximamente)" action NullAction() sensitive False
+                    textbutton "Lección 10 · Teclas Z H y ¡ ! (próximamente)" action NullAction() sensitive False
+                    textbutton "Lección 11 · Teclas W y X (próximamente)" action NullAction() sensitive False
 
             hbox:
                 spacing 14
                 xalign 0.5
-                textbutton "Ver lecciones" action Return("continue")
+                textbutton "Ver submódulos de la lección" action Return("open_selected") sensitive (tl_selected_lesson == "lesson_1")
+                textbutton "Volver a clase" action Return("back_class")
                 textbutton "Atrás" action Return("back")
+
+            if tl_selected_lesson != "lesson_1":
+                text "Por ahora solo está habilitada la Lección 1 en esta versión." size 20 color "#FFD7C1" xalign 0.5
 
 screen tl_classes_lesson_panel_screen():
     tag menu
@@ -597,6 +820,107 @@ screen tl_classes_lesson_panel_screen():
                 if len((tl_selected_sublesson or "").strip()) == 0:
                     text "Selecciona un submódulo para habilitar 'Iniciar sublección'." size 18 color "#FFD7C1" xalign 0.5
 
+screen tl_sublesson_intro_screen():
+    tag menu
+    modal True
+
+    $ _slides = tl_load_tm_intro_slides_text()
+    $ _last = max(0, len(_slides) - 1)
+    $ _safe_page = max(0, min(_last, int(tl_intro_page if tl_intro_page is not None else 0)))
+    $ _slide_entry = _slides[_safe_page] if len(_slides) > 0 else {"file": "n/a", "text": "Contenido de introducción no disponible."}
+    $ _slide_text = unicode(_slide_entry.get("text", "Contenido de introducción no disponible."))
+    $ _slide_file = unicode(_slide_entry.get("file", "n/a"))
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000099")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 980
+        ysize 580
+        background Solid("#151019EE")
+
+        vbox:
+            spacing 16
+            xalign 0.5
+            yalign 0.08
+
+            text "Lección 1.1 · Introducción real" size 40 color "#FFD7F1" xalign 0.5
+
+            frame:
+                xsize 860
+                ysize 300
+                background Solid("#221A2CEB")
+                viewport:
+                    draggable True
+                    mousewheel True
+                    xmaximum 820
+                    ymaximum 260
+                    xalign 0.5
+                    yalign 0.5
+                    text "[_slide_text]" size 24 text_align 0.0
+
+            text "Página [(_safe_page + 1)]/[max(1, len(_slides))]" size 22 color "#E8D9F0" xalign 0.5
+            text "Fuente: [_slide_file]" size 17 color "#C9B8D5" xalign 0.5
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Anterior" action SetVariable("tl_intro_page", max(0, _safe_page - 1)) sensitive (_safe_page > 0)
+                textbutton "Siguiente" action SetVariable("tl_intro_page", min(_last, _safe_page + 1)) sensitive (_safe_page < _last)
+                textbutton "Completar introducción" action [SetVariable("tl_intro_page", 0), Return("complete")] sensitive (_safe_page == _last)
+                textbutton "Volver a clase" action [SetVariable("tl_intro_page", 0), Return("back_class")]
+
+screen tl_sublesson_content_screen(sub_id="", sub_title="", objective="", summary="", next_hint=""):
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#00000099")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 980
+        ysize 580
+        background Solid("#151019EE")
+
+        vbox:
+            spacing 14
+            xalign 0.5
+            yalign 0.08
+
+            text "Lección 1 · [sub_title]" size 40 color "#FFD7F1" xalign 0.5
+            text "Submódulo: [sub_id]" size 22 color "#E8D9F0" xalign 0.5
+
+            frame:
+                xsize 860
+                ysize 230
+                background Solid("#221A2CEB")
+                vbox:
+                    spacing 10
+                    xalign 0.5
+                    yalign 0.5
+                    text "Objetivo: [objective]" size 24 xalign 0.5 text_align 0.5
+                    text "[summary]" size 22 xalign 0.5 text_align 0.5
+                    if len((next_hint or "").strip()) > 0:
+                        text "Siguiente paso recomendado: [next_hint]" size 20 color "#DCCEE6" xalign 0.5 text_align 0.5
+
+            hbox:
+                spacing 14
+                xalign 0.5
+                textbutton "Completar subsección" action Return("complete")
+                textbutton "Volver a clase" action Return("back_class")
+
 screen tl_qa_tech_screen():
     tag menu
     modal True
@@ -636,6 +960,8 @@ screen tl_qa_tech_screen():
             text "  • hub (pasillo): {}".format("OK" if _a_hub else "Fallback activo") size 18 color ("#BEECC6" if _a_hub else "#FFE5B1")
             text "  • clases (salón): {}".format("OK" if _a_cls else "Fallback activo") size 18 color ("#BEECC6" if _a_cls else "#FFE5B1")
             text "P5-4 Botones sensibles: siempre muestran feedback textual cuando están bloqueados." size 20
+            text "P5-5 Ruta final: Hub -> Clases -> Docente -> Curso -> Lecciones -> 1.1 -> retorno." size 20
+            text "P5-6 Save/Load en 1.1 conserva página con tl_intro_page." size 20
 
             hbox:
                 spacing 14
@@ -664,36 +990,99 @@ label tl_classes_course_intro_flow:
     call screen tl_classes_course_intro_screen
     if _return == "back":
         jump tl_classes_teacher_flow
-    if _return != "continue":
+    if _return == "continue":
+        jump tl_classes_course_lessons_flow
+    jump tl_classes_course_intro_flow
+
+label tl_classes_course_lessons_flow:
+    call screen tl_classes_course_lessons_screen
+    if _return == "back":
         jump tl_classes_course_intro_flow
+    if _return == "back_class":
+        jump tl_classes_course_intro_flow
+    if _return == "open_selected":
+        if tl_selected_lesson == "lesson_1":
+            jump tl_classes_lesson_panel_flow
+    jump tl_classes_course_lessons_flow
 
 label tl_classes_lesson_panel_flow:
     call screen tl_classes_lesson_panel_screen
     if _return == "back_hub":
         jump tl_sakura_hub
     if _return == "back_course":
-        jump tl_classes_course_intro_flow
+        jump tl_classes_course_lessons_flow
     if _return == "start_selected":
         $ _selected = str(tl_selected_sublesson or "")
-        if _selected == "1_1_intro":
-            $ typing_lab_selected_mode = "letters"
-        elif _selected == "1_2_home_row":
-            $ typing_lab_selected_mode = "letters"
-        elif _selected == "1_3_results":
-            $ typing_lab_selected_mode = "letters"
-        elif _selected == "1_4_keys_exercise":
-            $ typing_lab_selected_mode = "letters"
-        elif _selected == "1_5_exam_help":
-            $ typing_lab_selected_mode = "words"
-        elif _selected == "1_6_words_exercise":
-            $ typing_lab_selected_mode = "words"
-        else:
-            $ typing_lab_selected_mode = "phrases"
+        $ _sub_return = "back_class"
 
-        "Objetivo TM: escribe con precisión y corrige errores al instante."
-        call typing_lab_start
-        $ set_check("clases", "lesson_1", _selected, True)
-        "Sublección completada: [_selected]. Check actualizado."
+        # Flujo académico puro:
+        # - En sublecciones de Clases NO se llama Typing Lab.
+        # - Typing Lab queda para Práctica/Exámenes fuera de este panel.
+        if _selected == "1_1_intro":
+            call screen tl_sublesson_intro_screen
+            $ _sub_return = _return
+        elif _selected == "1_2_home_row":
+            call screen tl_sublesson_content_screen(
+                sub_id="1.2",
+                sub_title="Fila central",
+                objective="Ubicar dedos en A-S-D-F y J-K-L-Ñ sin mirar.",
+                summary="Practica pulsaciones controladas y ritmo constante en fila central.",
+                next_hint="Continúa con 1.3 para revisar resultados y control de errores."
+            )
+            $ _sub_return = _return
+        elif _selected == "1_3_results":
+            call screen tl_sublesson_content_screen(
+                sub_id="1.3",
+                sub_title="Ver resultados",
+                objective="Interpretar precisión, errores y consistencia.",
+                summary="Aprender a leer resultados permite corregir técnica antes de acelerar.",
+                next_hint="Pasa a 1.4 para reforzar precisión de teclas."
+            )
+            $ _sub_return = _return
+        elif _selected == "1_4_keys_exercise":
+            call screen tl_sublesson_content_screen(
+                sub_id="1.4",
+                sub_title="Ejercicio de teclas",
+                objective="Consolidar control de dedos en secuencias de teclas.",
+                summary="Ejercicio académico enfocado en precisión y postura, sin modo libre.",
+                next_hint="Luego revisa 1.5 para guía de exámenes."
+            )
+            $ _sub_return = _return
+        elif _selected == "1_5_exam_help":
+            call screen tl_sublesson_content_screen(
+                sub_id="1.5",
+                sub_title="Ayuda exámenes",
+                objective="Conocer criterios de evaluación y preparación.",
+                summary="Revisa consejos para gestionar errores, tiempo y consistencia.",
+                next_hint="Sigue con 1.6 para estructura de palabras."
+            )
+            $ _sub_return = _return
+        elif _selected == "1_6_words_exercise":
+            call screen tl_sublesson_content_screen(
+                sub_id="1.6",
+                sub_title="Ejercicio de palabras",
+                objective="Aplicar técnica de fila central en palabras completas.",
+                summary="Prioriza exactitud de cada palabra antes de aumentar velocidad.",
+                next_hint="Finaliza en 1.7 con frases completas."
+            )
+            $ _sub_return = _return
+        else:
+            call screen tl_sublesson_content_screen(
+                sub_id="1.7",
+                sub_title="Ejercicio de frases",
+                objective="Mantener precisión en secuencias largas.",
+                summary="Integra postura, ritmo y corrección consciente al escribir frases.",
+                next_hint="Al completar, tendrás cerrada la base de Lección 1."
+            )
+            $ _sub_return = _return
+
+        if _sub_return == "complete":
+            $ set_check("clases", "lesson_1", _selected, True)
+            "Subsección completada: [_selected]. Contenido académico registrado."
+        elif _sub_return == "back_class":
+            pass
+        else:
+            "Subsección no completada. Vuelve cuando quieras continuar."
         jump tl_classes_lesson_panel_flow
 
     jump tl_classes_lesson_panel_flow
@@ -1184,6 +1573,7 @@ screen tl_library_index_screen():
                 textbutton "Volver al hub" action Return("back")
 
 label tl_boot_start:
+    $ quick_menu = False
     $ _academic_ensure_store()
     $ _affinity_ensure_store()
     $ _romance_ensure_store()
