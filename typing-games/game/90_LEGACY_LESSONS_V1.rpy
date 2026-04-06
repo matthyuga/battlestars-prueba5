@@ -197,3 +197,83 @@ screen tl_sublesson_content_screen(sub_id="", sub_title="", objective="", summar
                 xalign 0.5
                 textbutton "Completar subsección" action Return("complete")
                 textbutton "Volver a clase" action Return("back_class")
+
+
+screen tl_lessons_mock_screen():
+    tag menu
+    modal True
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-salon.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
+
+    add Solid("#00000088")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 1120
+        ysize 640
+        background Solid("#151019DE")
+
+        hbox:
+            spacing 24
+            xalign 0.5
+            yalign 0.05
+
+            vbox:
+                spacing 10
+                xsize 560
+                $ _c11 = get_check("clases", "lesson_1", "1_1_intro")
+                $ _c12 = get_check("clases", "lesson_1", "1_2_home_row")
+                $ _c13 = get_check("clases", "lesson_1", "1_3_results")
+                $ _c14 = get_check("clases", "lesson_1", "1_4_keys_exercise")
+                $ _c15 = get_check("clases", "lesson_1", "1_5_exam_help")
+                $ _c16 = get_check("clases", "lesson_1", "1_6_words_exercise")
+                $ _c17 = get_check("clases", "lesson_1", "1_7_phrases_exercise")
+                $ _lesson_done = sum([1 for _v in [_c11, _c12, _c13, _c14, _c15, _c16, _c17] if _v])
+
+                text "Clases · Lección 1 (mock)" size 38 color "#FFD7F1"
+                text "Progreso Lección 1: [_lesson_done]/7" size 24 color "#EADAF2"
+                textbutton "1.1 Introducción{}".format("  ✓" if _c11 else "") action Function(set_check, "clases", "lesson_1", "1_1_intro", True)
+                textbutton "1.2 Teclas de la Fila Central{}".format("  ✓" if _c12 else "") action Function(set_check, "clases", "lesson_1", "1_2_home_row", True)
+                textbutton "1.3 Ver resultados{}".format("  ✓" if _c13 else "") action Function(set_check, "clases", "lesson_1", "1_3_results", True)
+                textbutton "1.4 Ejercicio de Teclas{}".format("  ✓" if _c14 else "") action Function(set_check, "clases", "lesson_1", "1_4_keys_exercise", True)
+                textbutton "1.5 Ayuda: Exámenes{}".format("  ✓" if _c15 else "") action Function(set_check, "clases", "lesson_1", "1_5_exam_help", True)
+                textbutton "1.6 Ejercicio de Palabras{}".format("  ✓" if _c16 else "") action Function(set_check, "clases", "lesson_1", "1_6_words_exercise", True)
+                textbutton "1.7 Ejercicio de Párrafos{}".format("  ✓" if _c17 else "") action Function(set_check, "clases", "lesson_1", "1_7_phrases_exercise", True)
+
+                null height 18
+                text "Puedes usar capturas de Typing Master en esta etapa (sí, totalmente)." size 20 color "#DCCEE6"
+
+                hbox:
+                    spacing 18
+                    textbutton "Probar Typing Lab" action Return("open_typing_lab")
+                    textbutton "Marcar todo Lección 1" action [
+                        Function(set_check, "clases", "lesson_1", "1_1_intro", True),
+                        Function(set_check, "clases", "lesson_1", "1_2_home_row", True),
+                        Function(set_check, "clases", "lesson_1", "1_3_results", True),
+                        Function(set_check, "clases", "lesson_1", "1_4_keys_exercise", True),
+                        Function(set_check, "clases", "lesson_1", "1_5_exam_help", True),
+                        Function(set_check, "clases", "lesson_1", "1_6_words_exercise", True),
+                        Function(set_check, "clases", "lesson_1", "1_7_phrases_exercise", True),
+                    ]
+                    textbutton "Finalizar Lección 1" action Return("complete_lesson_1") sensitive (_lesson_done >= 7)
+                    textbutton "Volver al hub" action Return("back")
+
+            vbox:
+                spacing 10
+                text "Preview de apoyo" size 30 color "#FFD7F1"
+
+                $ slide = tl_asset("images/tl/tm_lesson_slide_01.png")
+                if slide:
+                    add slide fit "contain" xsize 480 ysize 360
+                else:
+                    frame:
+                        xsize 480
+                        ysize 360
+                        background Solid("#2A2230")
+                        text "Sube aquí: images/tl/tm_lesson_slide_01.png" xalign 0.5 yalign 0.5 size 22

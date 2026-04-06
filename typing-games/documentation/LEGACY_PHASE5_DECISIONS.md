@@ -7,6 +7,7 @@ Fecha: 2026-04-06
 - Archivo: `typing-games/game/90_LEGACY_LESSONS_V1.rpy`
   - `screen tl_sublesson_intro_screen`
   - `screen tl_sublesson_content_screen`
+  - `screen tl_lessons_mock_screen` (debug/manual)
 
 ## Por qué se movió a legacy
 
@@ -23,4 +24,3 @@ Fecha: 2026-04-06
 - No reutilizar screens de legacy en flujo activo.
 - Cualquier mejora nueva de lecciones se hace solo en capas nuevas.
 - Legacy se mantiene únicamente como referencia hasta cierre de migración.
-
