@@ -13,26 +13,18 @@ label tl_route_selected_sublesson:
         return "error"
 
     $ _scene_type = str(_meta.get("scene_type", "placeholder") or "placeholder").strip().lower()
-    $ _state = str(_meta.get("state", "placeholder") or "placeholder").strip().lower()
     $ _result = "back_class"
 
     if _scene_type == "intro_dialogue" and _selected == "1_1_intro":
-        call screen tl_sublesson_intro_screen
+        call screen tl_lesson_intro_scene(
+            sublesson_id=_selected,
+            lesson_id="lesson_1"
+        )
         $ _result = _return
     else:
-        $ _sub_id = str(_meta.get("id", _selected))
-        $ _sub_title = str(_meta.get("title", _selected))
-        $ _objective = str(_meta.get("objective", "Contenido temporal."))
-        $ _summary = "Sublección en construcción. Placeholder activo para la nueva arquitectura."
-        if _state == "real":
-            $ _summary = "Contenido real definido en DB, pendiente de escena dedicada."
-
-        call screen tl_sublesson_content_screen(
-            sub_id=_sub_id,
-            sub_title=_sub_title,
-            objective=_objective,
-            summary=_summary,
-            next_hint="Continuará en siguientes fases."
+        call screen tl_lesson_placeholder_scene(
+            sublesson_id=_selected,
+            lesson_id="lesson_1"
         )
         $ _result = _return
 
@@ -45,4 +37,3 @@ label tl_route_selected_sublesson:
         return "back_class"
     else:
         return "error"
-
