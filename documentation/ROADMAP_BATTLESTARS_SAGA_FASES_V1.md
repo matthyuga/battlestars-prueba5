@@ -16,6 +16,7 @@ Avance actual:
 - ✅ Definido plan detallado de ejecución para Fase 2 (inventario en combate + consumibles base).
 - ✅ Definido plan detallado de ejecución para Fase 3 (consumibles avanzados + amuletos raros).
 - ✅ Definido plan detallado de ejecución para Fase 4 (economía y meta-progresión).
+- ✅ Definido plan detallado de ejecución para Fase 5 (Torre del Cielo MVP jugable).
 
 ---
 
