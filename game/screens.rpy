@@ -300,23 +300,8 @@ screen navigation():
         spacing gui.navigation_spacing
 
         if main_menu:
-            $ _quick_pid = str(getattr(store, "spa_editor_profile_id", "A") or "A")
-            $ _load_and_start_action = [Start()]
-            if hasattr(store, "spa_ui_load_profile_feedback"):
-                $ _load_and_start_action = [Function(store.spa_ui_load_profile_feedback, _quick_pid), Start()]
-
-            $ _quick_1v1_action = [Start()]
-            if hasattr(store, "bs_prepare_quick_random_1v1"):
-                $ _quick_1v1_action = [Function(store.bs_prepare_quick_random_1v1, _quick_pid), Start()]
-
-            textbutton _("Load & Start [[{}]]").format(_quick_pid) action _load_and_start_action
-            textbutton _("Start 1v1 random [[{}]]").format(_quick_pid) action _quick_1v1_action
-
             textbutton _("New Game") action Start("bs_saga_intro_splash")
-            textbutton _("Start Historia (Piloto)") action Start("story_phaseA_intro")
             textbutton _("Lab (Piloto Historia)") action Start("story_phaseA_intro")
-            if config.developer:
-                textbutton _("Sim Lab Sandbox (Dev)") action Start("sim_lab_open")
 
         else:
 
