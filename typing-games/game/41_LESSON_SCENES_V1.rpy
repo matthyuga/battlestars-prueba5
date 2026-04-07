@@ -82,7 +82,55 @@ init python:
         return True
 
 
+    def tl_typing_lite_prepare(total_letters=10):
+        import random
+        bank = ["f", "j", "d", "k", "s", "l", "a", "ñ"]
+        seq = [random.choice(bank) for _ in range(max(1, int(total_letters or 10)))]
+        store.tl_typing_lite_state = {
+            "sequence": seq,
+            "index": 0,
+            "errors": 0,
+            "error_flash_until": 0.0,
+            "done": False,
+            "current_letter": seq[0] if len(seq) > 0 else "",
+        }
+        return True
+
+
+    def tl_typing_lite_press_key(key_text=""):
+        st = getattr(store, "tl_typing_lite_state", None)
+        if not isinstance(st, dict):
+            tl_typing_lite_prepare(10)
+            st = getattr(store, "tl_typing_lite_state", {})
+
+        if bool(st.get("done", False)):
+            return False
+
+        seq = list(st.get("sequence", []))
+        idx = int(st.get("index", 0) or 0)
+        if idx >= len(seq):
+            st["done"] = True
+            store.tl_typing_lite_state = st
+            return True
+
+        pressed = str(key_text or "").strip().lower()
+        expected = str(seq[idx] or "").strip().lower()
+
+        if pressed == expected:
+            idx += 1
+            st["index"] = idx
+            st["current_letter"] = (seq[idx] if idx < len(seq) else "")
+            st["done"] = (idx >= len(seq))
+        else:
+            st["errors"] = int(st.get("errors", 0) or 0) + 1
+            st["error_flash_until"] = float(renpy.get_time()) + 0.22
+
+        store.tl_typing_lite_state = st
+        return True
+
+
 default tl_typing_mock_state = {}
+default tl_typing_lite_state = {}
 
 
 screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
@@ -379,3 +427,155 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
                     xalign 1.0
                     action Return("complete")
                     sensitive _completed
+
+
+screen tl_typing_lab_letters_lite_scene(sublesson_id="1_4b_typing_lab", lesson_id="lesson_1"):
+    tag menu
+    modal True
+
+    $ _meta = lesson_get_sublesson_meta(sublesson_id, lesson_id=lesson_id)
+    $ _title = str(_meta.get("title", "1.4B Typing Lab")) if isinstance(_meta, dict) else "1.4B Typing Lab"
+    $ _rows = tl_keyboard_mock_rows()
+    $ _state = tl_typing_lite_state if isinstance(tl_typing_lite_state, dict) else {}
+    $ _current = str(_state.get("current_letter", "") or "").upper()
+    $ _index = int(_state.get("index", 0) or 0)
+    $ _total = len(list(_state.get("sequence", []) or []))
+    $ _errors = int(_state.get("errors", 0) or 0)
+    $ _done = bool(_state.get("done", False))
+    $ _error_active = float(renpy.get_time()) < float(_state.get("error_flash_until", 0.0) or 0.0)
+
+    default _letters = "abcdefghijklmnopqrstuvwxyzñ"
+
+    on "show" action Function(tl_typing_lite_prepare, 12)
+
+    for _k in _letters:
+        key _k action Function(tl_typing_lite_press_key, _k)
+    key "K_SPACE" action NullAction()
+    key "K_F11" action NullAction()
+    key "K_F5" action NullAction()
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#000000B8")
+
+    frame:
+        background Solid("#0D0D0DE8")
+        xalign 0.5
+        yalign 0.5
+        xsize 1180
+        ysize 640
+        padding (30, 24, 30, 24)
+
+        vbox:
+            spacing 18
+
+            text _title size 34 color "#F5F5F5" xalign 0.5
+
+            frame:
+                background Solid("#1E1E1EE6")
+                xfill True
+                ysize 108
+                padding (16, 10, 16, 10)
+                vbox:
+                    spacing 6
+                    text "Typing Lab · Letras" size 24 color "#D6D6D6" xalign 0.5
+                    text (_current if not _done else "✓") size 54 color "#F1F1F1" xalign 0.5
+                    text "Letra [min(_total, _index + 1)]/[_total] · Errores: [_errors]" size 18 color "#C9D8F8" xalign 0.5
+                    if _error_active:
+                        frame:
+                            background Solid("#D13535")
+                            xfill True
+                            ysize 4
+
+            frame:
+                background Solid("#151515EE")
+                xfill True
+                ysize 290
+                padding (14, 14, 14, 14)
+
+                vbox:
+                    spacing 8
+                    text "Teclado simulado" size 24 color "#D6D6D6"
+                    for _row in _rows:
+                        hbox:
+                            spacing 6
+                            xalign 0.5
+                            for _key in _row:
+                                $ _w = 380 if _key == "ESPACIO" else 56
+                                $ _key_col = "#3E5B96" if str(_key).lower() == str(_current).lower() else tl_key_color_for(_key)
+                                frame:
+                                    background Solid(_key_col)
+                                    xsize _w
+                                    ysize 44
+                                    text _key size 19 color "#F8F8F8" xalign 0.5 yalign 0.5
+
+            frame:
+                background Solid("#181818EE")
+                xfill True
+                ysize 170
+                padding (16, 10, 16, 0)
+
+                hbox:
+                    spacing 42
+                    xalign 0.5
+                    yalign 1.0
+
+                    vbox:
+                        spacing 6
+                        text "Mano izquierda" size 22 color "#D6D6D6" xalign 0.5
+                        hbox:
+                            spacing 8
+                            for _name, _height in [("Meñique", 96), ("Anular", 126), ("Medio", 136), ("Índice", 118), ("Pulgar", 78)]:
+                                vbox:
+                                    spacing 4
+                                    frame:
+                                        background Solid("#2A2A2A")
+                                        xsize 70
+                                        ysize 24
+                                        text _name size 15 color "#CFCFCF" xalign 0.5 yalign 0.5
+                                    fixed:
+                                        xsize 70
+                                        ysize 136
+                                        frame:
+                                            background Solid("#5B8BD8")
+                                            xsize 46
+                                            ysize _height
+                                            xalign 0.5
+                                            yalign 1.0
+
+                    vbox:
+                        spacing 6
+                        text "Mano derecha" size 22 color "#D6D6D6" xalign 0.5
+                        hbox:
+                            spacing 8
+                            for _name, _height in [("Pulgar", 78), ("Índice", 118), ("Medio", 136), ("Anular", 126), ("Meñique", 96)]:
+                                vbox:
+                                    spacing 4
+                                    frame:
+                                        background Solid("#2A2A2A")
+                                        xsize 70
+                                        ysize 24
+                                        text _name size 15 color "#CFCFCF" xalign 0.5 yalign 0.5
+                                    fixed:
+                                        xsize 70
+                                        ysize 136
+                                        frame:
+                                            background Solid("#5B8BD8")
+                                            xsize 46
+                                            ysize _height
+                                            xalign 0.5
+                                            yalign 1.0
+
+            hbox:
+                xfill True
+                text ("Teclea la letra mostrada. Sin tiempo ni puntaje." if not _done else "¡Completado! Puedes continuar.") size 18 color "#D9D9D9"
+                textbutton "Cancelar":
+                    xalign 0.92
+                    action Return("back_class")
+                textbutton "Continuar":
+                    xalign 1.0
+                    action Return("complete")
+                    sensitive _done

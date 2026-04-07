@@ -426,6 +426,24 @@ init -125 python:
                         },
                     ],
                 },
+                "1_4b_typing_lab": {
+                    "id": "1_4b_typing_lab",
+                    "title": "1.4B Typing Lab",
+                    "state": "real",
+                    "scene_type": "typing_lab_letters_lite",
+                    "objective": "Practicar letras individuales con feedback inmediato.",
+                    "steps": [
+                        {
+                            "title": "Typing Lab Lite",
+                            "points": [
+                                "Escribe la letra mostrada en pantalla.",
+                                "Si aciertas, aparece la siguiente letra.",
+                                "Si fallas, se muestra una rayita roja de error.",
+                            ],
+                            "teacher_line": "Precisión primero: ritmo después.",
+                        },
+                    ],
+                },
                 "1_6_words_exercise": {
                     "id": "1_6_words_exercise",
                     "title": "1.6 Ejercicio palabras",
@@ -490,6 +508,7 @@ init -125 python:
             "1_2_home_row",
             "1_3_results",
             "1_4_keys_exercise",
+            "1_4b_typing_lab",
             "1_5_exam_help",
             "1_6_words_exercise",
             "1_7_phrases_exercise",
