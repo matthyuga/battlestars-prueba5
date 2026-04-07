@@ -300,21 +300,6 @@ screen navigation():
         spacing gui.navigation_spacing
 
         if main_menu:
-            $ _bs_saga_ui = bool(getattr(store, "bs_saga_main_menu_enabled", True))
-
-            if _bs_saga_ui:
-                textbutton _("Duelo libre") action Start("bs_saga_duelo_libre")
-                textbutton _("Torneo Tier C") action Start("bs_saga_torneo_tier_c")
-                textbutton _("Torneo Tier B (no disponible)") action Start("bs_saga_torneo_tier_b_locked")
-                textbutton _("Torneo Tier A (no disponible)") action Start("bs_saga_torneo_tier_a_locked")
-                textbutton _("Torre del cielo (no disponible)") action Start("bs_saga_torre_cielo_locked")
-                textbutton _("Preparación") action Start("bs_saga_preparacion")
-                textbutton _("Héroes") action Start("bs_saga_heroes")
-                textbutton _("Tienda") action Start("bs_saga_tienda")
-                textbutton _("Catálogo de itens") action Start("bs_saga_catalogo_items")
-                textbutton _("Hub Battlestars Saga") action Start("bs_saga_hub")
-                null height 8
-
             $ _quick_pid = str(getattr(store, "spa_editor_profile_id", "A") or "A")
             $ _load_and_start_action = [Start()]
             if hasattr(store, "spa_ui_load_profile_feedback"):
@@ -327,8 +312,9 @@ screen navigation():
             textbutton _("Load & Start [[{}]]").format(_quick_pid) action _load_and_start_action
             textbutton _("Start 1v1 random [[{}]]").format(_quick_pid) action _quick_1v1_action
 
-            textbutton _("Start") action Start()
+            textbutton _("New Game") action Start("bs_saga_intro_splash")
             textbutton _("Start Historia (Piloto)") action Start("story_phaseA_intro")
+            textbutton _("Lab (Piloto Historia)") action Start("story_phaseA_intro")
             if config.developer:
                 textbutton _("Sim Lab Sandbox (Dev)") action Start("sim_lab_open")
 
