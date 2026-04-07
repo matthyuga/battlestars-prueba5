@@ -119,21 +119,52 @@ init -125 python:
                     "steps": [
                         {
                             "title": "Fila central: punto de control",
-                            "points": [
-                                "Ubica dedos en A-S-D-F y J-K-L-Ñ.",
-                                "Relaja manos y evita rigidez.",
-                                "Vuelve siempre al punto base tras cada pulsación.",
+                            "points_haru": [
+                                "Coloca tus dedos en A-S-D-F y J-K-L-Ñ antes de iniciar cada serie.",
+                                "Mantén hombros sueltos y muñecas sin tensión para conservar precisión.",
+                                "Tras cada pulsación, vuelve a la fila central para no perder referencia.",
                             ],
-                            "teacher_line": "Si dominas la fila central, todo el teclado se vuelve más predecible.",
+                            "points_misaki": [
+                                "Empieza siempre desde A-S-D-F y J-K-L-Ñ para que las manos tengan una base clara.",
+                                "Respira y relaja brazos y muñecas: escribir cómodo ayuda a acertar más.",
+                                "Después de cada tecla, regresa al centro; ese hábito evita que te desordenen los dedos.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "La fila central es tu ancla. Si vuelves siempre ahí, vas a cometer menos errores.",
+                                "misaki": "Piensa en la fila central como tu casa: cada dedo sale y vuelve con calma.",
+                            },
                         },
                         {
                             "title": "Memoria muscular inicial",
-                            "points": [
-                                "Repite secuencias cortas sin mirar.",
-                                "Mantén ritmo estable, no velocidad máxima.",
-                                "Corrige postura antes de corregir tiempo.",
+                            "points_haru": [
+                                "Practica secuencias breves sin mirar el teclado para activar memoria táctil.",
+                                "Sostén un ritmo parejo: primero control, después velocidad.",
+                                "Si aparece tensión, corrige postura antes de seguir repitiendo.",
                             ],
-                            "teacher_line": "La consistencia vale más que un intento rápido e inestable.",
+                            "points_misaki": [
+                                "Haz repeticiones cortas y tranquilas, enfocándote en sentir el recorrido de cada dedo.",
+                                "No busques correr: un ritmo estable enseña más que una ráfaga con errores.",
+                                "Cuando notes rigidez, suelta manos y retoma con técnica limpia.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "Tu objetivo aquí es consistencia. Si cada intento se parece al anterior, estás avanzando.",
+                                "misaki": "Vas muy bien si mantienes un ritmo parejo. La velocidad llega sola después.",
+                            },
+                        },
+                        {
+                            "title": "Siguiente paso: ejercicio guiado",
+                            "points_haru": [
+                                "Con la base lista, en el siguiente tramo pasarás a un ejercicio aplicado (placeholder).",
+                                "Mantén la misma técnica: regreso a fila central y control del movimiento.",
+                            ],
+                            "points_misaki": [
+                                "Ahora iremos al ejercicio aplicado (placeholder) para practicar esta base en contexto.",
+                                "Llévate la misma idea: calma, precisión y vuelta al centro en cada tecla.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "Perfecto. Cerramos teoría y pasamos al ejercicio placeholder.",
+                                "misaki": "Genial. Ya tienes la base, continuemos con el ejercicio placeholder.",
+                            },
                         },
                     ],
                 },
