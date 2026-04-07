@@ -4,6 +4,8 @@
 # ===========================================================
 
 init python:
+    import time
+
     def tl_keyboard_mock_rows():
         return [
             ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
@@ -76,7 +78,7 @@ init python:
                 st["completed"] = True
         else:
             st["mistakes"] = int(st.get("mistakes", 0) or 0) + 1
-            st["error_flash_until"] = float(renpy.get_time()) + 0.25
+            st["error_flash_until"] = float(time.time()) + 0.25
 
         store.tl_typing_mock_state = st
         return True
@@ -123,7 +125,7 @@ init python:
             st["done"] = (idx >= len(seq))
         else:
             st["errors"] = int(st.get("errors", 0) or 0) + 1
-            st["error_flash_until"] = float(renpy.get_time()) + 0.22
+            st["error_flash_until"] = float(time.time()) + 0.22
 
         store.tl_typing_lite_state = st
         return True
@@ -266,7 +268,7 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
     $ _hits = int(_state.get("hits", 0) or 0)
     $ _mistakes = int(_state.get("mistakes", 0) or 0)
     $ _completed = bool(_state.get("completed", False))
-    $ _now = float(renpy.get_time())
+    $ _now = float(time.time())
     $ _error_active = _now < float(_state.get("error_flash_until", 0.0) or 0.0)
 
     on "show" action Function(tl_typing_mock_reset, _target_letters)
@@ -442,7 +444,7 @@ screen tl_typing_lab_letters_lite_scene(sublesson_id="1_4b_typing_lab", lesson_i
     $ _total = len(list(_state.get("sequence", []) or []))
     $ _errors = int(_state.get("errors", 0) or 0)
     $ _done = bool(_state.get("done", False))
-    $ _error_active = float(renpy.get_time()) < float(_state.get("error_flash_until", 0.0) or 0.0)
+    $ _error_active = float(time.time()) < float(_state.get("error_flash_until", 0.0) or 0.0)
 
     default _letters = "abcdefghijklmnopqrstuvwxyzñ"
 
