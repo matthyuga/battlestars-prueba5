@@ -112,58 +112,141 @@ init -125 python:
                 },
                 "1_2_home_row": {
                     "id": "1_2_home_row",
-                    "title": "1.2 Fila central",
+                    "title": "Lección 2 — Fila central",
                     "state": "real",
                     "scene_type": "lesson_dialogue",
-                    "objective": "Dominar posición base y retorno a fila central.",
+                    "objective": "Aprender posición base de manos en fila central y cierre previo al ejercicio.",
                     "steps": [
                         {
-                            "title": "Fila central: punto de control",
+                            "title": "Presentación de la lección",
                             "points_haru": [
-                                "Coloca tus dedos en A-S-D-F y J-K-L-Ñ antes de iniciar cada serie.",
-                                "Mantén hombros sueltos y muñecas sin tensión para conservar precisión.",
-                                "Tras cada pulsación, vuelve a la fila central para no perder referencia.",
+                                "En esta lección aprenderás la fila central.",
+                                "Aquí comenzaremos con la posición base de las manos.",
+                                "Esta fila será tu referencia para escribir con orden y precisión.",
                             ],
                             "points_misaki": [
-                                "Empieza siempre desde A-S-D-F y J-K-L-Ñ para que las manos tengan una base clara.",
-                                "Respira y relaja brazos y muñecas: escribir cómodo ayuda a acertar más.",
-                                "Después de cada tecla, regresa al centro; ese hábito evita que te desordenen los dedos.",
+                                "En esta lección aprenderás la fila central.",
+                                "Esta es la posición de partida para escribir con todos los dedos.",
+                                "Con práctica, se volverá una referencia natural para tus manos.",
                             ],
                             "teacher_lines": {
-                                "haru": "La fila central es tu ancla. Si vuelves siempre ahí, vas a cometer menos errores.",
-                                "misaki": "Piensa en la fila central como tu casa: cada dedo sale y vuelve con calma.",
+                                "haru": "Vamos a fijar bien esta base. Si la fila central queda clara, el resto del teclado se entiende mucho mejor.",
+                                "misaki": "Empezaremos por la base, con calma. Cuando la fila central se vuelve familiar, escribir resulta mucho más cómodo.",
                             },
                         },
                         {
-                            "title": "Memoria muscular inicial",
+                            "title": "Mano izquierda sobre la fila central",
                             "points_haru": [
-                                "Practica secuencias breves sin mirar el teclado para activar memoria táctil.",
-                                "Sostén un ritmo parejo: primero control, después velocidad.",
-                                "Si aparece tensión, corrige postura antes de seguir repitiendo.",
+                                "Comenzando con el meñique, sitúa los dedos de tu mano izquierda sobre el teclado.",
+                                "Coloca los dedos en A, S, D y F.",
+                                "Cada dedo debe descansar en su tecla correspondiente.",
                             ],
                             "points_misaki": [
-                                "Haz repeticiones cortas y tranquilas, enfocándote en sentir el recorrido de cada dedo.",
-                                "No busques correr: un ritmo estable enseña más que una ráfaga con errores.",
-                                "Cuando notes rigidez, suelta manos y retoma con técnica limpia.",
+                                "Comenzando con el meñique, sitúa los dedos de tu mano izquierda sobre el teclado.",
+                                "Apoya los dedos en A, S, D y F.",
+                                "Procura colocarlos con suavidad, sin tensión.",
                             ],
                             "teacher_lines": {
-                                "haru": "Tu objetivo aquí es consistencia. Si cada intento se parece al anterior, estás avanzando.",
-                                "misaki": "Vas muy bien si mantienes un ritmo parejo. La velocidad llega sola después.",
+                                "haru": "No hace falta apurarse. Primero ubica bien cada dedo y deja la mano estable sobre la fila central.",
+                                "misaki": "Solo acomoda la mano izquierda y tómate un momento para reconocer la posición. Lo importante ahora es ubicarse bien.",
                             },
                         },
                         {
-                            "title": "Siguiente paso: ejercicio guiado",
+                            "title": "Mano derecha sobre la fila central",
                             "points_haru": [
-                                "Con la base lista, en el siguiente tramo pasarás a un ejercicio aplicado (placeholder).",
-                                "Mantén la misma técnica: regreso a fila central y control del movimiento.",
+                                "Comenzando con el índice, sitúa los dedos de tu mano derecha sobre el teclado.",
+                                "Coloca los dedos en J, K, L y Ñ.",
+                                "Mantén la mano relajada y alineada con la fila central.",
                             ],
                             "points_misaki": [
-                                "Ahora iremos al ejercicio aplicado (placeholder) para practicar esta base en contexto.",
-                                "Llévate la misma idea: calma, precisión y vuelta al centro en cada tecla.",
+                                "Comenzando con el índice, sitúa los dedos de tu mano derecha sobre el teclado.",
+                                "Apoya los dedos en J, K, L y Ñ.",
+                                "Intenta que la mano quede cómoda y sin rigidez.",
                             ],
                             "teacher_lines": {
-                                "haru": "Perfecto. Cerramos teoría y pasamos al ejercicio placeholder.",
-                                "misaki": "Genial. Ya tienes la base, continuemos con el ejercicio placeholder.",
+                                "haru": "Ahora completa la posición base con la mano derecha. Ambas manos deben quedar listas para volver siempre a esta fila.",
+                                "misaki": "Muy bien. Cuando las dos manos encuentran su lugar, el teclado empieza a sentirse mucho más claro.",
+                            },
+                        },
+                        {
+                            "title": "Pulgares en la barra espaciadora",
+                            "points_haru": [
+                                "Deja tus pulgares descansar sobre la tecla Espacio.",
+                                "Los pulgares deben quedar preparados para pulsarla sin mover el resto de la posición base.",
+                            ],
+                            "points_misaki": [
+                                "Deja tus pulgares descansar sobre la tecla Espacio.",
+                                "Apóyalos de forma natural, sin presionar más de lo necesario.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "La barra espaciadora también forma parte de la postura correcta. Deja los pulgares listos desde el principio.",
+                                "misaki": "Deja los pulgares sobre Espacio con suavidad. Esa pequeña costumbre también ayuda a que la posición se vuelva estable.",
+                            },
+                        },
+                        {
+                            "title": "Posición de partida completa",
+                            "points_haru": [
+                                "Así quedan tus manos en la posición de partida.",
+                                "La fila central será tu punto de referencia.",
+                                "Después de pulsar una tecla, los dedos deben regresar aquí.",
+                            ],
+                            "points_misaki": [
+                                "Así quedan tus manos en la posición de partida.",
+                                "Esta será tu base para comenzar a escribir.",
+                                "Con el tiempo, tus manos volverán aquí casi sin pensarlo.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "Esta es la posición que debes recordar. Cada movimiento parte de aquí y aquí debe terminar.",
+                                "misaki": "Quédate un instante con esta imagen en mente. Esta posición será tu apoyo durante toda la práctica.",
+                            },
+                        },
+                        {
+                            "title": "Primer ejemplo: pulsar una letra",
+                            "points_haru": [
+                                "Ahora pulsa A con el meñique izquierdo.",
+                                "Haz un movimiento corto y vuelve después a la posición base.",
+                                "No levantes la mano más de lo necesario.",
+                            ],
+                            "points_misaki": [
+                                "Ahora pulsa A con el meñique izquierdo.",
+                                "Hazlo con un movimiento simple y vuelve luego a la posición inicial.",
+                                "No necesitas fuerza, solo precisión.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "Pulsa y regresa. Ese detalle es importante: tocar la tecla y volver al punto de partida.",
+                                "misaki": "Prueba despacio. Lo importante es que el dedo encuentre la tecla y luego vuelva a su lugar.",
+                            },
+                        },
+                        {
+                            "title": "Uso del pulgar para espacio",
+                            "points_haru": [
+                                "Utiliza siempre el mismo pulgar para pulsar Espacio.",
+                                "Mantener esa costumbre ayuda a dar continuidad al movimiento y evita confusiones innecesarias.",
+                            ],
+                            "points_misaki": [
+                                "Utiliza siempre el mismo pulgar para pulsar Espacio.",
+                                "Repetir el mismo gesto ayuda a que la mano se acostumbre y mantenga el orden.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "La regularidad también se practica. Si eliges un mismo pulgar para Espacio, el movimiento se vuelve más consistente.",
+                                "misaki": "Ese pequeño hábito te va a ayudar más de lo que parece. Cuando repites el mismo movimiento, todo se vuelve más natural.",
+                            },
+                        },
+                        {
+                            "title": "Cierre antes del ejercicio",
+                            "points_haru": [
+                                "Muy bien. Ya puedes comenzar el primer ejercicio.",
+                                "En esta práctica trabajarás la posición de la fila central y el movimiento básico de los dedos.",
+                                "Concéntrate en acertar y mantener la postura.",
+                            ],
+                            "points_misaki": [
+                                "Muy bien. Ya puedes comenzar el primer ejercicio.",
+                                "En esta práctica empezarás a reconocer la fila central y a mover los dedos con más seguridad.",
+                                "Ve paso a paso y mantén la calma.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "Ahora toca practicar. Hazlo con atención y deja que la repetición empiece a fijar el recorrido de tus dedos.",
+                                "misaki": "Ya estás listo para empezar. No hace falta correr; con práctica tranquila irás notando el avance.",
                             },
                         },
                     ],
