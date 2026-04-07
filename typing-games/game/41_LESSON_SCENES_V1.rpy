@@ -29,6 +29,15 @@ init python:
         return palette.get(key, "#767676")
 
 
+    def tl_keyboard_mock_blocked_keys():
+        return [
+            "K_a", "K_s", "K_d", "K_f", "K_g", "K_h", "K_j", "K_k", "K_l",
+            "K_q", "K_w", "K_e", "K_r", "K_t", "K_y", "K_u", "K_i", "K_o", "K_p",
+            "K_z", "K_x", "K_c", "K_v", "K_b", "K_n", "K_m", "K_SPACE",
+            "alt_K_RETURN", "K_F11", "shift_K_r", "shift_K_o",
+        ]
+
+
 screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
     tag menu
     modal True
@@ -148,6 +157,10 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
     $ _title = str(_meta.get("title", "Ejercicio teclas")) if isinstance(_meta, dict) else "Ejercicio teclas"
     $ _rows = tl_keyboard_mock_rows()
     $ _target_letters = ["F", "J", "F", "J", "ESPACIO"]
+    $ _blocked_keys = tl_keyboard_mock_blocked_keys()
+
+    for _shortcut in _blocked_keys:
+        key _shortcut action NullAction()
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
@@ -215,12 +228,13 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
             frame:
                 background Solid("#181818EE")
                 xfill True
-                ysize 170
-                padding (16, 12, 16, 12)
+                ysize 190
+                padding (16, 10, 16, 0)
 
                 hbox:
                     spacing 42
                     xalign 0.5
+                    yalign 1.0
 
                     vbox:
                         spacing 6
@@ -236,11 +250,20 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
                             ]:
                                 vbox:
                                     spacing 4
-                                    text _name size 16 color "#CFCFCF" xalign 0.5
                                     frame:
-                                        background Solid("#5B8BD8")
-                                        xsize 46
-                                        ysize _height
+                                        background Solid("#2A2A2A")
+                                        xsize 70
+                                        ysize 24
+                                        text _name size 15 color "#CFCFCF" xalign 0.5 yalign 0.5
+                                    fixed:
+                                        xsize 70
+                                        ysize 140
+                                        frame:
+                                            background Solid("#5B8BD8")
+                                            xsize 46
+                                            ysize _height
+                                            xalign 0.5
+                                            yalign 1.0
 
                     vbox:
                         spacing 6
@@ -256,15 +279,24 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
                             ]:
                                 vbox:
                                     spacing 4
-                                    text _name size 16 color "#CFCFCF" xalign 0.5
                                     frame:
-                                        background Solid("#5B8BD8")
-                                        xsize 46
-                                        ysize _height
+                                        background Solid("#2A2A2A")
+                                        xsize 70
+                                        ysize 24
+                                        text _name size 15 color "#CFCFCF" xalign 0.5 yalign 0.5
+                                    fixed:
+                                        xsize 70
+                                        ysize 140
+                                        frame:
+                                            background Solid("#5B8BD8")
+                                            xsize 46
+                                            ysize _height
+                                            xalign 0.5
+                                            yalign 1.0
 
             hbox:
                 xfill True
-                text "Tip: F y J en violeta como referencia de la fila central." size 18 color "#D9D9D9"
+                text "Tip: en esta pantalla se bloquean atajos comunes para liberar teclas del ejercicio." size 18 color "#D9D9D9"
                 textbutton "Volver a lecciones":
                     xalign 1.0
                     action Return("complete")
