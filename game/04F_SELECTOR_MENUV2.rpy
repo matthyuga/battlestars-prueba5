@@ -13,6 +13,7 @@
 # ============================================================
 
 default selector_compact = False
+default bs_saga_text_tech_ui = True
 
 # ------------------------------------------------------------
 # UTIL
@@ -349,6 +350,29 @@ init python:
 
         return txt
 
+    def tech_chip_caption(tech_key, mode):
+        """
+        Texto corto para botones tipo tarjeta (sin iconos pesados).
+        """
+        name = TECH_LABEL.get(tech_key, str(tech_key or ""))
+        try:
+            ok, _, _ = tech_cost_check(tech_key)
+        except:
+            ok = False
+
+        if tech_key in _SPECIAL_ZERO_COST_KEYS:
+            if tech_key == "rest_recovery":
+                return "{} · Acción".format(name)
+            return "{} · Gratis".format(name)
+
+        try:
+            rei, ene, _ = get_real_cost(name)
+        except:
+            rei, ene = 0, 0
+
+        status = "OK" if ok else "Sin recursos"
+        return "{} · R{} E{} · {}".format(name, int(rei or 0), int(ene or 0), status)
+
 
     # ============================================================
     # Wrapper para añadir técnica correctamente
@@ -455,26 +479,22 @@ screen battle_command_menu():
                     for tech_key in current:
 
                         $ label = TECH_LABEL[tech_key]
-                        $ icon  = TECH_ICON[tech_key]
-
                         $ tip   = tech_preview(tech_key, battle_mode)
                         $ ok, fr, fe = tech_cost_check(tech_key)
                         $ locked = bool(_only_defense)
                         $ can_use = bool(ok and not locked)
                         $ tooltip_text = tip + "\n\nTurno ofensivo cancelado: solo Defensa." if locked else tip
+                        $ _chip_text = tech_chip_caption(tech_key, battle_mode)
 
-                        if can_use:
-                            imagebutton:
-                                idle icon
-                                hover icon
-                                action Function(add_technique_safe, label, tech_key)
-                                tooltip tooltip_text
-                        else:
-                            imagebutton:
-                                idle Transform(icon, alpha=0.40)
-                                hover Transform(icon, alpha=0.40)
-                                action NullAction()
-                                tooltip tooltip_text
+                        textbutton _chip_text:
+                            xminimum 410
+                            yminimum 46
+                            text_size 14
+                            text_color ("#EAF4FF" if can_use else "#999999")
+                            background ("#223349CC" if can_use else "#1A1A1A99")
+                            hover_background ("#2F4E70DD" if can_use else "#1A1A1A99")
+                            action (Function(add_technique_safe, label, tech_key) if can_use else NullAction())
+                            tooltip tooltip_text
 
 
     # ============================================================
@@ -513,26 +533,21 @@ screen battle_command_menu():
                                     vbox spacing 6 at tech_btn_scale:
                                         for tech_key in OFF:
                                             $ label = TECH_LABEL[tech_key]
-                                            $ icon  = TECH_ICON[tech_key]
-
                                             $ tip   = tech_preview(tech_key, "offensive")
                                             $ ok, fr, fe = tech_cost_check(tech_key)
                                             $ locked = bool(_only_defense) or (battle_mode != "offensive")
                                             $ can_use = bool(ok and not locked)
                                             $ tooltip_text = tip + "\n\nTurno actual: usa ofensivas para seleccionar." if (battle_mode != "offensive") else (tip + "\n\nTurno ofensivo cancelado: solo Defensa." if _only_defense else tip)
-
-                                            if can_use:
-                                                imagebutton:
-                                                    idle icon
-                                                    hover Transform(icon, zoom=1.03)
-                                                    action Function(add_technique_safe, label, tech_key)
-                                                    tooltip tooltip_text
-                                            else:
-                                                imagebutton:
-                                                    idle Transform(icon, alpha=0.40)
-                                                    hover Transform(icon, alpha=0.40)
-                                                    action NullAction()
-                                                    tooltip tooltip_text
+                                            $ _chip_text = tech_chip_caption(tech_key, "offensive")
+                                            textbutton _chip_text:
+                                                xminimum 430
+                                                yminimum 42
+                                                text_size 13
+                                                text_color ("#DFF2FF" if can_use else "#8F8F8F")
+                                                background ("#173752CC" if can_use else "#1B1B1B99")
+                                                hover_background ("#24587DDD" if can_use else "#1B1B1B99")
+                                                action (Function(add_technique_safe, label, tech_key) if can_use else NullAction())
+                                                tooltip tooltip_text
 
                     if _show_def_col:
                         frame:
@@ -554,23 +569,18 @@ screen battle_command_menu():
                                     vbox spacing 6 at tech_btn_scale:
                                         for tech_key in DEF:
                                             $ label = TECH_LABEL[tech_key]
-                                            $ icon  = TECH_ICON[tech_key]
-
                                             $ tip   = tech_preview(tech_key, "defensive")
                                             $ ok, fr, fe = tech_cost_check(tech_key)
                                             $ locked = bool(battle_mode != "defensive")
                                             $ can_use = bool(ok and not locked)
                                             $ tooltip_text = tip + "\n\nTurno actual: usa defensivas para seleccionar." if locked else tip
-
-                                            if can_use:
-                                                imagebutton:
-                                                    idle icon
-                                                    hover Transform(icon, zoom=1.03)
-                                                    action Function(add_technique_safe, label, tech_key)
-                                                    tooltip tooltip_text
-                                            else:
-                                                imagebutton:
-                                                    idle Transform(icon, alpha=0.40)
-                                                    hover Transform(icon, alpha=0.40)
-                                                    action NullAction()
-                                                    tooltip tooltip_text
+                                            $ _chip_text = tech_chip_caption(tech_key, "defensive")
+                                            textbutton _chip_text:
+                                                xminimum 430
+                                                yminimum 42
+                                                text_size 13
+                                                text_color ("#FFEAEA" if can_use else "#8F8F8F")
+                                                background ("#4A2525CC" if can_use else "#1B1B1B99")
+                                                hover_background ("#6E3232DD" if can_use else "#1B1B1B99")
+                                                action (Function(add_technique_safe, label, tech_key) if can_use else NullAction())
+                                                tooltip tooltip_text

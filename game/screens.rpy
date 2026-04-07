@@ -300,6 +300,20 @@ screen navigation():
         spacing gui.navigation_spacing
 
         if main_menu:
+            $ _bs_saga_ui = bool(getattr(store, "bs_saga_main_menu_enabled", True))
+
+            if _bs_saga_ui:
+                textbutton _("Duelo libre") action Start("bs_saga_duelo_libre")
+                textbutton _("Torneo Tier C") action Start("bs_saga_torneo_tier_c")
+                textbutton _("Torneo Tier B (no disponible)") action Start("bs_saga_torneo_tier_b_locked")
+                textbutton _("Torneo Tier A (no disponible)") action Start("bs_saga_torneo_tier_a_locked")
+                textbutton _("Torre del cielo (no disponible)") action Start("bs_saga_torre_cielo_locked")
+                textbutton _("Preparación") action Start("bs_saga_preparacion")
+                textbutton _("Héroes") action Start("bs_saga_heroes")
+                textbutton _("Tienda") action Start("bs_saga_tienda")
+                textbutton _("Catálogo de itens") action Start("bs_saga_catalogo_items")
+                textbutton _("Hub Battlestars Saga") action Start("bs_saga_hub")
+                null height 8
 
             $ _quick_pid = str(getattr(store, "spa_editor_profile_id", "A") or "A")
             $ _load_and_start_action = [Start()]
