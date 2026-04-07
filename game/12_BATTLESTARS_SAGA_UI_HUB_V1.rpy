@@ -127,9 +127,16 @@ screen bs_saga_section_shell(title="Sección", subtitle="Panel", back_action=Nul
     frame:
         xalign 0.5
         yalign 0.08
-        xsize 1120
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
         ypadding 10
-        background Solid("#1A2938")
+        background Solid("#2C4963")
         hbox:
             spacing 16
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
@@ -139,9 +146,9 @@ screen bs_saga_section_shell(title="Sección", subtitle="Panel", back_action=Nul
 
     frame:
         xalign 0.5
-        yalign 0.50
+        yalign 0.56
         xsize 1120
-        ysize 540
+        ysize 500
         padding (22, 22)
         background Solid("#152437")
         vbox:
@@ -156,15 +163,23 @@ screen bs_saga_heroes_screen():
     $ _frs = bs_saga_franchises_for_tier(_tier)
     $ _heroes = bs_saga_heroes_filtered(_tier, bs_saga_heroes_franchise)
     $ _ff = str(bs_saga_heroes_franchise or "all").lower()
+    $ _filter_label = _ff if _ff != "all" else "todas"
 
     add Solid("#0E1A28")
 
     frame:
         xalign 0.5
         yalign 0.08
-        xsize 1120
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
         ypadding 10
-        background Solid("#1A2938")
+        background Solid("#2C4963")
         hbox:
             spacing 16
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
@@ -174,9 +189,9 @@ screen bs_saga_heroes_screen():
 
     frame:
         xalign 0.5
-        yalign 0.50
+        yalign 0.56
         xsize 1120
-        ysize 540
+        ysize 500
         padding (18, 18)
         background Solid("#14273B")
 
@@ -215,7 +230,7 @@ screen bs_saga_heroes_screen():
                         text "Tiers" size 20 color "#DCEEFF"
                         textbutton "Tier C" action [SetVariable("bs_saga_heroes_tier", "C"), SetVariable("bs_saga_heroes_franchise", "all")]
                         textbutton "Tier B" action [SetVariable("bs_saga_heroes_tier", "B"), SetVariable("bs_saga_heroes_franchise", "all")]
-                        text "Filtro: [(_ff if _ff != 'all' else 'todas') ]" size 16 color "#9FC4E2"
+                        text "Filtro: [_filter_label]" size 16 color "#9FC4E2"
 
                     hbox:
                         spacing 20
