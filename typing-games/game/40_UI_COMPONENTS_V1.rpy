@@ -10,22 +10,32 @@ screen tl_ui_panel_center(title="", points=None):
         xalign 0.5
         yalign 0.34
         xsize 980
-        ysize 300
+        ysize 360
         background Solid("#151019EE")
 
         vbox:
             spacing 12
             xalign 0.5
-            yalign 0.10
+            yalign 0.06
 
             text "[title]" size 44 color "#FFD7F1" xalign 0.5
 
-            if len(_points) > 0:
-                text "• [_points[0]]" size 30 xalign 0.5
-            if len(_points) > 1:
-                text "• [_points[1]]" size 30 xalign 0.5
-            if len(_points) > 2:
-                text "• [_points[2]]" size 30 xalign 0.5
+            frame:
+                xsize 900
+                ysize 245
+                padding (12, 10)
+                background Solid("#221A2CEB")
+
+                viewport:
+                    draggable True
+                    mousewheel True
+                    xmaximum 874
+                    ymaximum 220
+
+                    vbox:
+                        spacing 8
+                        for _line in _points:
+                            text "• [_line]" size 24
 
 
 screen tl_ui_teacher_panel(

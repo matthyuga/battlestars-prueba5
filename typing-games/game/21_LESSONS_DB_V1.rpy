@@ -19,49 +19,94 @@ init -125 python:
                     "objective": "Introducir postura, precisión y ritmo base.",
                     "steps": [
                         {
-                            "title": "Introducción a la escritura al tacto",
-                            "points": [
-                                "Escribir sin mirar el teclado.",
-                                "Construir memoria muscular paso a paso.",
-                                "Priorizar precisión antes que velocidad.",
+                            "title": "¿Qué es la mecanografía?",
+                            "points_haru": [
+                                "La mecanografía es la técnica de escribir usando todos los dedos y sin depender de mirar cada tecla.",
+                                "Escribir mirando letra por letra corta el ritmo y vuelve más lento el movimiento.",
+                                "Con posiciones fijas y recorridos concretos, escribir se vuelve más seguro y con menos esfuerzo.",
+                                "Beneficios: mayor precisión, menos dependencia de mirar el teclado, mejor postura y más fluidez.",
                             ],
-                            "teacher_line": "Comenzamos con base sólida: postura, ritmo y control.",
+                            "points_misaki": [
+                                "La mecanografía es una forma de escribir usando todos los dedos sin buscar cada tecla con la vista.",
+                                "Mirar el teclado a cada momento es normal al inicio, pero corta el ritmo y aumenta el esfuerzo.",
+                                "Con práctica, las manos reconocen el teclado poco a poco y aparece una sensación más natural.",
+                                "Beneficios: más precisión, menos dependencia visual y mayor comodidad para estudiar o trabajar.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "Vamos a empezar por la base. Si tus manos entienden el teclado, escribir se vuelve mucho más estable.",
+                                "misaki": "Iremos despacio. Cuando entiendas la base, escribir empezará a sentirse mucho más natural.",
+                            },
                         },
                         {
-                            "title": "Postura inicial",
-                            "points": [
-                                "Espalda recta y hombros relajados.",
-                                "Dedos base en A S D F y J K L Ñ.",
-                                "Pulgares preparados para la barra espaciadora.",
+                            "title": "Posición inicial de los dedos",
+                            "points_haru": [
+                                "La fila central es el punto de partida: mano izquierda A S D F, mano derecha J K L Ñ, pulgares en barra espaciadora.",
+                                "Cada dedo atiende un grupo cercano de teclas; al principio se piensa, luego se vuelve natural.",
+                                "Repetir bien la base hace que las manos reconozcan el teclado por costumbre.",
                             ],
-                            "teacher_line": "Una buena postura evita fatiga y mejora tu estabilidad al teclear.",
+                            "points_misaki": [
+                                "La fila central es donde descansan los dedos al comenzar: A S D F / J K L Ñ / pulgares en espacio.",
+                                "Cada dedo tiene un grupo pequeño de teclas y la práctica vuelve familiar ese recorrido.",
+                                "No es solo un ejercicio del momento: es una habilidad que te acompaña siempre.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "No intentes memorizar todo de golpe. Primero ubica la fila central y deja que la repetición haga su trabajo.",
+                                "misaki": "No te preocupes si al inicio parece mucho. En cuanto repitas unas cuantas veces, la posición se vuelve más familiar.",
+                            },
                         },
                         {
-                            "title": "Técnica de práctica",
-                            "points": [
-                                "Pulsa suave y vuelve al punto base.",
-                                "Mantén respiración y ritmo constante.",
-                                "No aceleres hasta dominar los movimientos.",
+                            "title": "Teclas guía y ejemplo de movimiento",
+                            "points_haru": [
+                                "Las teclas F y J tienen relieve: son referencias táctiles para volver a la fila central sin mirar.",
+                                "Ejemplo: H con índice derecho y R con índice izquierdo.",
+                                "Después de cada pulsación, el dedo regresa a su posición inicial.",
                             ],
-                            "teacher_line": "Si mantienes ritmo, cada repetición te hará más preciso.",
+                            "points_misaki": [
+                                "F y J tienen un pequeño relieve que ayuda a encontrar la fila central por tacto.",
+                                "Ejemplo: M con índice derecho y S con anular izquierdo.",
+                                "Después de pulsar, el dedo vuelve a su posición base.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "Busca siempre la referencia en F y J. Desde ahí, el movimiento sale con más orden y menos duda.",
+                                "misaki": "Si encuentras F y J con el tacto, te será mucho más fácil acomodarte sin perderte.",
+                            },
                         },
                         {
-                            "title": "Errores comunes",
-                            "points": [
-                                "Mirar el teclado en cada pulsación.",
-                                "Tensionar manos, brazos u hombros.",
-                                "Golpear teclas con fuerza innecesaria.",
+                            "title": "Ayudas para aprender mejor",
+                            "points_haru": [
+                                "Mantén los ojos en la pantalla y evita apoyar el peso en las muñecas.",
+                                "Da prioridad al acierto antes que a la rapidez.",
+                                "Practica con ritmo cómodo y constante.",
+                                "La memoria de los dedos se construye con repetición correcta y calma.",
                             ],
-                            "teacher_line": "Los errores son parte del proceso; lo importante es corregir con calma.",
+                            "points_misaki": [
+                                "Mira la pantalla siempre que puedas y mantén muñecas levantadas y relajadas.",
+                                "Concéntrate en acertar y practica con ritmo tranquilo y parejo.",
+                                "Con el tiempo, las manos empiezan a recorrer palabras casi por costumbre.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "Cuando el movimiento se repite bien, deja de sentirse forzado. Ahí es cuando empieza a volverse automático.",
+                                "misaki": "Tus manos también aprenden. Al principio lo notarás poco, pero después cada movimiento sale con más confianza.",
+                            },
                         },
                         {
-                            "title": "Listo para empezar",
-                            "points": [
-                                "Objetivo inmediato: constancia y exactitud.",
-                                "Haz pausas breves durante la práctica.",
-                                "Al final revisaremos avance y hábitos.",
+                            "title": "Últimas ayudas antes de comenzar",
+                            "points_haru": [
+                                "Mantén postura relajada y haz pausas breves entre ejercicios.",
+                                "Si notas tensión en manos u hombros, detente un momento.",
+                                "Descansar también forma parte del aprendizaje.",
+                                "Éxitos en tu aprendizaje: paso a paso notarás el avance.",
                             ],
-                            "teacher_line": "Excelente, ya estás listo. Avancemos a la primera práctica guiada.",
+                            "points_misaki": [
+                                "Mantén el cuerpo relajado y descansa entre ejercicios.",
+                                "Si sientes cansancio, pausa la práctica y retoma con calma.",
+                                "No hace falta hacerlo perfecto en la primera sesión: importa la constancia.",
+                                "Mucho ánimo: con paciencia y práctica el cambio se nota.",
+                            ],
+                            "teacher_lines": {
+                                "haru": "Trabajaremos con orden y sin apuro. Si mantienes la constancia, los resultados llegan.",
+                                "misaki": "Hazlo con calma. Si practicas de forma constante, vas a sorprenderte de lo mucho que puedes avanzar.",
+                            },
                         },
                     ],
                 },

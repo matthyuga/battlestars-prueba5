@@ -13,12 +13,27 @@ screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
     $ _safe_page = max(0, min(_last, int(tl_intro_page if tl_intro_page is not None else 0)))
     $ _seg = lesson_get_segment(sublesson_id, _safe_page, lesson_id=lesson_id)
     $ _title = str(_seg.get("title", _meta.get("title", "Introducción"))) if isinstance(_seg, dict) else str(_meta.get("title", "Introducción"))
-    $ _points = _seg.get("points", []) if isinstance(_seg, dict) else []
-    $ _teacher_line = str(_seg.get("teacher_line", "Continuemos con el módulo.")) if isinstance(_seg, dict) else "Continuemos con el módulo."
 
     $ _teacher_id = str(tl_selected_teacher or "").strip().lower()
     if len(_teacher_id) == 0:
         $ _teacher_id = "haru"
+
+    $ _points = []
+    if isinstance(_seg, dict):
+        if _teacher_id == "misaki" and isinstance(_seg.get("points_misaki", None), (list, tuple)):
+            $ _points = list(_seg.get("points_misaki", []))
+        elif _teacher_id == "haru" and isinstance(_seg.get("points_haru", None), (list, tuple)):
+            $ _points = list(_seg.get("points_haru", []))
+        else:
+            $ _points = list(_seg.get("points", [])) if isinstance(_seg.get("points", []), (list, tuple)) else []
+
+    $ _teacher_line = "Continuemos con el módulo."
+    if isinstance(_seg, dict):
+        if isinstance(_seg.get("teacher_lines", None), dict):
+            $ _teacher_line = str(_seg.get("teacher_lines", {}).get(_teacher_id, _seg.get("teacher_line", _teacher_line)))
+        else:
+            $ _teacher_line = str(_seg.get("teacher_line", _teacher_line))
+
     $ _teacher_rec = character_db_get(_teacher_id, "teachers") if "character_db_get" in globals() else {}
     $ _teacher_name = str(_teacher_rec.get("display_name", "Docente")) if isinstance(_teacher_rec, dict) else "Docente"
     $ _portrait_primary = str(_teacher_rec.get("portrait_primary", "")) if isinstance(_teacher_rec, dict) else ""
@@ -97,4 +112,3 @@ screen tl_lesson_placeholder_scene(sublesson_id="", lesson_id="lesson_1"):
         on_advance=NullAction(),
         on_back=Return("back_class")
     )
-
