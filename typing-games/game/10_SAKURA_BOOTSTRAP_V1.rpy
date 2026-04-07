@@ -383,8 +383,10 @@ screen tl_sakura_hub_screen():
     textbutton "⚙" action ShowMenu("preferences") xalign 0.965 yalign 0.05
 
     frame:
-        xalign 0.09
-        yalign 0.56
+        xalign 0.0
+        yalign 1.0
+        xoffset 26
+        yoffset -22
         xsize 350
         ysize 430
         background Solid("#1A1120D8")
@@ -405,9 +407,10 @@ screen tl_sakura_hub_screen():
 
     frame:
         xalign 0.50
-        yalign 0.53
-        xsize 560
-        ysize 420
+        yalign 1.0
+        yoffset -130
+        xsize 500
+        ysize 350
         background Solid("#251A2EDD")
 
         vbox:
@@ -424,8 +427,10 @@ screen tl_sakura_hub_screen():
             text "Luego conectamos Práctica, Exámenes y actividades." size 18 xalign 0.5
 
     frame:
-        xalign 0.89
-        yalign 0.83
+        xalign 1.0
+        yalign 1.0
+        xoffset -26
+        yoffset -22
         xsize 300
         ysize 260
         background Solid("#1A1120D8")
@@ -650,8 +655,10 @@ screen tl_classes_course_intro_screen():
             text "• Técnica para escribir sin mirar el teclado." size 22 xalign 0.5
 
     frame:
-        xalign 0.39
-        yalign 0.84
+        xalign 0.0
+        yalign 1.0
+        xoffset 26
+        yoffset -26
         xsize 920
         ysize 230
         background Solid("#17121EEC")
@@ -820,107 +827,6 @@ screen tl_classes_lesson_panel_screen():
                 if len((tl_selected_sublesson or "").strip()) == 0:
                     text "Selecciona un submódulo para habilitar 'Iniciar sublección'." size 18 color "#FFD7C1" xalign 0.5
 
-screen tl_sublesson_intro_screen():
-    tag menu
-    modal True
-
-    $ _slides = tl_load_tm_intro_slides_text()
-    $ _last = max(0, len(_slides) - 1)
-    $ _safe_page = max(0, min(_last, int(tl_intro_page if tl_intro_page is not None else 0)))
-    $ _slide_entry = _slides[_safe_page] if len(_slides) > 0 else {"file": "n/a", "text": "Contenido de introducción no disponible."}
-    $ _slide_text = unicode(_slide_entry.get("text", "Contenido de introducción no disponible."))
-    $ _slide_file = unicode(_slide_entry.get("file", "n/a"))
-
-    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
-    if bg:
-        add bg at tl_soft_focus
-    else:
-        add "tl_fallback_rose"
-    add Solid("#00000099")
-
-    frame:
-        xalign 0.5
-        yalign 0.5
-        xsize 980
-        ysize 580
-        background Solid("#151019EE")
-
-        vbox:
-            spacing 16
-            xalign 0.5
-            yalign 0.08
-
-            text "Lección 1.1 · Introducción real" size 40 color "#FFD7F1" xalign 0.5
-
-            frame:
-                xsize 860
-                ysize 300
-                background Solid("#221A2CEB")
-                viewport:
-                    draggable True
-                    mousewheel True
-                    xmaximum 820
-                    ymaximum 260
-                    xalign 0.5
-                    yalign 0.5
-                    text "[_slide_text]" size 24 text_align 0.0
-
-            text "Página [(_safe_page + 1)]/[max(1, len(_slides))]" size 22 color "#E8D9F0" xalign 0.5
-            text "Fuente: [_slide_file]" size 17 color "#C9B8D5" xalign 0.5
-
-            hbox:
-                spacing 14
-                xalign 0.5
-                textbutton "Anterior" action SetVariable("tl_intro_page", max(0, _safe_page - 1)) sensitive (_safe_page > 0)
-                textbutton "Siguiente" action SetVariable("tl_intro_page", min(_last, _safe_page + 1)) sensitive (_safe_page < _last)
-                textbutton "Completar introducción" action [SetVariable("tl_intro_page", 0), Return("complete")] sensitive (_safe_page == _last)
-                textbutton "Volver a clase" action [SetVariable("tl_intro_page", 0), Return("back_class")]
-
-screen tl_sublesson_content_screen(sub_id="", sub_title="", objective="", summary="", next_hint=""):
-    tag menu
-    modal True
-
-    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
-    if bg:
-        add bg at tl_soft_focus
-    else:
-        add "tl_fallback_rose"
-    add Solid("#00000099")
-
-    frame:
-        xalign 0.5
-        yalign 0.5
-        xsize 980
-        ysize 580
-        background Solid("#151019EE")
-
-        vbox:
-            spacing 14
-            xalign 0.5
-            yalign 0.08
-
-            text "Lección 1 · [sub_title]" size 40 color "#FFD7F1" xalign 0.5
-            text "Submódulo: [sub_id]" size 22 color "#E8D9F0" xalign 0.5
-
-            frame:
-                xsize 860
-                ysize 230
-                background Solid("#221A2CEB")
-                vbox:
-                    spacing 10
-                    xalign 0.5
-                    yalign 0.5
-                    text "Objetivo: [objective]" size 24 xalign 0.5 text_align 0.5
-                    text "[summary]" size 22 xalign 0.5 text_align 0.5
-                    if len((next_hint or "").strip()) > 0:
-                        text "Siguiente paso recomendado: [next_hint]" size 20 color "#DCCEE6" xalign 0.5 text_align 0.5
-
-            hbox:
-                spacing 14
-                xalign 0.5
-                textbutton "Completar subsección" action Return("complete")
-                textbutton "Volver a clase" action Return("back_class")
-
 screen tl_qa_tech_screen():
     tag menu
     modal True
@@ -1012,160 +918,19 @@ label tl_classes_lesson_panel_flow:
     if _return == "back_course":
         jump tl_classes_course_lessons_flow
     if _return == "start_selected":
+        call tl_route_selected_sublesson
+        $ _sub_return = _return
         $ _selected = str(tl_selected_sublesson or "")
-        $ _sub_return = "back_class"
-
-        # Flujo académico puro:
-        # - En sublecciones de Clases NO se llama Typing Lab.
-        # - Typing Lab queda para Práctica/Exámenes fuera de este panel.
-        if _selected == "1_1_intro":
-            call screen tl_sublesson_intro_screen
-            $ _sub_return = _return
-        elif _selected == "1_2_home_row":
-            call screen tl_sublesson_content_screen(
-                sub_id="1.2",
-                sub_title="Fila central",
-                objective="Ubicar dedos en A-S-D-F y J-K-L-Ñ sin mirar.",
-                summary="Practica pulsaciones controladas y ritmo constante en fila central.",
-                next_hint="Continúa con 1.3 para revisar resultados y control de errores."
-            )
-            $ _sub_return = _return
-        elif _selected == "1_3_results":
-            call screen tl_sublesson_content_screen(
-                sub_id="1.3",
-                sub_title="Ver resultados",
-                objective="Interpretar precisión, errores y consistencia.",
-                summary="Aprender a leer resultados permite corregir técnica antes de acelerar.",
-                next_hint="Pasa a 1.4 para reforzar precisión de teclas."
-            )
-            $ _sub_return = _return
-        elif _selected == "1_4_keys_exercise":
-            call screen tl_sublesson_content_screen(
-                sub_id="1.4",
-                sub_title="Ejercicio de teclas",
-                objective="Consolidar control de dedos en secuencias de teclas.",
-                summary="Ejercicio académico enfocado en precisión y postura, sin modo libre.",
-                next_hint="Luego revisa 1.5 para guía de exámenes."
-            )
-            $ _sub_return = _return
-        elif _selected == "1_5_exam_help":
-            call screen tl_sublesson_content_screen(
-                sub_id="1.5",
-                sub_title="Ayuda exámenes",
-                objective="Conocer criterios de evaluación y preparación.",
-                summary="Revisa consejos para gestionar errores, tiempo y consistencia.",
-                next_hint="Sigue con 1.6 para estructura de palabras."
-            )
-            $ _sub_return = _return
-        elif _selected == "1_6_words_exercise":
-            call screen tl_sublesson_content_screen(
-                sub_id="1.6",
-                sub_title="Ejercicio de palabras",
-                objective="Aplicar técnica de fila central en palabras completas.",
-                summary="Prioriza exactitud de cada palabra antes de aumentar velocidad.",
-                next_hint="Finaliza en 1.7 con frases completas."
-            )
-            $ _sub_return = _return
-        else:
-            call screen tl_sublesson_content_screen(
-                sub_id="1.7",
-                sub_title="Ejercicio de frases",
-                objective="Mantener precisión en secuencias largas.",
-                summary="Integra postura, ritmo y corrección consciente al escribir frases.",
-                next_hint="Al completar, tendrás cerrada la base de Lección 1."
-            )
-            $ _sub_return = _return
 
         if _sub_return == "complete":
-            $ set_check("clases", "lesson_1", _selected, True)
             "Subsección completada: [_selected]. Contenido académico registrado."
         elif _sub_return == "back_class":
             pass
         else:
-            "Subsección no completada. Vuelve cuando quieras continuar."
+            "Se detectó un problema al cargar la sublección. Reintenta o vuelve al panel."
         jump tl_classes_lesson_panel_flow
 
     jump tl_classes_lesson_panel_flow
-
-screen tl_lessons_mock_screen():
-    tag menu
-    modal True
-
-    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
-    if bg:
-        add bg at tl_soft_focus
-    else:
-        add "tl_fallback_rose"
-        text "⚠ Falta asset: images/sakura-sunshine/sakura-sunshine-academy-salon.jpg (usando fallback)" xalign 0.5 yalign 0.985 size 18 color "#FFD6D6"
-
-    # Oscurecido para que la UI se lea mejor
-    add Solid("#00000088")
-
-    frame:
-        xalign 0.5
-        yalign 0.5
-        xsize 1120
-        ysize 640
-        background Solid("#151019DE")
-
-        hbox:
-            spacing 24
-            xalign 0.5
-            yalign 0.05
-
-            vbox:
-                spacing 10
-                xsize 560
-                $ _c11 = get_check("clases", "lesson_1", "1_1_intro")
-                $ _c12 = get_check("clases", "lesson_1", "1_2_home_row")
-                $ _c13 = get_check("clases", "lesson_1", "1_3_results")
-                $ _c14 = get_check("clases", "lesson_1", "1_4_keys_exercise")
-                $ _c15 = get_check("clases", "lesson_1", "1_5_exam_help")
-                $ _c16 = get_check("clases", "lesson_1", "1_6_words_exercise")
-                $ _c17 = get_check("clases", "lesson_1", "1_7_phrases_exercise")
-                $ _lesson_done = sum([1 for _v in [_c11, _c12, _c13, _c14, _c15, _c16, _c17] if _v])
-
-                text "Clases · Lección 1 (mock)" size 38 color "#FFD7F1"
-                text "Progreso Lección 1: [_lesson_done]/7" size 24 color "#EADAF2"
-                textbutton "1.1 Introducción{}".format("  ✓" if _c11 else "") action Function(set_check, "clases", "lesson_1", "1_1_intro", True)
-                textbutton "1.2 Teclas de la Fila Central{}".format("  ✓" if _c12 else "") action Function(set_check, "clases", "lesson_1", "1_2_home_row", True)
-                textbutton "1.3 Ver resultados{}".format("  ✓" if _c13 else "") action Function(set_check, "clases", "lesson_1", "1_3_results", True)
-                textbutton "1.4 Ejercicio de Teclas{}".format("  ✓" if _c14 else "") action Function(set_check, "clases", "lesson_1", "1_4_keys_exercise", True)
-                textbutton "1.5 Ayuda: Exámenes{}".format("  ✓" if _c15 else "") action Function(set_check, "clases", "lesson_1", "1_5_exam_help", True)
-                textbutton "1.6 Ejercicio de Palabras{}".format("  ✓" if _c16 else "") action Function(set_check, "clases", "lesson_1", "1_6_words_exercise", True)
-                textbutton "1.7 Ejercicio de Párrafos{}".format("  ✓" if _c17 else "") action Function(set_check, "clases", "lesson_1", "1_7_phrases_exercise", True)
-
-                null height 18
-                text "Puedes usar capturas de Typing Master en esta etapa (sí, totalmente)." size 20 color "#DCCEE6"
-
-                hbox:
-                    spacing 18
-                    textbutton "Probar Typing Lab" action Return("open_typing_lab")
-                    textbutton "Marcar todo Lección 1" action [
-                        Function(set_check, "clases", "lesson_1", "1_1_intro", True),
-                        Function(set_check, "clases", "lesson_1", "1_2_home_row", True),
-                        Function(set_check, "clases", "lesson_1", "1_3_results", True),
-                        Function(set_check, "clases", "lesson_1", "1_4_keys_exercise", True),
-                        Function(set_check, "clases", "lesson_1", "1_5_exam_help", True),
-                        Function(set_check, "clases", "lesson_1", "1_6_words_exercise", True),
-                        Function(set_check, "clases", "lesson_1", "1_7_phrases_exercise", True),
-                    ]
-                    textbutton "Finalizar Lección 1" action Return("complete_lesson_1") sensitive (_lesson_done >= 7)
-                    textbutton "Volver al hub" action Return("back")
-
-            vbox:
-                spacing 10
-                text "Preview de apoyo" size 30 color "#FFD7F1"
-
-                $ slide = tl_asset("images/tl/tm_lesson_slide_01.png")
-                if slide:
-                    add slide fit "contain" xsize 480 ysize 360
-                else:
-                    frame:
-                        xsize 480
-                        ysize 360
-                        background Solid("#2A2230")
-                        text "Sube aquí: images/tl/tm_lesson_slide_01.png" xalign 0.5 yalign 0.5 size 22
 
 screen tl_diary_checklist_screen():
     tag menu
