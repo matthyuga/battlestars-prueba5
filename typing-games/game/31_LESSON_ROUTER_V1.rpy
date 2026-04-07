@@ -27,12 +27,12 @@ label tl_route_selected_sublesson:
             lesson_id="lesson_1"
         )
         $ _result = _return
-    elif _scene_type == "typing_lab_letters_lite":
-        call screen tl_typing_lab_letters_lite_scene(
-            sublesson_id=_selected,
-            lesson_id="lesson_1"
-        )
-        $ _result = _return
+    elif _scene_type == "typing_lab_route":
+        $ _prev_mode = str(typing_lab_selected_mode if "typing_lab_selected_mode" in globals() else "letters")
+        $ typing_lab_selected_mode = "letters"
+        call typing_lab_start
+        $ typing_lab_selected_mode = _prev_mode
+        $ _result = "complete"
     else:
         call screen tl_lesson_placeholder_scene(
             sublesson_id=_selected,
