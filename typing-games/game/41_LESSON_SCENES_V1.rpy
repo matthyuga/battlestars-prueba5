@@ -31,11 +31,58 @@ init python:
 
     def tl_keyboard_mock_blocked_keys():
         return [
-            "K_a", "K_s", "K_d", "K_f", "K_g", "K_h", "K_j", "K_k", "K_l",
-            "K_q", "K_w", "K_e", "K_r", "K_t", "K_y", "K_u", "K_i", "K_o", "K_p",
-            "K_z", "K_x", "K_c", "K_v", "K_b", "K_n", "K_m", "K_SPACE",
             "alt_K_RETURN", "K_F11", "shift_K_r", "shift_K_o",
         ]
+
+
+    def tl_typing_mock_reset(target_letters=None):
+        seq = list(target_letters or ["F", "J", "F", "J", "ESPACIO"])
+        store.tl_typing_mock_state = {
+            "sequence": seq,
+            "cursor": 0,
+            "hits": 0,
+            "mistakes": 0,
+            "last_key": "",
+            "error_flash_until": 0.0,
+            "completed": False,
+        }
+        return True
+
+
+    def tl_typing_mock_press_key(key_text=""):
+        st = getattr(store, "tl_typing_mock_state", None)
+        if not isinstance(st, dict):
+            tl_typing_mock_reset()
+            st = getattr(store, "tl_typing_mock_state", {})
+
+        if bool(st.get("completed", False)):
+            return False
+
+        seq = list(st.get("sequence", []))
+        cur = int(st.get("cursor", 0) or 0)
+        if cur >= len(seq):
+            st["completed"] = True
+            store.tl_typing_mock_state = st
+            return True
+
+        pressed = str(key_text or "").strip().upper()
+        expected = str(seq[cur] or "").strip().upper()
+        st["last_key"] = pressed
+
+        if pressed == expected:
+            st["cursor"] = cur + 1
+            st["hits"] = int(st.get("hits", 0) or 0) + 1
+            if st["cursor"] >= len(seq):
+                st["completed"] = True
+        else:
+            st["mistakes"] = int(st.get("mistakes", 0) or 0) + 1
+            st["error_flash_until"] = float(renpy.get_time()) + 0.25
+
+        store.tl_typing_mock_state = st
+        return True
+
+
+default tl_typing_mock_state = {}
 
 
 screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
@@ -158,9 +205,29 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
     $ _rows = tl_keyboard_mock_rows()
     $ _target_letters = ["F", "J", "F", "J", "ESPACIO"]
     $ _blocked_keys = tl_keyboard_mock_blocked_keys()
+    $ _key_bindings = [
+        ("K_a", "A"), ("K_s", "S"), ("K_d", "D"), ("K_f", "F"), ("K_g", "G"),
+        ("K_h", "H"), ("K_j", "J"), ("K_k", "K"), ("K_l", "L"),
+        ("K_q", "Q"), ("K_w", "W"), ("K_e", "E"), ("K_r", "R"), ("K_t", "T"),
+        ("K_y", "Y"), ("K_u", "U"), ("K_i", "I"), ("K_o", "O"), ("K_p", "P"),
+        ("K_z", "Z"), ("K_x", "X"), ("K_c", "C"), ("K_v", "V"), ("K_b", "B"),
+        ("K_n", "N"), ("K_m", "M"),
+    ]
+    $ _state = tl_typing_mock_state if isinstance(tl_typing_mock_state, dict) else {}
+    $ _cursor = int(_state.get("cursor", 0) or 0)
+    $ _hits = int(_state.get("hits", 0) or 0)
+    $ _mistakes = int(_state.get("mistakes", 0) or 0)
+    $ _completed = bool(_state.get("completed", False))
+    $ _now = float(renpy.get_time())
+    $ _error_active = _now < float(_state.get("error_flash_until", 0.0) or 0.0)
+
+    on "show" action Function(tl_typing_mock_reset, _target_letters)
 
     for _shortcut in _blocked_keys:
         key _shortcut action NullAction()
+    for _binding in _key_bindings:
+        key _binding[0] action Function(tl_typing_mock_press_key, _binding[1])
+    key "K_SPACE" action Function(tl_typing_mock_press_key, "ESPACIO")
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
@@ -185,22 +252,30 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
             frame:
                 background Solid("#1E1E1EE6")
                 xfill True
-                ysize 90
+                ysize 120
                 padding (16, 14, 16, 14)
 
                 vbox:
                     spacing 8
-                    text "Letras a tipear" size 24 color "#D6D6D6"
+                    hbox:
+                        xfill True
+                        text "Letras a tipear" size 24 color "#D6D6D6"
+                        text "Aciertos: [_hits]   Errores: [_mistakes]" size 18 color "#C9D8F8" xalign 1.0
                     hbox:
                         spacing 8
-                        for _letter in _target_letters:
+                        for _idx, _letter in enumerate(_target_letters):
                             frame:
-                                background Solid("#22304A")
+                                background Solid("#3D7F54" if _idx < _cursor else ("#3E5B96" if _idx == _cursor else "#22304A"))
                                 xsize (100 if _letter == "ESPACIO" else 52)
                                 ysize 36
                                 xpadding 6
                                 ypadding 6
                                 text _letter size 20 color "#EAF2FF" xalign 0.5 yalign 0.5
+                    if _error_active:
+                        frame:
+                            background Solid("#D13535")
+                            xfill True
+                            ysize 4
 
             frame:
                 background Solid("#151515EE")
@@ -296,7 +371,11 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
 
             hbox:
                 xfill True
-                text "Tip: en esta pantalla se bloquean atajos comunes para liberar teclas del ejercicio." size 18 color "#D9D9D9"
-                textbutton "Volver a lecciones":
+                text ("Tip: escribe la secuencia. F/J/ESPACIO deben avanzar la barra superior." if not _completed else "¡Secuencia completada! Puedes continuar.") size 18 color "#D9D9D9"
+                textbutton "Cancelar":
+                    xalign 0.92
+                    action Return("back_class")
+                textbutton "Continuar":
                     xalign 1.0
                     action Return("complete")
+                    sensitive _completed
