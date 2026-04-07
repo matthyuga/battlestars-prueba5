@@ -3,6 +3,32 @@
 # Capa Visual (Fase 3B): escenas de lecciones
 # ===========================================================
 
+init python:
+    def tl_keyboard_mock_rows():
+        return [
+            ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+            ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ"],
+            ["Z", "X", "C", "V", "B", "N", "M"],
+            ["ESPACIO"],
+        ]
+
+
+    def tl_key_color_for(key_name):
+        key = str(key_name or "").strip().upper()
+        palette = {
+            "F": "#8A5DFF",
+            "J": "#8A5DFF",
+            "A": "#4472C4",
+            "S": "#C0504D",
+            "D": "#9BBB59",
+            "K": "#9BBB59",
+            "L": "#C0504D",
+            "Ñ": "#4472C4",
+            "ESPACIO": "#8B7355",
+        }
+        return palette.get(key, "#767676")
+
+
 screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
     tag menu
     modal True
@@ -112,3 +138,133 @@ screen tl_lesson_placeholder_scene(sublesson_id="", lesson_id="lesson_1"):
         on_advance=NullAction(),
         on_back=Return("back_class")
     )
+
+
+screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id="lesson_1"):
+    tag menu
+    modal True
+
+    $ _meta = lesson_get_sublesson_meta(sublesson_id, lesson_id=lesson_id)
+    $ _title = str(_meta.get("title", "Ejercicio teclas")) if isinstance(_meta, dict) else "Ejercicio teclas"
+    $ _rows = tl_keyboard_mock_rows()
+    $ _target_letters = ["F", "J", "F", "J", "ESPACIO"]
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#000000B8")
+
+    frame:
+        background Solid("#0D0D0DE8")
+        xalign 0.5
+        yalign 0.5
+        xsize 1180
+        ysize 640
+        padding (30, 24, 30, 24)
+
+        vbox:
+            spacing 18
+
+            text _title size 34 color "#F5F5F5" xalign 0.5
+
+            frame:
+                background Solid("#1E1E1EE6")
+                xfill True
+                ysize 90
+                padding (16, 14, 16, 14)
+
+                vbox:
+                    spacing 8
+                    text "Letras a tipear" size 24 color "#D6D6D6"
+                    hbox:
+                        spacing 8
+                        for _letter in _target_letters:
+                            frame:
+                                background Solid("#22304A")
+                                xsize (100 if _letter == "ESPACIO" else 52)
+                                ysize 36
+                                xpadding 6
+                                ypadding 6
+                                text _letter size 20 color "#EAF2FF" xalign 0.5 yalign 0.5
+
+            frame:
+                background Solid("#151515EE")
+                xfill True
+                ysize 290
+                padding (14, 14, 14, 14)
+
+                vbox:
+                    spacing 8
+                    text "Teclado simulado" size 24 color "#D6D6D6"
+                    for _row in _rows:
+                        hbox:
+                            spacing 6
+                            xalign 0.5
+                            for _key in _row:
+                                $ _w = 380 if _key == "ESPACIO" else 56
+                                frame:
+                                    background Solid(tl_key_color_for(_key))
+                                    xsize _w
+                                    ysize 44
+                                    xpadding 4
+                                    ypadding 4
+                                    text _key size 19 color "#F8F8F8" xalign 0.5 yalign 0.5
+
+            frame:
+                background Solid("#181818EE")
+                xfill True
+                ysize 170
+                padding (16, 12, 16, 12)
+
+                hbox:
+                    spacing 42
+                    xalign 0.5
+
+                    vbox:
+                        spacing 6
+                        text "Mano izquierda" size 22 color "#D6D6D6" xalign 0.5
+                        hbox:
+                            spacing 8
+                            for _name, _height in [
+                                ("Meñique", 96),
+                                ("Anular", 126),
+                                ("Medio", 136),
+                                ("Índice", 118),
+                                ("Pulgar", 78),
+                            ]:
+                                vbox:
+                                    spacing 4
+                                    text _name size 16 color "#CFCFCF" xalign 0.5
+                                    frame:
+                                        background Solid("#5B8BD8")
+                                        xsize 46
+                                        ysize _height
+
+                    vbox:
+                        spacing 6
+                        text "Mano derecha" size 22 color "#D6D6D6" xalign 0.5
+                        hbox:
+                            spacing 8
+                            for _name, _height in [
+                                ("Pulgar", 78),
+                                ("Índice", 118),
+                                ("Medio", 136),
+                                ("Anular", 126),
+                                ("Meñique", 96),
+                            ]:
+                                vbox:
+                                    spacing 4
+                                    text _name size 16 color "#CFCFCF" xalign 0.5
+                                    frame:
+                                        background Solid("#5B8BD8")
+                                        xsize 46
+                                        ysize _height
+
+            hbox:
+                xfill True
+                text "Tip: F y J en violeta como referencia de la fila central." size 18 color "#D9D9D9"
+                textbutton "Volver a lecciones":
+                    xalign 1.0
+                    action Return("complete")

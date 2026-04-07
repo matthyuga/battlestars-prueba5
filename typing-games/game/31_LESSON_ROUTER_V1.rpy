@@ -21,6 +21,12 @@ label tl_route_selected_sublesson:
             lesson_id="lesson_1"
         )
         $ _result = _return
+    elif _scene_type == "typing_keyboard_mock":
+        call screen tl_typing_keyboard_mock_scene(
+            sublesson_id=_selected,
+            lesson_id="lesson_1"
+        )
+        $ _result = _return
     else:
         call screen tl_lesson_placeholder_scene(
             sublesson_id=_selected,
