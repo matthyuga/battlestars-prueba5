@@ -19,6 +19,9 @@ Avance actual:
 - ✅ Definido plan detallado de ejecución para Fase 5 (Torre del Cielo MVP jugable).
 - ✅ Definido plan detallado de ejecución para Fase 6 (rotación de personajes + expansión de slots).
 - ✅ Definido Sprint 1 ejecutable (Fase 1 + Fase 2 con cierre QA).
+- ✅ Creado `CHECKLIST_QA_INVENTARIO_Y_CONSUMO_V1.md`.
+- ✅ Creado `TABLA_FORMULA_ORO_DESEMPENO_V1.md`.
+- ✅ Creado `CONTRATO_TOWER_RUN_STATE_V1.md`.
 
 ---
 
@@ -238,7 +241,8 @@ Definir en documentación y luego en código las entidades mínimas:
 
 ## Próximos entregables recomendados
 
-1. `CONTRATO_INVENTARIO_BATTLESTARS_V1.md` (detalle técnico de campos + ejemplos JSON)
-2. `CHECKLIST_QA_INVENTARIO_Y_CONSUMO_V1.md`
-3. `TABLA_FORMULA_ORO_DESEMPENO_V1.md`
-4. `POLITICA_ROTACION_PERSONAJES_V1.md`
+1. ✅ `CONTRATO_INVENTARIO_BATTLESTARS_V1.md` (creado)
+2. ✅ `CHECKLIST_QA_INVENTARIO_Y_CONSUMO_V1.md` (creado)
+3. ✅ `TABLA_FORMULA_ORO_DESEMPENO_V1.md` (creado)
+4. ✅ `POLITICA_ROTACION_PERSONAJES_V1.md` (creado)
+5. ✅ `CONTRATO_TOWER_RUN_STATE_V1.md` (creado)
