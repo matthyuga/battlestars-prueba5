@@ -31,7 +31,7 @@ init python:
 
     def tl_keyboard_mock_blocked_keys():
         return [
-            "alt_K_RETURN", "K_F11", "shift_K_r", "shift_K_o",
+            "K_F11", "K_F5",
         ]
 
 
@@ -206,12 +206,12 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
     $ _target_letters = ["F", "J", "F", "J", "ESPACIO"]
     $ _blocked_keys = tl_keyboard_mock_blocked_keys()
     $ _key_bindings = [
-        ("K_a", "A"), ("K_s", "S"), ("K_d", "D"), ("K_f", "F"), ("K_g", "G"),
-        ("K_h", "H"), ("K_j", "J"), ("K_k", "K"), ("K_l", "L"),
-        ("K_q", "Q"), ("K_w", "W"), ("K_e", "E"), ("K_r", "R"), ("K_t", "T"),
-        ("K_y", "Y"), ("K_u", "U"), ("K_i", "I"), ("K_o", "O"), ("K_p", "P"),
-        ("K_z", "Z"), ("K_x", "X"), ("K_c", "C"), ("K_v", "V"), ("K_b", "B"),
-        ("K_n", "N"), ("K_m", "M"),
+        ("a", "A"), ("s", "S"), ("d", "D"), ("f", "F"), ("g", "G"),
+        ("h", "H"), ("j", "J"), ("k", "K"), ("l", "L"),
+        ("q", "Q"), ("w", "W"), ("e", "E"), ("r", "R"), ("t", "T"),
+        ("y", "Y"), ("u", "U"), ("i", "I"), ("o", "O"), ("p", "P"),
+        ("z", "Z"), ("x", "X"), ("c", "C"), ("v", "V"), ("b", "B"),
+        ("n", "N"), ("m", "M"),
     ]
     $ _state = tl_typing_mock_state if isinstance(tl_typing_mock_state, dict) else {}
     $ _cursor = int(_state.get("cursor", 0) or 0)
