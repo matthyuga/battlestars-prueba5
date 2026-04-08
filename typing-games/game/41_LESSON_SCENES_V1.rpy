@@ -88,7 +88,7 @@ init python:
         return ["a", "s", "d", "f", "j", "k", "l", "ñ"]
 
 
-    def tl_warmup_build_sequence(pool=None, size=10):
+    def tl_warmup_build_sequence(pool=None, size=10, avoid_first=None):
         import random
         letters = list(pool or tl_warmup_letter_pool())
         n = int(max(1, int(size or 10)))
@@ -98,7 +98,7 @@ init python:
             return [str(letters[0]) for _ in range(n)]
 
         seq = []
-        prev = None
+        prev = str(avoid_first) if avoid_first is not None else None
         for _ in range(n):
             options = [x for x in letters if str(x) != str(prev)]
             nxt = random.choice(options if len(options) > 0 else letters)
@@ -218,7 +218,8 @@ init python:
                 else:
                     pool = list(tl_warmup_letter_pool())
                     rpr = int(st.get("reps_per_round", 10) or 10)
-                    new_seq = tl_warmup_build_sequence(pool=pool, size=rpr)
+                    last_letter_prev_round = str(seq[-1]) if len(seq) > 0 else None
+                    new_seq = tl_warmup_build_sequence(pool=pool, size=rpr, avoid_first=last_letter_prev_round)
                     st["sequence"] = list(new_seq)
                     st["index"] = 0
                     st["current_letter"] = str(new_seq[0] if len(new_seq) > 0 else "a")
