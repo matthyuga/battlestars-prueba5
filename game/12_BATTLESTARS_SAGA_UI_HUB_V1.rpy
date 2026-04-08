@@ -406,7 +406,15 @@ screen bs_saga_heroes_screen():
                                             for h in _heroes:
                                                 $ _hn = str(h.get("name", "?") or "?")
                                                 $ _hf = str(h.get("franchise", "?") or "?")
-                                                text "• [_hn]  —  [_hf]" size 18 color "#D0E9FF"
+                                                frame:
+                                                    xfill True
+                                                    background Solid("#1B3348")
+                                                    padding (8, 6)
+                                                    hbox:
+                                                        spacing 8
+                                                        text "• [_hn]" size 17 color "#D0E9FF" xminimum 290
+                                                        text "—" size 17 color "#9FC4E2"
+                                                        text "[_hf]" size 17 color "#D0E9FF" xminimum 220
                                         else:
                                             text "No hay héroes para ese filtro." size 18 color "#9FB9D1"
 
@@ -507,10 +515,18 @@ screen bs_saga_catalog_screen():
                                         $ _r = str(it.get("rarity", "-") or "-")
                                         $ _t = str(it.get("tier_req", "-") or "-")
                                         $ _m = str(it.get("meta", "") or "")
-                                        if _r in ("", "-") and _t in ("", "-"):
-                                            text "• [_n]  |  [_m]" size 17 color "#D0E9FF"
-                                        else:
-                                            text "• [_n]  |  Rareza: [_r]  |  Tier: [_t]  |  [_m]" size 17 color "#D0E9FF"
+                                        $ _r_show = "-" if _r in ("", "-") else _r
+                                        $ _t_show = "-" if _t in ("", "-") else _t
+                                        frame:
+                                            xfill True
+                                            background Solid("#173048")
+                                            padding (8, 6)
+                                            hbox:
+                                                spacing 8
+                                                text "• [_n]" size 17 color "#D0E9FF" xminimum 350
+                                                text "Rareza: [_r_show]" size 16 color "#A9CAE6" xminimum 150
+                                                text "Tier: [_t_show]" size 16 color "#A9CAE6" xminimum 120
+                                                text "[_m]" size 16 color "#D0E9FF" xminimum 280
                                 else:
                                     text "Sin itens cargados todavía para este grupo." size 18 color "#9FB9D1"
 
