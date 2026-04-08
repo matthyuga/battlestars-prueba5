@@ -62,13 +62,32 @@ init -880 python:
                 "title": "Consumibles",
                 "groups": {
                     "pociones": [
-                        {"name": "Poción HP amarilla", "rarity": "common", "tier_req": "C", "meta": "+25% HP"},
-                        {"name": "Poción EC naranja", "rarity": "uncommon", "tier_req": "C", "meta": "+35% EC"},
-                        {"name": "Poción EP roja", "rarity": "rare", "tier_req": "B", "meta": "+50% EP"},
-                        {"name": "Poción de durabilidad", "rarity": "uncommon", "tier_req": "C", "meta": "+35% durabilidad"},
+                        {"name": "Poción HP roja", "rarity": "", "tier_req": "", "meta": "+50% HP"},
+                        {"name": "Poción HP naranja", "rarity": "", "tier_req": "", "meta": "+35% HP"},
+                        {"name": "Poción HP amarilla", "rarity": "", "tier_req": "", "meta": "+25% HP"},
+
+                        {"name": "Poción EP roja", "rarity": "", "tier_req": "", "meta": "+50% EP"},
+                        {"name": "Poción EP naranja", "rarity": "", "tier_req": "", "meta": "+35% EP"},
+                        {"name": "Poción EP amarilla", "rarity": "", "tier_req": "", "meta": "+25% EP"},
+
+                        {"name": "Poción EC roja", "rarity": "", "tier_req": "", "meta": "+50% EC"},
+                        {"name": "Poción EC naranja", "rarity": "", "tier_req": "", "meta": "+35% EC"},
+                        {"name": "Poción EC amarilla", "rarity": "", "tier_req": "", "meta": "+25% EC"},
+
+                        {"name": "Poción de durabilidad roja", "rarity": "", "tier_req": "", "meta": "+50% durabilidad"},
+                        {"name": "Poción de durabilidad naranja", "rarity": "", "tier_req": "", "meta": "+35% durabilidad"},
+                        {"name": "Poción de durabilidad amarilla", "rarity": "", "tier_req": "", "meta": "+25% durabilidad"},
+
+                        {"name": "Poción de fuerza roja", "rarity": "", "tier_req": "", "meta": "+50% fuerza"},
+                        {"name": "Poción de fuerza naranja", "rarity": "", "tier_req": "", "meta": "+35% fuerza"},
+                        {"name": "Poción de fuerza amarilla", "rarity": "", "tier_req": "", "meta": "+25% fuerza"},
+
+                        {"name": "Poción de defensa roja", "rarity": "", "tier_req": "", "meta": "+50% defensa"},
+                        {"name": "Poción de defensa naranja", "rarity": "", "tier_req": "", "meta": "+35% defensa"},
+                        {"name": "Poción de defensa amarilla", "rarity": "", "tier_req": "", "meta": "+25% defensa"},
                     ],
                     "amuletos": [
-                        {"name": "Espejo reflectante", "rarity": "rare", "tier_req": "B", "meta": "Refleja 30% daño (3 usos)"},
+                        {"name": "Espejo reflector", "rarity": "rare", "tier_req": "B", "meta": "Refleja 30% daño (3 usos)"},
                         {"name": "Cilindro mágico", "rarity": "rare", "tier_req": "B", "meta": "Absorbe 30% daño (3 usos)"},
                         {"name": "Espada sagrada", "rarity": "epic", "tier_req": "A", "meta": "+30% daño (3 usos)"},
                         {"name": "Daga maldita", "rarity": "epic", "tier_req": "A", "meta": "30% a daño directo (3 usos)"},
@@ -452,7 +471,10 @@ screen bs_saga_catalog_screen():
                                         $ _r = str(it.get("rarity", "-") or "-")
                                         $ _t = str(it.get("tier_req", "-") or "-")
                                         $ _m = str(it.get("meta", "") or "")
-                                        text "• [_n]  |  Rareza: [_r]  |  Tier: [_t]  |  [_m]" size 17 color "#D0E9FF"
+                                        if _r in ("", "-") and _t in ("", "-"):
+                                            text "• [_n]  |  [_m]" size 17 color "#D0E9FF"
+                                        else:
+                                            text "• [_n]  |  Rareza: [_r]  |  Tier: [_t]  |  [_m]" size 17 color "#D0E9FF"
                                 else:
                                     text "Sin itens cargados todavía para este grupo." size 18 color "#9FB9D1"
 
