@@ -659,7 +659,7 @@ screen bs_saga_tech_catalog_screen():
                     else:
                         text "Tipos" size 24 color "#DDEEFF"
                         for tp in _types:
-                            textbutton "[bs_saga_catalog_humanize(tp)]":
+                            textbutton "[bs_saga_labelize(tp)]":
                                 action SetVariable("bs_saga_tech_catalog_type", tp)
 
             frame:
@@ -669,7 +669,7 @@ screen bs_saga_tech_catalog_screen():
                 background Solid("#102438")
                 vbox:
                     spacing 8
-                    text ("Técnicas liberadas · Tier [_tier]" if _mode == "tier" else "Técnicas liberadas · Tipo [bs_saga_catalog_humanize(_ttype)]") size 22 color "#EAF6FF"
+                    text ("Técnicas liberadas · Tier [_tier]" if _mode == "tier" else "Técnicas liberadas · Tipo [bs_saga_labelize(_ttype)]") size 22 color "#EAF6FF"
                     viewport:
                         draggable True
                         mousewheel True
