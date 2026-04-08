@@ -132,10 +132,23 @@ init -880 python:
         return ["consumibles", "permanentes", "materiales"]
 
     def bs_saga_catalog_groups(category):
+        cat_key = str(category or "consumibles")
         schema = bs_saga_item_schema()
-        cat = schema.get(str(category or "consumibles"), {})
+        cat = schema.get(cat_key, {})
         groups = cat.get("groups", {}) if isinstance(cat.get("groups", {}), dict) else {}
-        return list(groups.keys())
+        preferred = {
+            "consumibles": ["pociones", "amuletos"],
+            "permanentes": ["anillos", "pulseras", "pendientes", "collares", "diademas", "cinturones", "tobilleras", "tatuajes"],
+            "materiales": ["basicos", "ascenso"],
+        }
+        ordered = []
+        for g in preferred.get(cat_key, []):
+            if g in groups:
+                ordered.append(g)
+        for g in groups.keys():
+            if g not in ordered:
+                ordered.append(g)
+        return ordered
 
     def bs_saga_catalog_items(category, group):
         schema = bs_saga_item_schema()
@@ -158,6 +171,17 @@ init -880 python:
         if not s:
             return "—"
         return s[:1].upper() + s[1:]
+
+    def bs_saga_catalog_set_category(category):
+        cat = str(category or "consumibles")
+        groups = bs_saga_catalog_groups(cat)
+        S.bs_saga_catalog_category = cat
+        S.bs_saga_catalog_group = groups[0] if groups else ""
+        return True
+
+    def bs_saga_catalog_set_group(group):
+        S.bs_saga_catalog_group = str(group or "")
+        return True
 
 screen bs_saga_lobby_screen():
     tag menu
@@ -425,7 +449,7 @@ screen bs_saga_catalog_screen():
                 for ck in _cats:
                     $ lbl = "Consumibles" if ck == "consumibles" else ("Permanentes" if ck == "permanentes" else "Materiales")
                     textbutton "[lbl]":
-                        action [SetVariable("bs_saga_catalog_category", ck), SetVariable("bs_saga_catalog_group", "")]
+                        action Function(bs_saga_catalog_set_category, ck)
 
             hbox:
                 spacing 14
@@ -448,7 +472,7 @@ screen bs_saga_catalog_screen():
                                 for g in _groups:
                                     $ _g_label = bs_saga_labelize(g)
                                     textbutton "[_g_label]":
-                                        action SetVariable("bs_saga_catalog_group", g)
+                                        action Function(bs_saga_catalog_set_group, g)
 
                 frame:
                     xfill True
