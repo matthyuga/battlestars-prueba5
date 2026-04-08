@@ -12,6 +12,7 @@ default bs_saga_heroes_tier = "C"
 default bs_saga_heroes_franchise = "all"
 default bs_saga_catalog_category = "consumibles"
 default bs_saga_catalog_group = "pociones"
+default bs_saga_tech_catalog_tier = "C"
 
 init -880 python:
     import renpy.store as S
@@ -195,6 +196,36 @@ init -880 python:
         S.bs_saga_catalog_group = str(group or "")
         return None
 
+    def bs_saga_tech_tier_keys():
+        return ["C", "B", "A", "S"]
+
+    def bs_saga_tech_catalog():
+        return {
+            "C": [
+                {"name": "Ataque básico", "desc": "Ataque base. Escala con EP: a mayor potencia, mayor gasto de EP."},
+                {"name": "Defensa básica", "desc": "Defensa base. Escala con EP: más protección implica mayor gasto de EP."},
+                {"name": "Ataque directo", "desc": "Si sale 3/4 en dados, el golpe se vuelve indefendible; si no, se puede bloquear."},
+                {"name": "Efecto especial", "desc": "Cada héroe tiene un efecto propio, aplicado en ataque o defensa según su kit."},
+                {"name": "Concentrar", "desc": "Multiplica x2 un ataque elegido. No consume acción disponible."},
+                {"name": "Descansar", "desc": "Recupera un porcentaje de HP, EP y EC."},
+                {"name": "Dados de furia", "desc": "Se activa con 10% de HP o menos. Multiplica x2 un ataque elegido y no consume acción."},
+            ],
+            "B": [
+                {"name": "Ataque extra", "desc": "Otorga una acción ofensiva adicional en el turno."},
+                {"name": "Defensa extra", "desc": "Otorga una acción defensiva adicional en el turno."},
+                {"name": "Potenciar", "desc": "Multiplica x2 una defensa elegida. Funciona como Concentrar, pero en defensa."},
+            ],
+            "A": [
+                {"name": "Técnica extra", "desc": "Habilita una acción adicional de técnica en el turno."},
+                {"name": "Ataque reductor", "desc": "Reduce un porcentaje de la defensa general del enemigo."},
+                {"name": "Defensa reductora", "desc": "Reduce un porcentaje del ataque general del enemigo."},
+            ],
+            "S": [
+                {"name": "Ataque negador", "desc": "Con 3/4 dados exitosos, anula el turno ofensivo enemigo (o su próximo ataque)."},
+                {"name": "Defensa reflectora", "desc": "Refleja un porcentaje del daño de ataque enemigo."},
+            ],
+        }
+
 screen bs_saga_lobby_screen():
     tag menu
 
@@ -261,6 +292,7 @@ screen bs_saga_lobby_screen():
                 textbutton "Héroes" action Jump("bs_saga_heroes")
                 textbutton "Tienda" action Jump("bs_saga_tienda")
                 textbutton "Catálogo de itens" action Jump("bs_saga_catalogo_items")
+                textbutton "Catálogo de técnicas" action Jump("bs_saga_catalogo_tecnicas")
 
 screen bs_saga_section_shell(title="Sección", subtitle="Panel", back_action=NullAction()):
     tag menu
@@ -530,6 +562,87 @@ screen bs_saga_catalog_screen():
                                 else:
                                     text "Sin itens cargados todavía para este grupo." size 18 color "#9FB9D1"
 
+screen bs_saga_tech_catalog_screen():
+    tag menu
+    $ _tier = str(bs_saga_tech_catalog_tier or "C").upper()
+    $ _rows = bs_saga_tech_catalog().get(_tier, [])
+    $ _tiers = bs_saga_tech_tier_keys()
+
+    add Solid("#0E1A28")
+
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
+        ypadding 10
+        background Solid("#2C4963")
+        hbox:
+            spacing 16
+            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
+            text "Territorio: Catálogo de técnicas" size 22 color "#D7EEFF" yalign 0.7
+            null width 70
+            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+
+    frame:
+        xalign 0.5
+        yalign 0.56
+        xsize 1120
+        ysize 500
+        padding (16, 16)
+        background Solid("#13273A")
+
+        hbox:
+            spacing 14
+
+            frame:
+                xsize 240
+                yfill True
+                padding (10, 10)
+                background Solid("#1F3348")
+                vbox:
+                    spacing 8
+                    text "Tiers" size 24 color "#DDEEFF"
+                    for tt in _tiers:
+                        textbutton "Tier [tt]":
+                            action SetVariable("bs_saga_tech_catalog_tier", tt)
+
+            frame:
+                xfill True
+                yfill True
+                padding (12, 12)
+                background Solid("#102438")
+                vbox:
+                    spacing 8
+                    text "Técnicas liberadas · Tier [_tier]" size 22 color "#EAF6FF"
+                    viewport:
+                        draggable True
+                        mousewheel True
+                        scrollbars "vertical"
+                        ymaximum 410
+                        vbox:
+                            spacing 8
+                            if _rows:
+                                for row in _rows:
+                                    $ _n = str(row.get("name", "?") or "?")
+                                    $ _d = str(row.get("desc", "") or "")
+                                    frame:
+                                        xfill True
+                                        background Solid("#173048")
+                                        padding (10, 8)
+                                        vbox:
+                                            spacing 4
+                                            text _n size 20 color "#CDE7FF"
+                                            text _d size 16 color "#AFCFE8"
+                            else:
+                                text "Sin técnicas configuradas para este tier." size 18 color "#9FB9D1"
+
 # ---------- flujo de entrada ----------
 
 label bs_saga_intro_splash:
@@ -592,4 +705,8 @@ label bs_saga_tienda:
 
 label bs_saga_catalogo_items:
     call screen bs_saga_catalog_screen
+    return
+
+label bs_saga_catalogo_tecnicas:
+    call screen bs_saga_tech_catalog_screen
     return
