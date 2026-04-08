@@ -84,7 +84,106 @@ init python:
         return True
 
 
+    def tl_warmup_letter_pool():
+        return ["a", "s", "d", "f", "j", "k", "l", "ñ"]
+
+
+    def tl_warmup_finger_for_key(key_text=""):
+        k = str(key_text or "").strip().lower()
+        finger_map = {
+            "a": ("left", "meñique"),
+            "s": ("left", "anular"),
+            "d": ("left", "medio"),
+            "f": ("left", "índice"),
+            "j": ("right", "índice"),
+            "k": ("right", "medio"),
+            "l": ("right", "anular"),
+            "ñ": ("right", "meñique"),
+        }
+        return finger_map.get(k, ("none", "none"))
+
+
+    def tl_warmup_prepare(rounds=3, reps_per_round=10):
+        import random
+        pool = list(tl_warmup_letter_pool())
+        rr = int(max(3, min(5, int(rounds or 3))))
+        rpr = int(max(8, int(reps_per_round or 10)))
+        seq = [random.choice(pool) for _ in range(rpr)]
+
+        store.tl_typing_warmup_state = {
+            "rounds_total": rr,
+            "rounds_done": 0,
+            "round_index": 1,
+            "reps_per_round": rpr,
+            "index": 0,
+            "sequence": list(seq),
+            "current_letter": str(seq[0] if len(seq) > 0 else "a"),
+            "error_flash_until": 0.0,
+            "done": False,
+        }
+        return True
+
+
+    def tl_warmup_set_rounds(rounds=3):
+        st = getattr(store, "tl_typing_warmup_state", None)
+        if not isinstance(st, dict):
+            return tl_warmup_prepare(rounds=rounds, reps_per_round=10)
+        rr = int(max(3, min(5, int(rounds or 3))))
+        st["rounds_total"] = rr
+        if int(st.get("round_index", 1) or 1) > rr:
+            st["round_index"] = rr
+        store.tl_typing_warmup_state = st
+        return True
+
+
+    def tl_warmup_press_key(key_text=""):
+        st = getattr(store, "tl_typing_warmup_state", None)
+        if not isinstance(st, dict):
+            tl_warmup_prepare(3, 10)
+            st = getattr(store, "tl_typing_warmup_state", {})
+
+        if bool(st.get("done", False)):
+            return False
+
+        seq = list(st.get("sequence", []))
+        idx = int(st.get("index", 0) or 0)
+        if idx >= len(seq):
+            idx = max(0, len(seq) - 1)
+
+        pressed = str(key_text or "").strip().lower()
+        expected = str(seq[idx] if len(seq) > 0 else "").strip().lower()
+
+        if pressed == expected:
+            idx += 1
+            if idx >= len(seq):
+                st["rounds_done"] = int(st.get("rounds_done", 0) or 0) + 1
+                total_rounds = int(st.get("rounds_total", 3) or 3)
+                if st["rounds_done"] >= total_rounds:
+                    st["done"] = True
+                    st["index"] = len(seq)
+                    st["current_letter"] = ""
+                else:
+                    import random
+                    pool = list(tl_warmup_letter_pool())
+                    rpr = int(st.get("reps_per_round", 10) or 10)
+                    new_seq = [random.choice(pool) for _ in range(rpr)]
+                    st["sequence"] = list(new_seq)
+                    st["index"] = 0
+                    st["current_letter"] = str(new_seq[0] if len(new_seq) > 0 else "a")
+                    st["round_index"] = int(st.get("round_index", 1) or 1) + 1
+            else:
+                st["index"] = idx
+                st["current_letter"] = str(seq[idx])
+                st["error_flash_until"] = 0.0
+        else:
+            st["error_flash_until"] = float(time.time()) + 0.30
+
+        store.tl_typing_warmup_state = st
+        return True
+
+
 default tl_typing_mock_state = {}
+default tl_typing_warmup_state = {}
 
 
 screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
@@ -381,3 +480,185 @@ screen tl_typing_keyboard_mock_scene(sublesson_id="1_4_keys_exercise", lesson_id
                     xalign 1.0
                     action Return("complete")
                     sensitive _completed
+
+
+screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="lesson_1"):
+    tag menu
+    modal True
+
+    default _letters = "abcdefghijklmnopqrstuvwxyzñ"
+
+    $ _meta = lesson_get_sublesson_meta(sublesson_id, lesson_id=lesson_id)
+    $ _title = str(_meta.get("title", "1.4B Typing Lab")) if isinstance(_meta, dict) else "1.4B Typing Lab"
+    $ _state = tl_typing_warmup_state if isinstance(tl_typing_warmup_state, dict) else {}
+    $ _round_total = int(_state.get("rounds_total", 3) or 3)
+    $ _round_index = int(_state.get("round_index", 1) or 1)
+    $ _done_rounds = int(_state.get("rounds_done", 0) or 0)
+    $ _idx = int(_state.get("index", 0) or 0)
+    $ _seq = list(_state.get("sequence", []) or [])
+    $ _rpr = int(_state.get("reps_per_round", 10) or 10)
+    $ _current = str(_state.get("current_letter", "") or "").upper()
+    $ _done = bool(_state.get("done", False))
+    $ _error_active = float(time.time()) < float(_state.get("error_flash_until", 0.0) or 0.0)
+    $ _hand_id, _finger_id = tl_warmup_finger_for_key(_current)
+    $ _rows = tl_keyboard_mock_rows()
+    $ _show_round = (_round_total if _round_index > _round_total else _round_index)
+    $ _show_letter_idx = (_rpr if (_idx + 1) > _rpr else (_idx + 1))
+
+    on "show" action Function(tl_warmup_prepare, 3, 10)
+
+    for _k in _letters:
+        key _k action Function(tl_warmup_press_key, _k)
+    key "K_SPACE" action NullAction()
+    key "K_F11" action NullAction()
+    key "K_F5" action NullAction()
+
+    $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
+    if bg:
+        add bg at tl_soft_focus
+    else:
+        add "tl_fallback_rose"
+    add Solid("#000000B8")
+
+    frame:
+        background Solid("#0D0D0DE8")
+        xalign 0.5
+        yalign 0.5
+        xsize 1180
+        ysize 650
+        padding (30, 24, 30, 24)
+
+        vbox:
+            spacing 14
+
+            text _title size 34 color "#F5F5F5" xalign 0.5
+
+            frame:
+                background Solid("#1E1E1EE6")
+                xfill True
+                ysize 122
+                padding (16, 10, 16, 10)
+                vbox:
+                    spacing 6
+                    hbox:
+                        xfill True
+                        text "Warmup dedos · asdf | jklñ" size 22 color "#D6D6D6"
+                        text "Ronda [_show_round]/[_round_total] · Letra [_show_letter_idx]/[_rpr]" size 18 color "#C9D8F8" xalign 1.0
+                    hbox:
+                        xfill True
+                        text (_current if not _done else "✓") size 58 color "#F1F1F1" xalign 0.5
+                    if _error_active:
+                        text "✖" size 38 color "#FF4D4D" xalign 0.5
+                    else:
+                        text " " size 38 xalign 0.5
+
+            hbox:
+                spacing 8
+                xalign 0.5
+                text "Repeticiones:" size 18 color "#D9D9D9" yalign 0.5
+                textbutton "3" action Function(tl_warmup_set_rounds, 3)
+                textbutton "4" action Function(tl_warmup_set_rounds, 4)
+                textbutton "5" action Function(tl_warmup_set_rounds, 5)
+                text "Completadas: [_done_rounds]" size 18 color "#BEECC6" yalign 0.5
+
+            frame:
+                background Solid("#151515EE")
+                xfill True
+                ysize 250
+                padding (14, 14, 14, 14)
+                vbox:
+                    spacing 8
+                    text "Teclado simulado (tecla objetivo en rojo)" size 24 color "#D6D6D6"
+                    for _row in _rows:
+                        hbox:
+                            spacing 6
+                            xalign 0.5
+                            for _key in _row:
+                                $ _w = 380 if _key == "ESPACIO" else 56
+                                $ _is_target = (str(_key).strip().lower() == str(_current).strip().lower())
+                                frame:
+                                    background Solid("#A21E1E" if _is_target else tl_key_color_for(_key))
+                                    xsize _w
+                                    ysize 42
+                                    text _key size 18 color "#F8F8F8" xalign 0.5 yalign 0.5
+
+            frame:
+                background Solid("#181818EE")
+                xfill True
+                ysize 165
+                padding (16, 10, 16, 0)
+                hbox:
+                    spacing 42
+                    xalign 0.5
+                    yalign 1.0
+                    vbox:
+                        spacing 6
+                        text "Mano izquierda" size 22 color "#D6D6D6" xalign 0.5
+                        hbox:
+                            spacing 8
+                            for _name, _height in [("Meñique", 96), ("Anular", 126), ("Medio", 136), ("Índice", 118), ("Pulgar", 78)]:
+                                $ _active = (_hand_id == "left" and _finger_id == _name.lower())
+                                vbox:
+                                    spacing 4
+                                    frame:
+                                        background Solid("#4A1F1F" if _active else "#2A2A2A")
+                                        xsize 70
+                                        ysize 24
+                                        text _name size 15 color "#CFCFCF" xalign 0.5 yalign 0.5
+                                    fixed:
+                                        xsize 70
+                                        ysize 130
+                                        frame:
+                                            background Solid("#5B8BD8")
+                                            xsize 46
+                                            ysize _height
+                                            xalign 0.5
+                                            yalign 1.0
+                                        if _active:
+                                            frame:
+                                                background Solid("#D32F2F")
+                                                xsize 18
+                                                ysize 18
+                                                xalign 0.5
+                                                yalign 0.2
+                    vbox:
+                        spacing 6
+                        text "Mano derecha" size 22 color "#D6D6D6" xalign 0.5
+                        hbox:
+                            spacing 8
+                            for _name, _height in [("Pulgar", 78), ("Índice", 118), ("Medio", 136), ("Anular", 126), ("Meñique", 96)]:
+                                $ _active = (_hand_id == "right" and _finger_id == _name.lower())
+                                vbox:
+                                    spacing 4
+                                    frame:
+                                        background Solid("#4A1F1F" if _active else "#2A2A2A")
+                                        xsize 70
+                                        ysize 24
+                                        text _name size 15 color "#CFCFCF" xalign 0.5 yalign 0.5
+                                    fixed:
+                                        xsize 70
+                                        ysize 130
+                                        frame:
+                                            background Solid("#5B8BD8")
+                                            xsize 46
+                                            ysize _height
+                                            xalign 0.5
+                                            yalign 1.0
+                                        if _active:
+                                            frame:
+                                                background Solid("#D32F2F")
+                                                xsize 18
+                                                ysize 18
+                                                xalign 0.5
+                                                yalign 0.2
+
+            hbox:
+                xfill True
+                text ("Pulsa la letra correcta para avanzar (si fallas, aparece cruz)." if not _done else "Warmup completado. Puedes continuar.") size 18 color "#D9D9D9"
+                textbutton "Salir":
+                    xalign 0.92
+                    action Return("back_class")
+                textbutton "Continuar":
+                    xalign 1.0
+                    action Return("complete")
+                    sensitive _done
