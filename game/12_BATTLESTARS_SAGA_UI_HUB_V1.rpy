@@ -10,6 +10,8 @@ default bs_saga_tournament_panel_open = False
 default bs_saga_lobby_bottom_tab = "none"
 default bs_saga_heroes_tier = "C"
 default bs_saga_heroes_franchise = "all"
+default bs_saga_catalog_category = "consumibles"
+default bs_saga_catalog_group = "pociones"
 
 init -880 python:
     import renpy.store as S
@@ -52,6 +54,78 @@ init -880 python:
             if fr == ff:
                 out.append(r)
         return out
+
+    def bs_saga_item_schema():
+        # Esquema inicial del catálogo para UI (v1 wireframe)
+        return {
+            "consumibles": {
+                "title": "Consumibles",
+                "groups": {
+                    "pociones": [
+                        {"name": "Poción HP amarilla", "rarity": "common", "tier_req": "C", "meta": "+25% HP"},
+                        {"name": "Poción EC naranja", "rarity": "uncommon", "tier_req": "C", "meta": "+35% EC"},
+                        {"name": "Poción EP roja", "rarity": "rare", "tier_req": "B", "meta": "+50% EP"},
+                        {"name": "Poción de durabilidad", "rarity": "uncommon", "tier_req": "C", "meta": "+35% durabilidad"},
+                    ],
+                    "amuletos": [
+                        {"name": "Espejo reflectante", "rarity": "rare", "tier_req": "B", "meta": "Refleja 30% daño (3 usos)"},
+                        {"name": "Cilindro mágico", "rarity": "rare", "tier_req": "B", "meta": "Absorbe 30% daño (3 usos)"},
+                        {"name": "Espada sagrada", "rarity": "epic", "tier_req": "A", "meta": "+30% daño (3 usos)"},
+                        {"name": "Daga maldita", "rarity": "epic", "tier_req": "A", "meta": "30% a daño directo (3 usos)"},
+                        {"name": "Daga envenenada", "rarity": "epic", "tier_req": "A", "meta": "30% directo a HP (3 usos)"},
+                    ],
+                },
+            },
+            "permanentes": {
+                "title": "Permanentes",
+                "groups": {
+                    "anillos": [],
+                    "pulseras": [],
+                    "pendientes": [],
+                    "collares": [],
+                    "diademas": [],
+                    "cinturones": [],
+                    "tobilleras": [],
+                    "tatuajes": [],
+                },
+            },
+            "materiales": {
+                "title": "Materiales",
+                "groups": {
+                    "basicos": [
+                        {"name": "Chatarra común", "rarity": "common", "tier_req": "C", "meta": "Moneda de trueque"},
+                        {"name": "Fragmento reciclado", "rarity": "common", "tier_req": "C", "meta": "Moneda de trueque"},
+                    ],
+                    "ascenso": [
+                        {"name": "Material ascenso común", "rarity": "common", "tier_req": "C", "meta": "Ascenso C→B"},
+                        {"name": "Material ascenso raro", "rarity": "rare", "tier_req": "B", "meta": "Ascenso B→A"},
+                        {"name": "Material ascenso especial", "rarity": "special", "tier_req": "A", "meta": "Ascenso A→S"},
+                        {"name": "Material ascenso épico", "rarity": "epic", "tier_req": "S", "meta": "Ascenso S→SS"},
+                        {"name": "Material ascenso legendario", "rarity": "legendary", "tier_req": "SS", "meta": "Ascenso SS→SSS"},
+                        {"name": "Material ascenso mítico", "rarity": "mythic", "tier_req": "SSS", "meta": "Ascenso SSS→IV"},
+                        {"name": "Material ascenso infernal", "rarity": "infernal", "tier_req": "IV", "meta": "Reserva tier IV"},
+                    ],
+                },
+            },
+        }
+
+    def bs_saga_catalog_category_keys():
+        return ["consumibles", "permanentes", "materiales"]
+
+    def bs_saga_catalog_groups(category):
+        schema = bs_saga_item_schema()
+        cat = schema.get(str(category or "consumibles"), {})
+        groups = cat.get("groups", {}) if isinstance(cat.get("groups", {}), dict) else {}
+        return list(groups.keys())
+
+    def bs_saga_catalog_items(category, group):
+        schema = bs_saga_item_schema()
+        cat = schema.get(str(category or "consumibles"), {})
+        groups = cat.get("groups", {}) if isinstance(cat.get("groups", {}), dict) else {}
+        items = groups.get(str(group or ""), [])
+        if isinstance(items, list):
+            return items
+        return []
 
 screen bs_saga_lobby_screen():
     tag menu
@@ -268,6 +342,105 @@ screen bs_saga_heroes_screen():
                                         else:
                                             text "No hay héroes para ese filtro." size 18 color "#9FB9D1"
 
+screen bs_saga_catalog_screen():
+    tag menu
+    $ _cat = str(bs_saga_catalog_category or "consumibles")
+    $ _groups = bs_saga_catalog_groups(_cat)
+    $ _grp = str(bs_saga_catalog_group or "")
+    if _grp not in _groups:
+        $ _grp = _groups[0] if _groups else ""
+        $ bs_saga_catalog_group = _grp
+    $ _grp_label = _grp.capitalize() if _grp else "—"
+    $ _items = bs_saga_catalog_items(_cat, _grp)
+    $ _cats = bs_saga_catalog_category_keys()
+
+    add Solid("#0E1A28")
+
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
+        ypadding 10
+        background Solid("#2C4963")
+        hbox:
+            spacing 16
+            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
+            text "Territorio: Catálogo de itens" size 22 color "#D7EEFF" yalign 0.7
+            null width 90
+            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+
+    frame:
+        xalign 0.5
+        yalign 0.56
+        xsize 1120
+        ysize 500
+        padding (16, 16)
+        background Solid("#13273A")
+        vbox:
+            spacing 10
+            text "Catálogo de itens" size 34 color "#EAF6FF"
+
+            hbox:
+                spacing 8
+                for ck in _cats:
+                    $ lbl = "Consumibles" if ck == "consumibles" else ("Permanentes" if ck == "permanentes" else "Materiales")
+                    textbutton "[lbl]":
+                        action [SetVariable("bs_saga_catalog_category", ck), SetVariable("bs_saga_catalog_group", "")]
+
+            hbox:
+                spacing 14
+
+                frame:
+                    xsize 260
+                    yfill True
+                    padding (10, 10)
+                    background Solid("#1F3348")
+                    vbox:
+                        spacing 8
+                        text "Grupos" size 22 color "#DDEEFF"
+                        viewport:
+                            draggable True
+                            mousewheel True
+                            scrollbars "vertical"
+                            ymaximum 360
+                            vbox:
+                                spacing 6
+                                for g in _groups:
+                                    textbutton "[g.capitalize()]":
+                                        action SetVariable("bs_saga_catalog_group", g)
+
+                frame:
+                    xfill True
+                    yfill True
+                    padding (12, 12)
+                    background Solid("#102438")
+                    vbox:
+                        spacing 8
+                        text "Listado central · [_cat.capitalize()] / [_grp_label]" size 20 color "#DCEEFF"
+                        viewport:
+                            draggable True
+                            mousewheel True
+                            scrollbars "vertical"
+                            ymaximum 360
+                            vbox:
+                                spacing 6
+                                if _items:
+                                    for it in _items:
+                                        $ _n = str(it.get("name", "?") or "?")
+                                        $ _r = str(it.get("rarity", "-") or "-")
+                                        $ _t = str(it.get("tier_req", "-") or "-")
+                                        $ _m = str(it.get("meta", "") or "")
+                                        text "• [_n]  |  Rareza: [_r]  |  Tier: [_t]  |  [_m]" size 17 color "#D0E9FF"
+                                else:
+                                    text "Sin itens cargados todavía para este grupo." size 18 color "#9FB9D1"
+
 # ---------- flujo de entrada ----------
 
 label bs_saga_intro_splash:
@@ -329,9 +502,5 @@ label bs_saga_tienda:
     return
 
 label bs_saga_catalogo_items:
-    call screen bs_saga_section_shell(
-        title="Catálogo de itens",
-        subtitle="Territorio: Catálogo",
-        back_action=Jump("bs_saga_lobby")
-    )
+    call screen bs_saga_catalog_screen
     return
