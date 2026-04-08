@@ -209,6 +209,7 @@ init python:
 
 default tl_typing_mock_state = {}
 default tl_typing_warmup_state = {}
+default tl_typing_warmup_result = "back_class"
 
 
 screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
@@ -531,7 +532,7 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
     $ _show_round = (_round_total if _round_index > _round_total else _round_index)
     $ _show_letter_idx = (_rpr if (_idx + 1) > _rpr else (_idx + 1))
 
-    on "show" action Function(tl_warmup_prepare, 3, 10)
+    on "show" action [Function(tl_warmup_prepare, 3, 10), SetVariable("tl_typing_warmup_result", "back_class")]
 
     if _phase == "run":
         for _k in _letters:
@@ -595,7 +596,7 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                     action Function(tl_warmup_start)
                     sensitive (_phase != "run")
                 textbutton "Cancelar":
-                    action Return("back_class")
+                    action [SetVariable("tl_typing_warmup_result", "back_class"), Hide("tl_typing_warmup_rounds_scene")]
 
             frame:
                 background Solid("#151515EE")
@@ -694,5 +695,5 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                 text ("Pulsa Iniciar para entrar al modo teclado puro." if _phase != "run" else "Pulsa la letra correcta para avanzar (si fallas, aparece cruz).") size 18 color "#D9D9D9"
                 textbutton "Continuar":
                     xalign 1.0
-                    action Return("complete")
+                    action [SetVariable("tl_typing_warmup_result", "complete"), Hide("tl_typing_warmup_rounds_scene")]
                     sensitive _done
