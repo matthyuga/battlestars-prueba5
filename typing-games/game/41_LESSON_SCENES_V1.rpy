@@ -157,6 +157,16 @@ init python:
         return None
 
 
+    def tl_warmup_advance_to_summary():
+        st = getattr(store, "tl_typing_warmup_state", None)
+        if not isinstance(st, dict):
+            return None
+        if bool(st.get("done", False)):
+            st["phase"] = "summary"
+            store.tl_typing_warmup_state = st
+        return None
+
+
     def tl_warmup_press_key(key_text=""):
         st = getattr(store, "tl_typing_warmup_state", None)
         if not isinstance(st, dict):
@@ -574,7 +584,16 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                     hbox:
                         xfill True
                         text "Warmup dedos · asdf | jklñ" size 22 color "#D6D6D6"
-                        text ("Ronda [_show_round]/[_round_total] · Letra [_show_letter_idx]/[_rpr]" if _phase == "run" else "Modo preparación") size 18 color "#C9D8F8" xalign 1.0
+                        if _phase == "run":
+                            text "Ronda [_show_round]/[_round_total] · Letra [_show_letter_idx]/[_rpr]" size 18 color "#C9D8F8" xalign 1.0
+                        elif _done and _phase == "setup":
+                            textbutton "Avanzar":
+                                xalign 1.0
+                                action Function(tl_warmup_advance_to_summary)
+                        elif _phase == "summary":
+                            text "Cierre de la práctica" size 18 color "#C9D8F8" xalign 1.0
+                        else:
+                            text "Modo preparación" size 18 color "#C9D8F8" xalign 1.0
                     hbox:
                         xfill True
                         text (_current if not _done else "✓") size 58 color "#F1F1F1" xalign 0.5
@@ -598,102 +617,119 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                 textbutton "Cancelar":
                     action [SetVariable("tl_typing_warmup_result", "back_class"), Hide("tl_typing_warmup_rounds_scene")]
 
-            frame:
-                background Solid("#151515EE")
-                xsize 980
-                xalign 0.5
-                ysize 250
-                padding (14, 14, 14, 14)
-                vbox:
-                    spacing 8
-                    text "Teclado simulado (tecla objetivo en rojo)" size 24 color "#D6D6D6" xalign 0.5
-                    for _row in _rows:
-                        hbox:
-                            spacing 6
-                            xalign 0.5
-                            for _key in _row:
-                                $ _w = 380 if _key == "ESPACIO" else 56
-                                $ _is_target = (str(_key).strip().lower() == str(_current).strip().lower())
-                                frame:
-                                    background Solid("#A21E1E" if _is_target else tl_key_color_for(_key))
-                                    xsize _w
-                                    ysize 42
-                                    text _key size 18 color "#F8F8F8" xalign 0.5 yalign 0.5
-
-            frame:
-                background Solid("#181818EE")
-                xfill True
-                ysize 165
-                padding (16, 10, 16, 0)
-                hbox:
-                    spacing 42
+            if _phase != "summary":
+                frame:
+                    background Solid("#151515EE")
+                    xsize 980
                     xalign 0.5
-                    yalign 1.0
+                    ysize 250
+                    padding (14, 14, 14, 14)
                     vbox:
-                        spacing 6
-                        text "Mano izquierda" size 22 color "#D6D6D6" xalign 0.5
-                        hbox:
-                            spacing 8
-                            for _name, _height in [("Meñique", 96), ("Anular", 126), ("Medio", 136), ("Índice", 118), ("Pulgar", 78)]:
-                                $ _active = (_hand_id == "left" and _finger_id == _name.lower())
-                                vbox:
-                                    spacing 4
+                        spacing 8
+                        text "Teclado simulado (tecla objetivo en rojo)" size 24 color "#D6D6D6" xalign 0.5
+                        for _row in _rows:
+                            hbox:
+                                spacing 6
+                                xalign 0.5
+                                for _key in _row:
+                                    $ _w = 380 if _key == "ESPACIO" else 56
+                                    $ _is_target = (str(_key).strip().lower() == str(_current).strip().lower())
                                     frame:
-                                        background Solid("#4A1F1F" if _active else "#2A2A2A")
-                                        xsize 70
-                                        ysize 24
-                                        text _name size 15 color "#CFCFCF" xalign 0.5 yalign 0.5
-                                    fixed:
-                                        xsize 70
-                                        ysize 130
-                                        frame:
-                                            background Solid("#5B8BD8")
-                                            xsize 46
-                                            ysize _height
-                                            xalign 0.5
-                                            yalign 1.0
-                                        if _active:
-                                            frame:
-                                                background Solid("#D32F2F")
-                                                xsize 18
-                                                ysize 18
-                                                xalign 0.5
-                                                yalign 0.2
-                    vbox:
-                        spacing 6
-                        text "Mano derecha" size 22 color "#D6D6D6" xalign 0.5
-                        hbox:
-                            spacing 8
-                            for _name, _height in [("Pulgar", 78), ("Índice", 118), ("Medio", 136), ("Anular", 126), ("Meñique", 96)]:
-                                $ _active = (_hand_id == "right" and _finger_id == _name.lower())
-                                vbox:
-                                    spacing 4
-                                    frame:
-                                        background Solid("#4A1F1F" if _active else "#2A2A2A")
-                                        xsize 70
-                                        ysize 24
-                                        text _name size 15 color "#CFCFCF" xalign 0.5 yalign 0.5
-                                    fixed:
-                                        xsize 70
-                                        ysize 130
-                                        frame:
-                                            background Solid("#5B8BD8")
-                                            xsize 46
-                                            ysize _height
-                                            xalign 0.5
-                                            yalign 1.0
-                                        if _active:
-                                            frame:
-                                                background Solid("#D32F2F")
-                                                xsize 18
-                                                ysize 18
-                                                xalign 0.5
-                                                yalign 0.2
+                                        background Solid("#A21E1E" if _is_target else tl_key_color_for(_key))
+                                        xsize _w
+                                        ysize 42
+                                        text _key size 18 color "#F8F8F8" xalign 0.5 yalign 0.5
 
-            hbox:
-                xfill True
-                text ("Pulsa Iniciar para entrar al modo teclado puro." if _phase != "run" else "Pulsa la letra correcta para avanzar (si fallas, aparece cruz).") size 18 color "#D9D9D9"
-                textbutton "Continuar":
-                    xalign 1.0
-                    action [SetVariable("tl_typing_warmup_result", "complete"), Hide("tl_typing_warmup_rounds_scene")]
-                    sensitive _done
+                frame:
+                    background Solid("#181818EE")
+                    xfill True
+                    ysize 165
+                    padding (16, 10, 16, 0)
+                    hbox:
+                        spacing 42
+                        xalign 0.5
+                        yalign 1.0
+                        vbox:
+                            spacing 6
+                            text "Mano izquierda" size 22 color "#D6D6D6" xalign 0.5
+                            hbox:
+                                spacing 8
+                                for _name, _height in [("Meñique", 96), ("Anular", 126), ("Medio", 136), ("Índice", 118), ("Pulgar", 78)]:
+                                    $ _active = (_hand_id == "left" and _finger_id == _name.lower())
+                                    vbox:
+                                        spacing 4
+                                        frame:
+                                            background Solid("#4A1F1F" if _active else "#2A2A2A")
+                                            xsize 70
+                                            ysize 24
+                                            text _name size 15 color "#CFCFCF" xalign 0.5 yalign 0.5
+                                        fixed:
+                                            xsize 70
+                                            ysize 130
+                                            frame:
+                                                background Solid("#5B8BD8")
+                                                xsize 46
+                                                ysize _height
+                                                xalign 0.5
+                                                yalign 1.0
+                                            if _active:
+                                                frame:
+                                                    background Solid("#D32F2F")
+                                                    xsize 18
+                                                    ysize 18
+                                                    xalign 0.5
+                                                    yalign 0.2
+                        vbox:
+                            spacing 6
+                            text "Mano derecha" size 22 color "#D6D6D6" xalign 0.5
+                            hbox:
+                                spacing 8
+                                for _name, _height in [("Pulgar", 78), ("Índice", 118), ("Medio", 136), ("Anular", 126), ("Meñique", 96)]:
+                                    $ _active = (_hand_id == "right" and _finger_id == _name.lower())
+                                    vbox:
+                                        spacing 4
+                                        frame:
+                                            background Solid("#4A1F1F" if _active else "#2A2A2A")
+                                            xsize 70
+                                            ysize 24
+                                            text _name size 15 color "#CFCFCF" xalign 0.5 yalign 0.5
+                                        fixed:
+                                            xsize 70
+                                            ysize 130
+                                            frame:
+                                                background Solid("#5B8BD8")
+                                                xsize 46
+                                                ysize _height
+                                                xalign 0.5
+                                                yalign 1.0
+                                            if _active:
+                                                frame:
+                                                    background Solid("#D32F2F")
+                                                    xsize 18
+                                                    ysize 18
+                                                    xalign 0.5
+                                                    yalign 0.2
+
+                hbox:
+                    xfill True
+                    text ("Pulsa Iniciar para entrar al modo teclado puro." if _phase != "run" else "Pulsa la letra correcta para avanzar (si fallas, aparece cruz).") size 18 color "#D9D9D9"
+                    textbutton "Continuar":
+                        xalign 1.0
+                        action [SetVariable("tl_typing_warmup_result", "complete"), Hide("tl_typing_warmup_rounds_scene")]
+                        sensitive _done
+            else:
+                frame:
+                    background Solid("#151515EE")
+                    xfill True
+                    ysize 430
+                    padding (24, 24, 24, 24)
+                    vbox:
+                        spacing 20
+                        text "¡Excelente trabajo!" size 42 color "#F5F5F5" xalign 0.5
+                        text "Docente: Completaste el warmup de dedos con muy buena consistencia." size 24 color "#D6D6D6" xalign 0.5
+                        text "Logro desbloqueado: Dominio base de asdf · jklñ." size 26 color "#BEECC6" xalign 0.5
+                        text "Ya estás listo para la siguiente sublección." size 22 color "#C9D8F8" xalign 0.5
+                        null height 16
+                        textbutton "Terminar lección":
+                            xalign 0.5
+                            action [SetVariable("tl_typing_warmup_result", "complete"), Hide("tl_typing_warmup_rounds_scene")]
