@@ -512,6 +512,9 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
     key "K_SPACE" action NullAction()
     key "K_F11" action NullAction()
     key "K_F5" action NullAction()
+    key "dismiss" action NullAction()
+    key "game_menu" action NullAction()
+    key "rollback" action NullAction()
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:

@@ -45,7 +45,7 @@ label tl_route_selected_sublesson:
         if not _ok:
             return "error"
         return "complete"
-    elif _result == "back_class":
+    elif _result == "back_class" or _result is None:
         return "back_class"
     else:
-        return "error"
+        return "back_class"
