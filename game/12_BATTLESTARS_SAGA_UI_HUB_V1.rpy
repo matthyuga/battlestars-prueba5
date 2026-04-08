@@ -244,6 +244,7 @@ init -880 python:
             "defensivas": [
                 {"name": "Defensa básica", "desc": "Defensa base del turno defensivo."},
                 {"name": "Defensa extra", "desc": "Otorga una acción defensiva adicional en el turno."},
+                {"name": "Técnica extra", "desc": "Acción adicional de técnica usable también en defensa."},
                 {"name": "Defensa reductora", "desc": "Reduce un porcentaje del ataque general del enemigo."},
                 {"name": "Defensa reflectora", "desc": "Refleja un porcentaje del daño de ataque enemigo."},
             ],
