@@ -584,21 +584,28 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
 
             hbox:
                 spacing 8
-                xalign 0.5
+                xfill True
                 text "Repeticiones:" size 18 color "#D9D9D9" yalign 0.5
                 textbutton "3" action Function(tl_warmup_set_rounds, 3) sensitive (_phase != "run")
                 textbutton "4" action Function(tl_warmup_set_rounds, 4) sensitive (_phase != "run")
                 textbutton "5" action Function(tl_warmup_set_rounds, 5) sensitive (_phase != "run")
                 text "Completadas: [_done_rounds]" size 18 color "#BEECC6" yalign 0.5
+                null width 20
+                textbutton "Iniciar":
+                    action Function(tl_warmup_start)
+                    sensitive (_phase != "run")
+                textbutton "Cancelar":
+                    action Return("back_class")
 
             frame:
                 background Solid("#151515EE")
-                xfill True
+                xsize 980
+                xalign 0.5
                 ysize 250
                 padding (14, 14, 14, 14)
                 vbox:
                     spacing 8
-                    text "Teclado simulado (tecla objetivo en rojo)" size 24 color "#D6D6D6"
+                    text "Teclado simulado (tecla objetivo en rojo)" size 24 color "#D6D6D6" xalign 0.5
                     for _row in _rows:
                         hbox:
                             spacing 6
@@ -685,13 +692,6 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
             hbox:
                 xfill True
                 text ("Pulsa Iniciar para entrar al modo teclado puro." if _phase != "run" else "Pulsa la letra correcta para avanzar (si fallas, aparece cruz).") size 18 color "#D9D9D9"
-                textbutton "Iniciar":
-                    xalign 0.88
-                    action Function(tl_warmup_start)
-                    sensitive (_phase != "run")
-                textbutton "Salir":
-                    xalign 0.92
-                    action Return("back_class")
                 textbutton "Continuar":
                     xalign 1.0
                     action Return("complete")
