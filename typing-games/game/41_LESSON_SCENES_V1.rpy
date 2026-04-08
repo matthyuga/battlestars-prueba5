@@ -104,36 +104,57 @@ init python:
 
 
     def tl_warmup_prepare(rounds=3, reps_per_round=10):
-        import random
-        pool = list(tl_warmup_letter_pool())
         rr = int(max(3, min(5, int(rounds or 3))))
         rpr = int(max(8, int(reps_per_round or 10)))
-        seq = [random.choice(pool) for _ in range(rpr)]
-
         store.tl_typing_warmup_state = {
             "rounds_total": rr,
             "rounds_done": 0,
             "round_index": 1,
             "reps_per_round": rpr,
             "index": 0,
-            "sequence": list(seq),
-            "current_letter": str(seq[0] if len(seq) > 0 else "a"),
+            "sequence": [],
+            "current_letter": "",
             "error_flash_until": 0.0,
             "done": False,
+            "phase": "setup",
         }
-        return True
+        return None
+
+
+    def tl_warmup_start():
+        import random
+        st = getattr(store, "tl_typing_warmup_state", None)
+        if not isinstance(st, dict):
+            tl_warmup_prepare(3, 10)
+            st = getattr(store, "tl_typing_warmup_state", {})
+
+        pool = list(tl_warmup_letter_pool())
+        rpr = int(st.get("reps_per_round", 10) or 10)
+        seq = [random.choice(pool) for _ in range(rpr)]
+
+        st["rounds_done"] = 0
+        st["round_index"] = 1
+        st["index"] = 0
+        st["sequence"] = list(seq)
+        st["current_letter"] = str(seq[0] if len(seq) > 0 else "a")
+        st["error_flash_until"] = 0.0
+        st["done"] = False
+        st["phase"] = "run"
+        store.tl_typing_warmup_state = st
+        return None
 
 
     def tl_warmup_set_rounds(rounds=3):
         st = getattr(store, "tl_typing_warmup_state", None)
         if not isinstance(st, dict):
-            return tl_warmup_prepare(rounds=rounds, reps_per_round=10)
+            tl_warmup_prepare(rounds=rounds, reps_per_round=10)
+            return None
         rr = int(max(3, min(5, int(rounds or 3))))
         st["rounds_total"] = rr
         if int(st.get("round_index", 1) or 1) > rr:
             st["round_index"] = rr
         store.tl_typing_warmup_state = st
-        return True
+        return None
 
 
     def tl_warmup_press_key(key_text=""):
@@ -142,8 +163,11 @@ init python:
             tl_warmup_prepare(3, 10)
             st = getattr(store, "tl_typing_warmup_state", {})
 
+        if str(st.get("phase", "setup") or "setup") != "run":
+            return None
+
         if bool(st.get("done", False)):
-            return False
+            return None
 
         seq = list(st.get("sequence", []))
         idx = int(st.get("index", 0) or 0)
@@ -162,6 +186,7 @@ init python:
                     st["done"] = True
                     st["index"] = len(seq)
                     st["current_letter"] = ""
+                    st["phase"] = "setup"
                 else:
                     import random
                     pool = list(tl_warmup_letter_pool())
@@ -179,7 +204,7 @@ init python:
             st["error_flash_until"] = float(time.time()) + 0.30
 
         store.tl_typing_warmup_state = st
-        return True
+        return None
 
 
 default tl_typing_mock_state = {}
@@ -499,6 +524,7 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
     $ _rpr = int(_state.get("reps_per_round", 10) or 10)
     $ _current = str(_state.get("current_letter", "") or "").upper()
     $ _done = bool(_state.get("done", False))
+    $ _phase = str(_state.get("phase", "setup") or "setup")
     $ _error_active = float(time.time()) < float(_state.get("error_flash_until", 0.0) or 0.0)
     $ _hand_id, _finger_id = tl_warmup_finger_for_key(_current)
     $ _rows = tl_keyboard_mock_rows()
@@ -507,14 +533,15 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
 
     on "show" action Function(tl_warmup_prepare, 3, 10)
 
-    for _k in _letters:
-        key _k action Function(tl_warmup_press_key, _k)
-    key "K_SPACE" action NullAction()
-    key "K_F11" action NullAction()
-    key "K_F5" action NullAction()
-    key "dismiss" action NullAction()
-    key "game_menu" action NullAction()
-    key "rollback" action NullAction()
+    if _phase == "run":
+        for _k in _letters:
+            key _k action Function(tl_warmup_press_key, _k)
+        key "K_SPACE" action NullAction()
+        key "K_F11" action NullAction()
+        key "K_F5" action NullAction()
+        key "dismiss" action NullAction()
+        key "game_menu" action NullAction()
+        key "rollback" action NullAction()
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
@@ -546,7 +573,7 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                     hbox:
                         xfill True
                         text "Warmup dedos · asdf | jklñ" size 22 color "#D6D6D6"
-                        text "Ronda [_show_round]/[_round_total] · Letra [_show_letter_idx]/[_rpr]" size 18 color "#C9D8F8" xalign 1.0
+                        text ("Ronda [_show_round]/[_round_total] · Letra [_show_letter_idx]/[_rpr]" if _phase == "run" else "Modo preparación") size 18 color "#C9D8F8" xalign 1.0
                     hbox:
                         xfill True
                         text (_current if not _done else "✓") size 58 color "#F1F1F1" xalign 0.5
@@ -559,9 +586,9 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                 spacing 8
                 xalign 0.5
                 text "Repeticiones:" size 18 color "#D9D9D9" yalign 0.5
-                textbutton "3" action Function(tl_warmup_set_rounds, 3)
-                textbutton "4" action Function(tl_warmup_set_rounds, 4)
-                textbutton "5" action Function(tl_warmup_set_rounds, 5)
+                textbutton "3" action Function(tl_warmup_set_rounds, 3) sensitive (_phase != "run")
+                textbutton "4" action Function(tl_warmup_set_rounds, 4) sensitive (_phase != "run")
+                textbutton "5" action Function(tl_warmup_set_rounds, 5) sensitive (_phase != "run")
                 text "Completadas: [_done_rounds]" size 18 color "#BEECC6" yalign 0.5
 
             frame:
@@ -657,7 +684,11 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
 
             hbox:
                 xfill True
-                text ("Pulsa la letra correcta para avanzar (si fallas, aparece cruz)." if not _done else "Warmup completado. Puedes continuar.") size 18 color "#D9D9D9"
+                text ("Pulsa Iniciar para entrar al modo teclado puro." if _phase != "run" else "Pulsa la letra correcta para avanzar (si fallas, aparece cruz).") size 18 color "#D9D9D9"
+                textbutton "Iniciar":
+                    xalign 0.88
+                    action Function(tl_warmup_start)
+                    sensitive (_phase != "run")
                 textbutton "Salir":
                     xalign 0.92
                     action Return("back_class")
