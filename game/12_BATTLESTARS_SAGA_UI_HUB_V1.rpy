@@ -177,11 +177,11 @@ init -880 python:
         groups = bs_saga_catalog_groups(cat)
         S.bs_saga_catalog_category = cat
         S.bs_saga_catalog_group = groups[0] if groups else ""
-        return True
+        return None
 
     def bs_saga_catalog_set_group(group):
         S.bs_saga_catalog_group = str(group or "")
-        return True
+        return None
 
 screen bs_saga_lobby_screen():
     tag menu
