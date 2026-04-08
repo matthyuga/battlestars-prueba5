@@ -13,6 +13,8 @@ default bs_saga_heroes_franchise = "all"
 default bs_saga_catalog_category = "consumibles"
 default bs_saga_catalog_group = "pociones"
 default bs_saga_tech_catalog_tier = "C"
+default bs_saga_tech_catalog_mode = "tier"
+default bs_saga_tech_catalog_type = "ofensivas"
 
 init -880 python:
     import renpy.store as S
@@ -199,6 +201,9 @@ init -880 python:
     def bs_saga_tech_tier_keys():
         return ["C", "B", "A", "S"]
 
+    def bs_saga_tech_type_keys():
+        return ["ofensivas", "defensivas", "neutras", "especiales"]
+
     def bs_saga_tech_catalog():
         return {
             "C": [
@@ -208,21 +213,49 @@ init -880 python:
                 {"name": "Efecto especial", "desc": "Cada héroe tiene un efecto propio, aplicado en ataque o defensa según su kit."},
                 {"name": "Concentrar", "desc": "Multiplica x2 un ataque elegido. No consume acción disponible."},
                 {"name": "Descansar", "desc": "Recupera un porcentaje de HP, EP y EC."},
-                {"name": "Dados de furia", "desc": "Se activa con 10% de HP o menos. Multiplica x2 un ataque elegido y no consume acción."},
+                {"name": "Dados de furia", "desc": "Se activa con 10% de HP o menos. Multiplica x2 una técnica elegida de ataque o defensa y no consume acción disponible."},
             ],
             "B": [
                 {"name": "Ataque extra", "desc": "Otorga una acción ofensiva adicional en el turno."},
                 {"name": "Defensa extra", "desc": "Otorga una acción defensiva adicional en el turno."},
-                {"name": "Potenciar", "desc": "Multiplica x2 una defensa elegida. Funciona como Concentrar, pero en defensa."},
+                {"name": "Potenciar", "desc": "Multiplica x2 una defensa elegida y no consume acción disponible."},
             ],
             "A": [
-                {"name": "Técnica extra", "desc": "Habilita una acción adicional de técnica en el turno."},
+                {"name": "Técnica extra", "desc": "Habilita una acción adicional de técnica en el turno. Puede usarse para ataque o defensa."},
                 {"name": "Ataque reductor", "desc": "Reduce un porcentaje de la defensa general del enemigo."},
                 {"name": "Defensa reductora", "desc": "Reduce un porcentaje del ataque general del enemigo."},
             ],
             "S": [
-                {"name": "Ataque negador", "desc": "Con 3/4 dados exitosos, anula el turno ofensivo enemigo (o su próximo ataque)."},
+                {"name": "Ataque negador", "desc": "Con 3/4 dados exitosos, anula el siguiente turno enemigo."},
                 {"name": "Defensa reflectora", "desc": "Refleja un porcentaje del daño de ataque enemigo."},
+            ],
+        }
+
+    def bs_saga_tech_catalog_by_type():
+        return {
+            "ofensivas": [
+                {"name": "Ataque básico", "desc": "Ataque base del turno ofensivo."},
+                {"name": "Ataque extra", "desc": "Otorga una acción ofensiva adicional en el turno."},
+                {"name": "Técnica extra", "desc": "Acción adicional de técnica usable también en defensa."},
+                {"name": "Ataque reductor", "desc": "Reduce un porcentaje de la defensa general del enemigo."},
+                {"name": "Ataque directo", "desc": "Con 3/4 en dados se vuelve indefendible."},
+                {"name": "Ataque negador", "desc": "Con 3/4 dados exitosos, anula el siguiente turno enemigo."},
+            ],
+            "defensivas": [
+                {"name": "Defensa básica", "desc": "Defensa base del turno defensivo."},
+                {"name": "Defensa extra", "desc": "Otorga una acción defensiva adicional en el turno."},
+                {"name": "Defensa reductora", "desc": "Reduce un porcentaje del ataque general del enemigo."},
+                {"name": "Defensa reflectora", "desc": "Refleja un porcentaje del daño de ataque enemigo."},
+            ],
+            "neutras": [
+                {"name": "Descansar", "desc": "Recupera un porcentaje de HP, EP y EC."},
+                {"name": "Técnica extra", "desc": "Puede aplicarse para extender ataque o defensa según necesidad."},
+                {"name": "Dados de furia", "desc": "Multiplica x2 una técnica de ataque o defensa sin consumir acción disponible."},
+            ],
+            "especiales": [
+                {"name": "Concentrar", "desc": "Multiplica x2 un ataque elegido y no consume acción disponible."},
+                {"name": "Potenciar", "desc": "Multiplica x2 una defensa elegida y no consume acción disponible."},
+                {"name": "Efecto especial", "desc": "Efecto propio del héroe, aplicable en ataque o defensa."},
             ],
         }
 
@@ -564,9 +597,12 @@ screen bs_saga_catalog_screen():
 
 screen bs_saga_tech_catalog_screen():
     tag menu
+    $ _mode = str(bs_saga_tech_catalog_mode or "tier").lower()
     $ _tier = str(bs_saga_tech_catalog_tier or "C").upper()
-    $ _rows = bs_saga_tech_catalog().get(_tier, [])
     $ _tiers = bs_saga_tech_tier_keys()
+    $ _ttype = str(bs_saga_tech_catalog_type or "ofensivas").lower()
+    $ _types = bs_saga_tech_type_keys()
+    $ _rows = bs_saga_tech_catalog().get(_tier, []) if _mode == "tier" else bs_saga_tech_catalog_by_type().get(_ttype, [])
 
     add Solid("#0E1A28")
 
@@ -608,10 +644,23 @@ screen bs_saga_tech_catalog_screen():
                 background Solid("#1F3348")
                 vbox:
                     spacing 8
-                    text "Tiers" size 24 color "#DDEEFF"
-                    for tt in _tiers:
-                        textbutton "Tier [tt]":
-                            action SetVariable("bs_saga_tech_catalog_tier", tt)
+                    text "Modo de listado" size 24 color "#DDEEFF"
+                    textbutton "Por tier":
+                        action SetVariable("bs_saga_tech_catalog_mode", "tier")
+                    textbutton "Por tipo":
+                        action SetVariable("bs_saga_tech_catalog_mode", "type")
+                    null height 8
+
+                    if _mode == "tier":
+                        text "Tiers" size 24 color "#DDEEFF"
+                        for tt in _tiers:
+                            textbutton "Tier [tt]":
+                                action SetVariable("bs_saga_tech_catalog_tier", tt)
+                    else:
+                        text "Tipos" size 24 color "#DDEEFF"
+                        for tp in _types:
+                            textbutton "[bs_saga_catalog_humanize(tp)]":
+                                action SetVariable("bs_saga_tech_catalog_type", tp)
 
             frame:
                 xfill True
@@ -620,7 +669,7 @@ screen bs_saga_tech_catalog_screen():
                 background Solid("#102438")
                 vbox:
                     spacing 8
-                    text "Técnicas liberadas · Tier [_tier]" size 22 color "#EAF6FF"
+                    text ("Técnicas liberadas · Tier [_tier]" if _mode == "tier" else "Técnicas liberadas · Tipo [bs_saga_catalog_humanize(_ttype)]") size 22 color "#EAF6FF"
                     viewport:
                         draggable True
                         mousewheel True
@@ -641,7 +690,7 @@ screen bs_saga_tech_catalog_screen():
                                             text _n size 20 color "#CDE7FF"
                                             text _d size 16 color "#AFCFE8"
                             else:
-                                text "Sin técnicas configuradas para este tier." size 18 color "#9FB9D1"
+                                text ("Sin técnicas configuradas para este tier." if _mode == "tier" else "Sin técnicas configuradas para este tipo.") size 18 color "#9FB9D1"
 
 # ---------- flujo de entrada ----------
 

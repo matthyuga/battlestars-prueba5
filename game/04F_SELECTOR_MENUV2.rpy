@@ -428,12 +428,14 @@ screen battle_command_menu():
     ]
 
     $ DEF = [
+        "extra_tech",
         "defense_extra",
         "defense_reducer",
         "defense_reflect",
         "defense_strong_block",
         "salvaguarda_principiante",
         "focus_defense",
+        "fury_attack",
         "rest_recovery",
     ]
 
@@ -447,7 +449,7 @@ screen battle_command_menu():
         if _allowed_off:
             $ OFF = [k for k in OFF if (k in _allowed_off) or (k == "rest_recovery") or (k == "fury_attack")]
         if _allowed_def:
-            $ DEF = [k for k in DEF if (k in _allowed_def) or (k == "rest_recovery")]
+            $ DEF = [k for k in DEF if (k in _allowed_def) or (k == "rest_recovery") or (k == "fury_attack")]
 
     $ _show_off = bool(getattr(store, "ui_show_offensive_techniques", True))
     $ _show_def = bool(getattr(store, "ui_show_defensive_techniques", True))
