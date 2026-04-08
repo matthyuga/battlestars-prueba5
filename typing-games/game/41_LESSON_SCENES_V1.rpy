@@ -611,9 +611,14 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                 textbutton "5" action Function(tl_warmup_set_rounds, 5) sensitive (_phase != "run")
                 text "Completadas: [_done_rounds]" size 18 color "#BEECC6" yalign 0.5
                 null width 20
-                textbutton "Iniciar":
-                    action Function(tl_warmup_start)
-                    sensitive (_phase != "run")
+                if _done and _phase != "run":
+                    textbutton "Repetir":
+                        action Function(tl_warmup_start)
+                        sensitive True
+                else:
+                    textbutton "Iniciar":
+                        action Function(tl_warmup_start)
+                        sensitive (_phase != "run")
                 textbutton "Cancelar":
                     action Return("back_class")
 
