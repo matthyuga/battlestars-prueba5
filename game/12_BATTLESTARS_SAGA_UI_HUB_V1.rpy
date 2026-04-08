@@ -13,7 +13,7 @@ default bs_saga_heroes_franchise = "all"
 default bs_saga_catalog_category = "consumibles"
 default bs_saga_catalog_group = "pociones"
 default bs_saga_tech_catalog_tier = "C"
-default bs_saga_tech_catalog_mode = "tier"
+default bs_saga_tech_catalog_mode = ""
 default bs_saga_tech_catalog_type = "ofensivas"
 
 init -880 python:
@@ -258,6 +258,19 @@ init -880 python:
                 {"name": "Efecto especial", "desc": "Efecto propio del héroe, aplicable en ataque o defensa."},
             ],
         }
+
+    def bs_saga_tech_catalog_set_mode(mode):
+        m = str(mode or "").strip().lower()
+        current = str(getattr(S, "bs_saga_tech_catalog_mode", "") or "").strip().lower()
+        # Toggle: si se vuelve a presionar el mismo modo, colapsa panel.
+        if current == m:
+            S.bs_saga_tech_catalog_mode = ""
+            return None
+        if m in ("tier", "type"):
+            S.bs_saga_tech_catalog_mode = m
+        else:
+            S.bs_saga_tech_catalog_mode = ""
+        return None
 
 screen bs_saga_lobby_screen():
     tag menu
@@ -597,12 +610,12 @@ screen bs_saga_catalog_screen():
 
 screen bs_saga_tech_catalog_screen():
     tag menu
-    $ _mode = str(bs_saga_tech_catalog_mode or "tier").lower()
+    $ _mode = str(bs_saga_tech_catalog_mode or "").lower()
     $ _tier = str(bs_saga_tech_catalog_tier or "C").upper()
     $ _tiers = bs_saga_tech_tier_keys()
     $ _ttype = str(bs_saga_tech_catalog_type or "ofensivas").lower()
     $ _types = bs_saga_tech_type_keys()
-    $ _rows = bs_saga_tech_catalog().get(_tier, []) if _mode == "tier" else bs_saga_tech_catalog_by_type().get(_ttype, [])
+    $ _rows = bs_saga_tech_catalog().get(_tier, []) if _mode == "tier" else (bs_saga_tech_catalog_by_type().get(_ttype, []) if _mode == "type" else [])
 
     add Solid("#0E1A28")
 
@@ -646,9 +659,9 @@ screen bs_saga_tech_catalog_screen():
                     spacing 8
                     text "Modo de listado" size 24 color "#DDEEFF"
                     textbutton "Por tier":
-                        action SetVariable("bs_saga_tech_catalog_mode", "tier")
+                        action Function(bs_saga_tech_catalog_set_mode, "tier")
                     textbutton "Por tipo":
-                        action SetVariable("bs_saga_tech_catalog_mode", "type")
+                        action Function(bs_saga_tech_catalog_set_mode, "type")
                     null height 8
 
                     if _mode == "tier":
@@ -656,10 +669,11 @@ screen bs_saga_tech_catalog_screen():
                         for tt in _tiers:
                             textbutton "Tier [tt]":
                                 action SetVariable("bs_saga_tech_catalog_tier", tt)
-                    else:
+                    elif _mode == "type":
                         text "Tipos" size 24 color "#DDEEFF"
                         for tp in _types:
-                            textbutton "[bs_saga_labelize(tp)]":
+                            $ _tp_label = bs_saga_labelize(tp)
+                            textbutton _tp_label:
                                 action SetVariable("bs_saga_tech_catalog_type", tp)
 
             frame:
@@ -669,7 +683,13 @@ screen bs_saga_tech_catalog_screen():
                 background Solid("#102438")
                 vbox:
                     spacing 8
-                    text ("Técnicas liberadas · Tier [_tier]" if _mode == "tier" else "Técnicas liberadas · Tipo [bs_saga_labelize(_ttype)]") size 22 color "#EAF6FF"
+                    if _mode == "tier":
+                        text "Técnicas liberadas · Tier [_tier]" size 22 color "#EAF6FF"
+                    elif _mode == "type":
+                        $ _type_label = bs_saga_labelize(_ttype)
+                        text "Técnicas liberadas · Tipo [_type_label]" size 22 color "#EAF6FF"
+                    else:
+                        text "Selecciona \"Por tier\" o \"Por tipo\" para desplegar categorías." size 20 color "#AFCFE8"
                     viewport:
                         draggable True
                         mousewheel True
@@ -690,7 +710,7 @@ screen bs_saga_tech_catalog_screen():
                                             text _n size 20 color "#CDE7FF"
                                             text _d size 16 color "#AFCFE8"
                             else:
-                                text ("Sin técnicas configuradas para este tier." if _mode == "tier" else "Sin técnicas configuradas para este tipo.") size 18 color "#9FB9D1"
+                                text ("Sin técnicas configuradas para este tier." if _mode == "tier" else ("Sin técnicas configuradas para este tipo." if _mode == "type" else "")) size 18 color "#9FB9D1"
 
 # ---------- flujo de entrada ----------
 
