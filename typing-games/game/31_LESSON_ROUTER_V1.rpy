@@ -28,12 +28,11 @@ label tl_route_selected_sublesson:
         )
         $ _result = _return
     elif _scene_type == "typing_warmup_rounds":
-        $ tl_typing_warmup_result = "back_class"
         call screen tl_typing_warmup_rounds_scene(
             sublesson_id=_selected,
             lesson_id="lesson_1"
         )
-        $ _result = str(tl_typing_warmup_result or "back_class")
+        $ _result = _return
     else:
         call screen tl_lesson_placeholder_scene(
             sublesson_id=_selected,
