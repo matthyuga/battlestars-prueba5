@@ -127,6 +127,19 @@ init -880 python:
             return items
         return []
 
+    def bs_saga_labelize(v):
+        try:
+            s = unicode(v)
+        except:
+            try:
+                s = str(v)
+            except:
+                s = ""
+        s = s.replace("_", " ").strip()
+        if not s:
+            return "—"
+        return s[:1].upper() + s[1:]
+
 screen bs_saga_lobby_screen():
     tag menu
 
@@ -353,6 +366,7 @@ screen bs_saga_catalog_screen():
     $ _grp_label = _grp.capitalize() if _grp else "—"
     $ _items = bs_saga_catalog_items(_cat, _grp)
     $ _cats = bs_saga_catalog_category_keys()
+    $ _cat_label = bs_saga_labelize(_cat)
 
     add Solid("#0E1A28")
 
@@ -413,7 +427,8 @@ screen bs_saga_catalog_screen():
                             vbox:
                                 spacing 6
                                 for g in _groups:
-                                    textbutton "[g.capitalize()]":
+                                    $ _g_label = bs_saga_labelize(g)
+                                    textbutton "[_g_label]":
                                         action SetVariable("bs_saga_catalog_group", g)
 
                 frame:
@@ -423,7 +438,7 @@ screen bs_saga_catalog_screen():
                     background Solid("#102438")
                     vbox:
                         spacing 8
-                        text "Listado central · [_cat.capitalize()] / [_grp_label]" size 20 color "#DCEEFF"
+                        text "Listado central · [_cat_label] / [_grp_label]" size 20 color "#DCEEFF"
                         viewport:
                             draggable True
                             mousewheel True
