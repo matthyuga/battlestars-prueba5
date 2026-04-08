@@ -88,6 +88,25 @@ init python:
         return ["a", "s", "d", "f", "j", "k", "l", "ñ"]
 
 
+    def tl_warmup_build_sequence(pool=None, size=10):
+        import random
+        letters = list(pool or tl_warmup_letter_pool())
+        n = int(max(1, int(size or 10)))
+        if len(letters) == 0:
+            return []
+        if len(letters) == 1:
+            return [str(letters[0]) for _ in range(n)]
+
+        seq = []
+        prev = None
+        for _ in range(n):
+            options = [x for x in letters if str(x) != str(prev)]
+            nxt = random.choice(options if len(options) > 0 else letters)
+            seq.append(str(nxt))
+            prev = nxt
+        return seq
+
+
     def tl_warmup_finger_for_key(key_text=""):
         k = str(key_text or "").strip().lower()
         finger_map = {
@@ -122,7 +141,6 @@ init python:
 
 
     def tl_warmup_start():
-        import random
         st = getattr(store, "tl_typing_warmup_state", None)
         if not isinstance(st, dict):
             tl_warmup_prepare(3, 10)
@@ -130,7 +148,7 @@ init python:
 
         pool = list(tl_warmup_letter_pool())
         rpr = int(st.get("reps_per_round", 10) or 10)
-        seq = [random.choice(pool) for _ in range(rpr)]
+        seq = tl_warmup_build_sequence(pool=pool, size=rpr)
 
         st["rounds_done"] = 0
         st["round_index"] = 1
@@ -198,10 +216,9 @@ init python:
                     st["current_letter"] = ""
                     st["phase"] = "setup"
                 else:
-                    import random
                     pool = list(tl_warmup_letter_pool())
                     rpr = int(st.get("reps_per_round", 10) or 10)
-                    new_seq = [random.choice(pool) for _ in range(rpr)]
+                    new_seq = tl_warmup_build_sequence(pool=pool, size=rpr)
                     st["sequence"] = list(new_seq)
                     st["index"] = 0
                     st["current_letter"] = str(new_seq[0] if len(new_seq) > 0 else "a")
