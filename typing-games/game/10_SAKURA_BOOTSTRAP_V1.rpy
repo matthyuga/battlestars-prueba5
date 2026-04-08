@@ -922,14 +922,13 @@ label tl_classes_lesson_panel_flow:
     if _return == "start_selected":
         call tl_route_selected_sublesson
         $ _sub_return = _return
-        $ _selected = str(tl_selected_sublesson or "")
 
         if _sub_return == "complete":
-            "Subsección completada: [_selected]. Contenido académico registrado."
+            pass
         elif _sub_return == "back_class":
             pass
         else:
-            "Se detectó un problema al cargar la sublección. Reintenta o vuelve al panel."
+            pass
         jump tl_classes_lesson_panel_flow
 
     jump tl_classes_lesson_panel_flow
