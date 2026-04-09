@@ -276,21 +276,21 @@ screen tl_home_row_left_visual_panel(title="", points=None):
 
     frame:
         xalign 0.5
-        yalign 0.30
+        yalign 0.275
         xsize 1040
         ysize 450
         background Solid("#151019EE")
         padding (18, 14, 18, 14)
 
         vbox:
-            spacing 10
+            spacing 6
             xfill True
 
             text "[title]" size 44 color "#FFD7F1" xalign 0.5
 
             frame:
                 xfill True
-                ysize 148
+                ysize 142
                 padding (12, 8)
                 background Solid("#221A2CEB")
 
@@ -361,6 +361,69 @@ screen tl_home_row_left_visual_panel(title="", points=None):
                                         text _key size 17 color "#F8F8F8" xalign 0.5 yalign 0.5
 
 
+screen tl_ui_teacher_panel_bottom_left(
+    teacher_name="Docente",
+    teacher_line="",
+    teacher_portrait=None,
+    can_continue=False,
+    can_advance=False,
+    on_continue=None,
+    on_advance=None,
+    on_back=None
+):
+    $ _continue_action = on_continue if on_continue is not None else NullAction()
+    $ _advance_action = on_advance if on_advance is not None else NullAction()
+    $ _back_action = on_back if on_back is not None else Return("back_class")
+
+    frame:
+        xalign 0.04
+        yalign 1.0
+        yoffset -8
+        xsize 980
+        ysize 208
+        background Solid("#17121EEC")
+
+        hbox:
+            spacing 14
+            xalign 0.5
+            yalign 0.5
+
+            vbox:
+                spacing 8
+                xsize 176
+
+                frame:
+                    xsize 176
+                    ysize 132
+                    background Solid("#241D2C")
+                    if teacher_portrait:
+                        add teacher_portrait fit "contain" xalign 0.5 yalign 0.5
+                    else:
+                        text "Sin retrato" xalign 0.5 yalign 0.5 size 20 color "#E8D9F0"
+
+                frame:
+                    xsize 176
+                    ysize 30
+                    background Solid("#2A2230")
+                    text "[teacher_name]" xalign 0.5 yalign 0.5 size 20 color "#FFD7F1"
+
+            vbox:
+                spacing 10
+                yalign 0.5
+
+                frame:
+                    xsize 760
+                    ysize 90
+                    background Solid("#211A29")
+                    text "[teacher_line]" xalign 0.03 yalign 0.5 size 24 color "#F7E8FF"
+
+                hbox:
+                    spacing 14
+                    textbutton "Continuar" action _continue_action sensitive can_continue
+                    textbutton "Avanzar" action _advance_action sensitive can_advance
+                    textbutton "Atrás" action _back_action
+
+
 screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
     tag menu
     modal True
@@ -419,16 +482,28 @@ screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
             points=_points
         )
 
-    use tl_ui_teacher_panel(
-        teacher_name=_teacher_name,
-        teacher_line=_teacher_line,
-        teacher_portrait=_teacher_portrait,
-        can_continue=lesson_can_advance(sublesson_id, _safe_page, lesson_id=lesson_id),
-        can_advance=(not lesson_can_advance(sublesson_id, _safe_page, lesson_id=lesson_id)),
-        on_continue=SetVariable("tl_intro_page", min(_last, _safe_page + 1)),
-        on_advance=[SetVariable("tl_intro_page", 0), Return("complete")],
-        on_back=[SetVariable("tl_intro_page", 0), Return("back_class")]
-    )
+    if sublesson_id == "1_2_home_row" and _title == "Mano izquierda sobre la fila central":
+        use tl_ui_teacher_panel_bottom_left(
+            teacher_name=_teacher_name,
+            teacher_line=_teacher_line,
+            teacher_portrait=_teacher_portrait,
+            can_continue=lesson_can_advance(sublesson_id, _safe_page, lesson_id=lesson_id),
+            can_advance=(not lesson_can_advance(sublesson_id, _safe_page, lesson_id=lesson_id)),
+            on_continue=SetVariable("tl_intro_page", min(_last, _safe_page + 1)),
+            on_advance=[SetVariable("tl_intro_page", 0), Return("complete")],
+            on_back=[SetVariable("tl_intro_page", 0), Return("back_class")]
+        )
+    else:
+        use tl_ui_teacher_panel(
+            teacher_name=_teacher_name,
+            teacher_line=_teacher_line,
+            teacher_portrait=_teacher_portrait,
+            can_continue=lesson_can_advance(sublesson_id, _safe_page, lesson_id=lesson_id),
+            can_advance=(not lesson_can_advance(sublesson_id, _safe_page, lesson_id=lesson_id)),
+            on_continue=SetVariable("tl_intro_page", min(_last, _safe_page + 1)),
+            on_advance=[SetVariable("tl_intro_page", 0), Return("complete")],
+            on_back=[SetVariable("tl_intro_page", 0), Return("back_class")]
+        )
 
 
 screen tl_lesson_placeholder_scene(sublesson_id="", lesson_id="lesson_1"):
