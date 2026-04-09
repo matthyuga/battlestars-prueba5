@@ -834,3 +834,4 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                                             sensitive (_summary_idx < _summary_max)
                                         textbutton "Avanzar":
                                             action Return("complete")
+                                            sensitive (_summary_idx >= _summary_max)
