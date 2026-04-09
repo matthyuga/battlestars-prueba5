@@ -313,28 +313,38 @@ screen tl_home_row_left_visual_panel(title="", points=None):
                         spacing 6
                         text "Mano izquierda" size 30 color "#D6D6D6" xalign 0.5
                         hbox:
-                            spacing 10
+                            spacing 8
                             xalign 0.5
                             $ _left_fingers = [
                                 ("A", "Meñique", 90),
                                 ("S", "Anular", 115),
                                 ("D", "Medio", 126),
                                 ("F", "Índice", 108),
-                                ("ESPACIO", "Pulgar", 66),
+                                ("ESP", "Pulgar", 66),
                             ]
                             for _key, _finger_name, _h in _left_fingers:
                                 vbox:
-                                    spacing 4
-                                    text _key size 14 color "#E6E6E6" xalign 0.5
+                                    spacing 3
+                                    xsize 56
+                                    frame:
+                                        background Solid("#2A2A2A")
+                                        xsize 56
+                                        ysize 20
+                                        text _key size 13 color "#E6E6E6" xalign 0.5 yalign 0.5
                                     fixed:
-                                        xsize 42
+                                        xsize 56
                                         ysize 132
                                         frame:
                                             background Solid(tl_key_color_for(_key))
                                             xsize 42
                                             ysize _h
                                             yalign 1.0
-                                    text _finger_name size 13 color "#D0D0D0" xalign 0.5
+                                            xalign 0.5
+                                    frame:
+                                        background Solid("#2A2A2A")
+                                        xsize 56
+                                        ysize 20
+                                        text _finger_name size 12 color "#D0D0D0" xalign 0.5 yalign 0.5
 
                 frame:
                     xsize 700
@@ -406,9 +416,10 @@ screen tl_ui_teacher_panel_bottom_left(
             vbox:
                 spacing 10
                 yalign 0.5
+                xfill True
 
                 frame:
-                    xsize 760
+                    xfill True
                     ysize 90
                     background Solid("#211A29")
                     text "[teacher_line]" xalign 0.03 yalign 0.5 size 24 color "#F7E8FF"
