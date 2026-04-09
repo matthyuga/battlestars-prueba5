@@ -544,6 +544,16 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
 
     $ _meta = lesson_get_sublesson_meta(sublesson_id, lesson_id=lesson_id)
     $ _title = str(_meta.get("title", "1.4B Typing Lab")) if isinstance(_meta, dict) else "1.4B Typing Lab"
+    $ _teacher_id = str(_meta.get("teacher_id", tl_selected_teacher) or "").strip().lower() if isinstance(_meta, dict) else str(tl_selected_teacher or "").strip().lower()
+    if len(_teacher_id) == 0:
+        $ _teacher_id = "haru"
+    $ _teacher_rec = character_db_get(_teacher_id, "teachers") if "character_db_get" in globals() else {}
+    $ _teacher_name = str(_teacher_rec.get("display_name", "Docente")) if isinstance(_teacher_rec, dict) else "Docente"
+    $ _portrait_primary = str(_teacher_rec.get("portrait_primary", "")) if isinstance(_teacher_rec, dict) else ""
+    $ _portrait_fallback = str(_teacher_rec.get("portrait_fallback", "")) if isinstance(_teacher_rec, dict) else ""
+    $ _teacher_portrait = tl_asset(_portrait_primary) if len(_portrait_primary) > 0 else None
+    if not _teacher_portrait and len(_portrait_fallback) > 0:
+        $ _teacher_portrait = tl_asset(_portrait_fallback)
     $ _state = tl_typing_warmup_state if isinstance(tl_typing_warmup_state, dict) else {}
     $ _round_total = int(_state.get("rounds_total", 3) or 3)
     $ _round_index = int(_state.get("round_index", 1) or 1)
@@ -758,3 +768,15 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                         textbutton "Terminar lección":
                             xalign 0.5
                             action Return("complete")
+
+    if _phase == "summary":
+        use tl_ui_teacher_panel(
+            teacher_name=_teacher_name,
+            teacher_line="Ya estás listo para la siguiente sublección.",
+            teacher_portrait=_teacher_portrait,
+            can_continue=False,
+            can_advance=False,
+            on_continue=NullAction(),
+            on_advance=NullAction(),
+            on_back=Return("back_class")
+        )
