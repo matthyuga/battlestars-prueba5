@@ -151,6 +151,7 @@ init python:
             "error_flash_until": 0.0,
             "done": False,
             "phase": "setup",
+            "summary_step": 0,
         }
         return None
 
@@ -173,6 +174,7 @@ init python:
         st["error_flash_until"] = 0.0
         st["done"] = False
         st["phase"] = "run"
+        st["summary_step"] = 0
         store.tl_typing_warmup_state = st
         return None
 
@@ -196,7 +198,20 @@ init python:
             return None
         if bool(st.get("done", False)):
             st["phase"] = "summary"
+            st["summary_step"] = 0
             store.tl_typing_warmup_state = st
+        return None
+
+
+    def tl_warmup_summary_continue(teacher_id="haru"):
+        st = getattr(store, "tl_typing_warmup_state", None)
+        if not isinstance(st, dict):
+            return None
+        lines = tl_warmup_summary_lines(teacher_id)
+        max_idx = max(0, len(lines) - 1)
+        idx = int(st.get("summary_step", 0) or 0)
+        st["summary_step"] = min(max_idx, idx + 1)
+        store.tl_typing_warmup_state = st
         return None
 
 
@@ -570,6 +585,7 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
     $ _teacher_portrait = tl_asset(_portrait_primary) if len(_portrait_primary) > 0 else None
     if not _teacher_portrait and len(_portrait_fallback) > 0:
         $ _teacher_portrait = tl_asset(_portrait_fallback)
+    $ _summary_lines = tl_warmup_summary_lines(_teacher_id)
     $ _state = tl_typing_warmup_state if isinstance(tl_typing_warmup_state, dict) else {}
     $ _round_total = int(_state.get("rounds_total", 3) or 3)
     $ _round_index = int(_state.get("round_index", 1) or 1)
@@ -580,12 +596,15 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
     $ _current = str(_state.get("current_letter", "") or "").upper()
     $ _done = bool(_state.get("done", False))
     $ _phase = str(_state.get("phase", "setup") or "setup")
+    $ _summary_step = int(_state.get("summary_step", 0) or 0)
     $ _error_active = float(time.time()) < float(_state.get("error_flash_until", 0.0) or 0.0)
     $ _hand_id, _finger_id = tl_warmup_finger_for_key(_current)
     $ _rows = tl_keyboard_mock_rows()
     $ _blocked_keys = tl_keyboard_mock_blocked_keys()
     $ _show_round = (_round_total if _round_index > _round_total else _round_index)
     $ _show_letter_idx = (_rpr if (_idx + 1) > _rpr else (_idx + 1))
+    $ _summary_max = max(0, len(_summary_lines) - 1)
+    $ _summary_idx = (0 if _summary_step < 0 else (_summary_max if _summary_step > _summary_max else _summary_step))
 
     on "show" action Function(tl_warmup_prepare, 3, 10)
 
@@ -807,9 +826,11 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                                 vbox:
                                     spacing 6
                                     text _teacher_name size 24 color "#E6D9F8"
-                                    text _summary_lines[0] size 18 color "#F1F1F1"
-                                    text _summary_lines[1] size 18 color "#D8D8D8"
-                                    text _summary_lines[2] size 18 color "#C9D8F8"
-                        textbutton "Terminar lección":
-                            xalign 0.5
-                            action Return("complete")
+                                    text _summary_lines[_summary_idx] size 19 color "#F1F1F1"
+                                    hbox:
+                                        spacing 22
+                                        textbutton "Continuar":
+                                            action Function(tl_warmup_summary_continue, _teacher_id)
+                                            sensitive (_summary_idx < _summary_max)
+                                        textbutton "Avanzar":
+                                            action Return("complete")
