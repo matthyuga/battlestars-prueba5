@@ -557,20 +557,22 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
     $ _error_active = float(time.time()) < float(_state.get("error_flash_until", 0.0) or 0.0)
     $ _hand_id, _finger_id = tl_warmup_finger_for_key(_current)
     $ _rows = tl_keyboard_mock_rows()
+    $ _blocked_keys = tl_keyboard_mock_blocked_keys()
     $ _show_round = (_round_total if _round_index > _round_total else _round_index)
     $ _show_letter_idx = (_rpr if (_idx + 1) > _rpr else (_idx + 1))
 
     on "show" action Function(tl_warmup_prepare, 3, 10)
 
+    for _shortcut in _blocked_keys:
+        key _shortcut action NullAction()
+    key "dismiss" action NullAction()
+    key "game_menu" action NullAction()
+    key "rollback" action NullAction()
+
     if _phase == "run":
         for _k in _letters:
             key _k action Function(tl_warmup_press_key, _k)
         key "K_SPACE" action NullAction()
-        key "K_F11" action NullAction()
-        key "K_F5" action NullAction()
-        key "dismiss" action NullAction()
-        key "game_menu" action NullAction()
-        key "rollback" action NullAction()
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
