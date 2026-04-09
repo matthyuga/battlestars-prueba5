@@ -276,9 +276,9 @@ screen tl_home_row_left_visual_panel(title="", points=None):
 
     frame:
         xalign 0.5
-        yalign 0.275
+        yalign 0.255
         xsize 1040
-        ysize 450
+        ysize 440
         background Solid("#151019EE")
         padding (18, 14, 18, 14)
 
@@ -290,7 +290,7 @@ screen tl_home_row_left_visual_panel(title="", points=None):
 
             frame:
                 xfill True
-                ysize 142
+                ysize 132
                 padding (12, 8)
                 background Solid("#221A2CEB")
 
@@ -302,10 +302,11 @@ screen tl_home_row_left_visual_panel(title="", points=None):
             hbox:
                 spacing 14
                 xalign 0.5
+                yoffset -18
 
                 frame:
                     xsize 300
-                    ysize 205
+                    ysize 220
                     background Solid("#10141ECC")
                     padding (10, 8)
                     vbox:
@@ -332,17 +333,20 @@ screen tl_home_row_left_visual_panel(title="", points=None):
                             ]
                             for _key, _h in _left_fingers:
                                 vbox:
-                                    spacing 2
-                                    frame:
-                                        background Solid(tl_key_color_for(_key))
+                                    spacing 4
+                                    fixed:
                                         xsize 42
-                                        ysize _h
-                                        yalign 1.0
+                                        ysize 132
+                                        frame:
+                                            background Solid(tl_key_color_for(_key))
+                                            xsize 42
+                                            ysize _h
+                                            yalign 1.0
                                     text _key size 14 color "#E6E6E6" xalign 0.5
 
                 frame:
                     xsize 700
-                    ysize 205
+                    ysize 220
                     background Solid("#10141ECC")
                     padding (10, 8)
                     vbox:
