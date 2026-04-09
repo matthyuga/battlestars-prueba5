@@ -382,16 +382,17 @@ screen tl_ui_teacher_panel_bottom_left(
     $ _back_action = on_back if on_back is not None else Return("back_class")
 
     frame:
-        xalign 0.04
+        xalign 0.5
         yalign 1.0
         yoffset -8
-        xsize 980
+        xsize 1180
         ysize 208
         background Solid("#17121EEC")
 
         hbox:
             spacing 14
             xalign 0.5
+            xfill True
             yalign 0.5
 
             vbox:
