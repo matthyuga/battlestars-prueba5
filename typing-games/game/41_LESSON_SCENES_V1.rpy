@@ -313,27 +313,19 @@ screen tl_home_row_left_visual_panel(title="", points=None):
                         spacing 6
                         text "Mano izquierda" size 30 color "#D6D6D6" xalign 0.5
                         hbox:
-                            spacing 6
-                            xalign 0.5
-                            for _name in ["Meñique", "Anular", "Medio", "Índice", "Pulgar"]:
-                                frame:
-                                    background Solid("#2A2A2A")
-                                    xsize 52
-                                    ysize 20
-                                    text _name size 13 color "#D0D0D0" xalign 0.5 yalign 0.5
-                        hbox:
                             spacing 10
                             xalign 0.5
                             $ _left_fingers = [
-                                ("A", 90),
-                                ("S", 115),
-                                ("D", 126),
-                                ("F", 108),
-                                ("ESPACIO", 66),
+                                ("A", "Meñique", 90),
+                                ("S", "Anular", 115),
+                                ("D", "Medio", 126),
+                                ("F", "Índice", 108),
+                                ("ESPACIO", "Pulgar", 66),
                             ]
-                            for _key, _h in _left_fingers:
+                            for _key, _finger_name, _h in _left_fingers:
                                 vbox:
                                     spacing 4
+                                    text _key size 14 color "#E6E6E6" xalign 0.5
                                     fixed:
                                         xsize 42
                                         ysize 132
@@ -342,7 +334,7 @@ screen tl_home_row_left_visual_panel(title="", points=None):
                                             xsize 42
                                             ysize _h
                                             yalign 1.0
-                                    text _key size 14 color "#E6E6E6" xalign 0.5
+                                    text _finger_name size 13 color "#D0D0D0" xalign 0.5
 
                 frame:
                     xsize 700
