@@ -376,8 +376,8 @@ init -125 python:
                     "id": "1_4_keys_exercise",
                     "title": "1.4 Ejercicio teclas",
                     "state": "real",
-                    "scene_type": "lesson_dialogue",
-                    "objective": "Consolidar precisión en teclas individuales.",
+                    "scene_type": "typing_warmup_rounds",
+                    "objective": "Ejercicio de tipeo de letras para consolidar precisión por dedo.",
                     "steps": [
                         {
                             "title": "Ejercicio por teclas",
