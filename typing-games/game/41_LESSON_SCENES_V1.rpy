@@ -122,6 +122,21 @@ init python:
         return finger_map.get(k, ("none", "none"))
 
 
+    def tl_warmup_summary_lines(teacher_id="haru"):
+        tid = str(teacher_id or "").strip().lower()
+        if tid == "misaki":
+            return [
+                "Excelente trabajo! pudiste completar tu primer ejercicio, si bien es lo basico en la mecanografia ya vas entendiendo la logica, cada dedo es asignado a una tecla.",
+                "Con tiempo y práctica terminaras dominando el teclado... o prendiendolo fuego...",
+                "Continuemos aprendiendo...",
+            ]
+        return [
+            "Muy bien, has completado tu primer ejercicio de tipeo.",
+            "Recuerda que cada dedo maneja una tecla, cuando te acostumbres con la practica tipearas como una autentica máquina...",
+            "Sigamos con la clase...",
+        ]
+
+
     def tl_warmup_prepare(rounds=3, reps_per_round=10):
         rr = int(max(3, min(5, int(rounds or 3))))
         rpr = int(max(8, int(reps_per_round or 10)))
@@ -278,6 +293,7 @@ screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
     $ _teacher_portrait = tl_asset(_portrait_primary) if len(_portrait_primary) > 0 else None
     if not _teacher_portrait and len(_portrait_fallback) > 0:
         $ _teacher_portrait = tl_asset(_portrait_fallback)
+    $ _summary_lines = tl_warmup_summary_lines(_teacher_id)
 
     $ bg = tl_asset("images/sakura-sunshine/sakura-sunshine-academy-salon.jpg")
     if bg:
@@ -756,27 +772,44 @@ screen tl_typing_warmup_rounds_scene(sublesson_id="1_4b_typing_lab", lesson_id="
                 frame:
                     background Solid("#151515EE")
                     xfill True
-                    ysize 430
+                    ysize 360
                     padding (24, 24, 24, 24)
                     vbox:
-                        spacing 20
-                        text "¡Excelente trabajo!" size 42 color "#F5F5F5" xalign 0.5
-                        text "Docente: Completaste el warmup de dedos con muy buena consistencia." size 24 color "#D6D6D6" xalign 0.5
-                        text "Logro desbloqueado: Dominio base de asdf · jklñ." size 26 color "#BEECC6" xalign 0.5
-                        text "Ya estás listo para la siguiente sublección." size 22 color "#C9D8F8" xalign 0.5
-                        null height 16
+                        spacing 14
+                        frame:
+                            background Solid("#111111E6")
+                            xfill True
+                            ysize 128
+                            padding (16, 12, 16, 12)
+                            vbox:
+                                spacing 8
+                                text "¡Excelente trabajo!" size 46 color "#F5F5F5" xalign 0.5
+                                text "Logro desbloqueado: Dominio base de asdf · jklñ." size 30 color "#BEECC6" xalign 0.5
+                        frame:
+                            background Solid("#161222E6")
+                            xfill True
+                            ysize 150
+                            padding (14, 10, 14, 10)
+                            hbox:
+                                spacing 14
+                                if _teacher_portrait:
+                                    frame:
+                                        background Solid("#2B203A")
+                                        xsize 150
+                                        ysize 130
+                                        add _teacher_portrait fit "contain" xalign 0.5 yalign 0.5
+                                else:
+                                    frame:
+                                        background Solid("#2B203A")
+                                        xsize 150
+                                        ysize 130
+                                        text _teacher_name size 24 color "#DCCAF0" xalign 0.5 yalign 0.5
+                                vbox:
+                                    spacing 6
+                                    text _teacher_name size 24 color "#E6D9F8"
+                                    text _summary_lines[0] size 18 color "#F1F1F1"
+                                    text _summary_lines[1] size 18 color "#D8D8D8"
+                                    text _summary_lines[2] size 18 color "#C9D8F8"
                         textbutton "Terminar lección":
                             xalign 0.5
                             action Return("complete")
-
-    if _phase == "summary":
-        use tl_ui_teacher_panel(
-            teacher_name=_teacher_name,
-            teacher_line="Ya estás listo para la siguiente sublección.",
-            teacher_portrait=_teacher_portrait,
-            can_continue=False,
-            can_advance=False,
-            on_continue=NullAction(),
-            on_advance=NullAction(),
-            on_back=Return("back_class")
-        )
