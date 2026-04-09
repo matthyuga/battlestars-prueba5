@@ -776,10 +776,11 @@ screen tl_classes_lesson_panel_screen():
     $ _s12 = get_check("clases", "lesson_1", "1_2_home_row")
     $ _s13 = get_check("clases", "lesson_1", "1_3_results")
     $ _s14 = get_check("clases", "lesson_1", "1_4_keys_exercise")
+    $ _s14b = get_check("clases", "lesson_1", "1_4b_typing_lab")
     $ _s15 = get_check("clases", "lesson_1", "1_5_exam_help")
     $ _s16 = get_check("clases", "lesson_1", "1_6_words_exercise")
     $ _s17 = get_check("clases", "lesson_1", "1_7_phrases_exercise")
-    $ _lesson_done = sum([1 for _v in [_s11, _s12, _s13, _s14, _s15, _s16, _s17] if _v])
+    $ _lesson_done = sum([1 for _v in [_s11, _s12, _s13, _s14, _s14b, _s15, _s16, _s17] if _v])
 
     frame:
         xalign 0.5
@@ -797,12 +798,13 @@ screen tl_classes_lesson_panel_screen():
                 spacing 8
                 xsize 620
                 text "Lección 1 · Panel de submódulos" size 40 color "#FFD7F1"
-                text "Progreso: [_lesson_done]/7 checks" size 24 color "#E8D9F0"
+                text "Progreso: [_lesson_done]/8 checks" size 24 color "#E8D9F0"
 
                 textbutton "1.1 Introducción {}".format("✓" if _s11 else "□") action SetVariable("tl_selected_sublesson", "1_1_intro")
                 textbutton "1.2 Fila central {}".format("✓" if _s12 else "□") action SetVariable("tl_selected_sublesson", "1_2_home_row")
                 textbutton "1.3 Ver resultados {}".format("✓" if _s13 else "□") action SetVariable("tl_selected_sublesson", "1_3_results")
                 textbutton "1.4 Ejercicio teclas {}".format("✓" if _s14 else "□") action SetVariable("tl_selected_sublesson", "1_4_keys_exercise")
+                textbutton "1.4B Typing Lab {}".format("✓" if _s14b else "□") action SetVariable("tl_selected_sublesson", "1_4b_typing_lab")
                 textbutton "1.5 Ayuda exámenes {}".format("✓" if _s15 else "□") action SetVariable("tl_selected_sublesson", "1_5_exam_help")
                 textbutton "1.6 Ejercicio palabras {}".format("✓" if _s16 else "□") action SetVariable("tl_selected_sublesson", "1_6_words_exercise")
                 textbutton "1.7 Ejercicio frases {}".format("✓" if _s17 else "□") action SetVariable("tl_selected_sublesson", "1_7_phrases_exercise")
@@ -920,14 +922,13 @@ label tl_classes_lesson_panel_flow:
     if _return == "start_selected":
         call tl_route_selected_sublesson
         $ _sub_return = _return
-        $ _selected = str(tl_selected_sublesson or "")
 
         if _sub_return == "complete":
-            "Subsección completada: [_selected]. Contenido académico registrado."
+            pass
         elif _sub_return == "back_class":
             pass
         else:
-            "Se detectó un problema al cargar la sublección. Reintenta o vuelve al panel."
+            pass
         jump tl_classes_lesson_panel_flow
 
     jump tl_classes_lesson_panel_flow

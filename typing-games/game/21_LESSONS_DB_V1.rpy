@@ -376,7 +376,7 @@ init -125 python:
                     "id": "1_4_keys_exercise",
                     "title": "1.4 Ejercicio teclas",
                     "state": "real",
-                    "scene_type": "lesson_dialogue",
+                    "scene_type": "typing_keyboard_mock",
                     "objective": "Consolidar precisión en teclas individuales.",
                     "steps": [
                         {
@@ -423,6 +423,24 @@ init -125 python:
                                 "Respira profundo y comienza.",
                             ],
                             "teacher_line": "Entrar con método reduce el estrés y mejora el resultado.",
+                        },
+                    ],
+                },
+                "1_4b_typing_lab": {
+                    "id": "1_4b_typing_lab",
+                    "title": "1.4B Typing Lab",
+                    "state": "real",
+                    "scene_type": "typing_warmup_rounds",
+                    "objective": "Calentamiento de dedos con letras aleatorias de fila central.",
+                    "steps": [
+                        {
+                            "title": "Warmup modular",
+                            "points": [
+                                "Rondas completas con mano izquierda y derecha.",
+                                "Cada ronda usa 10 letras aleatorias de asdfjklñ.",
+                                "Solo avanza con tecla correcta; error muestra una cruz.",
+                            ],
+                            "teacher_line": "No hay penalización: buscamos familiaridad y precisión de dedos.",
                         },
                     ],
                 },
@@ -490,6 +508,7 @@ init -125 python:
             "1_2_home_row",
             "1_3_results",
             "1_4_keys_exercise",
+            "1_4b_typing_lab",
             "1_5_exam_help",
             "1_6_words_exercise",
             "1_7_phrases_exercise",
