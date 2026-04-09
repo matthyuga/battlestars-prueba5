@@ -270,6 +270,97 @@ default tl_typing_warmup_state = {}
 default tl_typing_warmup_result = "back_class"
 
 
+screen tl_home_row_left_visual_panel(title="", points=None):
+    $ _points = points if isinstance(points, (list, tuple)) else []
+    $ _rows = tl_keyboard_mock_rows()
+
+    frame:
+        xalign 0.5
+        yalign 0.30
+        xsize 1040
+        ysize 450
+        background Solid("#151019EE")
+        padding (18, 14, 18, 14)
+
+        vbox:
+            spacing 10
+            xfill True
+
+            text "[title]" size 44 color "#FFD7F1" xalign 0.5
+
+            frame:
+                xfill True
+                ysize 148
+                padding (12, 8)
+                background Solid("#221A2CEB")
+
+                vbox:
+                    spacing 6
+                    for _line in _points:
+                        text "• [_line]" size 23 color "#F7E8FF"
+
+            hbox:
+                spacing 14
+                xalign 0.5
+
+                frame:
+                    xsize 300
+                    ysize 205
+                    background Solid("#10141ECC")
+                    padding (10, 8)
+                    vbox:
+                        spacing 6
+                        text "Mano izquierda" size 30 color "#D6D6D6" xalign 0.5
+                        hbox:
+                            spacing 6
+                            xalign 0.5
+                            for _name in ["Meñique", "Anular", "Medio", "Índice", "Pulgar"]:
+                                frame:
+                                    background Solid("#2A2A2A")
+                                    xsize 52
+                                    ysize 20
+                                    text _name size 13 color "#D0D0D0" xalign 0.5 yalign 0.5
+                        hbox:
+                            spacing 10
+                            xalign 0.5
+                            $ _left_fingers = [
+                                ("A", 90),
+                                ("S", 115),
+                                ("D", 126),
+                                ("F", 108),
+                                ("ESPACIO", 66),
+                            ]
+                            for _key, _h in _left_fingers:
+                                vbox:
+                                    spacing 2
+                                    frame:
+                                        background Solid(tl_key_color_for(_key))
+                                        xsize 42
+                                        ysize _h
+                                        yalign 1.0
+                                    text _key size 14 color "#E6E6E6" xalign 0.5
+
+                frame:
+                    xsize 700
+                    ysize 205
+                    background Solid("#10141ECC")
+                    padding (10, 8)
+                    vbox:
+                        spacing 8
+                        text "Teclado simulado (fila central)" size 24 color "#D6D6D6" xalign 0.5
+                        for _row in _rows:
+                            hbox:
+                                spacing 6
+                                xalign 0.5
+                                for _key in _row:
+                                    $ _w = 360 if _key == "ESPACIO" else 56
+                                    frame:
+                                        background Solid(tl_key_color_for(_key))
+                                        xsize _w
+                                        ysize 34
+                                        text _key size 17 color "#F8F8F8" xalign 0.5 yalign 0.5
+
+
 screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
     tag menu
     modal True
@@ -317,10 +408,16 @@ screen tl_lesson_intro_scene(sublesson_id="1_1_intro", lesson_id="lesson_1"):
         add "tl_fallback_rose"
     add Solid("#00000090")
 
-    use tl_ui_panel_center(
-        title=_title,
-        points=_points
-    )
+    if sublesson_id == "1_2_home_row" and _title == "Mano izquierda sobre la fila central":
+        use tl_home_row_left_visual_panel(
+            title=_title,
+            points=_points
+        )
+    else:
+        use tl_ui_panel_center(
+            title=_title,
+            points=_points
+        )
 
     use tl_ui_teacher_panel(
         teacher_name=_teacher_name,
