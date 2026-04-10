@@ -105,8 +105,8 @@ screen say(who, what):
         right_padding 42
         top_padding 22
         bottom_padding 22
-        add Solid("#34D8FFCC") xpos 0 ypos 0 xfill True ysize 3
-        add Solid("#FF4BD1AA") xpos 0.0 yalign 1.0 xfill True ysize 2
+        add Solid("#34D8FFCC") xpos 0 ypos 0 xsize config.screen_width ysize 3
+        add Solid("#FF4BD1AA") xpos 0.0 yalign 1.0 xsize config.screen_width ysize 2
         add Solid("#34D8FF99") xpos 0 ypos 0 xsize 26 ysize 16
         add Solid("#FF4BD199") xalign 1.0 yalign 1.0 xsize 26 ysize 14
 
@@ -116,7 +116,7 @@ screen say(who, what):
                 id "namebox"
                 style "namebox"
                 background Solid("#132742EE")
-                add Solid("#34D8FFEE") xpos 0 ypos 0 xfill True ysize 3
+                add Solid("#34D8FFEE") xpos 0 ypos 0 xsize gui.namebox_width ysize 3
                 text who id "who"
 
         text what id "what"
@@ -198,8 +198,8 @@ screen input(prompt):
         right_padding 44
         top_padding 22
         bottom_padding 22
-        add Solid("#34D8FFCC") xpos 0 ypos 0 xfill True ysize 3
-        add Solid("#FF4BD1AA") xpos 0.0 yalign 1.0 xfill True ysize 2
+        add Solid("#34D8FFCC") xpos 0 ypos 0 xsize config.screen_width ysize 3
+        add Solid("#FF4BD1AA") xpos 0.0 yalign 1.0 xsize config.screen_width ysize 2
 
         vbox:
             xalign gui.dialogue_text_xalign
@@ -244,8 +244,8 @@ screen choice(items):
                 background Solid("#00000000")
                 xfill True
                 yminimum 78
-                add Solid("#34D8FFAA") xpos 0 ypos 0 xfill True ysize 2
-                add Solid("#FF4BD188") xpos 0.0 yalign 1.0 xfill True ysize 2
+                add Solid("#34D8FFAA") xpos 0 ypos 0 xsize 760 ysize 2
+                add Solid("#FF4BD188") xpos 0.0 yalign 1.0 xsize 760 ysize 2
                 textbutton i.caption action i.action
 
 
