@@ -100,7 +100,7 @@ screen say(who, what):
 
     window:
         id "window"
-        background Solid("#111A2AF2")
+        background Frame("gui/button/choice_idle_background.png", 18, 18)
         left_padding 56
         right_padding 56
         top_padding 20
@@ -142,7 +142,7 @@ style window:
     yalign gui.textbox_yalign
     ysize gui.textbox_height
 
-    background Solid("#111A2AF2")
+    background Frame("gui/button/choice_idle_background.png", 18, 18)
 
 style namebox:
     xpos gui.name_xpos
@@ -158,17 +158,18 @@ style say_label:
     properties gui.text_properties("name", accent=True)
     xalign gui.name_xalign
     yalign 0.5
-    size 34
+    size 28
     outlines [(2, "#0A0E16", 0, 0)]
 
 style say_dialogue:
     properties gui.text_properties("dialogue")
+    font "DejaVuSerif.ttf"
 
     xpos gui.dialogue_xpos
     xsize gui.dialogue_width
     ypos gui.dialogue_ypos
-    size 34
-    line_spacing 4
+    size 28
+    line_spacing 2
     color "#EAF4FF"
     outlines [(2, "#0A0E16", 0, 0)]
 
@@ -187,7 +188,7 @@ screen input(prompt):
     style_prefix "input"
 
     window:
-        background Solid("#111A2AF2")
+        background Frame("gui/button/choice_idle_background.png", 18, 18)
         left_padding 56
         right_padding 56
         top_padding 20
@@ -207,14 +208,16 @@ style input_prompt is default
 style input_prompt:
     xalign gui.dialogue_text_xalign
     properties gui.text_properties("input_prompt")
-    size 34
+    font "DejaVuSerif.ttf"
+    size 28
     color "#EAF4FF"
     outlines [(2, "#0A0E16", 0, 0)]
 
 style input:
     xalign gui.dialogue_text_xalign
     xmaximum gui.dialogue_width
-    size 34
+    font "DejaVuSerif.ttf"
+    size 28
     color "#EAF4FF"
     caret "#EAF4FF"
 
@@ -259,13 +262,14 @@ style choice_button is default:
     right_padding 24
     top_padding 12
     bottom_padding 12
-    background Solid("#1A2334F0")
-    hover_background Solid("#243248F5")
+    background Frame("gui/button/choice_idle_background.png", 18, 18)
+    hover_background Frame("gui/button/choice_hover_background.png", 18, 18)
     insensitive_background Solid("#1A1A1A99")
 
 style choice_button_text is default:
     properties gui.button_text_properties("choice_button")
-    size 28
+    font "DejaVuSerif.ttf"
+    size 24
     color "#EAF4FF"
     hover_color "#FFFFFF"
     insensitive_color "#9A9A9A"
