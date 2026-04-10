@@ -172,10 +172,15 @@ screen battle_hp_overlay():
                 spacing 4
                 hbox:
                     spacing 8
-                    add im.Scale("gui/battle/hud_ai/portraits/portrait_harribel_head.png", 64, 64)
+                    add im.Scale("images/character/Jugador_a.png", 64, 64)
                     vbox:
                         spacing 2
-                        text "Jugador (Harribel)" size 17 color "#00BFFF"
+                        $ _player_display_name = (
+                            getattr(store, "story_player_name", None)
+                            or getattr(store, "player_name", None)
+                            or "Jugador"
+                        )
+                        text "Jugador ({})".format(_player_display_name) size 17 color "#00BFFF"
                         text ("HP %s / %s" % (_php_fake, _pmax)) size 15
                         text ("Reiatsu %s / %s" % (_prei_fake, _pmax_rei)) size 14
                         text ("Energía %s / %s" % (_pene_fake, _pmax_ene)) size 14
