@@ -139,3 +139,9 @@ Porque separa correctamente:
   - Helper `bs_account_add_item_v1(bucket, item_id, qty)` para altas en baúl de cuenta.
   - Helper `bs_transfer_chest_to_hero_v1(hero_id, bucket, item_id, qty)` para transferencias baúl -> héroe.
   - Transferencias limitadas a `consumables`/`equipables` (oro sigue fuera del inventario de héroe).
+- ✅ Fase 3 iniciada en código (recompensas por modo):
+  - Helper `bs_apply_mode_rewards_v1(mode, payload)` con enrutamiento para `duel_free`, `tournament` y `tower`.
+  - Destino de recompensas conectado a cuenta (`oro/exp`) y, cuando aplique, progreso de héroe + drops.
+- ✅ Fase 4 iniciada en código (trazabilidad y balance):
+  - Log de auditoría `bs_economy_audit_log_v1` con eventos de ingresos, transferencias y consumos.
+  - Helper de consumo `bs_consume_hero_item_v1(...)` + auditoría automática.
