@@ -100,12 +100,18 @@ screen say(who, what):
 
     window:
         id "window"
+        background Solid("#10131DE6")
+        left_padding 42
+        right_padding 42
+        top_padding 22
+        bottom_padding 22
 
         if who is not None:
 
             window:
                 id "namebox"
                 style "namebox"
+                background Solid("#1A2232EE")
                 text who id "who"
 
         text what id "what"
@@ -136,7 +142,7 @@ style window:
     yalign gui.textbox_yalign
     ysize gui.textbox_height
 
-    background Image("gui/textbox.png", xalign=0.5, yalign=1.0)
+    background Solid("#10131DE6")
 
 style namebox:
     xpos gui.name_xpos
@@ -145,13 +151,15 @@ style namebox:
     ypos gui.name_ypos
     ysize gui.namebox_height
 
-    background Frame("gui/namebox.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
+    background Solid("#1A2232EE")
     padding gui.namebox_borders.padding
 
 style say_label:
     properties gui.text_properties("name", accent=True)
     xalign gui.name_xalign
     yalign 0.5
+    size 34
+    outlines [(2, "#0A0E16", 0, 0)]
 
 style say_dialogue:
     properties gui.text_properties("dialogue")
@@ -159,6 +167,9 @@ style say_dialogue:
     xpos gui.dialogue_xpos
     xsize gui.dialogue_width
     ypos gui.dialogue_ypos
+    size 32
+    line_spacing 4
+    outlines [(2, "#0A0E16", 0, 0)]
 
 
 ## Input screen ################################################################
@@ -223,16 +234,30 @@ style choice_button_text is button_text
 
 style choice_vbox:
     xalign 0.5
-    ypos 270
+    ypos 310
     yanchor 0.5
 
-    spacing gui.choice_spacing
+    spacing 12
 
 style choice_button is default:
     properties gui.button_properties("choice_button")
+    xminimum 760
+    yminimum 74
+    left_padding 26
+    right_padding 26
+    top_padding 14
+    bottom_padding 14
+    background Solid("#16263ACC")
+    hover_background Solid("#24466DD9")
+    insensitive_background Solid("#1A1A1A99")
 
 style choice_button_text is default:
     properties gui.button_text_properties("choice_button")
+    size 30
+    color "#EAF4FF"
+    hover_color "#FFFFFF"
+    insensitive_color "#9A9A9A"
+    outlines [(2, "#0A0E16", 0, 0)]
 
 
 ## Quick Menu screen ###########################################################

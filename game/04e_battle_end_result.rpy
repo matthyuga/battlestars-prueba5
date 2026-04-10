@@ -175,6 +175,13 @@ screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
     default _warnings = _audit.get("warnings", []) if isinstance(_audit.get("warnings", []), list) else []
     default _errors = _audit.get("errors", []) if isinstance(_audit.get("errors", []), list) else []
     default _rows = _sr.get("results", []) if isinstance(_sr.get("results", []), list) else []
+    default _sim_id = _sr.get("simulation_id", "sim_unknown")
+    default _sim_mode = _sr.get("mode", "custom")
+    default _sim_winner = _sr.get("winner_team", "DRAW")
+    default _ap_ok = _ap.get("ok", False)
+    default _ap_count = _ap.get("applied_count", 0)
+    default _ap_exp = _ap.get("total_exp", 0)
+    default _ap_oro = _ap.get("total_oro", 0)
 
     add Solid("#000000AA")
 
@@ -189,8 +196,8 @@ screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
             spacing 12
 
             text "Resumen de recompensas (C4)" size 34 color "#FFFFFF"
-            text "sim_id=[_sr.get('simulation_id', 'sim_unknown')]  |  mode=[_sr.get('mode', 'custom')]  |  winner=[_sr.get('winner_team', 'DRAW')]" size 20 color "#CFE8FF"
-            text "Aplicación: ok=[_ap.get('ok', False)]  |  count=[_ap.get('applied_count', 0)]  |  EXP=[_ap.get('total_exp', 0)]  |  Oro=[_ap.get('total_oro', 0)]" size 20 color "#A6FFCC"
+            text "sim_id=[_sim_id]  |  mode=[_sim_mode]  |  winner=[_sim_winner]" size 20 color "#CFE8FF"
+            text "Aplicación: ok=[_ap_ok]  |  count=[_ap_count]  |  EXP=[_ap_exp]  |  Oro=[_ap_oro]" size 20 color "#A6FFCC"
             text "Audit: warnings=[len(_warnings)]  |  errors=[len(_errors)]" size 18 color "#FFD27A"
 
             frame:

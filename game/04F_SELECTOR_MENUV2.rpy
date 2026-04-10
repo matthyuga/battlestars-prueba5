@@ -489,12 +489,16 @@ screen battle_command_menu():
                         $ _chip_text = tech_chip_caption(tech_key, battle_mode)
 
                         textbutton _chip_text:
-                            xminimum 410
-                            yminimum 46
-                            text_size 14
+                            xminimum 450
+                            yminimum 60
+                            text_size 19
                             text_color ("#EAF4FF" if can_use else "#999999")
-                            background ("#223349CC" if can_use else "#1A1A1A99")
-                            hover_background ("#2F4E70DD" if can_use else "#1A1A1A99")
+                            left_padding 18
+                            right_padding 18
+                            top_padding 10
+                            bottom_padding 10
+                            background ("#1A3149E0" if can_use else "#1A1A1A99")
+                            hover_background ("#2A4F73EE" if can_use else "#1A1A1A99")
                             action (Function(add_technique_safe, label, tech_key) if can_use else NullAction())
                             tooltip tooltip_text
 
@@ -510,7 +514,7 @@ screen battle_command_menu():
 
             vbox spacing 6:
 
-                text "Panel técnicas · Tecla O Ofensivas: {}  |  Tecla D Defensivas: {}".format("ON" if _show_off else "OFF", "ON" if _show_def else "OFF") size 14 color "#C8C8C8"
+                text "Panel técnicas · Tecla O Ofensivas: {}  |  Tecla D Defensivas: {}".format("ON" if _show_off else "OFF", "ON" if _show_def else "OFF") size 18 color "#C8C8C8"
 
                 hbox:
                     spacing 14
@@ -525,7 +529,7 @@ screen battle_command_menu():
 
                             vbox:
                                 spacing 6
-                                text "OFENSIVAS" size 16 color ("#66CCFF" if battle_mode == "offensive" else "#8A8A8A")
+                                text "OFENSIVAS" size 22 color ("#66CCFF" if battle_mode == "offensive" else "#8A8A8A")
                                 viewport:
                                     draggable True
                                     mousewheel True
@@ -542,12 +546,16 @@ screen battle_command_menu():
                                             $ tooltip_text = tip + "\n\nTurno actual: usa ofensivas para seleccionar." if (battle_mode != "offensive") else (tip + "\n\nTurno ofensivo cancelado: solo Defensa." if _only_defense else tip)
                                             $ _chip_text = tech_chip_caption(tech_key, "offensive")
                                             textbutton _chip_text:
-                                                xminimum 430
-                                                yminimum 42
-                                                text_size 13
+                                                xminimum 448
+                                                yminimum 58
+                                                text_size 18
                                                 text_color ("#DFF2FF" if can_use else "#8F8F8F")
-                                                background ("#173752CC" if can_use else "#1B1B1B99")
-                                                hover_background ("#24587DDD" if can_use else "#1B1B1B99")
+                                                left_padding 16
+                                                right_padding 16
+                                                top_padding 10
+                                                bottom_padding 10
+                                                background ("#173752E0" if can_use else "#1B1B1B99")
+                                                hover_background ("#2A5D83EE" if can_use else "#1B1B1B99")
                                                 action (Function(add_technique_safe, label, tech_key) if can_use else NullAction())
                                                 tooltip tooltip_text
 
@@ -561,7 +569,7 @@ screen battle_command_menu():
 
                             vbox:
                                 spacing 6
-                                text "DEFENSIVAS" size 16 color ("#FFAAAA" if battle_mode == "defensive" else "#8A8A8A")
+                                text "DEFENSIVAS" size 22 color ("#FFAAAA" if battle_mode == "defensive" else "#8A8A8A")
                                 viewport:
                                     draggable True
                                     mousewheel True
@@ -578,11 +586,15 @@ screen battle_command_menu():
                                             $ tooltip_text = tip + "\n\nTurno actual: usa defensivas para seleccionar." if locked else tip
                                             $ _chip_text = tech_chip_caption(tech_key, "defensive")
                                             textbutton _chip_text:
-                                                xminimum 430
-                                                yminimum 42
-                                                text_size 13
+                                                xminimum 448
+                                                yminimum 58
+                                                text_size 18
                                                 text_color ("#FFEAEA" if can_use else "#8F8F8F")
-                                                background ("#4A2525CC" if can_use else "#1B1B1B99")
-                                                hover_background ("#6E3232DD" if can_use else "#1B1B1B99")
+                                                left_padding 16
+                                                right_padding 16
+                                                top_padding 10
+                                                bottom_padding 10
+                                                background ("#4A2525E0" if can_use else "#1B1B1B99")
+                                                hover_background ("#7A3C3CEE" if can_use else "#1B1B1B99")
                                                 action (Function(add_technique_safe, label, tech_key) if can_use else NullAction())
                                                 tooltip tooltip_text
