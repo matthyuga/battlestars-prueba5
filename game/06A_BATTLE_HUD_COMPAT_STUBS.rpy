@@ -222,9 +222,4 @@ screen battle_hp_overlay():
 screen battle_ui_hotkeys():
     zorder 95
     if bool(getattr(store, "battle_active", False)):
-        frame:
-            xalign 0.5
-            yalign 0.985
-            background "#0007"
-            padding (8, 6)
-            text "Ofensiva/Defensiva + selector de técnicas activo (modo tutorial)" size 15
+        null

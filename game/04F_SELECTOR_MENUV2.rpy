@@ -514,8 +514,6 @@ screen battle_command_menu():
 
             vbox spacing 6:
 
-                text "Panel técnicas · Tecla O Ofensivas: {}  |  Tecla D Defensivas: {}".format("ON" if _show_off else "OFF", "ON" if _show_def else "OFF") size 22 color "#C8C8C8"
-
                 hbox:
                     spacing 14
 
