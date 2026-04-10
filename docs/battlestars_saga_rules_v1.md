@@ -129,3 +129,9 @@ Porque separa correctamente:
 4. Definir interfaz de transferencia baúl -> héroe.
 5. Conectar reglas por modo a destinos de recompensa (cuenta/héroe).
 6. Añadir auditoría simple de transferencias e ingresos de oro.
+
+## Estado de avance
+- ✅ Fase 1 iniciada en código con módulo base `12E_SAGA_FOUNDATIONS_V1.rpy`:
+  - Canon Saga v1 expuesto como `BS_SAGA_CANON_ACTOR_TYPES_V1 = ("PLAYER", "BETA", "GAMMA")`.
+  - Esquema mínimo de `bs_account_inventory_v1` (oro global + baúl).
+  - Esquema mínimo de `bs_hero_inventories_v1` (sin oro por héroe).
