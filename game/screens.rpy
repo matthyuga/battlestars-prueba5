@@ -163,7 +163,7 @@ style say_label:
 
 style say_dialogue:
     properties gui.text_properties("dialogue")
-    font "DejaVuSerif.ttf"
+    font gui.text_font
 
     xpos gui.dialogue_xpos
     xsize gui.dialogue_width
@@ -208,7 +208,7 @@ style input_prompt is default
 style input_prompt:
     xalign gui.dialogue_text_xalign
     properties gui.text_properties("input_prompt")
-    font "DejaVuSerif.ttf"
+    font gui.text_font
     size 28
     color "#EAF4FF"
     outlines [(2, "#0A0E16", 0, 0)]
@@ -216,7 +216,7 @@ style input_prompt:
 style input:
     xalign gui.dialogue_text_xalign
     xmaximum gui.dialogue_width
-    font "DejaVuSerif.ttf"
+    font gui.text_font
     size 28
     color "#EAF4FF"
     caret "#EAF4FF"
@@ -268,7 +268,7 @@ style choice_button is default:
 
 style choice_button_text is default:
     properties gui.button_text_properties("choice_button")
-    font "DejaVuSerif.ttf"
+    font gui.text_font
     size 24
     color "#EAF4FF"
     hover_color "#FFFFFF"
