@@ -188,7 +188,7 @@ screen input(prompt):
     style_prefix "input"
 
     window:
-        background Frame("gui/button/choice_idle_background.png", 18, 18)
+        background None
         left_padding 56
         right_padding 56
         top_padding 20
