@@ -507,7 +507,8 @@ screen battle_command_menu():
     # VISTA EXPANDIDA
     # ============================================================
     else:
-        $ _tech_row_height = 95 + 6
+        $ _tech_zoom = BTN_ZOOM if isinstance(BTN_ZOOM, (int, float)) and BTN_ZOOM > 0 else 1.0
+        $ _tech_row_height = max(1, int((95 + 6) * _tech_zoom))
         $ _tech_viewport_height = 380
         $ _visible_tech_rows = max(1, _tech_viewport_height // _tech_row_height)
         $ _off_need_scroll = len(OFF) > _visible_tech_rows
