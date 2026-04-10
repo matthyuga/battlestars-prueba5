@@ -100,12 +100,18 @@ screen say(who, what):
 
     window:
         id "window"
+        background Frame("gui/button/choice_idle_background.png", 18, 18)
+        left_padding 56
+        right_padding 56
+        top_padding 20
+        bottom_padding 24
 
         if who is not None:
 
             window:
                 id "namebox"
                 style "namebox"
+                background Solid("#00000000")
                 text who id "who"
 
         text what id "what"
@@ -136,7 +142,7 @@ style window:
     yalign gui.textbox_yalign
     ysize gui.textbox_height
 
-    background Image("gui/textbox.png", xalign=0.5, yalign=1.0)
+    background Frame("gui/button/choice_idle_background.png", 18, 18)
 
 style namebox:
     xpos gui.name_xpos
@@ -145,20 +151,27 @@ style namebox:
     ypos gui.name_ypos
     ysize gui.namebox_height
 
-    background Frame("gui/namebox.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
-    padding gui.namebox_borders.padding
+    background None
+    padding (0, 0)
 
 style say_label:
     properties gui.text_properties("name", accent=True)
     xalign gui.name_xalign
     yalign 0.5
+    size 28
+    outlines [(2, "#0A0E16", 0, 0)]
 
 style say_dialogue:
     properties gui.text_properties("dialogue")
+    font gui.text_font
 
     xpos gui.dialogue_xpos
     xsize gui.dialogue_width
     ypos gui.dialogue_ypos
+    size 28
+    line_spacing 2
+    color "#EAF4FF"
+    outlines [(2, "#0A0E16", 0, 0)]
 
 
 ## Input screen ################################################################
@@ -175,6 +188,11 @@ screen input(prompt):
     style_prefix "input"
 
     window:
+        background Frame("gui/button/choice_idle_background.png", 18, 18)
+        left_padding 56
+        right_padding 56
+        top_padding 20
+        bottom_padding 24
 
         vbox:
             xalign gui.dialogue_text_xalign
@@ -190,10 +208,18 @@ style input_prompt is default
 style input_prompt:
     xalign gui.dialogue_text_xalign
     properties gui.text_properties("input_prompt")
+    font gui.text_font
+    size 28
+    color "#EAF4FF"
+    outlines [(2, "#0A0E16", 0, 0)]
 
 style input:
     xalign gui.dialogue_text_xalign
     xmaximum gui.dialogue_width
+    font gui.text_font
+    size 28
+    color "#EAF4FF"
+    caret "#EAF4FF"
 
 
 ## Choice screen ###############################################################
@@ -223,16 +249,31 @@ style choice_button_text is button_text
 
 style choice_vbox:
     xalign 0.5
-    ypos 270
+    ypos 360
     yanchor 0.5
 
-    spacing gui.choice_spacing
+    spacing 10
 
 style choice_button is default:
     properties gui.button_properties("choice_button")
+    xminimum 820
+    yminimum 68
+    left_padding 24
+    right_padding 24
+    top_padding 12
+    bottom_padding 12
+    background Frame("gui/button/choice_idle_background.png", 18, 18)
+    hover_background Frame("gui/button/choice_hover_background.png", 18, 18)
+    insensitive_background Solid("#1A1A1A99")
 
 style choice_button_text is default:
     properties gui.button_text_properties("choice_button")
+    font gui.text_font
+    size 24
+    color "#EAF4FF"
+    hover_color "#FFFFFF"
+    insensitive_color "#9A9A9A"
+    outlines [(2, "#0A0E16", 0, 0)]
 
 
 ## Quick Menu screen ###########################################################
@@ -300,23 +341,8 @@ screen navigation():
         spacing gui.navigation_spacing
 
         if main_menu:
-
-            $ _quick_pid = str(getattr(store, "spa_editor_profile_id", "A") or "A")
-            $ _load_and_start_action = [Start()]
-            if hasattr(store, "spa_ui_load_profile_feedback"):
-                $ _load_and_start_action = [Function(store.spa_ui_load_profile_feedback, _quick_pid), Start()]
-
-            $ _quick_1v1_action = [Start()]
-            if hasattr(store, "bs_prepare_quick_random_1v1"):
-                $ _quick_1v1_action = [Function(store.bs_prepare_quick_random_1v1, _quick_pid), Start()]
-
-            textbutton _("Load & Start [[{}]]").format(_quick_pid) action _load_and_start_action
-            textbutton _("Start 1v1 random [[{}]]").format(_quick_pid) action _quick_1v1_action
-
-            textbutton _("Start") action Start()
-            textbutton _("Start Historia (Piloto)") action Start("story_phaseA_intro")
-            if config.developer:
-                textbutton _("Sim Lab Sandbox (Dev)") action Start("sim_lab_open")
+            textbutton _("New Game") action Start("bs_saga_intro_splash")
+            textbutton _("Lab (Piloto Historia)") action Start("story_phaseA_intro")
 
         else:
 
