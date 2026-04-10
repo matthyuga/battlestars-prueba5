@@ -489,9 +489,9 @@ screen battle_command_menu():
                         $ _chip_text = tech_chip_caption(tech_key, battle_mode)
 
                         textbutton _chip_text:
-                            xminimum 450
-                            yminimum 60
-                            text_size 19
+                            xminimum 585
+                            yminimum 78
+                            text_size 25
                             text_color ("#EAF4FF" if can_use else "#999999")
                             left_padding 18
                             right_padding 18
@@ -510,11 +510,11 @@ screen battle_command_menu():
 
         frame:
             background "#0000"
-            align (0.08, 0.55)
+            align (0.03, 0.60)
 
             vbox spacing 6:
 
-                text "Panel técnicas · Tecla O Ofensivas: {}  |  Tecla D Defensivas: {}".format("ON" if _show_off else "OFF", "ON" if _show_def else "OFF") size 18 color "#C8C8C8"
+                text "Panel técnicas · Tecla O Ofensivas: {}  |  Tecla D Defensivas: {}".format("ON" if _show_off else "OFF", "ON" if _show_def else "OFF") size 22 color "#C8C8C8"
 
                 hbox:
                     spacing 14
@@ -523,13 +523,13 @@ screen battle_command_menu():
                         frame:
                             background "#0006"
                             padding (8, 8)
-                            xmaximum 460
-                            xminimum 460
+                            xmaximum 510
+                            xminimum 510
                             ymaximum 430
 
                             vbox:
                                 spacing 6
-                                text "OFENSIVAS" size 22 color ("#66CCFF" if battle_mode == "offensive" else "#8A8A8A")
+                                text "OFENSIVAS" size 28 color ("#66CCFF" if battle_mode == "offensive" else "#8A8A8A")
                                 viewport:
                                     draggable True
                                     mousewheel True
@@ -546,9 +546,9 @@ screen battle_command_menu():
                                             $ tooltip_text = tip + "\n\nTurno actual: usa ofensivas para seleccionar." if (battle_mode != "offensive") else (tip + "\n\nTurno ofensivo cancelado: solo Defensa." if _only_defense else tip)
                                             $ _chip_text = tech_chip_caption(tech_key, "offensive")
                                             textbutton _chip_text:
-                                                xminimum 448
-                                                yminimum 58
-                                                text_size 18
+                                                xminimum 492
+                                                yminimum 76
+                                                text_size 24
                                                 text_color ("#DFF2FF" if can_use else "#8F8F8F")
                                                 left_padding 16
                                                 right_padding 16
@@ -563,13 +563,13 @@ screen battle_command_menu():
                         frame:
                             background "#0006"
                             padding (8, 8)
-                            xmaximum 460
-                            xminimum 460
+                            xmaximum 510
+                            xminimum 510
                             ymaximum 430
 
                             vbox:
                                 spacing 6
-                                text "DEFENSIVAS" size 22 color ("#FFAAAA" if battle_mode == "defensive" else "#8A8A8A")
+                                text "DEFENSIVAS" size 28 color ("#FFAAAA" if battle_mode == "defensive" else "#8A8A8A")
                                 viewport:
                                     draggable True
                                     mousewheel True
@@ -586,9 +586,9 @@ screen battle_command_menu():
                                             $ tooltip_text = tip + "\n\nTurno actual: usa defensivas para seleccionar." if locked else tip
                                             $ _chip_text = tech_chip_caption(tech_key, "defensive")
                                             textbutton _chip_text:
-                                                xminimum 448
-                                                yminimum 58
-                                                text_size 18
+                                                xminimum 492
+                                                yminimum 76
+                                                text_size 24
                                                 text_color ("#FFEAEA" if can_use else "#8F8F8F")
                                                 left_padding 16
                                                 right_padding 16
