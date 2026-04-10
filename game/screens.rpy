@@ -220,6 +220,7 @@ style input:
     size 28
     color "#EAF4FF"
     caret "#EAF4FF"
+    background None
 
 
 ## Choice screen ###############################################################
