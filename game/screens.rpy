@@ -228,7 +228,6 @@ style input:
     font gui.text_font
     size 28
     color "#0F172A"
-    caret "#0F172A"
     background None
 
 
