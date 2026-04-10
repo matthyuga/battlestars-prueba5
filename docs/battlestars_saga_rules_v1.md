@@ -135,3 +135,7 @@ Porque separa correctamente:
   - Canon Saga v1 expuesto como `BS_SAGA_CANON_ACTOR_TYPES_V1 = ("PLAYER", "BETA", "GAMMA")`.
   - Esquema mínimo de `bs_account_inventory_v1` (oro global + baúl).
   - Esquema mínimo de `bs_hero_inventories_v1` (sin oro por héroe).
+- ✅ Fase 2 iniciada en código (economía e inventarios):
+  - Helper `bs_account_add_item_v1(bucket, item_id, qty)` para altas en baúl de cuenta.
+  - Helper `bs_transfer_chest_to_hero_v1(hero_id, bucket, item_id, qty)` para transferencias baúl -> héroe.
+  - Transferencias limitadas a `consumables`/`equipables` (oro sigue fuera del inventario de héroe).
