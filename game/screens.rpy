@@ -100,23 +100,18 @@ screen say(who, what):
 
     window:
         id "window"
-        background Solid("#0B1220E8")
-        left_padding 42
-        right_padding 42
-        top_padding 22
-        bottom_padding 22
-        add Solid("#34D8FFCC") xpos 0 ypos 0 xsize config.screen_width ysize 3
-        add Solid("#FF4BD1AA") xpos 0.0 yalign 1.0 xsize config.screen_width ysize 2
-        add Solid("#34D8FF99") xpos 0 ypos 0 xsize 26 ysize 16
-        add Solid("#FF4BD199") xalign 1.0 yalign 1.0 xsize 26 ysize 14
+        background Solid("#111A2AF2")
+        left_padding 56
+        right_padding 56
+        top_padding 20
+        bottom_padding 24
 
         if who is not None:
 
             window:
                 id "namebox"
                 style "namebox"
-                background Solid("#132742EE")
-                add Solid("#34D8FFEE") xpos 0 ypos 0 xsize gui.namebox_width ysize 3
+                background Solid("#00000000")
                 text who id "who"
 
         text what id "what"
@@ -147,7 +142,7 @@ style window:
     yalign gui.textbox_yalign
     ysize gui.textbox_height
 
-    background Solid("#0B1220E8")
+    background Solid("#111A2AF2")
 
 style namebox:
     xpos gui.name_xpos
@@ -156,16 +151,15 @@ style namebox:
     ypos gui.name_ypos
     ysize gui.namebox_height
 
-    background Solid("#132742EE")
-    padding gui.namebox_borders.padding
+    background None
+    padding (0, 0)
 
 style say_label:
     properties gui.text_properties("name", accent=True)
     xalign gui.name_xalign
     yalign 0.5
-    size 40
-    color "#E7F7FF"
-    outlines [(2, "#09111E", 0, 0), (4, "#34D8FF44", 0, 0)]
+    size 34
+    outlines [(2, "#0A0E16", 0, 0)]
 
 style say_dialogue:
     properties gui.text_properties("dialogue")
@@ -173,10 +167,10 @@ style say_dialogue:
     xpos gui.dialogue_xpos
     xsize gui.dialogue_width
     ypos gui.dialogue_ypos
-    size 36
-    line_spacing 6
+    size 34
+    line_spacing 4
     color "#EAF4FF"
-    outlines [(2, "#09111E", 0, 0)]
+    outlines [(2, "#0A0E16", 0, 0)]
 
 
 ## Input screen ################################################################
@@ -193,13 +187,11 @@ screen input(prompt):
     style_prefix "input"
 
     window:
-        background Solid("#0B1220EE")
-        left_padding 44
-        right_padding 44
-        top_padding 22
-        bottom_padding 22
-        add Solid("#34D8FFCC") xpos 0 ypos 0 xsize config.screen_width ysize 3
-        add Solid("#FF4BD1AA") xpos 0.0 yalign 1.0 xsize config.screen_width ysize 2
+        background Solid("#111A2AF2")
+        left_padding 56
+        right_padding 56
+        top_padding 20
+        bottom_padding 24
 
         vbox:
             xalign gui.dialogue_text_xalign
@@ -215,16 +207,16 @@ style input_prompt is default
 style input_prompt:
     xalign gui.dialogue_text_xalign
     properties gui.text_properties("input_prompt")
-    size 36
+    size 34
     color "#EAF4FF"
-    outlines [(2, "#09111E", 0, 0)]
+    outlines [(2, "#0A0E16", 0, 0)]
 
 style input:
     xalign gui.dialogue_text_xalign
     xmaximum gui.dialogue_width
     size 34
     color "#EAF4FF"
-    caret "#34D8FF"
+    caret "#EAF4FF"
 
 
 ## Choice screen ###############################################################
@@ -240,13 +232,7 @@ screen choice(items):
 
     vbox:
         for i in items:
-            frame:
-                background Solid("#00000000")
-                xfill True
-                yminimum 78
-                add Solid("#34D8FFAA") xpos 0 ypos 0 xsize 760 ysize 2
-                add Solid("#FF4BD188") xpos 0.0 yalign 1.0 xsize 760 ysize 2
-                textbutton i.caption action i.action
+            textbutton i.caption action i.action
 
 
 ## When this is true, menu captions will be spoken by the narrator. When false,
@@ -260,26 +246,26 @@ style choice_button_text is button_text
 
 style choice_vbox:
     xalign 0.5
-    ypos 310
+    ypos 360
     yanchor 0.5
 
-    spacing 14
+    spacing 10
 
 style choice_button is default:
     properties gui.button_properties("choice_button")
-    xminimum 760
-    yminimum 74
-    left_padding 26
-    right_padding 26
-    top_padding 14
-    bottom_padding 14
-    background Solid("#10243ADC")
-    hover_background Solid("#1D3F62EE")
+    xminimum 820
+    yminimum 68
+    left_padding 24
+    right_padding 24
+    top_padding 12
+    bottom_padding 12
+    background Solid("#1A2334F0")
+    hover_background Solid("#243248F5")
     insensitive_background Solid("#1A1A1A99")
 
 style choice_button_text is default:
     properties gui.button_text_properties("choice_button")
-    size 30
+    size 28
     color "#EAF4FF"
     hover_color "#FFFFFF"
     insensitive_color "#9A9A9A"

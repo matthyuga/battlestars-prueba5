@@ -490,8 +490,8 @@ screen battle_command_menu():
 
                         textbutton _chip_text:
                             xminimum 585
-                            yminimum 78
-                            text_size 25
+                            yminimum 98
+                            text_size 31
                             text_color ("#EAF4FF" if can_use else "#999999")
                             left_padding 18
                             right_padding 18
@@ -521,7 +521,7 @@ screen battle_command_menu():
 
                     if _show_off_col:
                         frame:
-                            background "#0006"
+                            background "#0000"
                             padding (8, 8)
                             xmaximum 510
                             xminimum 510
@@ -547,8 +547,8 @@ screen battle_command_menu():
                                             $ _chip_text = tech_chip_caption(tech_key, "offensive")
                                             textbutton _chip_text:
                                                 xminimum 492
-                                                yminimum 76
-                                                text_size 24
+                                                yminimum 95
+                                                text_size 30
                                                 text_color ("#DFF2FF" if can_use else "#8F8F8F")
                                                 left_padding 16
                                                 right_padding 16
@@ -561,7 +561,7 @@ screen battle_command_menu():
 
                     if _show_def_col:
                         frame:
-                            background "#0006"
+                            background "#0000"
                             padding (8, 8)
                             xmaximum 510
                             xminimum 510
@@ -587,8 +587,8 @@ screen battle_command_menu():
                                             $ _chip_text = tech_chip_caption(tech_key, "defensive")
                                             textbutton _chip_text:
                                                 xminimum 492
-                                                yminimum 76
-                                                text_size 24
+                                                yminimum 95
+                                                text_size 30
                                                 text_color ("#FFEAEA" if can_use else "#8F8F8F")
                                                 left_padding 16
                                                 right_padding 16
