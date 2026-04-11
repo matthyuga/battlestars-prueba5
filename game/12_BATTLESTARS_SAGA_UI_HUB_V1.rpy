@@ -200,6 +200,22 @@ init -880 python:
         S.bs_saga_catalog_group = str(group or "")
         return None
 
+    def bs_saga_tower_block_size():
+        # 1 bloque = 10 pisos (según propuesta Torre MVP: C 1-20, B 21-50, A 51-90).
+        return 10
+
+    def bs_saga_tower_tier_blocks():
+        # Estructura creciente de bloques por tier (documentación de diseño).
+        return [
+            ("C", 2),
+            ("B", 3),
+            ("A", 4),
+            ("S", 5),
+            ("SS", 6),
+            ("SSS", 7),
+            ("IV", 8),
+        ]
+
     def bs_saga_tower_tier_for_floor(floor_num):
         try:
             n = int(floor_num)
@@ -207,13 +223,14 @@ init -880 python:
             n = 1
         if n < 1:
             n = 1
-        if n <= 40:
-            return "C"
-        if n <= 70:
-            return "B"
-        if n <= 90:
-            return "A"
-        return "S"
+        block_size = bs_saga_tower_block_size()
+        acc = 0
+        rows = bs_saga_tower_tier_blocks()
+        for tier, blocks in rows:
+            acc += int(blocks) * block_size
+            if n <= acc:
+                return tier
+        return "IV"
 
     def bs_saga_tower_floors(limit=100):
         try:
@@ -224,12 +241,25 @@ init -880 python:
             max_floor = 1
 
         rows = []
+        tier_rows = bs_saga_tower_tier_blocks()
+        block_size = bs_saga_tower_block_size()
         for n in range(1, max_floor + 1):
             tier = bs_saga_tower_tier_for_floor(n)
             has_guardian = (n % 5 != 0)
+            tier_start = 1
+            tier_end = block_size
+            for tier_key, tier_blocks in tier_rows:
+                tier_len = int(tier_blocks) * block_size
+                tier_end = tier_start + tier_len - 1
+                if tier == tier_key:
+                    break
+                tier_start = tier_end + 1
+
             rows.append({
                 "floor": n,
                 "tier": tier,
+                "tier_range_start": tier_start,
+                "tier_range_end": tier_end,
                 "slot_type": ("guardian" if has_guardian else "event"),
                 "title": ("Guardián pendiente" if has_guardian else "Buff / Sorpresa pendiente"),
                 "subtitle": ("NPC/Héroe por definir" if has_guardian else "Evento especial por definir"),
@@ -781,6 +811,8 @@ screen bs_saga_tower_screen():
     $ _rows = bs_saga_tower_filter_floors(_tf, 100)
     $ _selected = bs_saga_tower_selected_row(_selected_floor, 100)
     $ _selected_tier = str(_selected.get("tier", "C") or "C").upper()
+    $ _selected_tier_start = int(_selected.get("tier_range_start", 1) or 1)
+    $ _selected_tier_end = int(_selected.get("tier_range_end", 10) or 10)
     $ _selected_slot_type = str(_selected.get("slot_type", "guardian") or "guardian")
     $ _selected_title = str(_selected.get("title", "—") or "—")
     $ _selected_subtitle = str(_selected.get("subtitle", "—") or "—")
@@ -887,6 +919,7 @@ screen bs_saga_tower_screen():
                                     vbox:
                                         spacing 6
                                         text ("Tier asignado: " + _selected_tier) size 18 color "#D0E9FF"
+                                        text ("Rango tier: pisos %03d-%03d" % (_selected_tier_start, _selected_tier_end)) size 17 color "#B8D9F2"
                                         text ("Tipo de nodo: " + ("Guardián" if _selected_slot_type == "guardian" else "Buff / Sorpresa")) size 18 color "#D0E9FF"
                                         text ("Estado: " + _selected_title) size 17 color "#B8D9F2"
                                         text ("Detalle: " + _selected_subtitle) size 17 color "#B8D9F2"
