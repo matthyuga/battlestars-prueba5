@@ -15,6 +15,8 @@ default bs_saga_catalog_group = "pociones"
 default bs_saga_tech_catalog_tier = "C"
 default bs_saga_tech_catalog_mode = ""
 default bs_saga_tech_catalog_type = "ofensivas"
+default bs_saga_tower_tier_filter = "ALL"
+default bs_saga_tower_selected_floor = 1
 
 init -880 python:
     import renpy.store as S
@@ -198,6 +200,64 @@ init -880 python:
         S.bs_saga_catalog_group = str(group or "")
         return None
 
+    def bs_saga_tower_tier_for_floor(floor_num):
+        try:
+            n = int(floor_num)
+        except:
+            n = 1
+        if n < 1:
+            n = 1
+        if n <= 40:
+            return "C"
+        if n <= 70:
+            return "B"
+        if n <= 90:
+            return "A"
+        return "S"
+
+    def bs_saga_tower_floors(limit=100):
+        try:
+            max_floor = int(limit)
+        except:
+            max_floor = 100
+        if max_floor < 1:
+            max_floor = 1
+
+        rows = []
+        for n in range(1, max_floor + 1):
+            tier = bs_saga_tower_tier_for_floor(n)
+            has_guardian = (n % 5 != 0)
+            rows.append({
+                "floor": n,
+                "tier": tier,
+                "slot_type": ("guardian" if has_guardian else "event"),
+                "title": ("Guardián pendiente" if has_guardian else "Buff / Sorpresa pendiente"),
+                "subtitle": ("NPC/Héroe por definir" if has_guardian else "Evento especial por definir"),
+            })
+        return rows
+
+    def bs_saga_tower_filter_floors(tier_filter="ALL", limit=100):
+        tf = str(tier_filter or "ALL").upper()
+        rows = bs_saga_tower_floors(limit)
+        if tf in ("ALL", "", "*"):
+            return rows
+        out = []
+        for row in rows:
+            if str(row.get("tier", "")).upper() == tf:
+                out.append(row)
+        return out
+
+    def bs_saga_tower_selected_row(selected_floor=1, limit=100):
+        try:
+            target = int(selected_floor)
+        except:
+            target = 1
+        rows = bs_saga_tower_floors(limit)
+        for row in rows:
+            if int(row.get("floor", 0) or 0) == target:
+                return row
+        return rows[0] if rows else {"floor": 1, "tier": "C", "slot_type": "guardian", "title": "—", "subtitle": "—"}
+
     def bs_saga_tech_tier_keys():
         return ["C", "B", "A", "S"]
 
@@ -320,7 +380,7 @@ screen bs_saga_lobby_screen():
                         textbutton "Tier B (no disponible)" action Jump("bs_saga_torneo_tier_b_locked")
                         textbutton "Tier A (no disponible)" action Jump("bs_saga_torneo_tier_a_locked")
 
-            textbutton "🗼 Torre del cielo (no disponible)" action Jump("bs_saga_torre_cielo_locked")
+            textbutton "🗼 Torre del cielo (preview)" action Jump("bs_saga_torre_cielo")
 
     frame:
         xalign 0.5
@@ -713,6 +773,129 @@ screen bs_saga_tech_catalog_screen():
                             else:
                                 text ("Sin técnicas configuradas para este tier." if _mode == "tier" else ("Sin técnicas configuradas para este tipo." if _mode == "type" else "")) size 18 color "#9FB9D1"
 
+screen bs_saga_tower_screen():
+    tag menu
+
+    $ _tf = str(bs_saga_tower_tier_filter or "ALL").upper()
+    $ _selected_floor = int(bs_saga_tower_selected_floor or 1)
+    $ _rows = bs_saga_tower_filter_floors(_tf, 100)
+    $ _selected = bs_saga_tower_selected_row(_selected_floor, 100)
+    $ _selected_tier = str(_selected.get("tier", "C") or "C").upper()
+    $ _selected_slot_type = str(_selected.get("slot_type", "guardian") or "guardian")
+    $ _selected_title = str(_selected.get("title", "—") or "—")
+    $ _selected_subtitle = str(_selected.get("subtitle", "—") or "—")
+    $ _selected_floor_label = int(_selected.get("floor", 1) or 1)
+    $ _filter_label = ("todas" if _tf == "ALL" else ("tier " + _tf))
+
+    add Solid("#0E1A28")
+
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
+        ypadding 10
+        background Solid("#2C4963")
+        hbox:
+            spacing 16
+            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
+            text "Territorio: Torre del cielo" size 22 color "#D7EEFF" yalign 0.7
+            null width 40
+            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+
+    frame:
+        xalign 0.5
+        yalign 0.56
+        xsize 1120
+        ysize 500
+        padding (18, 18)
+        background Solid("#14273B")
+
+        hbox:
+            spacing 16
+
+            frame:
+                xsize 240
+                yfill True
+                padding (10, 10)
+                background Solid("#1F3348")
+                vbox:
+                    spacing 8
+                    text "Pisos (1-100)" size 22 color "#DDEEFF"
+                    text "Filtro: [_filter_label]" size 16 color "#9FC4E2"
+                    viewport:
+                        draggable True
+                        mousewheel True
+                        scrollbars "vertical"
+                        ymaximum 420
+                        vbox:
+                            spacing 6
+                            for row in _rows:
+                                $ _f = int(row.get("floor", 1) or 1)
+                                $ _tier = str(row.get("tier", "C") or "C").upper()
+                                textbutton ("Piso %03d · Tier %s" % (_f, _tier)):
+                                    action SetVariable("bs_saga_tower_selected_floor", _f)
+
+            frame:
+                xfill True
+                yfill True
+                padding (14, 14)
+                background Solid("#11253A")
+                vbox:
+                    spacing 10
+
+                    hbox:
+                        spacing 8
+                        text "Tiers" size 20 color "#DCEEFF"
+                        textbutton "Todos" action SetVariable("bs_saga_tower_tier_filter", "ALL")
+                        textbutton "Tier C" action SetVariable("bs_saga_tower_tier_filter", "C")
+                        textbutton "Tier B" action SetVariable("bs_saga_tower_tier_filter", "B")
+                        textbutton "Tier A" action SetVariable("bs_saga_tower_tier_filter", "A")
+                        textbutton "Tier S" action SetVariable("bs_saga_tower_tier_filter", "S")
+
+                    hbox:
+                        spacing 20
+                        frame:
+                            xsize 290
+                            ysize 360
+                            background Solid("#0D1A2A")
+                            padding (12, 12)
+                            vbox:
+                                spacing 8
+                                text ("Panel visual · Piso %03d" % _selected_floor_label) size 18 color "#CDE7FF"
+                                null height 240
+                                text "Placeholder visual (héroe / NPC / evento)." size 16 color "#8EABC5"
+
+                        frame:
+                            xfill True
+                            ysize 360
+                            padding (10, 10)
+                            background Solid("#1A3044")
+                            vbox:
+                                spacing 8
+                                text ("Información del piso %03d" % _selected_floor_label) size 20 color "#E5F4FF"
+                                frame:
+                                    xfill True
+                                    background Solid("#1B3348")
+                                    padding (10, 8)
+                                    vbox:
+                                        spacing 6
+                                        text ("Tier asignado: " + _selected_tier) size 18 color "#D0E9FF"
+                                        text ("Tipo de nodo: " + ("Guardián" if _selected_slot_type == "guardian" else "Buff / Sorpresa")) size 18 color "#D0E9FF"
+                                        text ("Estado: " + _selected_title) size 17 color "#B8D9F2"
+                                        text ("Detalle: " + _selected_subtitle) size 17 color "#B8D9F2"
+                                frame:
+                                    xfill True
+                                    background Solid("#173048")
+                                    padding (10, 8)
+                                    text "Placeholder de stats/loot/requisitos del piso (por completar)." size 16 color "#AFCFE8"
+
 # ---------- flujo de entrada ----------
 
 label bs_saga_intro_splash:
@@ -748,8 +931,12 @@ label bs_saga_torneo_tier_a_locked:
 
 label bs_saga_torre_cielo_locked:
     scene black
-    centered "[Battlestars Saga] Torre del cielo\n\nNo disponible en esta fase."
+    centered "Battlestars Saga · Torre del cielo\n\nNo disponible en esta fase."
     jump bs_saga_lobby
+
+label bs_saga_torre_cielo:
+    call screen bs_saga_tower_screen
+    return
 
 # ---------- rutas panel gestión ----------
 
