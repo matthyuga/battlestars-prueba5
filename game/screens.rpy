@@ -186,22 +186,31 @@ style say_dialogue:
 
 screen input(prompt):
     style_prefix "input"
+    modal True
+    zorder 210
 
-    window:
-        background Frame("gui/button/choice_idle_background.png", 18, 18)
-        left_padding 56
-        right_padding 56
-        top_padding 20
-        bottom_padding 24
+    add "hollow1"
+    add Solid("#05070C66")
+
+    frame:
+        xalign 0.5
+        yalign 0.78
+        xmaximum 980
+        background Solid("#111827CC")
+        padding (28, 24)
 
         vbox:
-            xalign gui.dialogue_text_xalign
-            xpos gui.dialogue_xpos
-            xsize gui.dialogue_width
-            ypos gui.dialogue_ypos
+            spacing 14
 
             text prompt style "input_prompt"
-            input id "input"
+
+            frame:
+                xfill True
+                yminimum 66
+                background Solid("#ECF2FC")
+                padding (20, 14)
+
+                input id "input"
 
 style input_prompt is default
 
@@ -214,12 +223,12 @@ style input_prompt:
     outlines [(2, "#0A0E16", 0, 0)]
 
 style input:
-    xalign gui.dialogue_text_xalign
-    xmaximum gui.dialogue_width
+    xalign 0.0
+    xmaximum 900
     font gui.text_font
     size 28
-    color "#EAF4FF"
-    caret "#EAF4FF"
+    color "#0F172A"
+    background None
 
 
 ## Choice screen ###############################################################
@@ -287,21 +296,7 @@ screen quick_menu():
     zorder 100
 
     if quick_menu:
-
-        hbox:
-            style_prefix "quick"
-
-            xalign 0.5
-            yalign 1.0
-
-            textbutton _("Back") action Rollback()
-            textbutton _("History") action ShowMenu('history')
-            textbutton _("Skip") action Skip() alternate Skip(fast=True, confirm=True)
-            textbutton _("Auto") action Preference("auto-forward", "toggle")
-            textbutton _("Save") action ShowMenu('save')
-            textbutton _("Q.Save") action QuickSave()
-            textbutton _("Q.Load") action QuickLoad()
-            textbutton _("Prefs") action ShowMenu('preferences')
+        null
 
 
 ## This code ensures that the quick_menu screen is displayed in-game, whenever
@@ -309,7 +304,7 @@ screen quick_menu():
 init python:
     config.overlay_screens.append("quick_menu")
 
-default quick_menu = True
+default quick_menu = False
 
 style quick_button is default
 style quick_button_text is button_text
@@ -1480,7 +1475,7 @@ style skip_text:
 style skip_triangle:
     ## We have to use a font that has the BLACK RIGHT-POINTING SMALL TRIANGLE
     ## glyph in it.
-    font "DejaVuSans.ttf"
+    font gui.text_font
 
 
 ## Notify screen ###############################################################
@@ -1657,17 +1652,7 @@ screen quick_menu():
     zorder 100
 
     if quick_menu:
-
-        hbox:
-            style_prefix "quick"
-
-            xalign 0.5
-            yalign 1.0
-
-            textbutton _("Back") action Rollback()
-            textbutton _("Skip") action Skip() alternate Skip(fast=True, confirm=True)
-            textbutton _("Auto") action Preference("auto-forward", "toggle")
-            textbutton _("Menu") action ShowMenu()
+        null
 
 
 style window:

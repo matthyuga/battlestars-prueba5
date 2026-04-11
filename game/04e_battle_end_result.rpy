@@ -174,6 +174,8 @@ screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
     default _audit = _sr.get("audit", {}) if isinstance(_sr.get("audit", {}), dict) else {}
     default _warnings = _audit.get("warnings", []) if isinstance(_audit.get("warnings", []), list) else []
     default _errors = _audit.get("errors", []) if isinstance(_audit.get("errors", []), list) else []
+    default _warnings_count = len(_warnings)
+    default _errors_count = len(_errors)
     default _rows = _sr.get("results", []) if isinstance(_sr.get("results", []), list) else []
     default _sim_id = _sr.get("simulation_id", "sim_unknown")
     default _sim_mode = _sr.get("mode", "custom")
@@ -195,10 +197,26 @@ screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
         vbox:
             spacing 12
 
-            text "Resumen de recompensas (C4)" size 34 color "#FFFFFF"
+            hbox:
+                xfill True
+                spacing 14
+                text "Resumen de recompensas (C4)" size 34 color "#FFFFFF"
+                null xfill True
+                textbutton "▶ Continuar":
+                    xalign 1.0
+                    text_size 24
+                    text_color "#FFFFFF"
+                    left_padding 18
+                    right_padding 18
+                    top_padding 8
+                    bottom_padding 8
+                    background "#1E90FFFF"
+                    hover_background "#39A4FFFF"
+                    action Return(True)
+
             text "sim_id=[_sim_id]  |  mode=[_sim_mode]  |  winner=[_sim_winner]" size 20 color "#CFE8FF"
             text "Aplicación: ok=[_ap_ok]  |  count=[_ap_count]  |  EXP=[_ap_exp]  |  Oro=[_ap_oro]" size 20 color "#A6FFCC"
-            text "Audit: warnings=[len(_warnings)]  |  errors=[len(_errors)]" size 18 color "#FFD27A"
+            text "Audit: warnings=[_warnings_count]  |  errors=[_errors_count]" size 18 color "#FFD27A"
 
             frame:
                 xfill True
@@ -234,12 +252,6 @@ screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
                             text "Errores:" size 20 color "#FF8A8A"
                             for e in _errors:
                                 text " - [e]" size 18 color "#FF8A8A"
-
-            hbox:
-                xalign 1.0
-                spacing 10
-                textbutton "Continuar" action Return(True)
-
 
 # ===========================================================
 # 🔹 FUNCIÓN LOG RESULT – Resultado y popup de daño (sin flash rojo)

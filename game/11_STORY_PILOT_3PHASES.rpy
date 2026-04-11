@@ -549,7 +549,10 @@ label story_phaseA_intro:
     "Un eco extraño cruza el aire..."
     "Sientes que este mundo no te reconoce todavía."
 
+    $ _qm_prev = quick_menu
+    $ quick_menu = False
     $ _name = renpy.input("¿Cómo te llamas?", length=24)
+    $ quick_menu = _qm_prev
     if _name is None or _name.strip() == "":
         $ _name = "forastero"
     $ S.story_player_name = _name.strip()
