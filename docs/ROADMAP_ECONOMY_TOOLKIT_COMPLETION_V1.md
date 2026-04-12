@@ -79,3 +79,7 @@ Readiness assessment detallado:
 
 Setup firma por plataforma:
 - `docs/PHASE1_SIGNING_SETUP_V1.md`
+
+
+Fase 2 (calidad avanzada) detalle:
+- `docs/PHASE2_QUALITY_ADVANCE_V1.md`

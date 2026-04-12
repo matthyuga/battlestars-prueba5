@@ -52,3 +52,7 @@ Si quieren “sello enterprise/compliance”, ejecutar Fase 1 de firma nativa co
 
 Ver setup técnico en:
 - `docs/PHASE1_SIGNING_SETUP_V1.md`
+
+
+Fase 2 implementada:
+- `docs/PHASE2_QUALITY_ADVANCE_V1.md`

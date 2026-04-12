@@ -294,3 +294,9 @@ Calidad y soporte (Fase F):
 - tests golden de regresión para escenarios fijos,
 - smoke cross-platform del binario en CI de release,
 - manual de operación para QA/Design/PM: `docs/MANUAL_OPERACION_ECONOMY_TOOLKIT_V1.md`.
+
+
+Fase 2 calidad avanzada:
+- edge golden tests del comparador,
+- performance smoke para `compare_suites`,
+- harness e2e básico del wizard.

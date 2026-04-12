@@ -417,3 +417,8 @@ Readiness assessment:
 Fase 1 (firma por plataforma):
 - guía: `docs/PHASE1_SIGNING_SETUP_V1.md`
 - pipeline: `.github/workflows/economy-release.yml`
+
+
+Fase 2 (calidad avanzada):
+- detalle: `docs/PHASE2_QUALITY_ADVANCE_V1.md`
+- tests: `tests/test_compare_golden_edge.py`, `tests/test_compare_performance.py`, `tests/test_wizard_flow.py`
