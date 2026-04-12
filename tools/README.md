@@ -315,3 +315,57 @@ make economy-verify-checksum PACKAGE=dist/release/<archivo>.zip CHECKSUM=dist/re
 
 Referencia de consumo interno:
 - `docs/RELEASE_CONSUMPTION_VERIFICATION_V1.md`
+
+
+## UX ejecutable (Fase E)
+
+### Wizard interactivo (no técnico)
+
+```bash
+python tools/economy_toolkit.py wizard
+```
+
+Menú guiado para ejecutar `cycle + bundle` con preguntas paso a paso.
+
+### Profiles cargables por nombre
+
+Listar profiles disponibles:
+
+```bash
+python tools/economy_toolkit.py profile-list
+```
+
+Ejecutar profile:
+
+```bash
+python tools/economy_toolkit.py run-profile \
+  --name balance_default \
+  --version economy_v2_2026-04-12 \
+  --previous-version economy_v1_2026-04-10
+```
+
+Profiles incluidos:
+- `tools/profiles/balance_default.json`
+- `tools/profiles/release_candidate.json`
+
+### Report bundle (diff + dashboard + manifest)
+
+Modo directo:
+
+```bash
+python tools/economy_toolkit.py bundle \
+  --old-version economy_v1 \
+  --new-version economy_v2 \
+  --diff-json /tmp/economy_diff.json \
+  --diff-md /tmp/economy_diff.md \
+  --dashboard-html /tmp/economy_dashboard.html \
+  --bundle-dir artifacts/economy_reports
+```
+
+O automático dentro de `cycle` / `run-profile` / `wizard`.
+
+Salida bundle:
+- `diff.json`
+- `diff.md`
+- `dashboard.html`
+- `manifest.json`

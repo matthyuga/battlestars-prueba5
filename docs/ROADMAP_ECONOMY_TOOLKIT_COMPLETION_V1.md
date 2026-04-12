@@ -42,10 +42,11 @@ Tener un toolkit **completo y funcional** que se pueda usar en 3 niveles:
    - [x] Attestation de provenance en CI.
    - [ ] Firma criptográfica de binarios por plataforma (pendiente integrar certificado/secretos por SO).
 
-### Fase E — UX de producto ejecutable
-1. Comando `wizard` interactivo (menú guiado) para perfiles no técnicos.
-2. Plantillas de ejecución (`profiles/`) cargables por nombre.
-3. Empaquetado de salida con report bundle (diff + dashboard + manifest).
+### Fase E — UX de producto ejecutable (implementada base)
+1. [x] Comando `wizard` interactivo (menú guiado) para perfiles no técnicos.
+2. [x] Plantillas de ejecución (`tools/profiles/`) cargables por nombre.
+3. [x] Empaquetado de salida con report bundle (diff + dashboard + manifest).
+4. [ ] UX avanzada: wizard con validación contextual y presets por rol (QA/Design/PM).
 
 ### Fase F — Calidad y soporte
 1. Tests unitarios para fórmulas y comparador.

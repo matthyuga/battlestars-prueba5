@@ -281,3 +281,9 @@ Hardening de distribución (Fase D):
 - changelog automático para GitHub Release,
 - attestation de provenance en CI de release,
 - script de verificación SHA256 para consumo interno (`tools/verify_release_checksum.py`).
+
+
+UX ejecutable (Fase E):
+- comando `wizard` en `tools/economy_toolkit.py`,
+- profiles en `tools/profiles/` cargables por nombre (`run-profile`),
+- report bundle con `diff + dashboard + manifest` (subcomando `bundle` y ciclo integrado).
