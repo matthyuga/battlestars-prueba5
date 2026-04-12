@@ -3,6 +3,7 @@
 ## Archivo principal
 
 - `tools/economy_lab.py`
+- `tools/economy_toolkit.py` (entrypoint único recomendado)
 
 Simulador CLI para EXP/Oro con:
 - normal vs policy_boost,
@@ -11,6 +12,12 @@ Simulador CLI para EXP/Oro con:
 - batch con seed y randomización,
 - export JSON/CSV,
 - ejecución por escenarios QA.
+
+Si preferís **un solo comando general**, usá `economy_toolkit.py`:
+
+```bash
+python tools/economy_toolkit.py --help
+```
 
 ---
 
@@ -190,3 +197,36 @@ Valida automáticamente:
 - Usado por:
   - `make economy-compare`
   - `make economy-gate`
+
+---
+
+## Toolkit unificado (sin Makefile)
+
+### Freeze
+```bash
+python tools/economy_toolkit.py freeze --version economy_v2_2026-04-20
+```
+
+### Compare
+```bash
+python tools/economy_toolkit.py compare \
+  --old-version economy_v1_2026-04-12 \
+  --new-version economy_v2_2026-04-20 \
+  --fail-on-alert
+```
+
+### Dashboard
+```bash
+python tools/economy_toolkit.py dashboard \
+  --old-version economy_v1_2026-04-12 \
+  --new-version economy_v2_2026-04-20 \
+  --out-html /tmp/economy_dashboard_v2.html
+```
+
+### Ciclo completo (freeze + compare + dashboard)
+```bash
+python tools/economy_toolkit.py cycle \
+  --version economy_v2_2026-04-20 \
+  --previous-version economy_v1_2026-04-12 \
+  --fail-on-alert
+```

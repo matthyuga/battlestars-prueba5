@@ -13,6 +13,7 @@ import argparse
 import json
 from pathlib import Path
 from typing import Dict, Any, List
+from compare_economy_baselines import compare_suites, load_json as load_json_diff, load_thresholds, evaluate_alerts
 
 
 def load_json(path: str) -> Dict[str, Any]:
@@ -168,6 +169,7 @@ def build_html(title: str, suite_rows: List[Dict[str, Any]], diff_json: Dict[str
       </label>
     </div>
     <div id="diffMeta" class="muted"></div>
+    <div id="diffSummary" class="muted"></div>
     <div id="diffTable"></div>
   </div>
   <script>
@@ -210,6 +212,17 @@ def build_html(title: str, suite_rows: List[Dict[str, Any]], diff_json: Dict[str
       const alerts = (DIFF_PAYLOAD || {{}}).alerts || [];
       document.getElementById('diffMeta').textContent =
         `old=${{meta.old_version || '-'}} -> new=${{meta.new_version || '-'}} | alerts=${{alerts.length}}`;
+      let maxAbs = 0;
+      for (const row of rows) {{
+        for (const block of ['gold_final_policy', 'exp_final_policy']) {{
+          for (const stat of ['p50', 'p95']) {{
+            const v = (((row.metrics || {{}})[block] || {{}})[stat] || {{}});
+            maxAbs = Math.max(maxAbs, Math.abs(Number(v.delta_pct || 0)));
+          }}
+        }}
+      }}
+      document.getElementById('diffSummary').textContent =
+        `máximo |Δ%| observado: ${{fmt(maxAbs)}}%`;
       if (!rows.length) {{
         document.getElementById('diffTable').innerHTML = '<p class="muted">No se proporcionó diff o no tiene filas.</p>';
         return;
@@ -260,12 +273,35 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Genera dashboard HTML desde suite/diff de Economy Lab.")
     ap.add_argument("--suite-json", required=True, help="Ruta a suite.json (baseline congelado).")
     ap.add_argument("--diff-json", default="", help="Ruta opcional a diff JSON.")
+    ap.add_argument("--base-dir", default="", help="Alternativa: base dir de baselines (activa modo old/new).")
+    ap.add_argument("--old-version", default="", help="Versión anterior (requiere --base-dir).")
+    ap.add_argument("--new-version", default="", help="Versión nueva (requiere --base-dir).")
+    ap.add_argument("--thresholds-file", default="tools/scenarios/economy_alert_thresholds.json")
     ap.add_argument("--out-html", default="/tmp/economy_dashboard.html", help="Ruta de salida HTML.")
     ap.add_argument("--title", default="Economy Lab Dashboard")
     args = ap.parse_args()
 
-    suite = load_json(args.suite_json)
-    diff = load_json(args.diff_json) if args.diff_json else {}
+    if args.base_dir and args.old_version and args.new_version:
+        old_suite_path = str(Path(args.base_dir) / args.old_version / "suite.json")
+        new_suite_path = str(Path(args.base_dir) / args.new_version / "suite.json")
+        old_suite = load_json_diff(old_suite_path)
+        new_suite = load_json_diff(new_suite_path)
+        diff = {
+            "meta": {
+                "old_version": args.old_version,
+                "new_version": args.new_version,
+                "old_suite": old_suite_path,
+                "new_suite": new_suite_path,
+            },
+            "diff": compare_suites(old_suite, new_suite),
+        }
+        thresholds = load_thresholds(args.thresholds_file)
+        diff["thresholds_pct"] = thresholds
+        diff["alerts"] = evaluate_alerts(diff["diff"], thresholds)
+        suite = new_suite
+    else:
+        suite = load_json(args.suite_json)
+        diff = load_json(args.diff_json) if args.diff_json else {}
     rows = scenario_rows_from_suite(suite)
     html = build_html(args.title, rows, diff)
 

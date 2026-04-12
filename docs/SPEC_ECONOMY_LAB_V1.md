@@ -229,6 +229,11 @@ Salida:
   - barras simples por escenario,
   - tabla de deltas old/new por métrica en diff.
 
+Evolución v1.1:
+- filtros interactivos por escenario/métrica,
+- umbral dinámico de alertas,
+- modo “solo alertas” en diff.
+
 ---
 
 ## 14) Automatización y CI
@@ -240,6 +245,7 @@ Automatización ligera:
   - `economy-compare`
   - `economy-gate`
   - `economy-dashboard`
+  - `economy-cycle`
   - `economy-report`
 
 Integración CI:
@@ -252,3 +258,6 @@ Integración CI:
 
 Playbook de integración con ciclo gameplay:
 - `docs/BALANCE_GAMEPLAY_CYCLE_ECONOMY_V1.md`
+
+Toolkit unificado (entrypoint único):
+- `tools/economy_toolkit.py`
