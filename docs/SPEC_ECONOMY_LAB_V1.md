@@ -194,3 +194,16 @@ Estado de Módulo A (CLI):
 Pendiente recomendado para cierre operativo:
 - [x] Añadir ejemplos de comandos en un README corto de `tools/`.
 - [x] Definir datasets de escenarios QA (casual/normal/hardcore) para corrida automática.
+
+---
+
+## 12) Congelación de baseline por versión
+
+Se incorpora runner operativo:
+- `tools/run_economy_baseline.py`
+
+Objetivo:
+1. Ejecutar suite completa.
+2. Ejecutar escenarios individuales.
+3. Guardar artefactos JSON/CSV por versión en carpeta dedicada.
+4. Persistir `manifest.json` para trazabilidad.

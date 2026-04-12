@@ -74,3 +74,30 @@ python tools/economy_lab.py \
   - `hardcore`
 
 Podés editar/duplicar perfiles para crear suites de tuning por parche.
+
+---
+
+## Congelar baseline por versión
+
+Runner recomendado:
+
+```bash
+python tools/run_economy_baseline.py \
+  --version economy_v1_2026-04-12
+```
+
+Salida esperada en:
+
+```
+artifacts/economy_baseline/economy_v1_2026-04-12/
+  suite.json
+  casual.json
+  casual.csv
+  normal.json
+  normal.csv
+  hardcore.json
+  hardcore.csv
+  manifest.json
+```
+
+Con esto podés comparar versiones de balance entre parches sin perder trazabilidad.
