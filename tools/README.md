@@ -137,7 +137,7 @@ Esto imprime una tabla con deltas de `gold_final_policy` y `exp_final_policy` (p
 
 ---
 
-## Dashboard mínimo (Módulo B v0)
+## Dashboard (Módulo B v1.1)
 
 Generar HTML estático desde baseline + diff:
 
@@ -202,6 +202,12 @@ Valida automáticamente:
 
 ## Toolkit unificado (sin Makefile)
 
+### Simulate (wrapper de economy_lab)
+```bash
+python tools/economy_toolkit.py simulate -- --scenario normal --json-out /tmp/economy_normal.json
+```
+
+
 ### Freeze
 ```bash
 python tools/economy_toolkit.py freeze --version economy_v2_2026-04-20
@@ -230,3 +236,24 @@ python tools/economy_toolkit.py cycle \
   --previous-version economy_v1_2026-04-12 \
   --fail-on-alert
 ```
+
+
+## Ejecutable (sin Python CLI ni Makefile)
+
+Si preferís usarlo como programa ejecutable:
+
+1) Instalar empaquetador (solo una vez):
+```bash
+python -m pip install pyinstaller
+```
+
+2) Construir binario:
+```bash
+make economy-exe
+```
+
+3) Resultado esperado:
+- Linux/macOS: `dist/economy-toolkit`
+- Windows: `dist/economy-toolkit.exe`
+
+Luego podés ejecutar el binario con los mismos subcomandos (`freeze`, `compare`, `dashboard`, `cycle`, `simulate`).

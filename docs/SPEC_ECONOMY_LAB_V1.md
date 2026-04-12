@@ -261,3 +261,7 @@ Playbook de integración con ciclo gameplay:
 
 Toolkit unificado (entrypoint único):
 - `tools/economy_toolkit.py`
+
+Ejecutable opcional (sin Python/Makefile):
+- builder: `tools/build_economy_toolkit_executable.py`
+- target: `make economy-exe`

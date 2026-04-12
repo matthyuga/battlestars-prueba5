@@ -2,7 +2,7 @@
 """
 Economy Toolkit (entrypoint único)
 
-Unifica freeze/compare/dashboard para no depender de Makefile.
+Unifica simulación/freeze/compare/dashboard para no depender de Makefile.
 """
 
 from __future__ import annotations
@@ -10,16 +10,29 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
+from pathlib import Path
 
 
-def run(cmd):
-    p = subprocess.run(cmd)
-    return p.returncode
+TOOLS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = TOOLS_DIR.parent
+
+
+def run(cmd: list[str]) -> int:
+    print("[run]", " ".join(cmd))
+    proc = subprocess.run(cmd, cwd=str(REPO_ROOT))
+    return int(proc.returncode)
+
+
+def script(name: str) -> str:
+    return str(TOOLS_DIR / name)
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Economy Toolkit - comando único para tools de economía.")
     sub = ap.add_subparsers(dest="cmd", required=True)
+
+    p_sim = sub.add_parser("simulate", help="Ejecuta economy_lab.py con argumentos libres.")
+    p_sim.add_argument("lab_args", nargs=argparse.REMAINDER, help="Argumentos para economy_lab.py")
 
     p_freeze = sub.add_parser("freeze", help="Congela baseline por versión.")
     p_freeze.add_argument("--version", required=True)
@@ -53,65 +66,107 @@ def main() -> int:
     p_cycle.add_argument("--fail-on-alert", action="store_true")
 
     args = ap.parse_args()
-
     py = sys.executable
+
+    if args.cmd == "simulate":
+        lab_args = list(args.lab_args)
+        if lab_args and lab_args[0] == "--":
+            lab_args = lab_args[1:]
+        return run([py, script("economy_lab.py"), *lab_args])
+
     if args.cmd == "freeze":
-        return run([py, "tools/run_economy_baseline.py", "--version", args.version, "--out-dir", args.base_dir])
+        return run([py, script("run_economy_baseline.py"), "--version", args.version, "--out-dir", args.base_dir])
 
     if args.cmd == "compare":
         cmd = [
-            py, "tools/compare_economy_baselines.py",
-            "--base-dir", args.base_dir,
-            "--old-version", args.old_version,
-            "--new-version", args.new_version,
-            "--thresholds-file", args.thresholds_file,
-            "--out-json", args.out_json,
-            "--out-md", args.out_md,
+            py,
+            script("compare_economy_baselines.py"),
+            "--base-dir",
+            args.base_dir,
+            "--old-version",
+            args.old_version,
+            "--new-version",
+            args.new_version,
+            "--thresholds-file",
+            args.thresholds_file,
+            "--out-json",
+            args.out_json,
+            "--out-md",
+            args.out_md,
         ]
         if args.fail_on_alert:
             cmd.append("--fail-on-alert")
         return run(cmd)
 
     if args.cmd == "dashboard":
-        return run([
-            py, "tools/economy_dashboard.py",
-            "--suite-json", str(args.base_dir) + "/" + args.new_version + "/suite.json",
-            "--base-dir", args.base_dir,
-            "--old-version", args.old_version,
-            "--new-version", args.new_version,
-            "--thresholds-file", args.thresholds_file,
-            "--out-html", args.out_html,
-            "--title", args.title,
-        ])
+        return run(
+            [
+                py,
+                script("economy_dashboard.py"),
+                "--suite-json",
+                str(Path(args.base_dir) / args.new_version / "suite.json"),
+                "--base-dir",
+                args.base_dir,
+                "--old-version",
+                args.old_version,
+                "--new-version",
+                args.new_version,
+                "--thresholds-file",
+                args.thresholds_file,
+                "--out-html",
+                args.out_html,
+                "--title",
+                args.title,
+            ]
+        )
 
     if args.cmd == "cycle":
-        rc = run([py, "tools/run_economy_baseline.py", "--version", args.version, "--out-dir", args.base_dir])
+        rc = run([py, script("run_economy_baseline.py"), "--version", args.version, "--out-dir", args.base_dir])
         if rc != 0:
             return rc
+
         cmd_compare = [
-            py, "tools/compare_economy_baselines.py",
-            "--base-dir", args.base_dir,
-            "--old-version", args.previous_version,
-            "--new-version", args.version,
-            "--thresholds-file", args.thresholds_file,
-            "--out-json", args.out_json,
-            "--out-md", args.out_md,
+            py,
+            script("compare_economy_baselines.py"),
+            "--base-dir",
+            args.base_dir,
+            "--old-version",
+            args.previous_version,
+            "--new-version",
+            args.version,
+            "--thresholds-file",
+            args.thresholds_file,
+            "--out-json",
+            args.out_json,
+            "--out-md",
+            args.out_md,
         ]
         if args.fail_on_alert:
             cmd_compare.append("--fail-on-alert")
         rc = run(cmd_compare)
         if rc != 0:
             return rc
-        return run([
-            py, "tools/economy_dashboard.py",
-            "--suite-json", str(args.base_dir) + "/" + args.version + "/suite.json",
-            "--base-dir", args.base_dir,
-            "--old-version", args.previous_version,
-            "--new-version", args.version,
-            "--thresholds-file", args.thresholds_file,
-            "--out-html", args.out_html,
-            "--title", "Economy Dashboard " + args.version,
-        ])
+
+        return run(
+            [
+                py,
+                script("economy_dashboard.py"),
+                "--suite-json",
+                str(Path(args.base_dir) / args.version / "suite.json"),
+                "--base-dir",
+                args.base_dir,
+                "--old-version",
+                args.previous_version,
+                "--new-version",
+                args.version,
+                "--thresholds-file",
+                args.thresholds_file,
+                "--out-html",
+                args.out_html,
+                "--title",
+                "Economy Dashboard " + args.version,
+            ]
+        )
 
     return 0
 
