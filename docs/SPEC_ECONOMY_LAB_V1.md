@@ -256,6 +256,11 @@ Integración CI:
   3. gate A vs B (umbral),
   4. build dashboard.
 
+Release packaging CI:
+- `.github/workflows/economy-release.yml`
+- Trigger por tag `economy-toolkit-v*`
+- Build ejecutable + ZIP + SHA256 para Linux/Windows/macOS.
+
 Playbook de integración con ciclo gameplay:
 - `docs/BALANCE_GAMEPLAY_CYCLE_ECONOMY_V1.md`
 
@@ -265,3 +270,7 @@ Toolkit unificado (entrypoint único):
 Ejecutable opcional (sin Python/Makefile):
 - builder: `tools/build_economy_toolkit_executable.py`
 - target: `make economy-exe`
+
+
+Roadmap de cierre:
+- `docs/ROADMAP_ECONOMY_TOOLKIT_COMPLETION_V1.md`

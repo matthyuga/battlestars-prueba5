@@ -87,3 +87,17 @@ Métricas foco:
    - qué cambió,
    - qué métrica mejoró/empeoró,
    - si pasa/falla gate.
+
+
+## Paso 5 — Release packaging (opcional por iteración, obligatorio por versión)
+
+Si querés entregar el toolkit como ejecutable:
+
+```bash
+make economy-release-package
+```
+
+Esto genera ZIP + checksum en `dist/release/`.
+
+Para release automática multi-OS usar tags:
+- `economy-toolkit-v*` (workflow `.github/workflows/economy-release.yml`)

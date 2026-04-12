@@ -257,3 +257,24 @@ make economy-exe
 - Windows: `dist/economy-toolkit.exe`
 
 Luego podés ejecutar el binario con los mismos subcomandos (`freeze`, `compare`, `dashboard`, `cycle`, `simulate`).
+
+
+## Release packaging (multi-OS)
+
+Para generar paquete release local (ZIP + SHA256):
+
+```bash
+make economy-release-package
+```
+
+Salida esperada:
+- `dist/release/economy-toolkit-<platform>-py310.zip`
+- `dist/release/economy-toolkit-<platform>-py310.zip.sha256`
+
+CI de release:
+- `.github/workflows/economy-release.yml`
+- Trigger por tag: `economy-toolkit-v*`
+- Build en `ubuntu-latest`, `windows-latest`, `macos-latest`
+
+Roadmap completo:
+- `docs/ROADMAP_ECONOMY_TOOLKIT_COMPLETION_V1.md`

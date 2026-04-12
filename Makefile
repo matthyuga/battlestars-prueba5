@@ -8,7 +8,7 @@ DIFF_MD ?= /tmp/economy_diff_$(OLD)_$(NEW).md
 DASH_HTML ?= /tmp/economy_dashboard_$(NEW).html
 THRESHOLDS_FILE ?= tools/scenarios/economy_alert_thresholds.json
 
-.PHONY: economy-smoke economy-freeze economy-compare economy-dashboard economy-report economy-gate economy-cycle economy-exe
+.PHONY: economy-smoke economy-freeze economy-compare economy-dashboard economy-report economy-gate economy-cycle economy-exe economy-release-package
 
 economy-smoke:
 	$(PY) -m py_compile tools/economy_lab.py tools/run_economy_baseline.py tools/compare_economy_baselines.py tools/economy_dashboard.py tools/economy_toolkit.py
@@ -34,3 +34,7 @@ economy-cycle:
 
 economy-exe:
 	$(PY) tools/build_economy_toolkit_executable.py
+
+
+economy-release-package:
+	$(PY) tools/package_economy_toolkit_release.py
