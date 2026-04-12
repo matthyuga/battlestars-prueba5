@@ -197,6 +197,9 @@ python tools/build_economy_toolkit_executable.py
 .\dist\economy-toolkit.exe wizard
 ```
 
+Guía paso a paso en español (Windows):
+- `docs/GUIA_RAPIDA_WINDOWS_ECONOMY_TOOLKIT_ES.md`
+
 ---
 
 ## Integración CI
