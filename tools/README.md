@@ -177,6 +177,28 @@ para compilar + congelar baseline en un solo paso.
 
 ---
 
+## Windows sin `make` (PowerShell/CMD)
+
+En Windows **no necesitás `make`** para usar el toolkit.  
+Cada target del Makefile tiene equivalente directo con `python`:
+
+```powershell
+python -m py_compile tools/economy_lab.py tools/run_economy_baseline.py tools/compare_economy_baselines.py tools/economy_dashboard.py tools/economy_toolkit.py tools/generate_economy_ci_metrics.py
+python tools/run_economy_baseline.py --version economy_v2_2026-04-20 --out-dir artifacts/economy_baseline
+python tools/compare_economy_baselines.py --base-dir artifacts/economy_baseline --old-version economy_v1_2026-04-12 --new-version economy_v2_2026-04-20 --thresholds-file tools/scenarios/economy_alert_thresholds.json --out-json artifacts/economy_reports/diff.json --out-md artifacts/economy_reports/diff.md
+python tools/economy_toolkit.py wizard
+```
+
+Si querés usar ejecutable, también podés hacerlo sin `make`:
+
+```powershell
+python tools/build_economy_toolkit_executable.py
+.\dist\economy-toolkit.exe --help
+.\dist\economy-toolkit.exe wizard
+```
+
+---
+
 ## Integración CI
 
 Se incluye workflow:
@@ -247,9 +269,10 @@ Si preferís usarlo como programa ejecutable:
 python -m pip install pyinstaller
 ```
 
-2) Construir binario:
+2) Construir binario (opción A con `make`, opción B directa sin `make`):
 ```bash
 make economy-exe
+python tools/build_economy_toolkit_executable.py
 ```
 
 3) Resultado esperado:
