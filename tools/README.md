@@ -391,3 +391,24 @@ Cobertura base:
 - release multi-OS automático,
 - tests + gate antes de release,
 - ejecución principal no técnica mediante ejecutable + wizard.
+
+
+## Preflight recomendado antes de usar
+
+```bash
+make economy-preflight
+```
+
+Incluye:
+- compile smoke,
+- tests unitarios + golden,
+- `doctor` de archivos/perfiles mínimos.
+
+Chequeo manual rápido:
+
+```bash
+python tools/economy_toolkit.py doctor
+```
+
+Readiness assessment:
+- `docs/READINESS_ASSESSMENT_ECONOMY_TOOLKIT_V1.md`

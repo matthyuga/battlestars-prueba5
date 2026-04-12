@@ -204,6 +204,24 @@ def run_wizard(py: str) -> int:
     return run_cycle_and_bundle(py, version, previous_version, base_dir, thresholds_file, out_json, out_md, out_html, title, fail_on_alert, bundle_dir, bundle_name)
 
 
+
+def run_doctor() -> int:
+    checks = {
+        "scenarios": (TOOLS_DIR / "scenarios" / "economy_lab_profiles.json").exists(),
+        "thresholds": (TOOLS_DIR / "scenarios" / "economy_alert_thresholds.json").exists(),
+        "profiles_dir": PROFILES_DIR.exists(),
+        "balance_profile": (PROFILES_DIR / "balance_default.json").exists(),
+        "release_profile": (PROFILES_DIR / "release_candidate.json").exists(),
+    }
+    failed = [k for k, ok in checks.items() if not ok]
+    for k, ok in checks.items():
+        print(f"[{'ok' if ok else 'fail'}] {k}")
+    if failed:
+        print("[error] doctor detectó faltantes:", ", ".join(failed))
+        return 2
+    print("[ok] doctor: entorno mínimo listo.")
+    return 0
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Economy Toolkit - comando único para tools de economía.")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -219,6 +237,8 @@ def main() -> int:
     p_run_profile.add_argument("--previous-version", required=True)
 
     p_wizard = sub.add_parser("wizard", help="Wizard interactivo para flujo no técnico.")
+
+    p_doctor = sub.add_parser("doctor", help="Chequeo rápido de archivos/perfiles requeridos.")
 
     p_freeze = sub.add_parser("freeze", help="Congela baseline por versión.")
     p_freeze.add_argument("--version", required=True)
@@ -296,6 +316,9 @@ def main() -> int:
 
     if args.cmd == "wizard":
         return run_wizard(py)
+
+    if args.cmd == "doctor":
+        return run_doctor()
 
     if args.cmd == "freeze":
         return run_freeze(py, args.version, args.base_dir)

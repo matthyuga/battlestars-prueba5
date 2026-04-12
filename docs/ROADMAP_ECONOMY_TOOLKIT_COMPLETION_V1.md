@@ -71,3 +71,7 @@ Se considera completo cuando:
 - [x] Verificación de calidad (tests + gate) previa a release.
 - [x] Flujo principal no técnico disponible vía ejecutable + wizard.
 - [~] Hardening avanzado de firma nativa por SO (pendiente certificados por plataforma).
+
+
+Readiness assessment detallado:
+- `docs/READINESS_ASSESSMENT_ECONOMY_TOOLKIT_V1.md`

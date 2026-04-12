@@ -4,13 +4,19 @@ on:
   push:
     paths:
       - "tools/**"
+      - "tests/**"
       - "docs/SPEC_ECONOMY_LAB_V1.md"
+      - "docs/ROADMAP_ECONOMY_TOOLKIT_COMPLETION_V1.md"
+      - "docs/MANUAL_OPERACION_ECONOMY_TOOLKIT_V1.md"
       - "Makefile"
       - ".github/workflows/economy-tools.yml"
   pull_request:
     paths:
       - "tools/**"
+      - "tests/**"
       - "docs/SPEC_ECONOMY_LAB_V1.md"
+      - "docs/ROADMAP_ECONOMY_TOOLKIT_COMPLETION_V1.md"
+      - "docs/MANUAL_OPERACION_ECONOMY_TOOLKIT_V1.md"
       - "Makefile"
       - ".github/workflows/economy-tools.yml"
 
@@ -29,11 +35,8 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install --upgrade pip pytest
 
-      - name: Compile smoke
-        run: make economy-smoke
-
-      - name: Run unit + golden tests
-        run: python -m pytest -q
+      - name: Run preflight (smoke + tests + doctor)
+        run: make economy-preflight
 
       - name: Freeze baseline A
         run: make economy-freeze VERSION=economy_ci_A BASE_DIR=/tmp/economy_baselines

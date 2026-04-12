@@ -8,7 +8,7 @@ DIFF_MD ?= /tmp/economy_diff_$(OLD)_$(NEW).md
 DASH_HTML ?= /tmp/economy_dashboard_$(NEW).html
 THRESHOLDS_FILE ?= tools/scenarios/economy_alert_thresholds.json
 
-.PHONY: economy-smoke economy-freeze economy-compare economy-dashboard economy-report economy-gate economy-cycle economy-exe economy-release-package economy-verify-checksum economy-wizard economy-profile-list economy-run-profile
+.PHONY: economy-smoke economy-freeze economy-compare economy-dashboard economy-report economy-gate economy-cycle economy-exe economy-release-package economy-verify-checksum economy-wizard economy-profile-list economy-run-profile economy-doctor economy-preflight
 
 economy-smoke:
 	$(PY) -m py_compile tools/economy_lab.py tools/run_economy_baseline.py tools/compare_economy_baselines.py tools/economy_dashboard.py tools/economy_toolkit.py
@@ -31,19 +31,15 @@ economy-report: economy-smoke economy-freeze
 economy-cycle:
 	$(PY) tools/economy_toolkit.py cycle --version $(NEW) --previous-version $(OLD) --base-dir $(BASE_DIR) --thresholds-file $(THRESHOLDS_FILE) --out-json $(DIFF_JSON) --out-md $(DIFF_MD) --out-html $(DASH_HTML)
 
-
 economy-exe:
 	$(PY) tools/build_economy_toolkit_executable.py
-
 
 economy-release-package:
 	$(PY) tools/package_economy_toolkit_release.py
 
-
 # Usage: make economy-verify-checksum PACKAGE=dist/release/<file>.zip CHECKSUM=dist/release/<file>.zip.sha256
 economy-verify-checksum:
 	$(PY) tools/verify_release_checksum.py --package $(PACKAGE) --checksum-file $(CHECKSUM)
-
 
 economy-wizard:
 	$(PY) tools/economy_toolkit.py wizard
@@ -54,3 +50,10 @@ economy-profile-list:
 # Usage: make economy-run-profile PROFILE=balance_default VERSION=economy_v2 PREVIOUS=economy_v1
 economy-run-profile:
 	$(PY) tools/economy_toolkit.py run-profile --name $(PROFILE) --version $(VERSION) --previous-version $(PREVIOUS)
+
+economy-doctor:
+	$(PY) tools/economy_toolkit.py doctor
+
+economy-preflight: economy-smoke
+	$(PY) -m pytest -q
+	$(PY) tools/economy_toolkit.py doctor
