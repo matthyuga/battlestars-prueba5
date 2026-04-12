@@ -278,3 +278,40 @@ CI de release:
 
 Roadmap completo:
 - `docs/ROADMAP_ECONOMY_TOOLKIT_COMPLETION_V1.md`
+
+
+## Hardening de distribución (Fase D)
+
+### Convención de tags semánticos
+Usar tags con formato estricto:
+
+- `economy-toolkit-vMAJOR.MINOR.PATCH`
+- ejemplo: `economy-toolkit-v1.2.0`
+
+El workflow de release valida este patrón y falla si no se cumple.
+
+### Changelog automático
+El workflow `.github/workflows/economy-release.yml` genera changelog automáticamente al publicar release en tags semánticos.
+
+### Firma/attestation
+- Se genera `SHA256` por paquete (`.sha256`).
+- El workflow produce **build provenance attestation** para artifacts de release.
+- Firma GPG opcional local de checksum con `ECONOMY_GPG_KEY_ID`.
+
+### Verificación de checksum (consumo interno)
+
+```bash
+python tools/verify_release_checksum.py \
+  --package dist/release/<archivo>.zip \
+  --checksum-file dist/release/<archivo>.zip.sha256
+```
+
+Atajo Make:
+
+```bash
+make economy-verify-checksum PACKAGE=dist/release/<archivo>.zip CHECKSUM=dist/release/<archivo>.zip.sha256
+```
+
+
+Referencia de consumo interno:
+- `docs/RELEASE_CONSUMPTION_VERIFICATION_V1.md`

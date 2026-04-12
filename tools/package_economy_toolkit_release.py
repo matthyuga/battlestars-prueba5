@@ -5,12 +5,18 @@ Flujo:
 1) Compila binario one-file (PyInstaller) usando build_economy_toolkit_executable.py.
 2) Genera zip con nombre por plataforma.
 3) Escribe checksums SHA256.
+4) Opcional: firma el checksum con GPG (detached signature).
+
+Variables opcionales:
+- ECONOMY_GPG_KEY_ID: key id para firmar checksum (.asc)
 """
 
 from __future__ import annotations
 
 import hashlib
+import os
 import platform
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -42,6 +48,37 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def maybe_sign_checksum(checksum_file: Path) -> None:
+    key_id = os.getenv("ECONOMY_GPG_KEY_ID", "").strip()
+    gpg = shutil.which("gpg")
+    if not key_id:
+        print("[info] ECONOMY_GPG_KEY_ID no definido; se omite firma GPG.")
+        return
+    if not gpg:
+        print("[warn] gpg no encontrado; no se pudo firmar checksum.")
+        return
+
+    sig_file = checksum_file.with_suffix(checksum_file.suffix + ".asc")
+    cmd = [
+        gpg,
+        "--batch",
+        "--yes",
+        "--armor",
+        "--local-user",
+        key_id,
+        "--output",
+        str(sig_file),
+        "--detach-sign",
+        str(checksum_file),
+    ]
+    print("[run]", " ".join(cmd))
+    rc = subprocess.run(cmd, cwd=str(REPO_ROOT)).returncode
+    if rc == 0 and sig_file.exists():
+        print(f"[ok] firma checksum: {sig_file}")
+    else:
+        print("[warn] fallo firma GPG de checksum.")
+
+
 def main() -> int:
     cmd = [sys.executable, str(BUILD_SCRIPT)]
     print("[run]", " ".join(cmd))
@@ -65,6 +102,8 @@ def main() -> int:
     checksum = sha256_file(package_path)
     checksum_file = RELEASE_DIR / f"{package_name}.sha256"
     checksum_file.write_text(f"{checksum}  {package_name}\n", encoding="utf-8")
+
+    maybe_sign_checksum(checksum_file)
 
     print(f"[ok] package: {package_path}")
     print(f"[ok] sha256:  {checksum_file}")

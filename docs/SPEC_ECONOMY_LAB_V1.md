@@ -274,3 +274,10 @@ Ejecutable opcional (sin Python/Makefile):
 
 Roadmap de cierre:
 - `docs/ROADMAP_ECONOMY_TOOLKIT_COMPLETION_V1.md`
+
+
+Hardening de distribución (Fase D):
+- validación de tag semántico `economy-toolkit-vMAJOR.MINOR.PATCH` en release workflow,
+- changelog automático para GitHub Release,
+- attestation de provenance en CI de release,
+- script de verificación SHA256 para consumo interno (`tools/verify_release_checksum.py`).

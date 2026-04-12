@@ -34,11 +34,13 @@ Tener un toolkit **completo y funcional** que se pueda usar en 3 niveles:
 
 ## Próximas fases sugeridas
 
-### Fase D — Hardening de distribución
-1. Firma de binarios/código por plataforma.
-2. Convención de versionado semántico (`economy-toolkit-vMAJOR.MINOR.PATCH`).
-3. Changelog de release automático.
-4. Verificación de checksum en pasos de consumo interno.
+### Fase D — Hardening de distribución (en progreso)
+1. [x] Convención de versionado semántico (`economy-toolkit-vMAJOR.MINOR.PATCH`) validada en CI.
+2. [x] Changelog de release automático en workflow de publicación.
+3. [x] Verificación de checksum en pasos de consumo interno (script + target Make).
+4. [~] Firma por plataforma:
+   - [x] Attestation de provenance en CI.
+   - [ ] Firma criptográfica de binarios por plataforma (pendiente integrar certificado/secretos por SO).
 
 ### Fase E — UX de producto ejecutable
 1. Comando `wizard` interactivo (menú guiado) para perfiles no técnicos.
