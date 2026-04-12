@@ -17,6 +17,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOLKIT = REPO_ROOT / "tools" / "economy_toolkit.py"
 DIST_DIR = REPO_ROOT / "dist"
 BUILD_DIR = REPO_ROOT / "build"
+PROFILES_DIR = REPO_ROOT / "tools" / "profiles"
+SCENARIOS_DIR = REPO_ROOT / "tools" / "scenarios"
 
 
 def main() -> int:
@@ -29,11 +31,19 @@ def main() -> int:
         print("[error] PyInstaller no está instalado. Ejecutá: python -m pip install pyinstaller")
         return 2
 
+    sep = ";" if sys.platform.startswith("win") else ":"
+    add_profiles = f"{PROFILES_DIR}{sep}tools/profiles"
+    add_scenarios = f"{SCENARIOS_DIR}{sep}tools/scenarios"
+
     cmd = [
         pyinstaller,
         "--noconfirm",
         "--clean",
         "--onefile",
+        "--add-data",
+        add_profiles,
+        "--add-data",
+        add_scenarios,
         "--name",
         "economy-toolkit",
         str(TOOLKIT),

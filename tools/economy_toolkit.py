@@ -19,8 +19,16 @@ from pathlib import Path
 from typing import Any, Dict
 
 
-TOOLS_DIR = Path(__file__).resolve().parent
-REPO_ROOT = TOOLS_DIR.parent
+IS_FROZEN = bool(getattr(sys, "frozen", False))
+if IS_FROZEN:
+    cwd_tools = Path.cwd() / "tools"
+    bundled_root = Path(getattr(sys, "_MEIPASS", Path.cwd()))
+    bundled_tools = bundled_root / "tools"
+    TOOLS_DIR = cwd_tools if cwd_tools.exists() else bundled_tools
+    REPO_ROOT = TOOLS_DIR.parent if TOOLS_DIR.name == "tools" else Path.cwd()
+else:
+    TOOLS_DIR = Path(__file__).resolve().parent
+    REPO_ROOT = TOOLS_DIR.parent
 PROFILES_DIR = TOOLS_DIR / "profiles"
 
 
@@ -285,6 +293,8 @@ def main() -> int:
 
     args = ap.parse_args()
     py = sys.executable
+    if IS_FROZEN:
+        py = shutil.which("python") or shutil.which("py") or sys.executable
 
     if args.cmd == "simulate":
         lab_args = list(args.lab_args)
