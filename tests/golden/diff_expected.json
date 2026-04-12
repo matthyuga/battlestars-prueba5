@@ -1,0 +1,70 @@
+{
+  "scenarios": [
+    {
+      "scenario": "hardcore",
+      "metrics": {
+        "gold_final_policy": {
+          "p50": {
+            "old": 300.0,
+            "new": 315.0,
+            "delta_abs": 15.0,
+            "delta_pct": 5.000000000000004
+          },
+          "p95": {
+            "old": 450.0,
+            "new": 472.5,
+            "delta_abs": 22.5,
+            "delta_pct": 5.000000000000004
+          }
+        },
+        "exp_final_policy": {
+          "p50": {
+            "old": 200.0,
+            "new": 200.0,
+            "delta_abs": 0.0,
+            "delta_pct": 0.0
+          },
+          "p95": {
+            "old": 260.0,
+            "new": 286.0,
+            "delta_abs": 26.0,
+            "delta_pct": 10.000000000000009
+          }
+        }
+      }
+    },
+    {
+      "scenario": "normal",
+      "metrics": {
+        "gold_final_policy": {
+          "p50": {
+            "old": 100.0,
+            "new": 110.0,
+            "delta_abs": 10.0,
+            "delta_pct": 10.000000000000009
+          },
+          "p95": {
+            "old": 150.0,
+            "new": 150.0,
+            "delta_abs": 0.0,
+            "delta_pct": 0.0
+          }
+        },
+        "exp_final_policy": {
+          "p50": {
+            "old": 80.0,
+            "new": 84.0,
+            "delta_abs": 4.0,
+            "delta_pct": 5.000000000000004
+          },
+          "p95": {
+            "old": 100.0,
+            "new": 95.0,
+            "delta_abs": -5.0,
+            "delta_pct": -5.000000000000004
+          }
+        }
+      }
+    }
+  ]
+}

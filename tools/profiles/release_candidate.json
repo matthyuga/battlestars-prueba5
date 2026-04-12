@@ -1,0 +1,11 @@
+{
+  "name": "release_candidate",
+  "description": "Profile estricto para candidate release (gate duro).",
+  "base_dir": "artifacts/economy_baseline",
+  "thresholds_file": "tools/scenarios/economy_alert_thresholds.json",
+  "title": "Economy Dashboard RC",
+  "fail_on_alert": true,
+  "bundle_dir": "artifacts/economy_reports",
+  "version": "economy_v_next_rc",
+  "previous_version": "economy_v_prev"
+}
