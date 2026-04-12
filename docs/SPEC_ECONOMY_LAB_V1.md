@@ -228,3 +228,23 @@ Salida:
   - tabla p50/p95 por escenario,
   - barras simples por escenario,
   - tabla de deltas old/new por métrica en diff.
+
+---
+
+## 14) Automatización y CI
+
+Automatización ligera:
+- `Makefile` con targets:
+  - `economy-smoke`
+  - `economy-freeze`
+  - `economy-compare`
+  - `economy-dashboard`
+  - `economy-report`
+
+Integración CI:
+- `.github/workflows/economy-tools.yml`
+- Pipeline:
+  1. compile smoke,
+  2. freeze A/B,
+  3. compare A vs B,
+  4. build dashboard.

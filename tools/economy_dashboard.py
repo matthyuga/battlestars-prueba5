@@ -107,8 +107,8 @@ def render_diff_section(diff: Dict[str, Any]) -> str:
 
 
 def build_html(title: str, suite_rows: List[Dict[str, Any]], diff_json: Dict[str, Any]) -> str:
-    suite_html = render_suite_section(suite_rows)
-    diff_html = render_diff_section(diff_json)
+    suite_data = json.dumps(suite_rows, ensure_ascii=False)
+    diff_data = json.dumps(diff_json, ensure_ascii=False)
     return f"""<!doctype html>
 <html lang="es">
 <head>
@@ -128,13 +128,114 @@ def build_html(title: str, suite_rows: List[Dict[str, Any]], diff_json: Dict[str
     .bar {{ height:100%; background:#38bdf8; }}
     .bar-label {{ min-width:80px; text-align:right; color:#cbd5e1; font-size:13px; }}
     .muted {{ color:#94a3b8; font-size:13px; }}
+    .controls {{ display:flex; gap:12px; flex-wrap:wrap; margin:8px 0 12px 0; }}
+    .controls label {{ font-size:13px; color:#cbd5e1; }}
+    select, input {{ background:#0b1220; color:#e2e8f0; border:1px solid #334155; border-radius:6px; padding:4px 8px; }}
+    .warn td {{ background: rgba(239, 68, 68, 0.18); }}
   </style>
 </head>
 <body>
   <h1>{title}</h1>
   <p class="muted">Dashboard mínimo (Módulo B v0) generado desde artefactos JSON de Economy Lab.</p>
-  <div class="card">{suite_html}</div>
-  <div class="card">{diff_html}</div>
+  <div class="card">
+    <h2>Suite (p50/p95 por escenario)</h2>
+    <div class="controls">
+      <label>Scenario:
+        <select id="suiteScenario"></select>
+      </label>
+      <label>Métrica barras:
+        <select id="suiteMetric">
+          <option value="gold_p95">gold_p95</option>
+          <option value="gold_p50">gold_p50</option>
+          <option value="exp_p95">exp_p95</option>
+          <option value="exp_p50">exp_p50</option>
+        </select>
+      </label>
+    </div>
+    <div id="suiteTable"></div>
+    <h3>Barras por escenario</h3>
+    <div id="suiteBars"></div>
+  </div>
+  <div class="card">
+    <h2>Diff entre versiones</h2>
+    <div class="controls">
+      <label>Umbral alerta (|Δ%|):
+        <input id="diffThreshold" type="number" value="5" step="0.1" />
+      </label>
+    </div>
+    <div id="diffTable"></div>
+  </div>
+  <script>
+    const SUITE_ROWS = {suite_data};
+    const DIFF_PAYLOAD = {diff_data};
+
+    function fmt(v) {{ return Number(v || 0).toFixed(2); }}
+
+    function renderSuite() {{
+      const scenarioSel = document.getElementById('suiteScenario');
+      const metricSel = document.getElementById('suiteMetric');
+      const selectedScenario = scenarioSel.value || 'all';
+      const metric = metricSel.value || 'gold_p95';
+      const rows = SUITE_ROWS.filter(r => selectedScenario === 'all' || r.scenario === selectedScenario);
+
+      // table
+      let html = '<table><thead><tr><th>Scenario</th><th>Gold p50</th><th>Gold p95</th><th>Exp p50</th><th>Exp p95</th></tr></thead><tbody>';
+      for (const r of rows) {{
+        html += `<tr><td>${{r.scenario}}</td><td>${{fmt(r.gold_p50)}}</td><td>${{fmt(r.gold_p95)}}</td><td>${{fmt(r.exp_p50)}}</td><td>${{fmt(r.exp_p95)}}</td></tr>`;
+      }}
+      html += '</tbody></table>';
+      document.getElementById('suiteTable').innerHTML = html;
+
+      // bars
+      const maxVal = Math.max(1, ...rows.map(r => Number(r[metric] || 0)));
+      let bars = '';
+      for (const r of rows) {{
+        const val = Number(r[metric] || 0);
+        const w = Math.round((val / maxVal) * 100);
+        bars += `<div class="bar-row"><span class="name">${{r.scenario}}</span><div class="bar-wrap"><div class="bar" style="width:${{w}}%"></div></div><span class="bar-label">${{fmt(val)}}</span></div>`;
+      }}
+      document.getElementById('suiteBars').innerHTML = bars || '<p class="muted">Sin filas.</p>';
+    }}
+
+    function renderDiff() {{
+      const threshold = Math.abs(Number(document.getElementById('diffThreshold').value || 0));
+      const rows = (((DIFF_PAYLOAD || {{}}).diff || {{}}).scenarios || []);
+      if (!rows.length) {{
+        document.getElementById('diffTable').innerHTML = '<p class="muted">No se proporcionó diff o no tiene filas.</p>';
+        return;
+      }}
+      let html = '<table><thead><tr><th>Scenario</th><th>Metric</th><th>Old</th><th>New</th><th>Δ abs</th><th>Δ %</th></tr></thead><tbody>';
+      for (const row of rows) {{
+        for (const block of ['gold_final_policy', 'exp_final_policy']) {{
+          for (const stat of ['p50', 'p95']) {{
+            const v = (((row.metrics || {{}})[block] || {{}})[stat] || {{}});
+            const dp = Number(v.delta_pct || 0);
+            const alertClass = Math.abs(dp) >= threshold ? ' class="warn"' : '';
+            html += `<tr${{alertClass}}><td>${{row.scenario}}</td><td>${{block}}.${{stat}}</td><td>${{fmt(v.old)}}</td><td>${{fmt(v.new)}}</td><td>${{fmt(v.delta_abs)}}</td><td>${{fmt(dp)}}%</td></tr>`;
+          }}
+        }}
+      }}
+      html += '</tbody></table>';
+      document.getElementById('diffTable').innerHTML = html;
+    }}
+
+    function boot() {{
+      const sel = document.getElementById('suiteScenario');
+      const names = ['all', ...SUITE_ROWS.map(r => r.scenario)];
+      for (const n of names) {{
+        const op = document.createElement('option');
+        op.value = n;
+        op.textContent = n;
+        sel.appendChild(op);
+      }}
+      sel.addEventListener('change', renderSuite);
+      document.getElementById('suiteMetric').addEventListener('change', renderSuite);
+      document.getElementById('diffThreshold').addEventListener('input', renderDiff);
+      renderSuite();
+      renderDiff();
+    }}
+    boot();
+  </script>
 </body>
 </html>
 """
