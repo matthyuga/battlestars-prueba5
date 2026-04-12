@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import random
 from dataclasses import dataclass
 from typing import Dict, List
@@ -264,6 +265,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--runs", type=int, default=1, help="Cantidad de corridas para batch.")
     p.add_argument("--seed", type=int, default=42, help="Seed para batch.")
     p.add_argument("--randomize", action="store_true", help="Randomiza desempeño/rng en cada corrida batch.")
+    p.add_argument("--scenario-file", default="tools/scenarios/economy_lab_profiles.json", help="Ruta JSON de escenarios.")
+    p.add_argument("--scenario", default="", help="Nombre de escenario a aplicar (casual|normal|hardcore).")
+    p.add_argument("--run-all-scenarios", action="store_true", help="Ejecuta todos los escenarios del archivo.")
     p.add_argument("--json-out", default="", help="Ruta salida JSON opcional.")
     p.add_argument("--csv-out", default="", help="Ruta salida CSV opcional.")
     return p
@@ -362,6 +366,76 @@ def print_console_summary(results: List[Dict[str, object]]) -> None:
         print(json.dumps(first, ensure_ascii=False, indent=2))
 
 
+def compute_aggregate(results: List[Dict[str, object]]) -> Dict[str, object]:
+    gold_normal = [float(r["normal"]["gold_final"]) for r in results]
+    gold_policy = [float(r["policy_boost"]["gold_final"]) for r in results]
+    exp_normal = [float(r["normal"]["exp_final"]) for r in results]
+    exp_policy = [float(r["policy_boost"]["exp_final"]) for r in results]
+    return {
+        "gold_final_normal": {
+            "min": min(gold_normal) if gold_normal else 0,
+            "p50": percentile(gold_normal, 50),
+            "p95": percentile(gold_normal, 95),
+            "max": max(gold_normal) if gold_normal else 0,
+        },
+        "gold_final_policy": {
+            "min": min(gold_policy) if gold_policy else 0,
+            "p50": percentile(gold_policy, 50),
+            "p95": percentile(gold_policy, 95),
+            "max": max(gold_policy) if gold_policy else 0,
+        },
+        "exp_final_normal": {
+            "min": min(exp_normal) if exp_normal else 0,
+            "p50": percentile(exp_normal, 50),
+            "p95": percentile(exp_normal, 95),
+            "max": max(exp_normal) if exp_normal else 0,
+        },
+        "exp_final_policy": {
+            "min": min(exp_policy) if exp_policy else 0,
+            "p50": percentile(exp_policy, 50),
+            "p95": percentile(exp_policy, 95),
+            "max": max(exp_policy) if exp_policy else 0,
+        },
+    }
+
+
+def load_scenarios(path: str) -> Dict[str, Dict[str, object]]:
+    if not path or not os.path.exists(path):
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    raw = data.get("scenarios", {}) if isinstance(data, dict) else {}
+    out: Dict[str, Dict[str, object]] = {}
+    for k, v in raw.items():
+        if isinstance(v, dict):
+            out[str(k).strip().lower()] = v
+    return out
+
+
+def apply_scenario(args: argparse.Namespace, scenario: Dict[str, object]) -> argparse.Namespace:
+    out = argparse.Namespace(**vars(args))
+    mapping = {
+        "mode": "mode",
+        "account_tier": "account_tier",
+        "tier_band": "tier_band",
+        "base_exp": "base_exp",
+        "gold_min": "gold_min",
+        "gold_max": "gold_max",
+        "player_register": "player_register",
+        "rival_register": "rival_register",
+        "is_victory": "victory",
+        "stars": "stars",
+        "repetition_count": "repetition_count",
+        "runs": "runs",
+        "randomize": "randomize",
+        "seed": "seed",
+    }
+    for src_key, dst_key in mapping.items():
+        if src_key in scenario:
+            setattr(out, dst_key, scenario[src_key])
+    return out
+
+
 def write_json(path: str, payload: Dict[str, object]) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
@@ -400,12 +474,39 @@ def write_csv(path: str, results: List[Dict[str, object]]) -> None:
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
+    scenarios = load_scenarios(args.scenario_file)
+
+    if args.run_all_scenarios and scenarios:
+        suite: Dict[str, object] = {"meta": {"tool": "economy_lab", "version": "v1", "suite": True}, "scenarios": {}}
+        print("=== Economy Lab Suite ===")
+        for name in sorted(scenarios.keys()):
+            sub_args = apply_scenario(args, scenarios[name])
+            results = run_batch(sub_args)
+            aggregate = compute_aggregate(results)
+            suite["scenarios"][name] = {
+                "input_overrides": scenarios[name],
+                "aggregate": aggregate,
+                "runs": len(results),
+            }
+            g95 = aggregate["gold_final_policy"]["p95"]
+            e95 = aggregate["exp_final_policy"]["p95"]
+            print(f"[{name}] runs={len(results)} | gold_policy_p95={g95:.2f} | exp_policy_p95={e95:.2f}")
+
+        if args.json_out:
+            write_json(args.json_out, suite)
+            print(f"[ok] Suite JSON guardado en: {args.json_out}")
+        return 0
+
+    if args.scenario:
+        key = str(args.scenario).strip().lower()
+        if key not in scenarios:
+            print(f"[warn] escenario '{args.scenario}' no encontrado en {args.scenario_file}. Se usan argumentos directos.")
+        else:
+            args = apply_scenario(args, scenarios[key])
+
     results = run_batch(args)
 
-    gold_normal = [float(r["normal"]["gold_final"]) for r in results]
-    gold_policy = [float(r["policy_boost"]["gold_final"]) for r in results]
-    exp_normal = [float(r["normal"]["exp_final"]) for r in results]
-    exp_policy = [float(r["policy_boost"]["exp_final"]) for r in results]
+    aggregate = compute_aggregate(results)
 
     payload = {
         "meta": {
@@ -413,32 +514,7 @@ def main() -> int:
             "version": "v1",
             "runs": len(results),
         },
-        "aggregate": {
-            "gold_final_normal": {
-                "min": min(gold_normal) if gold_normal else 0,
-                "p50": percentile(gold_normal, 50),
-                "p95": percentile(gold_normal, 95),
-                "max": max(gold_normal) if gold_normal else 0,
-            },
-            "gold_final_policy": {
-                "min": min(gold_policy) if gold_policy else 0,
-                "p50": percentile(gold_policy, 50),
-                "p95": percentile(gold_policy, 95),
-                "max": max(gold_policy) if gold_policy else 0,
-            },
-            "exp_final_normal": {
-                "min": min(exp_normal) if exp_normal else 0,
-                "p50": percentile(exp_normal, 50),
-                "p95": percentile(exp_normal, 95),
-                "max": max(exp_normal) if exp_normal else 0,
-            },
-            "exp_final_policy": {
-                "min": min(exp_policy) if exp_policy else 0,
-                "p50": percentile(exp_policy, 50),
-                "p95": percentile(exp_policy, 95),
-                "max": max(exp_policy) if exp_policy else 0,
-            },
-        },
+        "aggregate": aggregate,
         "results": results,
     }
 

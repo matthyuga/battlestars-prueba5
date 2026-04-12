@@ -192,5 +192,5 @@ Estado de Módulo A (CLI):
 - [x] Métricas agregadas (`min/p50/p95/max`) en consola y JSON.
 
 Pendiente recomendado para cierre operativo:
-- [ ] Añadir ejemplos de comandos en un README corto de `tools/`.
-- [ ] Definir datasets de escenarios QA (casual/normal/hardcore) para corrida automática.
+- [x] Añadir ejemplos de comandos en un README corto de `tools/`.
+- [x] Definir datasets de escenarios QA (casual/normal/hardcore) para corrida automática.
