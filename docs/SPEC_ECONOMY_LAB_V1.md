@@ -179,3 +179,18 @@ Crear una herramienta interna simple (primero CLI, luego opcional UI web) para:
 ## 10) Próximo paso sugerido
 
 Implementar primero **CLI MVP** (`tools/economy_lab.py`) y validar con 30 simulaciones por tier/modo antes de abrir UI visual.
+
+---
+
+## 11) Avance actual (2026-04-12)
+
+Estado de Módulo A (CLI):
+- [x] Simulación single-run y batch.
+- [x] Comparación normal vs policy_boost.
+- [x] Export JSON/CSV.
+- [x] Preset de bandas por tier (`--tier-band`).
+- [x] Métricas agregadas (`min/p50/p95/max`) en consola y JSON.
+
+Pendiente recomendado para cierre operativo:
+- [ ] Añadir ejemplos de comandos en un README corto de `tools/`.
+- [ ] Definir datasets de escenarios QA (casual/normal/hardcore) para corrida automática.

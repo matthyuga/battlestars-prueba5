@@ -56,6 +56,16 @@ EXP_BOOST_BY_TIER = {
     "IV": 1.25,
 }
 
+GOLD_BANDS_BY_TIER = {
+    "C": (10.0, 100.0),
+    "B": (50.0, 500.0),
+    "A": (100.0, 1000.0),
+    "S": (500.0, 10000.0),
+    "SS": (1000.0, 15000.0),
+    "SSS": (5000.0, 25000.0),
+    "IV": (10000.0, 50000.0),
+}
+
 
 def clamp(v: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, v))
@@ -79,6 +89,20 @@ def normalize_mode(v: str) -> str:
         "torre": "torre",
     }
     return aliases.get(m, m if m in ("duelo_libre", "torneo", "torre") else "duelo_libre")
+
+
+def percentile(values: List[float], p: float) -> float:
+    if not values:
+        return 0.0
+    arr = sorted(float(x) for x in values)
+    pp = clamp(p, 0.0, 100.0)
+    if len(arr) == 1:
+        return arr[0]
+    rank = (pp / 100.0) * (len(arr) - 1)
+    lo = int(rank)
+    hi = min(lo + 1, len(arr) - 1)
+    frac = rank - lo
+    return arr[lo] + ((arr[hi] - arr[lo]) * frac)
 
 
 def antiabuso_multiplier(repetition_count: int) -> float:
@@ -221,6 +245,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--base-exp", type=float, default=100.0)
     p.add_argument("--gold-min", type=float, default=10.0)
     p.add_argument("--gold-max", type=float, default=100.0)
+    p.add_argument(
+        "--tier-band",
+        default="",
+        help="Aplica banda de oro por tier C|B|A|S|SS|SSS|IV (sobrescribe --gold-min/--gold-max).",
+    )
     p.add_argument("--player-register", type=int, default=0)
     p.add_argument("--rival-register", type=int, default=0)
     p.add_argument("--victory", action="store_true", default=False)
@@ -247,6 +276,15 @@ def run_batch(args: argparse.Namespace) -> List[Dict[str, object]]:
     mode = normalize_mode(args.mode)
     tier = normalize_tier(args.account_tier)
     runs = max(1, int(args.runs))
+    tier_band = normalize_tier(args.tier_band) if str(args.tier_band or "").strip() else ""
+
+    if tier_band:
+        band = GOLD_BANDS_BY_TIER[tier_band]
+        gold_min_value = float(band[0])
+        gold_max_value = float(band[1])
+    else:
+        gold_min_value = float(min(args.gold_min, args.gold_max))
+        gold_max_value = float(max(args.gold_min, args.gold_max))
 
     for _ in range(runs):
         if args.randomize:
@@ -266,8 +304,8 @@ def run_batch(args: argparse.Namespace) -> List[Dict[str, object]]:
             mode=mode,
             account_tier=tier,
             base_exp=float(args.base_exp),
-            gold_min=float(min(args.gold_min, args.gold_max)),
-            gold_max=float(max(args.gold_min, args.gold_max)),
+            gold_min=gold_min_value,
+            gold_max=gold_max_value,
             player_register=int(args.player_register),
             rival_register=int(args.rival_register),
             is_victory=bool(args.victory),
@@ -302,6 +340,22 @@ def print_console_summary(results: List[Dict[str, object]]) -> None:
 
     print(f"gold_final avg: normal={avg_gold_normal:.2f} | policy={avg_gold_policy:.2f} | delta={avg_gold_delta_pct:.2f}%")
     print(f"exp_final  avg: normal={avg_exp_normal:.2f} | policy={avg_exp_policy:.2f} | delta={avg_exp_delta_pct:.2f}%")
+
+    g_n = [float(r["normal"]["gold_final"]) for r in results]
+    g_p = [float(r["policy_boost"]["gold_final"]) for r in results]
+    e_n = [float(r["normal"]["exp_final"]) for r in results]
+    e_p = [float(r["policy_boost"]["exp_final"]) for r in results]
+
+    print(
+        "gold_final stats: "
+        f"normal[min={min(g_n):.2f}, p50={percentile(g_n, 50):.2f}, p95={percentile(g_n, 95):.2f}, max={max(g_n):.2f}] | "
+        f"policy[min={min(g_p):.2f}, p50={percentile(g_p, 50):.2f}, p95={percentile(g_p, 95):.2f}, max={max(g_p):.2f}]"
+    )
+    print(
+        "exp_final stats:  "
+        f"normal[min={min(e_n):.2f}, p50={percentile(e_n, 50):.2f}, p95={percentile(e_n, 95):.2f}, max={max(e_n):.2f}] | "
+        f"policy[min={min(e_p):.2f}, p50={percentile(e_p, 50):.2f}, p95={percentile(e_p, 95):.2f}, max={max(e_p):.2f}]"
+    )
 
     if len(results) == 1:
         print("\n--- Detalle corrida ---")
@@ -348,11 +402,42 @@ def main() -> int:
     args = parser.parse_args()
     results = run_batch(args)
 
+    gold_normal = [float(r["normal"]["gold_final"]) for r in results]
+    gold_policy = [float(r["policy_boost"]["gold_final"]) for r in results]
+    exp_normal = [float(r["normal"]["exp_final"]) for r in results]
+    exp_policy = [float(r["policy_boost"]["exp_final"]) for r in results]
+
     payload = {
         "meta": {
             "tool": "economy_lab",
             "version": "v1",
             "runs": len(results),
+        },
+        "aggregate": {
+            "gold_final_normal": {
+                "min": min(gold_normal) if gold_normal else 0,
+                "p50": percentile(gold_normal, 50),
+                "p95": percentile(gold_normal, 95),
+                "max": max(gold_normal) if gold_normal else 0,
+            },
+            "gold_final_policy": {
+                "min": min(gold_policy) if gold_policy else 0,
+                "p50": percentile(gold_policy, 50),
+                "p95": percentile(gold_policy, 95),
+                "max": max(gold_policy) if gold_policy else 0,
+            },
+            "exp_final_normal": {
+                "min": min(exp_normal) if exp_normal else 0,
+                "p50": percentile(exp_normal, 50),
+                "p95": percentile(exp_normal, 95),
+                "max": max(exp_normal) if exp_normal else 0,
+            },
+            "exp_final_policy": {
+                "min": min(exp_policy) if exp_policy else 0,
+                "p50": percentile(exp_policy, 50),
+                "p95": percentile(exp_policy, 95),
+                "max": max(exp_policy) if exp_policy else 0,
+            },
         },
         "results": results,
     }
