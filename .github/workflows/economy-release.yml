@@ -50,6 +50,13 @@ jobs:
       - name: Install build dependencies
         run: python -m pip install --upgrade pip pyinstaller
 
+      - name: Import optional GPG private key
+        if: runner.os == 'Linux' && secrets.ECONOMY_GPG_PRIVATE_KEY != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "${{ secrets.ECONOMY_GPG_PRIVATE_KEY }}" | gpg --batch --import
+
       - name: Smoke compile
         run: make economy-smoke
 

@@ -412,3 +412,8 @@ python tools/economy_toolkit.py doctor
 
 Readiness assessment:
 - `docs/READINESS_ASSESSMENT_ECONOMY_TOOLKIT_V1.md`
+
+
+Fase 1 (firma por plataforma):
+- guía: `docs/PHASE1_SIGNING_SETUP_V1.md`
+- pipeline: `.github/workflows/economy-release.yml`

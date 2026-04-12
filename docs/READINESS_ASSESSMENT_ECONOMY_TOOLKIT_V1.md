@@ -48,3 +48,7 @@ Pendiente recomendado antes de adopción masiva externa:
 
 Podés empezar a usarlo ya en flujo interno.
 Si quieren “sello enterprise/compliance”, ejecutar Fase 1 de firma nativa como siguiente prioridad.
+
+
+Ver setup técnico en:
+- `docs/PHASE1_SIGNING_SETUP_V1.md`

@@ -75,3 +75,7 @@ Se considera completo cuando:
 
 Readiness assessment detallado:
 - `docs/READINESS_ASSESSMENT_ECONOMY_TOOLKIT_V1.md`
+
+
+Setup firma por plataforma:
+- `docs/PHASE1_SIGNING_SETUP_V1.md`
