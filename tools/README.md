@@ -127,3 +127,19 @@ python tools/compare_economy_baselines.py \
 ```
 
 Esto imprime una tabla con deltas de `gold_final_policy` y `exp_final_policy` (p50/p95) por escenario.
+
+---
+
+## Dashboard mínimo (Módulo B v0)
+
+Generar HTML estático desde baseline + diff:
+
+```bash
+python tools/economy_dashboard.py \
+  --suite-json artifacts/economy_baseline/economy_v2_2026-04-20/suite.json \
+  --diff-json /tmp/economy_diff_v1_v2.json \
+  --out-html /tmp/economy_dashboard_v2.html \
+  --title "Economy Dashboard v2"
+```
+
+Luego abrir `/tmp/economy_dashboard_v2.html` en navegador.

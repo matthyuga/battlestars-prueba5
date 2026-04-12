@@ -211,3 +211,20 @@ Objetivo:
 Comparación entre versiones:
 - `tools/compare_economy_baselines.py`
 - Métricas foco v1: `gold_final_policy.{p50,p95}` y `exp_final_policy.{p50,p95}` por escenario.
+
+---
+
+## 13) Inicio Módulo B (v0)
+
+Se agrega dashboard mínimo:
+- `tools/economy_dashboard.py`
+
+Entrada:
+1. `suite.json` (baseline congelado)
+2. `diff.json` (opcional, comparador v1)
+
+Salida:
+- HTML estático con:
+  - tabla p50/p95 por escenario,
+  - barras simples por escenario,
+  - tabla de deltas old/new por métrica en diff.
