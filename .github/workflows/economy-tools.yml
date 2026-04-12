@@ -8,6 +8,8 @@ on:
       - "docs/SPEC_ECONOMY_LAB_V1.md"
       - "docs/ROADMAP_ECONOMY_TOOLKIT_COMPLETION_V1.md"
       - "docs/MANUAL_OPERACION_ECONOMY_TOOLKIT_V1.md"
+      - "docs/PLAYBOOK_INCIDENTES_ECONOMY_TOOLKIT_V1.md"
+      - "docs/SLA_VALIDACION_ECONOMY_TOOLKIT_V1.md"
       - "Makefile"
       - ".github/workflows/economy-tools.yml"
   pull_request:
@@ -17,6 +19,8 @@ on:
       - "docs/SPEC_ECONOMY_LAB_V1.md"
       - "docs/ROADMAP_ECONOMY_TOOLKIT_COMPLETION_V1.md"
       - "docs/MANUAL_OPERACION_ECONOMY_TOOLKIT_V1.md"
+      - "docs/PLAYBOOK_INCIDENTES_ECONOMY_TOOLKIT_V1.md"
+      - "docs/SLA_VALIDACION_ECONOMY_TOOLKIT_V1.md"
       - "Makefile"
       - ".github/workflows/economy-tools.yml"
 
@@ -49,3 +53,16 @@ jobs:
 
       - name: Build dashboard
         run: make economy-dashboard BASE_DIR=/tmp/economy_baselines NEW=economy_ci_B DIFF_JSON=/tmp/economy_diff_ci.json DASH_HTML=/tmp/economy_dashboard_ci.html
+
+      - name: Generate CI metrics
+        run: make economy-ci-metrics DIFF_JSON=/tmp/economy_diff_ci.json OUT_JSON=/tmp/economy_ci_metrics.json
+
+      - name: Upload CI artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: economy-tools-ci-artifacts
+          path: |
+            /tmp/economy_diff_ci.json
+            /tmp/economy_diff_ci.md
+            /tmp/economy_dashboard_ci.html
+            /tmp/economy_ci_metrics.json

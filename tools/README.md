@@ -422,3 +422,9 @@ Fase 1 (firma por plataforma):
 Fase 2 (calidad avanzada):
 - detalle: `docs/PHASE2_QUALITY_ADVANCE_V1.md`
 - tests: `tests/test_compare_golden_edge.py`, `tests/test_compare_performance.py`, `tests/test_wizard_flow.py`
+
+
+Fase 3 (operación a escala):
+- métricas CI: `tools/generate_economy_ci_metrics.py`
+- playbook incidentes/rollback: `docs/PLAYBOOK_INCIDENTES_ECONOMY_TOOLKIT_V1.md`
+- SLA validación: `docs/SLA_VALIDACION_ECONOMY_TOOLKIT_V1.md`

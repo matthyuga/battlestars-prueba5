@@ -300,3 +300,9 @@ Fase 2 calidad avanzada:
 - edge golden tests del comparador,
 - performance smoke para `compare_suites`,
 - harness e2e básico del wizard.
+
+
+Fase 3 operación a escala:
+- generación de métricas CI (`economy_ci_metrics.json`),
+- playbook de incidentes/rollback,
+- SLA de validación previa a release.

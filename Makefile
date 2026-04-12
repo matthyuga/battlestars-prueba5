@@ -8,10 +8,10 @@ DIFF_MD ?= /tmp/economy_diff_$(OLD)_$(NEW).md
 DASH_HTML ?= /tmp/economy_dashboard_$(NEW).html
 THRESHOLDS_FILE ?= tools/scenarios/economy_alert_thresholds.json
 
-.PHONY: economy-smoke economy-freeze economy-compare economy-dashboard economy-report economy-gate economy-cycle economy-exe economy-release-package economy-verify-checksum economy-wizard economy-profile-list economy-run-profile economy-doctor economy-preflight
+.PHONY: economy-smoke economy-freeze economy-compare economy-dashboard economy-report economy-gate economy-cycle economy-exe economy-release-package economy-verify-checksum economy-wizard economy-profile-list economy-run-profile economy-doctor economy-preflight economy-ci-metrics
 
 economy-smoke:
-	$(PY) -m py_compile tools/economy_lab.py tools/run_economy_baseline.py tools/compare_economy_baselines.py tools/economy_dashboard.py tools/economy_toolkit.py
+	$(PY) -m py_compile tools/economy_lab.py tools/run_economy_baseline.py tools/compare_economy_baselines.py tools/economy_dashboard.py tools/economy_toolkit.py tools/generate_economy_ci_metrics.py
 
 economy-freeze:
 	$(PY) tools/run_economy_baseline.py --version $(VERSION) --out-dir $(BASE_DIR)
@@ -57,3 +57,9 @@ economy-doctor:
 economy-preflight: economy-smoke
 	$(PY) -m pytest -q
 	$(PY) tools/economy_toolkit.py doctor
+
+
+# Usage: make economy-ci-metrics DIFF_JSON=/tmp/economy_diff_ci.json OUT_JSON=/tmp/economy_ci_metrics.json
+OUT_JSON ?= /tmp/economy_ci_metrics.json
+economy-ci-metrics:
+	$(PY) tools/generate_economy_ci_metrics.py --diff-json $(DIFF_JSON) --out-json $(OUT_JSON)

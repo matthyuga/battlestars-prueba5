@@ -83,3 +83,9 @@ Setup firma por plataforma:
 
 Fase 2 (calidad avanzada) detalle:
 - `docs/PHASE2_QUALITY_ADVANCE_V1.md`
+
+
+Fase 3 operación detalle:
+- `tools/generate_economy_ci_metrics.py`
+- `docs/PLAYBOOK_INCIDENTES_ECONOMY_TOOLKIT_V1.md`
+- `docs/SLA_VALIDACION_ECONOMY_TOOLKIT_V1.md`
