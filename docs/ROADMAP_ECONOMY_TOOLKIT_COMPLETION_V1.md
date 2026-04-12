@@ -48,11 +48,12 @@ Tener un toolkit **completo y funcional** que se pueda usar en 3 niveles:
 3. [x] Empaquetado de salida con report bundle (diff + dashboard + manifest).
 4. [ ] UX avanzada: wizard con validación contextual y presets por rol (QA/Design/PM).
 
-### Fase F — Calidad y soporte
-1. Tests unitarios para fórmulas y comparador.
-2. Tests de regresión de escenarios fijos (golden files).
-3. Pruebas cross-platform del binario en CI.
-4. Manual de operación para QA/Design/PM.
+### Fase F — Calidad y soporte (implementada base)
+1. [x] Tests unitarios para fórmulas y comparador.
+2. [x] Tests de regresión de escenarios fijos (golden files).
+3. [x] Pruebas cross-platform del binario en CI (smoke `--help` post-packaging).
+4. [x] Manual de operación para QA/Design/PM.
+5. [ ] Siguiente mejora: ampliar cobertura de tests de stress/performance.
 
 ---
 
@@ -62,3 +63,11 @@ Se considera completo cuando:
 - Build ejecutable y release multi-OS son 100% automáticos,
 - hay verificación de calidad (tests + gate) previa al release,
 - y una persona no técnica puede correr el flujo principal sin tocar Python/Makefile.
+
+
+## Estado de criterio de “toolkit completo"
+
+- [x] Build ejecutable y release multi-OS automáticos.
+- [x] Verificación de calidad (tests + gate) previa a release.
+- [x] Flujo principal no técnico disponible vía ejecutable + wizard.
+- [~] Hardening avanzado de firma nativa por SO (pendiente certificados por plataforma).

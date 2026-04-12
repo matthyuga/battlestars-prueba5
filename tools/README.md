@@ -369,3 +369,25 @@ Salida bundle:
 - `diff.md`
 - `dashboard.html`
 - `manifest.json`
+
+
+## Calidad y soporte (Fase F)
+
+### Ejecutar tests unitarios + golden
+
+```bash
+python -m pytest -q
+```
+
+Cobertura base:
+- fórmulas clave (`economy_lab.py`),
+- comparador (`compare_economy_baselines.py`),
+- golden files de regresión (`tests/golden/`).
+
+### Manual no técnico
+- `docs/MANUAL_OPERACION_ECONOMY_TOOLKIT_V1.md`
+
+### Criterio práctico de toolkit completo
+- release multi-OS automático,
+- tests + gate antes de release,
+- ejecución principal no técnica mediante ejecutable + wizard.

@@ -287,3 +287,10 @@ UX ejecutable (Fase E):
 - comando `wizard` en `tools/economy_toolkit.py`,
 - profiles en `tools/profiles/` cargables por nombre (`run-profile`),
 - report bundle con `diff + dashboard + manifest` (subcomando `bundle` y ciclo integrado).
+
+
+Calidad y soporte (Fase F):
+- tests unitarios (fórmulas + comparador),
+- tests golden de regresión para escenarios fijos,
+- smoke cross-platform del binario en CI de release,
+- manual de operación para QA/Design/PM: `docs/MANUAL_OPERACION_ECONOMY_TOOLKIT_V1.md`.
