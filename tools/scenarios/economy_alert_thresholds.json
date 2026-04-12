@@ -1,0 +1,9 @@
+{
+  "thresholds_pct": {
+    "gold_final_policy.p50": 8.0,
+    "gold_final_policy.p95": 12.0,
+    "exp_final_policy.p50": 8.0,
+    "exp_final_policy.p95": 12.0
+  },
+  "notes": "Si |delta_pct| supera umbral, el comparador reporta alerta y puede fallar con --fail-on-alert."
+}
