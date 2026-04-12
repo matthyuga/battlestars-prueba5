@@ -162,7 +162,12 @@ def build_html(title: str, suite_rows: List[Dict[str, Any]], diff_json: Dict[str
       <label>Umbral alerta (|Δ%|):
         <input id="diffThreshold" type="number" value="5" step="0.1" />
       </label>
+      <label>
+        <input id="diffOnlyAlerts" type="checkbox" />
+        Solo alertas
+      </label>
     </div>
+    <div id="diffMeta" class="muted"></div>
     <div id="diffTable"></div>
   </div>
   <script>
@@ -199,7 +204,12 @@ def build_html(title: str, suite_rows: List[Dict[str, Any]], diff_json: Dict[str
 
     function renderDiff() {{
       const threshold = Math.abs(Number(document.getElementById('diffThreshold').value || 0));
+      const onlyAlerts = document.getElementById('diffOnlyAlerts').checked;
       const rows = (((DIFF_PAYLOAD || {{}}).diff || {{}}).scenarios || []);
+      const meta = (DIFF_PAYLOAD || {{}}).meta || {{}};
+      const alerts = (DIFF_PAYLOAD || {{}}).alerts || [];
+      document.getElementById('diffMeta').textContent =
+        `old=${{meta.old_version || '-'}} -> new=${{meta.new_version || '-'}} | alerts=${{alerts.length}}`;
       if (!rows.length) {{
         document.getElementById('diffTable').innerHTML = '<p class="muted">No se proporcionó diff o no tiene filas.</p>';
         return;
@@ -210,7 +220,11 @@ def build_html(title: str, suite_rows: List[Dict[str, Any]], diff_json: Dict[str
           for (const stat of ['p50', 'p95']) {{
             const v = (((row.metrics || {{}})[block] || {{}})[stat] || {{}});
             const dp = Number(v.delta_pct || 0);
-            const alertClass = Math.abs(dp) >= threshold ? ' class="warn"' : '';
+            const isAlert = Math.abs(dp) >= threshold;
+            if (onlyAlerts && !isAlert) {{
+              continue;
+            }}
+            const alertClass = isAlert ? ' class="warn"' : '';
             html += `<tr${{alertClass}}><td>${{row.scenario}}</td><td>${{block}}.${{stat}}</td><td>${{fmt(v.old)}}</td><td>${{fmt(v.new)}}</td><td>${{fmt(v.delta_abs)}}</td><td>${{fmt(dp)}}%</td></tr>`;
           }}
         }}
@@ -231,6 +245,7 @@ def build_html(title: str, suite_rows: List[Dict[str, Any]], diff_json: Dict[str
       sel.addEventListener('change', renderSuite);
       document.getElementById('suiteMetric').addEventListener('change', renderSuite);
       document.getElementById('diffThreshold').addEventListener('input', renderDiff);
+      document.getElementById('diffOnlyAlerts').addEventListener('change', renderDiff);
       renderSuite();
       renderDiff();
     }}

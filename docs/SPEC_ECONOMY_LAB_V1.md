@@ -238,6 +238,7 @@ Automatización ligera:
   - `economy-smoke`
   - `economy-freeze`
   - `economy-compare`
+  - `economy-gate`
   - `economy-dashboard`
   - `economy-report`
 
@@ -246,5 +247,8 @@ Integración CI:
 - Pipeline:
   1. compile smoke,
   2. freeze A/B,
-  3. compare A vs B,
+  3. gate A vs B (umbral),
   4. build dashboard.
+
+Playbook de integración con ciclo gameplay:
+- `docs/BALANCE_GAMEPLAY_CYCLE_ECONOMY_V1.md`

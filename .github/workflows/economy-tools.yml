@@ -35,8 +35,8 @@ jobs:
       - name: Freeze baseline B
         run: make economy-freeze VERSION=economy_ci_B BASE_DIR=/tmp/economy_baselines
 
-      - name: Compare baselines
-        run: make economy-compare BASE_DIR=/tmp/economy_baselines OLD=economy_ci_A NEW=economy_ci_B DIFF_JSON=/tmp/economy_diff_ci.json DIFF_MD=/tmp/economy_diff_ci.md
+      - name: Compare baselines (gate)
+        run: make economy-gate BASE_DIR=/tmp/economy_baselines OLD=economy_ci_A NEW=economy_ci_B DIFF_JSON=/tmp/economy_diff_ci.json DIFF_MD=/tmp/economy_diff_ci.md
 
       - name: Build dashboard
         run: make economy-dashboard BASE_DIR=/tmp/economy_baselines NEW=economy_ci_B DIFF_JSON=/tmp/economy_diff_ci.json DASH_HTML=/tmp/economy_dashboard_ci.html

@@ -154,6 +154,7 @@ Desde raíz del repo:
 make economy-smoke
 make economy-freeze VERSION=economy_v2_2026-04-20
 make economy-compare OLD=economy_v1_2026-04-12 NEW=economy_v2_2026-04-20
+make economy-gate OLD=economy_v1_2026-04-12 NEW=economy_v2_2026-04-20
 make economy-dashboard NEW=economy_v2_2026-04-20
 ```
 
@@ -164,6 +165,8 @@ make economy-report VERSION=economy_v2_2026-04-20
 ```
 
 para compilar + congelar baseline en un solo paso.
+
+`economy-gate` falla (exit code != 0) si se superan umbrales de alerta.
 
 ---
 
@@ -176,5 +179,14 @@ Se incluye workflow:
 Valida automáticamente:
 1. compile smoke de scripts,
 2. freeze baseline A/B,
-3. compare baseline A vs B,
+3. gate baseline A vs B (con umbrales),
 4. generación de dashboard HTML.
+
+---
+
+## Umbrales de alerta
+
+- Archivo: `tools/scenarios/economy_alert_thresholds.json`
+- Usado por:
+  - `make economy-compare`
+  - `make economy-gate`

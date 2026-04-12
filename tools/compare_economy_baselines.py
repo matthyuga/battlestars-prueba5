@@ -59,6 +59,42 @@ def compare_suites(old_suite: Dict[str, Any], new_suite: Dict[str, Any]) -> Dict
     return {"scenarios": rows}
 
 
+def load_thresholds(path: str) -> Dict[str, float]:
+    if not path or not os.path.exists(path):
+        return {}
+    payload = load_json(path)
+    raw = payload.get("thresholds_pct", {}) if isinstance(payload, dict) else {}
+    out: Dict[str, float] = {}
+    for k, v in raw.items():
+        try:
+            out[str(k)] = float(v)
+        except Exception:
+            continue
+    return out
+
+
+def evaluate_alerts(report_diff: Dict[str, Any], thresholds: Dict[str, float]) -> List[Dict[str, Any]]:
+    alerts: List[Dict[str, Any]] = []
+    rows = report_diff.get("scenarios", []) if isinstance(report_diff, dict) else []
+    for row in rows:
+        sc = row.get("scenario", "?")
+        metrics = row.get("metrics", {})
+        for block in ("gold_final_policy", "exp_final_policy"):
+            for stat in ("p50", "p95"):
+                key = f"{block}.{stat}"
+                limit = float(thresholds.get(key, 0.0))
+                val = metrics.get(block, {}).get(stat, {})
+                dp = float(val.get("delta_pct", 0.0))
+                if limit > 0 and abs(dp) >= limit:
+                    alerts.append({
+                        "scenario": sc,
+                        "metric": key,
+                        "delta_pct": dp,
+                        "threshold_pct": limit,
+                    })
+    return alerts
+
+
 def to_markdown(report: Dict[str, Any], old_ver: str, new_ver: str) -> str:
     lines = []
     lines.append(f"# Economy baseline diff: {old_ver} -> {new_ver}")
@@ -92,6 +128,8 @@ def main() -> int:
     ap.add_argument("--new-version", required=True)
     ap.add_argument("--out-json", default="")
     ap.add_argument("--out-md", default="")
+    ap.add_argument("--thresholds-file", default="tools/scenarios/economy_alert_thresholds.json")
+    ap.add_argument("--fail-on-alert", action="store_true")
     args = ap.parse_args()
 
     old_suite_path = os.path.join(args.base_dir, args.old_version, "suite.json")
@@ -110,12 +148,27 @@ def main() -> int:
             "new_version": args.new_version,
             "old_suite": old_suite_path,
             "new_suite": new_suite_path,
+            "thresholds_file": args.thresholds_file,
         },
         "diff": compare_suites(old_suite, new_suite),
     }
+    thresholds = load_thresholds(args.thresholds_file)
+    alerts = evaluate_alerts(report["diff"], thresholds)
+    report["thresholds_pct"] = thresholds
+    report["alerts"] = alerts
 
     md = to_markdown(report["diff"], args.old_version, args.new_version)
     print(md)
+    if alerts:
+        print(f"[warn] alertas detectadas: {len(alerts)}")
+        for a in alerts:
+            print(
+                "[alert] scenario={s} metric={m} delta={d:.2f}% threshold={t:.2f}%".format(
+                    s=a["scenario"], m=a["metric"], d=float(a["delta_pct"]), t=float(a["threshold_pct"])
+                )
+            )
+    else:
+        print("[ok] sin alertas de umbral.")
 
     if args.out_json:
         with open(args.out_json, "w", encoding="utf-8") as f:
@@ -125,6 +178,8 @@ def main() -> int:
         with open(args.out_md, "w", encoding="utf-8") as f:
             f.write(md + "\n")
         print(f"[ok] Markdown diff guardado en: {args.out_md}")
+    if args.fail_on_alert and alerts:
+        return 2
     return 0
 
 
