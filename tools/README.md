@@ -101,3 +101,29 @@ artifacts/economy_baseline/economy_v1_2026-04-12/
 ```
 
 Con esto podés comparar versiones de balance entre parches sin perder trazabilidad.
+
+---
+
+## Ritual sugerido por ajuste (punto 1)
+
+1. Congelar baseline nuevo:
+
+```bash
+python tools/run_economy_baseline.py \
+  --version economy_vX_YYYY-MM-DD
+```
+
+2. Guardar/respaldar carpeta:
+- `artifacts/economy_baseline/economy_vX_YYYY-MM-DD/`
+
+3. Comparar contra versión previa (punto 2 + comparador v1):
+
+```bash
+python tools/compare_economy_baselines.py \
+  --old-version economy_v1_2026-04-12 \
+  --new-version economy_v2_2026-04-20 \
+  --out-json /tmp/economy_diff_v1_v2.json \
+  --out-md /tmp/economy_diff_v1_v2.md
+```
+
+Esto imprime una tabla con deltas de `gold_final_policy` y `exp_final_policy` (p50/p95) por escenario.

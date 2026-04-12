@@ -207,3 +207,7 @@ Objetivo:
 2. Ejecutar escenarios individuales.
 3. Guardar artefactos JSON/CSV por versión en carpeta dedicada.
 4. Persistir `manifest.json` para trazabilidad.
+
+Comparación entre versiones:
+- `tools/compare_economy_baselines.py`
+- Métricas foco v1: `gold_final_policy.{p50,p95}` y `exp_final_policy.{p50,p95}` por escenario.
