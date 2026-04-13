@@ -14,6 +14,7 @@ import json
 import shutil
 import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
@@ -30,6 +31,7 @@ else:
     TOOLS_DIR = Path(__file__).resolve().parent
     REPO_ROOT = TOOLS_DIR.parent
 PROFILES_DIR = TOOLS_DIR / "profiles"
+TMP_DIR = Path(tempfile.gettempdir())
 
 
 def run(cmd: list[str]) -> int:
@@ -192,9 +194,9 @@ def run_wizard(py: str) -> int:
         bundle_dir = str(profile.get("bundle_dir", "artifacts/economy_reports"))
         bundle_name = prompt("Nombre bundle", f"{previous_version}_to_{version}")
 
-        out_json = str(Path("/tmp") / f"economy_diff_{previous_version}_{version}.json")
-        out_md = str(Path("/tmp") / f"economy_diff_{previous_version}_{version}.md")
-        out_html = str(Path("/tmp") / f"economy_dashboard_{version}.html")
+        out_json = str(TMP_DIR / f"economy_diff_{previous_version}_{version}.json")
+        out_md = str(TMP_DIR / f"economy_diff_{previous_version}_{version}.md")
+        out_html = str(TMP_DIR / f"economy_dashboard_{version}.html")
         return run_cycle_and_bundle(py, version, previous_version, base_dir, thresholds_file, out_json, out_md, out_html, title, fail_on_alert, bundle_dir, bundle_name)
 
     version = prompt("Nueva versión", "economy_v_next")
@@ -206,9 +208,9 @@ def run_wizard(py: str) -> int:
     bundle_name = prompt("Nombre bundle", f"{previous_version}_to_{version}")
     title = prompt("Título dashboard", f"Economy Dashboard {version}")
 
-    out_json = str(Path("/tmp") / f"economy_diff_{previous_version}_{version}.json")
-    out_md = str(Path("/tmp") / f"economy_diff_{previous_version}_{version}.md")
-    out_html = str(Path("/tmp") / f"economy_dashboard_{version}.html")
+    out_json = str(TMP_DIR / f"economy_diff_{previous_version}_{version}.json")
+    out_md = str(TMP_DIR / f"economy_diff_{previous_version}_{version}.md")
+    out_html = str(TMP_DIR / f"economy_dashboard_{version}.html")
     return run_cycle_and_bundle(py, version, previous_version, base_dir, thresholds_file, out_json, out_md, out_html, title, fail_on_alert, bundle_dir, bundle_name)
 
 
@@ -257,8 +259,8 @@ def main() -> int:
     p_compare.add_argument("--new-version", required=True)
     p_compare.add_argument("--base-dir", default="artifacts/economy_baseline")
     p_compare.add_argument("--thresholds-file", default="tools/scenarios/economy_alert_thresholds.json")
-    p_compare.add_argument("--out-json", default="/tmp/economy_diff.json")
-    p_compare.add_argument("--out-md", default="/tmp/economy_diff.md")
+    p_compare.add_argument("--out-json", default=str(TMP_DIR / "economy_diff.json"))
+    p_compare.add_argument("--out-md", default=str(TMP_DIR / "economy_diff.md"))
     p_compare.add_argument("--fail-on-alert", action="store_true")
 
     p_dash = sub.add_parser("dashboard", help="Genera dashboard HTML.")
@@ -266,7 +268,7 @@ def main() -> int:
     p_dash.add_argument("--old-version", required=True)
     p_dash.add_argument("--new-version", required=True)
     p_dash.add_argument("--thresholds-file", default="tools/scenarios/economy_alert_thresholds.json")
-    p_dash.add_argument("--out-html", default="/tmp/economy_dashboard.html")
+    p_dash.add_argument("--out-html", default=str(TMP_DIR / "economy_dashboard.html"))
     p_dash.add_argument("--title", default="Economy Dashboard")
 
     p_bundle = sub.add_parser("bundle", help="Empaqueta bundle (diff + dashboard + manifest).")
@@ -283,9 +285,9 @@ def main() -> int:
     p_cycle.add_argument("--previous-version", required=True, help="Versión anterior para comparar.")
     p_cycle.add_argument("--base-dir", default="artifacts/economy_baseline")
     p_cycle.add_argument("--thresholds-file", default="tools/scenarios/economy_alert_thresholds.json")
-    p_cycle.add_argument("--out-json", default="/tmp/economy_diff_cycle.json")
-    p_cycle.add_argument("--out-md", default="/tmp/economy_diff_cycle.md")
-    p_cycle.add_argument("--out-html", default="/tmp/economy_dashboard_cycle.html")
+    p_cycle.add_argument("--out-json", default=str(TMP_DIR / "economy_diff_cycle.json"))
+    p_cycle.add_argument("--out-md", default=str(TMP_DIR / "economy_diff_cycle.md"))
+    p_cycle.add_argument("--out-html", default=str(TMP_DIR / "economy_dashboard_cycle.html"))
     p_cycle.add_argument("--fail-on-alert", action="store_true")
     p_cycle.add_argument("--title", default="Economy Dashboard")
     p_cycle.add_argument("--bundle-dir", default="")
@@ -319,9 +321,9 @@ def main() -> int:
         fail_on_alert = bool(profile.get("fail_on_alert", False))
         bundle_dir = str(profile.get("bundle_dir", "artifacts/economy_reports"))
         bundle_name = f"{args.previous_version}_to_{args.version}"
-        out_json = str(Path("/tmp") / f"economy_diff_{args.previous_version}_{args.version}.json")
-        out_md = str(Path("/tmp") / f"economy_diff_{args.previous_version}_{args.version}.md")
-        out_html = str(Path("/tmp") / f"economy_dashboard_{args.version}.html")
+        out_json = str(TMP_DIR / f"economy_diff_{args.previous_version}_{args.version}.json")
+        out_md = str(TMP_DIR / f"economy_diff_{args.previous_version}_{args.version}.md")
+        out_html = str(TMP_DIR / f"economy_dashboard_{args.version}.html")
         return run_cycle_and_bundle(py, args.version, args.previous_version, base_dir, thresholds_file, out_json, out_md, out_html, title, fail_on_alert, bundle_dir, bundle_name)
 
     if args.cmd == "wizard":
