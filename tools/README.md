@@ -413,6 +413,7 @@ Cobertura base:
 ### Manual no técnico
 - `docs/MANUAL_OPERACION_ECONOMY_TOOLKIT_V1.md`
 - `docs/MANUAL_DEFINITIVO_ECONOMY_TOOLKIT_WINDOWS_ES.md` (versión centralizada, paso a paso en Windows)
+- `docs/BITACORA_SESION_ECONOMY_TOOLKIT_WINDOWS_2026-04-13.md` (resumen operativo para retomar contexto)
 
 ### Criterio práctico de toolkit completo
 - release multi-OS automático,
