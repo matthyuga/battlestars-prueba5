@@ -1,0 +1,46 @@
+{
+  "scenarios": {
+    "casual": {
+      "mode": "duelo_libre",
+      "account_tier": "B",
+      "tier_band": "B",
+      "base_exp": 90,
+      "player_register": 0,
+      "rival_register": 0,
+      "is_victory": true,
+      "stars": 12,
+      "repetition_count": 1,
+      "runs": 30,
+      "randomize": true,
+      "seed": 101
+    },
+    "normal": {
+      "mode": "torneo",
+      "account_tier": "A",
+      "tier_band": "A",
+      "base_exp": 110,
+      "player_register": 2,
+      "rival_register": 3,
+      "is_victory": true,
+      "stars": 15,
+      "repetition_count": 1,
+      "runs": 30,
+      "randomize": true,
+      "seed": 202
+    },
+    "hardcore": {
+      "mode": "torre",
+      "account_tier": "S",
+      "tier_band": "S",
+      "base_exp": 130,
+      "player_register": 4,
+      "rival_register": 6,
+      "is_victory": true,
+      "stars": 20,
+      "repetition_count": 1,
+      "runs": 50,
+      "randomize": true,
+      "seed": 303
+    }
+  }
+}

@@ -1,0 +1,68 @@
+name: Economy Tools CI
+
+on:
+  push:
+    paths:
+      - "tools/**"
+      - "tests/**"
+      - "docs/SPEC_ECONOMY_LAB_V1.md"
+      - "docs/ROADMAP_ECONOMY_TOOLKIT_COMPLETION_V1.md"
+      - "docs/MANUAL_OPERACION_ECONOMY_TOOLKIT_V1.md"
+      - "docs/PLAYBOOK_INCIDENTES_ECONOMY_TOOLKIT_V1.md"
+      - "docs/SLA_VALIDACION_ECONOMY_TOOLKIT_V1.md"
+      - "Makefile"
+      - ".github/workflows/economy-tools.yml"
+  pull_request:
+    paths:
+      - "tools/**"
+      - "tests/**"
+      - "docs/SPEC_ECONOMY_LAB_V1.md"
+      - "docs/ROADMAP_ECONOMY_TOOLKIT_COMPLETION_V1.md"
+      - "docs/MANUAL_OPERACION_ECONOMY_TOOLKIT_V1.md"
+      - "docs/PLAYBOOK_INCIDENTES_ECONOMY_TOOLKIT_V1.md"
+      - "docs/SLA_VALIDACION_ECONOMY_TOOLKIT_V1.md"
+      - "Makefile"
+      - ".github/workflows/economy-tools.yml"
+
+jobs:
+  economy-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Run preflight (smoke + tests + doctor)
+        run: make economy-preflight
+
+      - name: Freeze baseline A
+        run: make economy-freeze VERSION=economy_ci_A BASE_DIR=/tmp/economy_baselines
+
+      - name: Freeze baseline B
+        run: make economy-freeze VERSION=economy_ci_B BASE_DIR=/tmp/economy_baselines
+
+      - name: Compare baselines (gate)
+        run: make economy-gate BASE_DIR=/tmp/economy_baselines OLD=economy_ci_A NEW=economy_ci_B DIFF_JSON=/tmp/economy_diff_ci.json DIFF_MD=/tmp/economy_diff_ci.md
+
+      - name: Build dashboard
+        run: make economy-dashboard BASE_DIR=/tmp/economy_baselines NEW=economy_ci_B DIFF_JSON=/tmp/economy_diff_ci.json DASH_HTML=/tmp/economy_dashboard_ci.html
+
+      - name: Generate CI metrics
+        run: make economy-ci-metrics DIFF_JSON=/tmp/economy_diff_ci.json OUT_JSON=/tmp/economy_ci_metrics.json
+
+      - name: Upload CI artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: economy-tools-ci-artifacts
+          path: |
+            /tmp/economy_diff_ci.json
+            /tmp/economy_diff_ci.md
+            /tmp/economy_dashboard_ci.html
+            /tmp/economy_ci_metrics.json

@@ -149,5 +149,20 @@ Criterios QA adicionales:
 ## 8) Entregables de Fase 4
 
 1. `documentation/FASE4_ECONOMIA_Y_META_PROGRESION_V1.md` (este documento)
-2. `documentation/TABLA_FORMULA_ORO_DESEMPENO_V1.md` (pendiente)
+2. `documentation/TABLA_FORMULA_ORO_DESEMPENO_V1.md` (baseline + política de boosts por modo)
 3. `documentation/CHECKLIST_QA_FASE4_ECONOMIA_V1.md` (pendiente)
+
+---
+
+## 9) Nota de alcance (actualización 2026-04-12)
+
+Para evitar inflación y subida acelerada de cuenta en el modo de entrada:
+
+- **Duelo Libre**:
+  - mantener foco en oro;
+  - aplicar boost de oro por tier de cuenta (tabla conservadora);
+  - **no aplicar boost de EXP** en esta etapa.
+
+- **Torneo / Torre del Cielo**:
+  - habilitar boost de EXP por tier de cuenta;
+  - sujeto a gates de entrada del modo (ticket/plantilla propia).

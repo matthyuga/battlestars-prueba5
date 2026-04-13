@@ -1,0 +1,11 @@
+{
+  "name": "balance_default",
+  "description": "Profile base para ciclo de balance con bundle.",
+  "base_dir": "artifacts/economy_baseline",
+  "thresholds_file": "tools/scenarios/economy_alert_thresholds.json",
+  "title": "Economy Dashboard",
+  "fail_on_alert": false,
+  "bundle_dir": "artifacts/economy_reports",
+  "version": "economy_v_next",
+  "previous_version": "economy_v_prev"
+}

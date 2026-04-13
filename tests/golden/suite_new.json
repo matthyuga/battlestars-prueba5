@@ -1,0 +1,16 @@
+{
+  "scenarios": {
+    "normal": {
+      "aggregate": {
+        "gold_final_policy": {"p50": 110.0, "p95": 150.0},
+        "exp_final_policy": {"p50": 84.0, "p95": 95.0}
+      }
+    },
+    "hardcore": {
+      "aggregate": {
+        "gold_final_policy": {"p50": 315.0, "p95": 472.5},
+        "exp_final_policy": {"p50": 200.0, "p95": 286.0}
+      }
+    }
+  }
+}

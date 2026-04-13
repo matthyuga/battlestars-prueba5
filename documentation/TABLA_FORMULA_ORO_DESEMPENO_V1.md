@@ -87,3 +87,55 @@ Ejemplo Tier B (min 50, max 500, base 275):
 - [ ] `avg_gold_per_battle` consistente por tier
 - [ ] No hay saltos anómalos por RNG
 - [ ] Recalcular desde logs produce mismo `gold_final`
+
+---
+
+## 8) Boost recomendado por tier (cuenta) — Política por modo
+
+Fecha de decisión: 2026-04-12  
+Objetivo: mantener progresión estable en Duelo Libre y reservar aceleración de EXP para modos de mayor compromiso (Torneo/Torre).
+
+### 8.1 Boost de ORO (Duelo Libre)
+
+Aplicar sobre `gold_base` antes de multiplicadores de desempeño y clamp.
+
+| Tier cuenta | Boost oro |
+|---|---:|
+| C | x1.00 |
+| B | x1.05 |
+| A | x1.10 |
+| S | x1.16 |
+| SS | x1.23 |
+| SSS | x1.31 |
+| IV | x1.40 |
+
+Notas:
+- Conservador para evitar inflación temprana.
+- Mantener `clamp(min,max)` por banda de tier al final.
+
+### 8.2 Boost de EXP (solo Torneo/Torre)
+
+No aplicar en Duelo Libre por ahora.
+
+| Tier cuenta | Boost exp |
+|---|---:|
+| C | x1.00 |
+| B | x1.03 |
+| A | x1.06 |
+| S | x1.10 |
+| SS | x1.14 |
+| SSS | x1.19 |
+| IV | x1.25 |
+
+Gates recomendados:
+- Torneo: requiere ticket de invitación + héroes propios elegibles.
+- Torre: requiere al menos 5 héroes propios.
+
+### 8.3 Regla de implementación sugerida (v1)
+
+1. Duelo Libre:
+   - usar boost de oro por tier de cuenta.
+   - no usar boost de EXP.
+2. Torneo/Torre:
+   - habilitar boost de EXP por tier de cuenta.
+   - mantener antiabuso/repetición y clamp por economía.

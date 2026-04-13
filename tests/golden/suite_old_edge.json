@@ -1,0 +1,16 @@
+{
+  "scenarios": {
+    "zero_case": {
+      "aggregate": {
+        "gold_final_policy": {"p50": 0.0, "p95": 0.0},
+        "exp_final_policy": {"p50": 0.0, "p95": 0.0}
+      }
+    },
+    "stable_case": {
+      "aggregate": {
+        "gold_final_policy": {"p50": 50.0, "p95": 80.0},
+        "exp_final_policy": {"p50": 40.0, "p95": 70.0}
+      }
+    }
+  }
+}
