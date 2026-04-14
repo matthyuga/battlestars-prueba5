@@ -308,7 +308,8 @@ label battle_select_enemy_slot_1_2v2:
 label battle_select_enemy_slots_2v2_random:
     python:
         import renpy.store as S
-        pool = ["Hollow", "Grimmjow", "Nel", "Harribel"]
+        fn_pool = getattr(S, "get_combat_character_ids", None)
+        pool = list(fn_pool(True) if callable(fn_pool) else ["Hollow", "Grimmjow", "Nel", "Harribel"])
 
         candidates = [c for c in pool if c not in (S.battle_player_ids or [])]
         if len(candidates) < 2:

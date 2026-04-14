@@ -37,7 +37,8 @@ init -900 python:
     def bs_prepare_quick_random_1v1(profile_id=None):
         import renpy.store as S
         import renpy.exports as R
-        chars = ["Harribel", "Grimmjow", "Nel", "Hollow"]
+        fn_pool = getattr(S, "get_combat_character_ids", None)
+        chars = list(fn_pool(True) if callable(fn_pool) else ["Harribel", "Grimmjow", "Nel", "Hollow"])
         try:
             p = R.random.choice(chars)
             e_pool = [c for c in chars if c != p] or chars
@@ -74,7 +75,8 @@ init -900 python:
     def bs_prepare_quick_random_2v2(profile_id=None):
         import renpy.store as S
         import renpy.exports as R
-        chars = ["Harribel", "Grimmjow", "Nel", "Hollow"]
+        fn_pool = getattr(S, "get_combat_character_ids", None)
+        chars = list(fn_pool(True) if callable(fn_pool) else ["Harribel", "Grimmjow", "Nel", "Hollow"])
         try:
             pool = list(chars)
             R.random.shuffle(pool)

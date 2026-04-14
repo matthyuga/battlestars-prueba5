@@ -407,11 +407,11 @@ init -880 python:
         return rows
 
     def bs_saga_combat_ready_ids():
-        data = getattr(S, "CHARACTER_DATA", None)
-        if isinstance(data, dict):
-            out = [str(k) for k in data.keys() if str(k)]
+        fn_pool = getattr(S, "get_combat_character_ids", None)
+        if callable(fn_pool):
+            out = list(fn_pool(True) or [])
             if out:
-                return out
+                return [str(x) for x in out if str(x)]
         return ["Harribel", "Grimmjow", "Nel", "Hollow"]
 
     def bs_saga_duel_combat_pool_rows():
