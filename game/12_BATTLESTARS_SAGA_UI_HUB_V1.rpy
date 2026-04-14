@@ -38,12 +38,16 @@ default bs_saga_inventory_state = {
 }
 default bs_saga_audit_log = []
 default bs_saga_last_tx_message = ""
-default bs_saga_rotation_hero_ids = ["harribel", "grimmjow", "nel", "hollow"]
+default bs_saga_rotation_hero_ids = []
 default bs_saga_hero_usage_stats = {}
 default bs_saga_prep_selected_hero = ""
 default bs_saga_prep_selected_mode = "1v1"
 default bs_saga_prep_enemy_mode = "random"
+default bs_saga_prep_selected_enemy_hero = ""
 default bs_saga_prep_selected_build = "balanceado"
+default bs_saga_prep_flag_item_id = ""
+default bs_saga_prep_flag_consumable_id = ""
+default bs_saga_prep_intent_duel = False
 
 init -880 python:
     import renpy.store as S
@@ -373,6 +377,12 @@ init -880 python:
         return out[:int(limit or 3)]
 
     def bs_saga_available_hero_rows():
+        rot = getattr(S, "bs_saga_rotation_hero_ids", [])
+        if not isinstance(rot, list):
+            rot = []
+        if len(rot) < 5:
+            bs_saga_refresh_rotation_heroes(5)
+            rot = getattr(S, "bs_saga_rotation_hero_ids", [])
         rows = []
         for r in bs_saga_db_rows():
             if not isinstance(r, dict):
@@ -380,18 +390,44 @@ init -880 python:
             hid = bs_saga_hero_id(r)
             name = str(r.get("name", hid) or hid)
             tier = str(r.get("tier", "C") or "C").upper()
-            in_rotation = hid.lower() in [str(x).lower() for x in (getattr(S, "bs_saga_rotation_hero_ids", []) or [])]
+            in_rotation = hid.lower() in [str(x).lower() for x in (rot or [])]
             is_owned = bs_saga_hero_is_owned(hid)
+            state = "disponible" if is_owned else ("para_probar" if in_rotation else "bloqueado")
             rows.append({
                 "hero_id": hid,
                 "name": name,
                 "tier": tier,
                 "owned": bool(is_owned),
                 "in_rotation": bool(in_rotation),
-                "available": bool(is_owned or in_rotation)
+                "available": bool(is_owned or in_rotation),
+                "state": state
             })
         rows.sort(key=lambda x: (x.get("tier", "Z"), x.get("name", "")))
         return rows
+
+    def bs_saga_refresh_rotation_heroes(count=5):
+        rows = []
+        for r in bs_saga_db_rows():
+            if not isinstance(r, dict):
+                continue
+            hid = bs_saga_hero_id(r)
+            if hid:
+                rows.append(str(hid))
+        if not rows:
+            rows = ["Harribel", "Grimmjow", "Nel", "Hollow", "Harribel"]
+        unique = []
+        for hid in rows:
+            if hid not in unique:
+                unique.append(hid)
+        renpy.random.shuffle(unique)
+        c = int(count or 5)
+        if c < 1:
+            c = 1
+        if len(unique) < c:
+            while len(unique) < c:
+                unique.append(unique[len(unique) % max(1, len(unique))])
+        S.bs_saga_rotation_hero_ids = unique[:c]
+        return list(S.bs_saga_rotation_hero_ids)
 
     def bs_saga_set_prep_hero(hero_id):
         hid = str(hero_id or "").strip()
@@ -407,6 +443,86 @@ init -880 python:
             return True
         bs_saga_set_message("Héroe no encontrado para preparación.")
         return False
+
+    def bs_saga_set_prep_enemy(hero_id):
+        hid = str(hero_id or "").strip()
+        if not hid:
+            return False
+        S.bs_saga_prep_selected_enemy_hero = hid
+        bs_saga_set_message("Preparación: enemigo manual = {}.".format(hid))
+        return True
+
+    def bs_saga_prep_inventory_candidates(bucket_name):
+        rows = bs_saga_inventory_rows()
+        out = []
+        target = str(bucket_name or "").strip().lower()
+        for row in rows:
+            if str(row.get("bucket", "")).lower() != target:
+                continue
+            qty = int(row.get("qty", 0) or 0)
+            if qty <= 0:
+                continue
+            out.append({
+                "item_id": str(row.get("item_id", "")),
+                "qty": qty
+            })
+        return out
+
+    def bs_saga_set_prep_flag(flag_type, item_id):
+        ftype = str(flag_type or "").strip().lower()
+        iid = str(item_id or "").strip()
+        if ftype == "item":
+            S.bs_saga_prep_flag_item_id = iid
+            bs_saga_set_message("Preparación: item marcado = {}.".format(iid or "ninguno"))
+            return True
+        if ftype == "consumable":
+            S.bs_saga_prep_flag_consumable_id = iid
+            bs_saga_set_message("Preparación: consumible marcado = {}.".format(iid or "ninguno"))
+            return True
+        return False
+
+    def bs_saga_apply_preparation_for_duel():
+        mode = str(getattr(S, "bs_saga_prep_selected_mode", "1v1") or "1v1")
+        my_hero = str(getattr(S, "bs_saga_prep_selected_hero", "") or "").strip()
+        if not my_hero:
+            bs_saga_set_message("Selecciona tu héroe antes de iniciar duelo.")
+            return False
+        S.battle_player_id = my_hero
+        S.battle_team_mode = mode if mode in ("1v1", "2v2") else "1v1"
+        all_ids = [str(x.get("hero_id", "")) for x in bs_saga_available_hero_rows() if str(x.get("hero_id", ""))]
+        if my_hero not in all_ids:
+            all_ids.append(my_hero)
+        enemy_mode = str(getattr(S, "bs_saga_prep_enemy_mode", "random") or "random")
+        enemy_manual = str(getattr(S, "bs_saga_prep_selected_enemy_hero", "") or "").strip()
+        enemy_id = ""
+        if enemy_mode == "manual" and enemy_manual:
+            enemy_id = enemy_manual
+        else:
+            candidates = [x for x in all_ids if x != my_hero]
+            if not candidates:
+                candidates = ["Hollow"]
+            enemy_id = str(candidates[renpy.random.randint(0, len(candidates) - 1)])
+        S.battle_enemy_id = enemy_id
+        S.battle_player_ids = [my_hero]
+        S.battle_enemy_ids = [enemy_id]
+        if S.battle_team_mode == "2v2":
+            candidates = [x for x in all_ids if x not in (my_hero, enemy_id)]
+            if len(candidates) < 2:
+                candidates = ["Grimmjow", "Nel", "Hollow", "Harribel"]
+            renpy.random.shuffle(candidates)
+            p2 = candidates[0]
+            e2 = candidates[1] if len(candidates) > 1 else "Hollow"
+            S.battle_player_ids = [my_hero, p2]
+            S.battle_enemy_ids = [enemy_id, e2]
+            S.battle_player_slot_0 = my_hero
+            S.battle_player_slot_1 = p2
+            S.battle_enemy_slot_0 = enemy_id
+            S.battle_enemy_slot_1 = e2
+        S.battle_prepared_item_id = str(getattr(S, "bs_saga_prep_flag_item_id", "") or "")
+        S.battle_prepared_consumable_id = str(getattr(S, "bs_saga_prep_flag_consumable_id", "") or "")
+        bs_saga_register_hero_usage(my_hero)
+        bs_saga_set_message("Preparación verificada. Duelo listo.")
+        return True
 
     def bs_saga_db_rows():
         db = getattr(S, "CHARACTER_DB", []) or []
@@ -1283,7 +1399,9 @@ screen bs_saga_preparation_screen():
     $ _hero = str(bs_saga_prep_selected_hero or "")
     $ _mode = str(bs_saga_prep_selected_mode or "1v1")
     $ _enemy_mode = str(bs_saga_prep_enemy_mode or "random")
+    $ _enemy_hero = str(bs_saga_prep_selected_enemy_hero or "")
     $ _build = str(bs_saga_prep_selected_build or "balanceado")
+    $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_rotation_hero_ids or [])[:5]])
 
     add Solid("#0E1A28")
     frame:
@@ -1322,6 +1440,9 @@ screen bs_saga_preparation_screen():
                 vbox:
                     spacing 8
                     text "Roster disponible (rotación o adquirido)" size 22 color "#EAF6FF"
+                    text ("Rotación actual (5): " + (_rotation_preview if _rotation_preview else "sin generar")) size 14 color "#9FC4E2"
+                    textbutton "Aleatorizar rotación":
+                        action [Function(bs_saga_refresh_rotation_heroes, 5), Jump("bs_saga_preparacion")]
                     viewport:
                         draggable True
                         mousewheel True
@@ -1334,7 +1455,8 @@ screen bs_saga_preparation_screen():
                                     $ _hid = str(row.get("hero_id", ""))
                                     $ _name = str(row.get("name", _hid) or _hid)
                                     $ _is_av = bool(row.get("available", False))
-                                    $ _tag = "Disponible" if _is_av else "Bloqueado"
+                                    $ _state = str(row.get("state", "bloqueado"))
+                                    $ _tag = "Disponible" if _state == "disponible" else ("Para probar" if _state == "para_probar" else "Bloqueado")
                                     frame:
                                         xfill True
                                         background Solid("#173048")
@@ -1342,7 +1464,7 @@ screen bs_saga_preparation_screen():
                                         hbox:
                                             spacing 8
                                             text (_name + " (" + str(row.get("tier", "C")) + ")") size 17 color "#D0E9FF" xminimum 300
-                                            text _tag size 16 color ("#8BD6A7" if _is_av else "#FF9F9F") xminimum 120
+                                            text _tag size 16 color ("#8BD6A7" if _state == "disponible" else ("#FFD166" if _state == "para_probar" else "#FF9F9F")) xminimum 120
                                             if _hero == _hid:
                                                 text "Activo" size 16 color "#F7D774"
                                             elif _is_av:
@@ -1369,6 +1491,20 @@ screen bs_saga_preparation_screen():
                         spacing 6
                         textbutton "Aleatorio" action SetVariable("bs_saga_prep_enemy_mode", "random")
                         textbutton "Manual" action SetVariable("bs_saga_prep_enemy_mode", "manual")
+                    if _enemy_mode == "manual":
+                        text "Enemigo manual" size 16 color "#D0E9FF"
+                        viewport:
+                            draggable True
+                            mousewheel True
+                            scrollbars "vertical"
+                            ymaximum 120
+                            vbox:
+                                spacing 4
+                                for row in _rows:
+                                    $ _eh = str(row.get("hero_id", ""))
+                                    textbutton _eh:
+                                        action [Function(bs_saga_set_prep_enemy, _eh), Jump("bs_saga_preparacion")]
+                        text ("Enemigo activo: " + (_enemy_hero if _enemy_hero else "sin seleccionar")) size 14 color "#9FC4E2"
                     text "Build rápida" size 16 color "#D0E9FF"
                     hbox:
                         spacing 6
@@ -1378,6 +1514,91 @@ screen bs_saga_preparation_screen():
                     null height 12
                     text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
                     text "Chequear técnicas/pool por tier: pendiente de integración detallada." size 15 color "#9FC4E2"
+                    textbutton "Verificar preparación e iniciar duelo":
+                        action Jump("bs_saga_preparation_verify")
+
+screen bs_saga_preparation_verify_screen():
+    tag menu
+    $ _hero = str(bs_saga_prep_selected_hero or "")
+    $ _mode = str(bs_saga_prep_selected_mode or "1v1")
+    $ _enemy_mode = str(bs_saga_prep_enemy_mode or "random")
+    $ _enemy = str(bs_saga_prep_selected_enemy_hero or "")
+    $ _build = str(bs_saga_prep_selected_build or "balanceado")
+    $ _cons = bs_saga_prep_inventory_candidates("consumables")
+    $ _items = bs_saga_prep_inventory_candidates("equipables")
+    $ _flag_cons = str(bs_saga_prep_flag_consumable_id or "")
+    $ _flag_item = str(bs_saga_prep_flag_item_id or "")
+
+    add Solid("#0E1A28")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
+        ypadding 10
+        background Solid("#2C4963")
+        hbox:
+            spacing 16
+            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
+            text "Verificar preparación" size 22 color "#D7EEFF" yalign 0.7
+            null width 140
+            textbutton "Volver" action Jump("bs_saga_preparacion")
+
+    frame:
+        xalign 0.5
+        yalign 0.56
+        xsize 1120
+        ysize 500
+        padding (14, 14)
+        background Solid("#13273A")
+        hbox:
+            spacing 14
+            frame:
+                xsize 450
+                yfill True
+                background Solid("#1A3044")
+                padding (10, 10)
+                vbox:
+                    spacing 8
+                    text "Resumen previo al duelo" size 24 color "#EAF6FF"
+                    text ("Tu héroe: " + (_hero if _hero else "sin seleccionar")) size 16 color "#D0E9FF"
+                    text ("Modo: " + _mode) size 16 color "#D0E9FF"
+                    text ("Enemigo: " + (_enemy if _enemy_mode == "manual" else "aleatorio")) size 16 color "#D0E9FF"
+                    text ("Build: " + _build) size 16 color "#D0E9FF"
+                    text ("Item flag: " + (_flag_item if _flag_item else "ninguno")) size 14 color "#9FC4E2"
+                    text ("Consumible flag: " + (_flag_cons if _flag_cons else "ninguno")) size 14 color "#9FC4E2"
+                    textbutton "Iniciar duelo":
+                        action Jump("bs_saga_launch_prepared_duel")
+            frame:
+                xfill True
+                yfill True
+                background Solid("#102438")
+                padding (10, 10)
+                vbox:
+                    spacing 8
+                    text "Marcar item/consumible para combate (flag)" size 20 color "#EAF6FF"
+                    text "Consumibles" size 16 color "#CFE6FA"
+                    if _cons:
+                        for row in _cons[:8]:
+                            $ _cid = str(row.get("item_id", ""))
+                            textbutton (_cid + " x" + str(row.get("qty", 0))):
+                                action [Function(bs_saga_set_prep_flag, "consumable", _cid), Jump("bs_saga_preparation_verify")]
+                    else:
+                        text "Sin consumibles en inventario." size 14 color "#9FB9D1"
+                    null height 6
+                    text "Items equipables" size 16 color "#CFE6FA"
+                    if _items:
+                        for row in _items[:8]:
+                            $ _iid = str(row.get("item_id", ""))
+                            textbutton (_iid + " x" + str(row.get("qty", 0))):
+                                action [Function(bs_saga_set_prep_flag, "item", _iid), Jump("bs_saga_preparation_verify")]
+                    else:
+                        text "Sin equipables en inventario." size 14 color "#9FB9D1"
 
 screen bs_saga_tech_catalog_screen():
     tag menu
@@ -1625,7 +1846,19 @@ label bs_saga_lobby:
 # ---------- rutas panel jugar ----------
 
 label bs_saga_duelo_libre:
-    $ renpy.jump("start")
+    $ bs_saga_prep_intent_duel = True
+    jump bs_saga_preparacion
+
+label bs_saga_preparation_verify:
+    call screen bs_saga_preparation_verify_screen
+    return
+
+label bs_saga_launch_prepared_duel:
+    $ _ok = bs_saga_apply_preparation_for_duel()
+    if not _ok:
+        jump bs_saga_preparacion
+    $ bs_saga_prep_intent_duel = False
+    jump battle_start
 
 label bs_saga_torneo_tier_c:
     scene black

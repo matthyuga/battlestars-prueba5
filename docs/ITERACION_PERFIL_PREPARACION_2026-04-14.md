@@ -9,10 +9,12 @@ Estado: implementado en lobby v0.1 (base funcional).
    - top héroes más usados (global y últimas 24h) basado en uso registrado.
 
 2. **Pantalla Preparación pre-combate**
-   - roster disponible por regla (héroe en rotación o adquirido),
+   - roster disponible por regla de estado (`bloqueado` / `para_probar` / `disponible`),
+   - rotación aleatoria de 5 héroes (`para_probar`) con acción de refresco,
    - selección de héroe activo,
    - configuración rápida de modo (1v1/2v2), enemigo (aleatorio/manual) y build (balanceado/ofensivo/defensivo),
-   - resumen de configuración y mensaje de estado.
+   - resumen de configuración y mensaje de estado,
+   - paso de verificación previo al duelo con flags de item/consumible (`próximamente` para consumo real en combate).
 
 3. **Lobby**
    - botón nuevo de Perfil,
@@ -28,4 +30,4 @@ Estado: implementado en lobby v0.1 (base funcional).
 
 - historial de combates detallado en Perfil,
 - chequeo completo de técnicas/pool por tier en panel de preparación,
-- reemplazo integral de hardcode de roster de combate por catálogo del lobby (actualmente mantiene selector legacy).
+- reemplazo integral del selector legacy de combate por selector data-driven desde roster de lobby.
