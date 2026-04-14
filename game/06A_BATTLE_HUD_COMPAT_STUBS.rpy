@@ -146,20 +146,32 @@ screen battle_hp_overlay():
             $ _erei_fake = _erei_show
         if _eene_fake <= 0:
             $ _eene_fake = _eene_show
-        timer 0.08 repeat True action [
-            SetScreenVariable("_php_fake", _hud_fake_hp_step(_php_fake, _php)),
-            SetScreenVariable("_ehp_fake", _hud_fake_hp_step(_ehp_fake, _ehp)),
-            SetScreenVariable("_php_damage_fake", _hud_hp_fake_on_damage(_php_damage_fake, _php_fake, _php, _php_prev_real)),
-            SetScreenVariable("_ehp_damage_fake", _hud_hp_fake_on_damage(_ehp_damage_fake, _ehp_fake, _ehp, _ehp_prev_real)),
-            SetScreenVariable("_php_damage_alpha", _hud_hp_fake_alpha_step(_php_damage_alpha, _php_damage_fake, _php_fake, _php, _php_prev_real)),
-            SetScreenVariable("_ehp_damage_alpha", _hud_hp_fake_alpha_step(_ehp_damage_alpha, _ehp_damage_fake, _ehp_fake, _ehp, _ehp_prev_real)),
-            SetScreenVariable("_php_prev_real", _php),
-            SetScreenVariable("_ehp_prev_real", _ehp),
-            SetScreenVariable("_prei_fake", _hud_fake_resource_step(_prei_fake, _prei_show)),
-            SetScreenVariable("_pene_fake", _hud_fake_resource_step(_pene_fake, _pene_show)),
-            SetScreenVariable("_erei_fake", _hud_fake_resource_step(_erei_fake, _erei_show)),
-            SetScreenVariable("_eene_fake", _hud_fake_resource_step(_eene_fake, _eene_show))
-        ]
+        if bool(getattr(store, "bs_battle_low_spec_mode", False)):
+            $ _php_fake = _php
+            $ _ehp_fake = _ehp
+            $ _php_damage_fake = _php
+            $ _ehp_damage_fake = _ehp
+            $ _php_damage_alpha = 0.0
+            $ _ehp_damage_alpha = 0.0
+            $ _prei_fake = _prei_show
+            $ _pene_fake = _pene_show
+            $ _erei_fake = _erei_show
+            $ _eene_fake = _eene_show
+        else:
+            timer 0.08 repeat True action [
+                SetScreenVariable("_php_fake", _hud_fake_hp_step(_php_fake, _php)),
+                SetScreenVariable("_ehp_fake", _hud_fake_hp_step(_ehp_fake, _ehp)),
+                SetScreenVariable("_php_damage_fake", _hud_hp_fake_on_damage(_php_damage_fake, _php_fake, _php, _php_prev_real)),
+                SetScreenVariable("_ehp_damage_fake", _hud_hp_fake_on_damage(_ehp_damage_fake, _ehp_fake, _ehp, _ehp_prev_real)),
+                SetScreenVariable("_php_damage_alpha", _hud_hp_fake_alpha_step(_php_damage_alpha, _php_damage_fake, _php_fake, _php, _php_prev_real)),
+                SetScreenVariable("_ehp_damage_alpha", _hud_hp_fake_alpha_step(_ehp_damage_alpha, _ehp_damage_fake, _ehp_fake, _ehp, _ehp_prev_real)),
+                SetScreenVariable("_php_prev_real", _php),
+                SetScreenVariable("_ehp_prev_real", _ehp),
+                SetScreenVariable("_prei_fake", _hud_fake_resource_step(_prei_fake, _prei_show)),
+                SetScreenVariable("_pene_fake", _hud_fake_resource_step(_pene_fake, _pene_show)),
+                SetScreenVariable("_erei_fake", _hud_fake_resource_step(_erei_fake, _erei_show)),
+                SetScreenVariable("_eene_fake", _hud_fake_resource_step(_eene_fake, _eene_show))
+            ]
 
         frame:
             xalign 0.0

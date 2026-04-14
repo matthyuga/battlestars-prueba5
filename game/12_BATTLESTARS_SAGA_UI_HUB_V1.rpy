@@ -67,6 +67,9 @@ default bs_saga_prep_selected_build = "balanceado"
 default bs_saga_prep_flag_item_id = ""
 default bs_saga_prep_flag_consumable_id = ""
 default bs_saga_prep_intent_duel = False
+default bs_saga_dev_admin_enabled = True
+default bs_saga_dev_infinite_gold = False
+default bs_saga_dev_low_spec_mode = False
 
 init -880 python:
     import renpy.store as S
@@ -106,6 +109,59 @@ init -880 python:
     def bs_saga_set_message(msg):
         S.bs_saga_last_tx_message = str(msg or "")
         return None
+
+    def bs_saga_dev_can_edit_account():
+        return bool(getattr(S, "bs_saga_dev_admin_enabled", False))
+
+    def bs_saga_dev_set_account_state(gold=None, level=None, exp=None, exp_to_next=None):
+        if not bs_saga_dev_can_edit_account():
+            return False
+        acc = bs_saga_account()
+        if gold is not None:
+            try:
+                acc["gold"] = max(0, int(gold))
+            except:
+                pass
+        if level is not None:
+            try:
+                acc["level"] = max(1, int(level))
+            except:
+                pass
+        if exp is not None:
+            try:
+                acc["exp"] = max(0, int(exp))
+            except:
+                pass
+        if exp_to_next is not None:
+            try:
+                acc["exp_to_next"] = max(1, int(exp_to_next))
+            except:
+                pass
+        bs_saga_refresh_account_tier(reason="dev_set_account_state")
+        return True
+
+    def bs_saga_dev_toggle_infinite_gold(enabled=None):
+        if not bs_saga_dev_can_edit_account():
+            return False
+        if enabled is None:
+            S.bs_saga_dev_infinite_gold = not bool(getattr(S, "bs_saga_dev_infinite_gold", False))
+        else:
+            S.bs_saga_dev_infinite_gold = bool(enabled)
+        state = "ON" if bool(getattr(S, "bs_saga_dev_infinite_gold", False)) else "OFF"
+        bs_saga_set_message("DEV infinite gold: {}.".format(state))
+        return True
+
+    def bs_saga_dev_apply_low_spec_mode(enabled=True):
+        if not bs_saga_dev_can_edit_account():
+            return False
+        flag = bool(enabled)
+        S.bs_saga_dev_low_spec_mode = flag
+        S.ui_safe_mode = flag
+        S.ui_safe_mode_prompted = True
+        S.ai_difficulty_hud_visible = False
+        S.bs_battle_low_spec_mode = flag
+        bs_saga_set_message("DEV low-spec mode: {}.".format("ON" if flag else "OFF"))
+        return True
 
     def bs_saga_audit_push(event_name, payload):
         rows = getattr(S, "bs_saga_audit_log", None)
@@ -249,15 +305,16 @@ init -880 python:
         hero_name = str(hero_row.get("name", hero_id) or hero_id)
         price = bs_saga_hero_price(hero_row)
         gold_before = bs_saga_gold()
+        inf_gold = bool(getattr(S, "bs_saga_dev_infinite_gold", False)) and bs_saga_dev_can_edit_account()
 
         if bs_saga_hero_is_owned(hero_id):
             bs_saga_set_message("Ya posees a {}.".format(hero_name))
             return False
-        if gold_before < price:
+        if (not inf_gold) and gold_before < price:
             bs_saga_set_message("Oro insuficiente para {} ({}).".format(hero_name, price))
             return False
 
-        gold_after = gold_before - price
+        gold_after = gold_before if inf_gold else (gold_before - price)
         acc["gold"] = gold_after
         heroes_owned[hero_id] = {
             "hero_id": hero_id,
@@ -278,7 +335,7 @@ init -880 python:
         })
         bs_saga_audit_push("gold_delta", {
             "reason": "buy_hero",
-            "delta": -price,
+            "delta": 0 if inf_gold else -price,
             "gold_before": gold_before,
             "gold_after": gold_after
         })
@@ -348,7 +405,8 @@ init -880 python:
         unit_price = bs_saga_item_price(item_row)
         total_price = unit_price * q
         gold_before = bs_saga_gold()
-        if gold_before < total_price:
+        inf_gold = bool(getattr(S, "bs_saga_dev_infinite_gold", False)) and bs_saga_dev_can_edit_account()
+        if (not inf_gold) and gold_before < total_price:
             bs_saga_set_message("Oro insuficiente para {} x{}.".format(item_name, q))
             return False
 
@@ -359,7 +417,7 @@ init -880 python:
         bucket_data[item_id] = after_qty
         account_inv[bucket] = bucket_data
 
-        gold_after = gold_before - total_price
+        gold_after = gold_before if inf_gold else (gold_before - total_price)
         acc["gold"] = gold_after
 
         bs_saga_audit_push("buy_item", {
@@ -376,7 +434,7 @@ init -880 python:
         })
         bs_saga_audit_push("gold_delta", {
             "reason": "buy_item",
-            "delta": -total_price,
+            "delta": 0 if inf_gold else -total_price,
             "gold_before": gold_before,
             "gold_after": gold_after
         })
@@ -1582,6 +1640,20 @@ screen bs_saga_profile_screen():
                     text ("Nivel: " + str(_lvl)) size 18 color "#D0E9FF"
                     text ("EXP: " + str(_exp) + "/" + str(_next)) size 18 color "#D0E9FF"
                     text ("Oro: " + str(_gold)) size 18 color "#F7D774"
+                    null height 4
+                    if bool(getattr(store, "bs_saga_dev_admin_enabled", False)):
+                        text "DEV Admin (QA rápido)" size 16 color "#FFD166"
+                        hbox:
+                            spacing 6
+                            textbutton "+50k oro" action [Function(bs_saga_dev_set_account_state, gold=_gold + 50000), Jump("bs_saga_perfil")]
+                            textbutton "Lv 99" action [Function(bs_saga_dev_set_account_state, level=99), Jump("bs_saga_perfil")]
+                            textbutton "EXP 0" action [Function(bs_saga_dev_set_account_state, exp=0), Jump("bs_saga_perfil")]
+                        hbox:
+                            spacing 6
+                            textbutton ("Infinite Gold: " + ("ON" if bool(getattr(store, "bs_saga_dev_infinite_gold", False)) else "OFF")):
+                                action [Function(bs_saga_dev_toggle_infinite_gold, None), Jump("bs_saga_perfil")]
+                            textbutton ("Low-spec combate: " + ("ON" if bool(getattr(store, "bs_saga_dev_low_spec_mode", False)) else "OFF")):
+                                action [Function(bs_saga_dev_apply_low_spec_mode, not bool(getattr(store, "bs_saga_dev_low_spec_mode", False))), Jump("bs_saga_perfil")]
                     null height 4
                     text "Progreso de tier (nivel + héroes por tier)" size 16 color "#9FC4E2"
                     for row in _tier_rows:
