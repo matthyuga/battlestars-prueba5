@@ -28,6 +28,10 @@ init -20 python:
 
     if not hasattr(persistent, "ai_difficulty"):
         persistent.ai_difficulty = "basic"
+    if not hasattr(S, "bs_saga_register_hero_usage"):
+        def _noop_usage_register(_hero_id):
+            return None
+        S.bs_saga_register_hero_usage = _noop_usage_register
 
     def ai_difficulty_current():
         use_persistent = bool(getattr(S, "ai_difficulty_save", False))
@@ -126,18 +130,22 @@ label battle_select_player_1v1:
     menu:
         "Harribel":
             $ battle_player_id = "Harribel"
+            $ bs_saga_register_hero_usage("harribel")
             jump battle_select_opponent
 
         "Grimmjow":
             $ battle_player_id = "Grimmjow"
+            $ bs_saga_register_hero_usage("grimmjow")
             jump battle_select_opponent
 
         "Nel":
             $ battle_player_id = "Nel"
+            $ bs_saga_register_hero_usage("nel")
             jump battle_select_opponent
 
         "Hollow":
             $ battle_player_id = "Hollow"
+            $ bs_saga_register_hero_usage("hollow")
             jump battle_select_opponent
 
 
@@ -171,15 +179,19 @@ label battle_select_player_slot_0:
     menu:
         "Harribel":
             $ battle_player_slot_0 = "Harribel"
+            $ bs_saga_register_hero_usage("harribel")
             jump battle_select_player_slot_1
         "Grimmjow":
             $ battle_player_slot_0 = "Grimmjow"
+            $ bs_saga_register_hero_usage("grimmjow")
             jump battle_select_player_slot_1
         "Nel":
             $ battle_player_slot_0 = "Nel"
+            $ bs_saga_register_hero_usage("nel")
             jump battle_select_player_slot_1
         "Hollow":
             $ battle_player_slot_0 = "Hollow"
+            $ bs_saga_register_hero_usage("hollow")
             jump battle_select_player_slot_1
 
 
@@ -197,15 +209,19 @@ label battle_select_player_slot_1:
     menu:
         "Harribel" if battle_player_slot_0 != "Harribel":
             $ battle_player_slot_1 = "Harribel"
+            $ bs_saga_register_hero_usage("harribel")
             jump battle_select_enemy_mode_2v2
         "Grimmjow" if battle_player_slot_0 != "Grimmjow":
             $ battle_player_slot_1 = "Grimmjow"
+            $ bs_saga_register_hero_usage("grimmjow")
             jump battle_select_enemy_mode_2v2
         "Nel" if battle_player_slot_0 != "Nel":
             $ battle_player_slot_1 = "Nel"
+            $ bs_saga_register_hero_usage("nel")
             jump battle_select_enemy_mode_2v2
         "Hollow" if battle_player_slot_0 != "Hollow":
             $ battle_player_slot_1 = "Hollow"
+            $ bs_saga_register_hero_usage("hollow")
             jump battle_select_enemy_mode_2v2
 
 

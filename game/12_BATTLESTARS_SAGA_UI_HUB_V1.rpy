@@ -38,10 +38,17 @@ default bs_saga_inventory_state = {
 }
 default bs_saga_audit_log = []
 default bs_saga_last_tx_message = ""
+default bs_saga_rotation_hero_ids = ["harribel", "grimmjow", "nel", "hollow"]
+default bs_saga_hero_usage_stats = {}
+default bs_saga_prep_selected_hero = ""
+default bs_saga_prep_selected_mode = "1v1"
+default bs_saga_prep_enemy_mode = "random"
+default bs_saga_prep_selected_build = "balanceado"
 
 init -880 python:
     import renpy.store as S
     import re
+    import time
 
     def bs_saga_slug(text):
         raw = str(text or "").strip().lower()
@@ -297,6 +304,109 @@ init -880 python:
                 })
         rows.sort(key=lambda r: (r.get("bucket", ""), r.get("item_id", "")))
         return rows
+
+    def bs_saga_exp_progress():
+        acc = bs_saga_account()
+        try:
+            exp_now = float(acc.get("exp", 0) or 0)
+        except:
+            exp_now = 0.0
+        try:
+            exp_next = float(acc.get("exp_to_next", 100) or 100)
+        except:
+            exp_next = 100.0
+        if exp_next <= 0:
+            return 0.0
+        ratio = exp_now / exp_next
+        if ratio < 0.0:
+            ratio = 0.0
+        if ratio > 1.0:
+            ratio = 1.0
+        return ratio
+
+    def bs_saga_now_ts():
+        try:
+            return int(time.time())
+        except:
+            return 0
+
+    def bs_saga_register_hero_usage(hero_id):
+        hid = str(hero_id or "").strip().lower()
+        if not hid:
+            return None
+        rows = getattr(S, "bs_saga_hero_usage_stats", None)
+        if not isinstance(rows, dict):
+            rows = {}
+            S.bs_saga_hero_usage_stats = rows
+        item = rows.get(hid, {})
+        if not isinstance(item, dict):
+            item = {"total": 0, "last_used_ts": 0, "last24": 0}
+        now_ts = bs_saga_now_ts()
+        prev_ts = int(item.get("last_used_ts", 0) or 0)
+        if prev_ts > 0 and (now_ts - prev_ts) > 86400:
+            item["last24"] = 0
+        item["total"] = int(item.get("total", 0) or 0) + 1
+        item["last24"] = int(item.get("last24", 0) or 0) + 1
+        item["last_used_ts"] = now_ts
+        rows[hid] = item
+        return None
+
+    def bs_saga_top_heroes(limit=3, last24=False):
+        rows = getattr(S, "bs_saga_hero_usage_stats", {})
+        if not isinstance(rows, dict):
+            return []
+        out = []
+        now_ts = bs_saga_now_ts()
+        for hid, info in rows.items():
+            if not isinstance(info, dict):
+                continue
+            total = int(info.get("total", 0) or 0)
+            last_used_ts = int(info.get("last_used_ts", 0) or 0)
+            last24_count = int(info.get("last24", 0) or 0)
+            if last24 and last_used_ts > 0 and (now_ts - last_used_ts) > 86400:
+                last24_count = 0
+            score = last24_count if last24 else total
+            if score <= 0:
+                continue
+            out.append({"hero_id": str(hid), "score": score})
+        out.sort(key=lambda r: (-int(r.get("score", 0)), r.get("hero_id", "")))
+        return out[:int(limit or 3)]
+
+    def bs_saga_available_hero_rows():
+        rows = []
+        for r in bs_saga_db_rows():
+            if not isinstance(r, dict):
+                continue
+            hid = bs_saga_hero_id(r)
+            name = str(r.get("name", hid) or hid)
+            tier = str(r.get("tier", "C") or "C").upper()
+            in_rotation = hid.lower() in [str(x).lower() for x in (getattr(S, "bs_saga_rotation_hero_ids", []) or [])]
+            is_owned = bs_saga_hero_is_owned(hid)
+            rows.append({
+                "hero_id": hid,
+                "name": name,
+                "tier": tier,
+                "owned": bool(is_owned),
+                "in_rotation": bool(in_rotation),
+                "available": bool(is_owned or in_rotation)
+            })
+        rows.sort(key=lambda x: (x.get("tier", "Z"), x.get("name", "")))
+        return rows
+
+    def bs_saga_set_prep_hero(hero_id):
+        hid = str(hero_id or "").strip()
+        rows = bs_saga_available_hero_rows()
+        for row in rows:
+            if str(row.get("hero_id", "")) != hid:
+                continue
+            if not bool(row.get("available", False)):
+                bs_saga_set_message("Héroe no disponible (sin compra ni rotación).")
+                return False
+            S.bs_saga_prep_selected_hero = hid
+            bs_saga_set_message("Preparación: héroe activo = {}.".format(str(row.get("name", hid))))
+            return True
+        bs_saga_set_message("Héroe no encontrado para preparación.")
+        return False
 
     def bs_saga_db_rows():
         db = getattr(S, "CHARACTER_DB", []) or []
@@ -650,6 +760,7 @@ screen bs_saga_lobby_screen():
     $ _tier = str(_acc.get("tier", "C") or "C")
     $ _owned_count = bs_saga_owned_heroes_count()
     $ _last_msg = str(bs_saga_last_tx_message or "")
+    $ _exp_ratio = bs_saga_exp_progress()
 
     add Solid("#101923")
 
@@ -671,6 +782,12 @@ screen bs_saga_lobby_screen():
             text ("Oro: " + str(_gold)) size 22 color "#F7D774" yalign 0.7
             null width 24
             textbutton "Salir al menú principal" action MainMenu()
+        bar:
+            value _exp_ratio
+            xfill True
+            ymaximum 10
+            left_bar Solid("#4AD4FF")
+            right_bar Solid("#2A3D4E")
 
     frame:
         xalign 0.5
@@ -718,6 +835,7 @@ screen bs_saga_lobby_screen():
                 text ("Última transacción: " + _last_msg) size 15 color "#CDE7FF"
             hbox:
                 spacing 10
+                textbutton "Perfil" action Jump("bs_saga_perfil")
                 textbutton "Preparación" action Jump("bs_saga_preparacion")
                 textbutton "Héroes" action Jump("bs_saga_heroes")
                 textbutton "Tienda" action Jump("bs_saga_tienda")
@@ -1075,6 +1193,183 @@ screen bs_saga_inventory_screen():
                     else:
                         text "Inventario vacío todavía." size 18 color "#9FB9D1"
 
+screen bs_saga_profile_screen():
+    tag menu
+    $ _acc = bs_saga_account()
+    $ _gold = int(_acc.get("gold", 0) or 0)
+    $ _lvl = int(_acc.get("level", 1) or 1)
+    $ _exp = int(_acc.get("exp", 0) or 0)
+    $ _next = int(_acc.get("exp_to_next", 100) or 100)
+    $ _tier = str(_acc.get("tier", "C") or "C")
+    $ _top_total = bs_saga_top_heroes(3, False)
+    $ _top_24 = bs_saga_top_heroes(3, True)
+
+    add Solid("#0E1A28")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
+        ypadding 10
+        background Solid("#2C4963")
+        hbox:
+            spacing 16
+            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
+            text "Perfil de usuario" size 22 color "#D7EEFF" yalign 0.7
+            null width 180
+            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+
+    frame:
+        xalign 0.5
+        yalign 0.56
+        xsize 1120
+        ysize 500
+        padding (16, 16)
+        background Solid("#13273A")
+        hbox:
+            spacing 14
+            frame:
+                xsize 520
+                yfill True
+                background Solid("#1A3044")
+                padding (12, 12)
+                vbox:
+                    spacing 8
+                    text "Resumen de cuenta" size 28 color "#EAF6FF"
+                    text ("Tier: " + _tier) size 18 color "#D0E9FF"
+                    text ("Nivel: " + str(_lvl)) size 18 color "#D0E9FF"
+                    text ("EXP: " + str(_exp) + "/" + str(_next)) size 18 color "#D0E9FF"
+                    text ("Oro: " + str(_gold)) size 18 color "#F7D774"
+                    text "Historial de combate: pendiente de integración detallada." size 16 color "#9FC4E2"
+            frame:
+                xfill True
+                yfill True
+                background Solid("#102438")
+                padding (12, 12)
+                vbox:
+                    spacing 8
+                    text "Top héroes más usados" size 24 color "#EAF6FF"
+                    text "Global" size 18 color "#CFE6FA"
+                    if _top_total:
+                        for row in _top_total:
+                            text ("• " + str(row.get("hero_id", "?")) + " · " + str(row.get("score", 0)) + " usos") size 16 color "#D0E9FF"
+                    else:
+                        text "Sin datos todavía." size 16 color "#9FB9D1"
+                    null height 10
+                    text "Últimas 24h" size 18 color "#CFE6FA"
+                    if _top_24:
+                        for row in _top_24:
+                            text ("• " + str(row.get("hero_id", "?")) + " · " + str(row.get("score", 0)) + " usos") size 16 color "#D0E9FF"
+                    else:
+                        text "Sin datos de 24h todavía." size 16 color "#9FB9D1"
+
+screen bs_saga_preparation_screen():
+    tag menu
+    $ _rows = bs_saga_available_hero_rows()
+    $ _hero = str(bs_saga_prep_selected_hero or "")
+    $ _mode = str(bs_saga_prep_selected_mode or "1v1")
+    $ _enemy_mode = str(bs_saga_prep_enemy_mode or "random")
+    $ _build = str(bs_saga_prep_selected_build or "balanceado")
+
+    add Solid("#0E1A28")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
+        ypadding 10
+        background Solid("#2C4963")
+        hbox:
+            spacing 16
+            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
+            text "Preparación pre-combate" size 22 color "#D7EEFF" yalign 0.7
+            null width 90
+            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+
+    frame:
+        xalign 0.5
+        yalign 0.56
+        xsize 1120
+        ysize 500
+        padding (16, 16)
+        background Solid("#13273A")
+        hbox:
+            spacing 14
+            frame:
+                xsize 620
+                yfill True
+                background Solid("#1A3044")
+                padding (10, 10)
+                vbox:
+                    spacing 8
+                    text "Roster disponible (rotación o adquirido)" size 22 color "#EAF6FF"
+                    viewport:
+                        draggable True
+                        mousewheel True
+                        scrollbars "vertical"
+                        ymaximum 390
+                        vbox:
+                            spacing 6
+                            if _rows:
+                                for row in _rows:
+                                    $ _hid = str(row.get("hero_id", ""))
+                                    $ _name = str(row.get("name", _hid) or _hid)
+                                    $ _is_av = bool(row.get("available", False))
+                                    $ _tag = "Disponible" if _is_av else "Bloqueado"
+                                    frame:
+                                        xfill True
+                                        background Solid("#173048")
+                                        padding (8, 6)
+                                        hbox:
+                                            spacing 8
+                                            text (_name + " (" + str(row.get("tier", "C")) + ")") size 17 color "#D0E9FF" xminimum 300
+                                            text _tag size 16 color ("#8BD6A7" if _is_av else "#FF9F9F") xminimum 120
+                                            if _hero == _hid:
+                                                text "Activo" size 16 color "#F7D774"
+                                            elif _is_av:
+                                                textbutton "Elegir":
+                                                    action [Function(bs_saga_set_prep_hero, _hid), Jump("bs_saga_preparacion")]
+                            else:
+                                text "No hay roster cargado." size 18 color "#9FB9D1"
+            frame:
+                xfill True
+                yfill True
+                background Solid("#102438")
+                padding (10, 10)
+                vbox:
+                    spacing 8
+                    text "Configuración de entrada" size 22 color "#EAF6FF"
+                    text ("Héroe activo: " + (_hero if _hero else "sin seleccionar")) size 16 color "#CFE6FA"
+                    text "Modo de juego" size 16 color "#D0E9FF"
+                    hbox:
+                        spacing 6
+                        textbutton "1v1" action SetVariable("bs_saga_prep_selected_mode", "1v1")
+                        textbutton "2v2" action SetVariable("bs_saga_prep_selected_mode", "2v2")
+                    text "Modo de enemigo" size 16 color "#D0E9FF"
+                    hbox:
+                        spacing 6
+                        textbutton "Aleatorio" action SetVariable("bs_saga_prep_enemy_mode", "random")
+                        textbutton "Manual" action SetVariable("bs_saga_prep_enemy_mode", "manual")
+                    text "Build rápida" size 16 color "#D0E9FF"
+                    hbox:
+                        spacing 6
+                        textbutton "Balanceado" action SetVariable("bs_saga_prep_selected_build", "balanceado")
+                        textbutton "Ofensivo" action SetVariable("bs_saga_prep_selected_build", "ofensivo")
+                        textbutton "Defensivo" action SetVariable("bs_saga_prep_selected_build", "defensivo")
+                    null height 12
+                    text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
+                    text "Chequear técnicas/pool por tier: pendiente de integración detallada." size 15 color "#9FC4E2"
+
 screen bs_saga_tech_catalog_screen():
     tag menu
     $ _mode = str(bs_saga_tech_catalog_mode or "").lower()
@@ -1350,11 +1645,11 @@ label bs_saga_torre_cielo:
 # ---------- rutas panel gestión ----------
 
 label bs_saga_preparacion:
-    call screen bs_saga_section_shell(
-        title="Preparación",
-        subtitle="Territorio: Preparación",
-        back_action=Jump("bs_saga_lobby")
-    )
+    call screen bs_saga_preparation_screen
+    return
+
+label bs_saga_perfil:
+    call screen bs_saga_profile_screen
     return
 
 label bs_saga_heroes:
