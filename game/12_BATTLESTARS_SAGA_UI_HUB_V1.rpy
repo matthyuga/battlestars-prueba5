@@ -405,6 +405,48 @@ init -880 python:
         rows.sort(key=lambda x: (x.get("tier", "Z"), x.get("name", "")))
         return rows
 
+    def bs_saga_combat_ready_ids():
+        data = getattr(S, "CHARACTER_DATA", None)
+        if isinstance(data, dict):
+            out = [str(k) for k in data.keys() if str(k)]
+            if out:
+                return out
+        return ["Harribel", "Grimmjow", "Nel", "Hollow"]
+
+    def bs_saga_duel_combat_pool_rows():
+        ready = [str(x) for x in (bs_saga_combat_ready_ids() or [])]
+        ready_set = {x.lower(): x for x in ready}
+        rows = bs_saga_available_hero_rows()
+        out = []
+        for row in rows:
+            hid = str(row.get("hero_id", "") or "")
+            if hid.lower() in ready_set:
+                out.append(row)
+
+        # Si no hay match con inventario/rotación, habilitar pool mínimo jugable.
+        if not out:
+            for cid in ready:
+                out.append({
+                    "hero_id": cid,
+                    "name": cid,
+                    "tier": "C",
+                    "owned": False,
+                    "in_rotation": True,
+                    "available": True,
+                    "state": "para_probar",
+                })
+        return out
+
+    def bs_saga_resolve_combat_id(hero_id, fallback="Harribel"):
+        hid = str(hero_id or "").strip()
+        ready = [str(x) for x in (bs_saga_combat_ready_ids() or [])]
+        if hid in ready:
+            return hid
+        fb = str(fallback or "").strip()
+        if fb in ready:
+            return fb
+        return str(ready[0] if ready else "Harribel")
+
     def bs_saga_refresh_rotation_heroes(count=5):
         rows = []
         for r in bs_saga_db_rows():
@@ -430,8 +472,11 @@ init -880 python:
         return list(S.bs_saga_rotation_hero_ids)
 
     def bs_saga_set_prep_hero(hero_id):
-        hid = str(hero_id or "").strip()
-        rows = bs_saga_available_hero_rows()
+        hid = bs_saga_resolve_combat_id(hero_id, fallback="")
+        rows = bs_saga_duel_combat_pool_rows()
+        if not hid:
+            bs_saga_set_message("Héroe no compatible todavía con runtime de combate.")
+            return False
         for row in rows:
             if str(row.get("hero_id", "")) != hid:
                 continue
@@ -445,7 +490,7 @@ init -880 python:
         return False
 
     def bs_saga_set_prep_enemy(hero_id):
-        hid = str(hero_id or "").strip()
+        hid = bs_saga_resolve_combat_id(hero_id, fallback="")
         if not hid:
             return False
         S.bs_saga_prep_selected_enemy_hero = hid
@@ -483,7 +528,7 @@ init -880 python:
 
     def bs_saga_apply_preparation_for_duel():
         mode = str(getattr(S, "bs_saga_prep_selected_mode", "1v1") or "1v1")
-        my_hero = str(getattr(S, "bs_saga_prep_selected_hero", "") or "").strip()
+        my_hero = bs_saga_resolve_combat_id(getattr(S, "bs_saga_prep_selected_hero", ""), fallback="")
         if not my_hero:
             bs_saga_set_message("Selecciona tu héroe antes de iniciar duelo.")
             return False
@@ -491,11 +536,11 @@ init -880 python:
         # Inicializar identidad base siempre antes de calcular equipos.
         S.battle_player_id = my_hero
         S.battle_team_mode = mode if mode in ("1v1", "2v2") else "1v1"
-        all_ids = [str(x.get("hero_id", "")) for x in bs_saga_available_hero_rows() if str(x.get("hero_id", ""))]
+        all_ids = [str(x.get("hero_id", "")) for x in bs_saga_duel_combat_pool_rows() if str(x.get("hero_id", ""))]
         if my_hero not in all_ids:
             all_ids.append(my_hero)
         enemy_mode = str(getattr(S, "bs_saga_prep_enemy_mode", "random") or "random")
-        enemy_manual = str(getattr(S, "bs_saga_prep_selected_enemy_hero", "") or "").strip()
+        enemy_manual = bs_saga_resolve_combat_id(getattr(S, "bs_saga_prep_selected_enemy_hero", ""), fallback="")
         enemy_id = ""
         if enemy_mode == "manual" and enemy_manual:
             enemy_id = enemy_manual
@@ -1410,7 +1455,9 @@ screen bs_saga_profile_screen():
 
 screen bs_saga_preparation_screen():
     tag menu
-    $ _rows = bs_saga_available_hero_rows()
+    $ _rows = bs_saga_duel_combat_pool_rows()
+    $ _rows_all = bs_saga_available_hero_rows()
+    $ _excluded_count = max(0, len(_rows_all) - len(_rows))
     $ _hero = str(bs_saga_prep_selected_hero or "")
     $ _mode = str(bs_saga_prep_selected_mode or "1v1")
     $ _enemy_mode = str(bs_saga_prep_enemy_mode or "random")
@@ -1456,6 +1503,8 @@ screen bs_saga_preparation_screen():
                     spacing 8
                     text "Roster disponible (rotación o adquirido)" size 22 color "#EAF6FF"
                     text ("Rotación actual (5): " + (_rotation_preview if _rotation_preview else "sin generar")) size 14 color "#9FC4E2"
+                    if _excluded_count > 0:
+                        text ("Nota: " + str(_excluded_count) + " héroes del lobby aún no están conectados al runtime de combate.") size 13 color "#FFD166"
                     textbutton "Aleatorizar rotación":
                         action [Function(bs_saga_refresh_rotation_heroes, 5), Jump("bs_saga_preparacion")]
                     viewport:

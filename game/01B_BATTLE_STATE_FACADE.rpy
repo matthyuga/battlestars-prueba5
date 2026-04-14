@@ -1975,6 +1975,23 @@ init -989 python:
             return fb
         return "Unidad"
 
+    def bs_battle_head_portrait(char_id, fallback_side="player"):
+        cid = str(char_id or "").strip().lower()
+        base = "gui/battle/hud_ai/portraits/"
+        table = {
+            "harribel": base + "portrait_harribel_head.png",
+            "grimmjow": base + "portrait_grimmjow_head.png",
+            "nel": base + "portrait_nel_head.png",
+            "neliel": base + "portrait_nel_head.png",
+            "hollow": base + "portrait_hollow_head.png",
+        }
+        if cid in table:
+            return table[cid]
+        side = str(fallback_side or "player").strip().lower()
+        if side == "enemy":
+            return table.get("hollow")
+        return "images/character/Jugador_a.png"
+
     def bs_get_player_display_name():
         return bs_get_active_name("player")
 
@@ -2229,6 +2246,7 @@ init -989 python:
     S.bs_reflect_expire_for_current_turn = bs_reflect_expire_for_current_turn
     S.bs_get_active_name = bs_get_active_name
     S.bs_battle_display_name = bs_battle_display_name
+    S.bs_battle_head_portrait = bs_battle_head_portrait
     S.bs_get_player_display_name = bs_get_player_display_name
     S.bs_auto_advance_active_if_ko = bs_auto_advance_active_if_ko
     S.bs_get_turn_ctx = bs_get_turn_ctx

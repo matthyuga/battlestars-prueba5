@@ -172,7 +172,9 @@ screen battle_hp_overlay():
                 spacing 4
                 hbox:
                     spacing 8
-                    add im.Scale("images/character/Jugador_a.png", 64, 64)
+                    $ _picon_fn = getattr(store, "bs_battle_head_portrait", None)
+                    $ _picon = str(_picon_fn(getattr(store, "battle_player_id", ""), "player") if callable(_picon_fn) else "images/character/Jugador_a.png")
+                    add im.Scale(_picon, 64, 64)
                     vbox:
                         spacing 2
                         $ _pdisp_fn = getattr(store, "bs_battle_display_name", None)
@@ -216,7 +218,9 @@ screen battle_hp_overlay():
                         text ("HP %s / %s" % (_ehp_fake, _emax)) size 15 xalign 1.0
                         text ("Reiatsu %s / %s" % (_erei_fake, _emax_rei)) size 14 xalign 1.0
                         text ("Energía %s / %s" % (_eene_fake, _emax_ene)) size 14 xalign 1.0
-                    add im.Scale("gui/battle/hud_ai/portraits/portrait_hollow_head.png", 64, 64)
+                    $ _eicon_fn = getattr(store, "bs_battle_head_portrait", None)
+                    $ _eicon = str(_eicon_fn(getattr(store, "battle_enemy_id", ""), "enemy") if callable(_eicon_fn) else "gui/battle/hud_ai/portraits/portrait_hollow_head.png")
+                    add im.Scale(_eicon, 64, 64)
                 fixed:
                     xmaximum _bar_w
                     ymaximum 18
