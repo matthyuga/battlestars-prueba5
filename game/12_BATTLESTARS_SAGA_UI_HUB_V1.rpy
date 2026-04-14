@@ -17,9 +17,286 @@ default bs_saga_tech_catalog_mode = ""
 default bs_saga_tech_catalog_type = "ofensivas"
 default bs_saga_tower_tier_filter = "ALL"
 default bs_saga_tower_selected_floor = 1
+default bs_saga_account_state = {
+    "account_id": "local_player",
+    "display_name": "Mistico",
+    "level": 1,
+    "exp": 0,
+    "exp_to_next": 100,
+    "tier": "C",
+    "gold": 5000,
+    "gems": 0
+}
+default bs_saga_heroes_owned = {}
+default bs_saga_inventory_state = {
+    "account_inventory": {
+        "consumables": {},
+        "equipables": {},
+        "materials": {}
+    },
+    "hero_inventories": {}
+}
+default bs_saga_audit_log = []
+default bs_saga_last_tx_message = ""
 
 init -880 python:
     import renpy.store as S
+    import re
+
+    def bs_saga_slug(text):
+        raw = str(text or "").strip().lower()
+        raw = re.sub(r"[^a-z0-9]+", "_", raw)
+        raw = re.sub(r"_+", "_", raw)
+        return raw.strip("_") or "unknown"
+
+    def bs_saga_account():
+        state = getattr(S, "bs_saga_account_state", None)
+        if isinstance(state, dict):
+            return state
+        state = {
+            "account_id": "local_player",
+            "display_name": "Mistico",
+            "level": 1,
+            "exp": 0,
+            "exp_to_next": 100,
+            "tier": "C",
+            "gold": 5000,
+            "gems": 0
+        }
+        S.bs_saga_account_state = state
+        return state
+
+    def bs_saga_gold():
+        acc = bs_saga_account()
+        try:
+            return int(acc.get("gold", 0))
+        except:
+            return 0
+
+    def bs_saga_set_message(msg):
+        S.bs_saga_last_tx_message = str(msg or "")
+        return None
+
+    def bs_saga_audit_push(event_name, payload):
+        rows = getattr(S, "bs_saga_audit_log", None)
+        if not isinstance(rows, list):
+            rows = []
+            S.bs_saga_audit_log = rows
+        rows.append({
+            "event": str(event_name or ""),
+            "payload": payload if isinstance(payload, dict) else {}
+        })
+        if len(rows) > 120:
+            del rows[:-120]
+        return None
+
+    def bs_saga_hero_id(hero_row):
+        if not isinstance(hero_row, dict):
+            return "unknown_hero"
+        if hero_row.get("hero_id"):
+            return str(hero_row.get("hero_id"))
+        return bs_saga_slug(hero_row.get("name", "hero"))
+
+    def bs_saga_hero_price(hero_row):
+        if not isinstance(hero_row, dict):
+            return 0
+        try:
+            price = int(hero_row.get("price_gold", 0))
+        except:
+            price = 0
+        if price > 0:
+            return price
+        tier = str(hero_row.get("tier", "C") or "C").upper()
+        if tier == "B":
+            return 2500
+        if tier == "A":
+            return 5000
+        return 1200
+
+    def bs_saga_hero_is_owned(hero_id):
+        owned = getattr(S, "bs_saga_heroes_owned", {})
+        if not isinstance(owned, dict):
+            return False
+        item = owned.get(str(hero_id), {})
+        return bool(isinstance(item, dict) and item.get("owned", False))
+
+    def bs_saga_owned_heroes_count():
+        owned = getattr(S, "bs_saga_heroes_owned", {})
+        if not isinstance(owned, dict):
+            return 0
+        count = 0
+        for _, row in owned.items():
+            if isinstance(row, dict) and row.get("owned", False):
+                count += 1
+        return count
+
+    def bs_saga_buy_hero(hero_row):
+        if not isinstance(hero_row, dict):
+            bs_saga_set_message("Compra inválida: héroe no encontrado.")
+            return False
+        acc = bs_saga_account()
+        heroes_owned = getattr(S, "bs_saga_heroes_owned", {})
+        if not isinstance(heroes_owned, dict):
+            heroes_owned = {}
+            S.bs_saga_heroes_owned = heroes_owned
+
+        hero_id = bs_saga_hero_id(hero_row)
+        hero_name = str(hero_row.get("name", hero_id) or hero_id)
+        price = bs_saga_hero_price(hero_row)
+        gold_before = bs_saga_gold()
+
+        if bs_saga_hero_is_owned(hero_id):
+            bs_saga_set_message("Ya posees a {}.".format(hero_name))
+            return False
+        if gold_before < price:
+            bs_saga_set_message("Oro insuficiente para {} ({}).".format(hero_name, price))
+            return False
+
+        gold_after = gold_before - price
+        acc["gold"] = gold_after
+        heroes_owned[hero_id] = {
+            "hero_id": hero_id,
+            "owned": True,
+            "level": 1,
+            "exp": 0,
+            "is_rotation_free": False,
+            "name": hero_name
+        }
+        bs_saga_audit_push("buy_hero", {
+            "hero_id": hero_id,
+            "hero_name": hero_name,
+            "price_gold": price,
+            "gold_before": gold_before,
+            "gold_after": gold_after
+        })
+        bs_saga_audit_push("gold_delta", {
+            "reason": "buy_hero",
+            "delta": -price,
+            "gold_before": gold_before,
+            "gold_after": gold_after
+        })
+        bs_saga_set_message("Compraste a {} por {} oro.".format(hero_name, price))
+        return True
+
+    def bs_saga_item_id(item_row):
+        if not isinstance(item_row, dict):
+            return "unknown_item"
+        if item_row.get("item_id"):
+            return str(item_row.get("item_id"))
+        return bs_saga_slug(item_row.get("name", "item"))
+
+    def bs_saga_item_price(item_row):
+        if not isinstance(item_row, dict):
+            return 0
+        try:
+            price = int(item_row.get("price_gold", 0))
+        except:
+            price = 0
+        if price > 0:
+            return price
+        rarity = str(item_row.get("rarity", "") or "").strip().lower()
+        if rarity in ("epic", "legendary", "mythic", "infernal"):
+            return 900
+        if rarity in ("rare", "special"):
+            return 600
+        return 300
+
+    def bs_saga_item_bucket(item_row):
+        cat = str(getattr(S, "bs_saga_catalog_category", "consumibles") or "consumibles").lower()
+        if cat == "materiales":
+            return "materials"
+        if cat == "permanentes":
+            return "equipables"
+        return "consumables"
+
+    def bs_saga_buy_item(item_row, qty=1):
+        if not isinstance(item_row, dict):
+            bs_saga_set_message("Compra inválida: item no encontrado.")
+            return False
+        acc = bs_saga_account()
+        inv = getattr(S, "bs_saga_inventory_state", {})
+        if not isinstance(inv, dict):
+            inv = {"account_inventory": {"consumables": {}, "equipables": {}, "materials": {}}, "hero_inventories": {}}
+            S.bs_saga_inventory_state = inv
+        account_inv = inv.get("account_inventory", {})
+        if not isinstance(account_inv, dict):
+            account_inv = {"consumables": {}, "equipables": {}, "materials": {}}
+            inv["account_inventory"] = account_inv
+        for bucket in ("consumables", "equipables", "materials"):
+            if not isinstance(account_inv.get(bucket), dict):
+                account_inv[bucket] = {}
+
+        try:
+            q = int(qty)
+        except:
+            q = 1
+        if q < 1:
+            q = 1
+
+        item_id = bs_saga_item_id(item_row)
+        item_name = str(item_row.get("name", item_id) or item_id)
+        unit_price = bs_saga_item_price(item_row)
+        total_price = unit_price * q
+        gold_before = bs_saga_gold()
+        if gold_before < total_price:
+            bs_saga_set_message("Oro insuficiente para {} x{}.".format(item_name, q))
+            return False
+
+        bucket = bs_saga_item_bucket(item_row)
+        bucket_data = account_inv.get(bucket, {})
+        before_qty = int(bucket_data.get(item_id, 0) or 0)
+        after_qty = before_qty + q
+        bucket_data[item_id] = after_qty
+        account_inv[bucket] = bucket_data
+
+        gold_after = gold_before - total_price
+        acc["gold"] = gold_after
+
+        bs_saga_audit_push("buy_item", {
+            "item_id": item_id,
+            "item_name": item_name,
+            "qty": q,
+            "bucket": bucket,
+            "unit_price_gold": unit_price,
+            "price_gold": total_price,
+            "gold_before": gold_before,
+            "gold_after": gold_after,
+            "qty_before": before_qty,
+            "qty_after": after_qty
+        })
+        bs_saga_audit_push("gold_delta", {
+            "reason": "buy_item",
+            "delta": -total_price,
+            "gold_before": gold_before,
+            "gold_after": gold_after
+        })
+        bs_saga_set_message("Compraste {} x{} por {} oro.".format(item_name, q, total_price))
+        return True
+
+    def bs_saga_inventory_rows():
+        inv = getattr(S, "bs_saga_inventory_state", {})
+        if not isinstance(inv, dict):
+            return []
+        account_inv = inv.get("account_inventory", {})
+        if not isinstance(account_inv, dict):
+            return []
+        rows = []
+        for bucket in ("consumables", "equipables", "materials"):
+            data = account_inv.get(bucket, {})
+            if not isinstance(data, dict):
+                continue
+            for item_id, qty in data.items():
+                try:
+                    q = int(qty)
+                except:
+                    q = 0
+                rows.append({
+                    "bucket": bucket,
+                    "item_id": str(item_id),
+                    "qty": q
+                })
+        rows.sort(key=lambda r: (r.get("bucket", ""), r.get("item_id", "")))
+        return rows
 
     def bs_saga_db_rows():
         db = getattr(S, "CHARACTER_DB", []) or []
@@ -365,6 +642,14 @@ init -880 python:
 
 screen bs_saga_lobby_screen():
     tag menu
+    $ _acc = bs_saga_account()
+    $ _gold = int(_acc.get("gold", 0) or 0)
+    $ _lvl = int(_acc.get("level", 1) or 1)
+    $ _exp = int(_acc.get("exp", 0) or 0)
+    $ _next = int(_acc.get("exp_to_next", 100) or 100)
+    $ _tier = str(_acc.get("tier", "C") or "C")
+    $ _owned_count = bs_saga_owned_heroes_count()
+    $ _last_msg = str(bs_saga_last_tx_message or "")
 
     add Solid("#101923")
 
@@ -379,7 +664,12 @@ screen bs_saga_lobby_screen():
             spacing 16
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
             text "Lobby táctico" size 22 color "#D7EEFF" yalign 0.7
-            null width 90
+            text ("Tier " + _tier) size 20 color "#D7EEFF" yalign 0.7
+            text ("Lv " + str(_lvl)) size 20 color "#D7EEFF" yalign 0.7
+            text ("EXP " + str(_exp) + "/" + str(_next)) size 18 color "#B9D9F3" yalign 0.7
+            null width 24
+            text ("Oro: " + str(_gold)) size 22 color "#F7D774" yalign 0.7
+            null width 24
             textbutton "Salir al menú principal" action MainMenu()
 
     frame:
@@ -423,11 +713,15 @@ screen bs_saga_lobby_screen():
         vbox:
             spacing 8
             text "Panel Gestión" size 20 color "#CFE6FA"
+            text ("Héroes adquiridos: " + str(_owned_count)) size 16 color "#9FC4E2"
+            if _last_msg:
+                text ("Última transacción: " + _last_msg) size 15 color "#CDE7FF"
             hbox:
                 spacing 10
                 textbutton "Preparación" action Jump("bs_saga_preparacion")
                 textbutton "Héroes" action Jump("bs_saga_heroes")
                 textbutton "Tienda" action Jump("bs_saga_tienda")
+                textbutton "Inventario" action Jump("bs_saga_inventario")
                 textbutton "Catálogo de itens" action Jump("bs_saga_catalogo_items")
                 textbutton "Catálogo de técnicas" action Jump("bs_saga_catalogo_tecnicas")
 
@@ -475,6 +769,8 @@ screen bs_saga_heroes_screen():
     $ _heroes = bs_saga_heroes_filtered(_tier, bs_saga_heroes_franchise)
     $ _ff = str(bs_saga_heroes_franchise or "all").lower()
     $ _filter_label = _ff if _ff != "all" else "todas"
+    $ _gold = bs_saga_gold()
+    $ _owned_count = bs_saga_owned_heroes_count()
 
     add Solid("#0E1A28")
 
@@ -541,6 +837,8 @@ screen bs_saga_heroes_screen():
                         text "Tiers" size 20 color "#DCEEFF"
                         textbutton "Tier C" action [SetVariable("bs_saga_heroes_tier", "C"), SetVariable("bs_saga_heroes_franchise", "all")]
                         textbutton "Tier B" action [SetVariable("bs_saga_heroes_tier", "B"), SetVariable("bs_saga_heroes_franchise", "all")]
+                        text ("Oro: " + str(_gold)) size 18 color "#F7D774"
+                        text ("Roster: " + str(_owned_count)) size 16 color "#9FC4E2"
                         text "Filtro: [_filter_label]" size 16 color "#9FC4E2"
 
                     hbox:
@@ -575,15 +873,24 @@ screen bs_saga_heroes_screen():
                                             for h in _heroes:
                                                 $ _hn = str(h.get("name", "?") or "?")
                                                 $ _hf = str(h.get("franchise", "?") or "?")
+                                                $ _hid = bs_saga_hero_id(h)
+                                                $ _price = bs_saga_hero_price(h)
+                                                $ _owned = bs_saga_hero_is_owned(_hid)
                                                 frame:
                                                     xfill True
                                                     background Solid("#1B3348")
                                                     padding (8, 6)
                                                     hbox:
                                                         spacing 8
-                                                        text "• [_hn]" size 17 color "#D0E9FF" xminimum 290
+                                                        text "• [_hn]" size 17 color "#D0E9FF" xminimum 240
                                                         text "—" size 17 color "#9FC4E2"
-                                                        text "[_hf]" size 17 color "#D0E9FF" xminimum 220
+                                                        text "[_hf]" size 17 color "#D0E9FF" xminimum 180
+                                                        text ("Oro: " + str(_price)) size 16 color "#F7D774" xminimum 120
+                                                        if _owned:
+                                                            text "Adquirido" size 16 color "#8BD6A7"
+                                                        else:
+                                                            textbutton "Comprar":
+                                                                action [Function(bs_saga_buy_hero, h), Jump("bs_saga_heroes")]
                                         else:
                                             text "No hay héroes para ese filtro." size 18 color "#9FB9D1"
 
@@ -599,6 +906,7 @@ screen bs_saga_catalog_screen():
     $ _items = bs_saga_catalog_items(_cat, _grp)
     $ _cats = bs_saga_catalog_category_keys()
     $ _cat_label = bs_saga_labelize(_cat)
+    $ _gold = bs_saga_gold()
 
     add Solid("#0E1A28")
 
@@ -639,6 +947,8 @@ screen bs_saga_catalog_screen():
                     $ lbl = "Consumibles" if ck == "consumibles" else ("Permanentes" if ck == "permanentes" else "Materiales")
                     textbutton "[lbl]":
                         action Function(bs_saga_catalog_set_category, ck)
+                null width 16
+                text ("Oro disponible: " + str(_gold)) size 18 color "#F7D774"
 
             hbox:
                 spacing 14
@@ -686,18 +996,84 @@ screen bs_saga_catalog_screen():
                                         $ _m = str(it.get("meta", "") or "")
                                         $ _r_show = "-" if _r in ("", "-") else _r
                                         $ _t_show = "-" if _t in ("", "-") else _t
+                                        $ _p = bs_saga_item_price(it)
                                         frame:
                                             xfill True
                                             background Solid("#173048")
                                             padding (8, 6)
                                             hbox:
                                                 spacing 8
-                                                text "• [_n]" size 17 color "#D0E9FF" xminimum 350
+                                                text "• [_n]" size 17 color "#D0E9FF" xminimum 290
                                                 text "Rareza: [_r_show]" size 16 color "#A9CAE6" xminimum 150
                                                 text "Tier: [_t_show]" size 16 color "#A9CAE6" xminimum 120
-                                                text "[_m]" size 16 color "#D0E9FF" xminimum 280
+                                                text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 120
+                                                text "[_m]" size 16 color "#D0E9FF" xminimum 220
+                                                textbutton "Comprar x1":
+                                                    action [Function(bs_saga_buy_item, it, 1), Jump("bs_saga_catalogo_items")]
                                 else:
                                     text "Sin itens cargados todavía para este grupo." size 18 color "#9FB9D1"
+
+screen bs_saga_inventory_screen():
+    tag menu
+    $ _rows = bs_saga_inventory_rows()
+    $ _gold = bs_saga_gold()
+
+    add Solid("#0E1A28")
+
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
+        ypadding 10
+        background Solid("#2C4963")
+        hbox:
+            spacing 16
+            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
+            text "Territorio: Inventario" size 22 color "#D7EEFF" yalign 0.7
+            text ("Oro: " + str(_gold)) size 20 color "#F7D774" yalign 0.7
+            null width 120
+            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+
+    frame:
+        xalign 0.5
+        yalign 0.56
+        xsize 1120
+        ysize 500
+        padding (16, 16)
+        background Solid("#13273A")
+        vbox:
+            spacing 8
+            text "Inventario de cuenta" size 32 color "#EAF6FF"
+            viewport:
+                draggable True
+                mousewheel True
+                scrollbars "vertical"
+                ymaximum 390
+                vbox:
+                    spacing 6
+                    if _rows:
+                        for row in _rows:
+                            $ _b = bs_saga_labelize(row.get("bucket", ""))
+                            $ _id = str(row.get("item_id", "?") or "?")
+                            $ _q = int(row.get("qty", 0) or 0)
+                            frame:
+                                xfill True
+                                background Solid("#173048")
+                                padding (8, 6)
+                                hbox:
+                                    spacing 8
+                                    text ("Bucket: " + _b) size 17 color "#A9CAE6" xminimum 180
+                                    text ("Item: " + _id) size 17 color "#D0E9FF" xminimum 520
+                                    text ("Qty: " + str(_q)) size 17 color "#8BD6A7"
+                    else:
+                        text "Inventario vacío todavía." size 18 color "#9FB9D1"
 
 screen bs_saga_tech_catalog_screen():
     tag menu
@@ -986,11 +1362,11 @@ label bs_saga_heroes:
     return
 
 label bs_saga_tienda:
-    call screen bs_saga_section_shell(
-        title="Tienda",
-        subtitle="Territorio: Tienda",
-        back_action=Jump("bs_saga_lobby")
-    )
+    call screen bs_saga_catalog_screen
+    return
+
+label bs_saga_inventario:
+    call screen bs_saga_inventory_screen
     return
 
 label bs_saga_catalogo_items:

@@ -1,7 +1,7 @@
 # Tablero Fase 0 — Lobby MVP (P0/P1/P2)
 
 Fecha: 2026-04-14  
-Estado: Inicializado
+Estado: Fase 0 cerrada · P1 implementada (QA final pendiente)
 
 Uso:
 - Actualizar `Estado` en cada sesión: `todo | doing | blocked | done`.
@@ -30,11 +30,11 @@ Referencia de ejecución P1: `docs/ARRANQUE_P1_LOBBY_V0_1.md`.
 
 | ID | Tarea | Entregable | Estado | Responsable |
 |---|---|---|---|---|
-| P1-01 | Implementar store lobby unificado | Módulo state base | todo | Gameplay/State |
-| P1-02 | Implementar `buy_hero` + validaciones | Use case operativo | todo | Gameplay |
-| P1-03 | Implementar `buy_item` + validaciones | Use case operativo | todo | Gameplay |
-| P1-04 | Conectar auditoría económica | Log funcional | todo | Gameplay/QA |
-| P1-05 | Vertical slice Home/Héroes/Tienda/Inventario | Demo E2E interna | todo | UI |
+| P1-01 | Implementar store lobby unificado | Módulo state base | done | Gameplay/State |
+| P1-02 | Implementar `buy_hero` + validaciones | Use case operativo | done | Gameplay |
+| P1-03 | Implementar `buy_item` + validaciones | Use case operativo | done | Gameplay |
+| P1-04 | Conectar auditoría económica | Log funcional | done | Gameplay/QA |
+| P1-05 | Vertical slice Home/Héroes/Tienda/Inventario | Demo E2E interna | done | UI |
 
 ---
 
