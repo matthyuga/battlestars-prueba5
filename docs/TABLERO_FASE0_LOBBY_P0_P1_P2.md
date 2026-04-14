@@ -1,7 +1,7 @@
 # Tablero Fase 0 — Lobby MVP (P0/P1/P2)
 
 Fecha: 2026-04-14  
-Estado: Fase 0 cerrada · P1 implementada (QA final pendiente)
+Estado: Fase 0 cerrada · P1 implementada · P2 documental completada
 
 Uso:
 - Actualizar `Estado` en cada sesión: `todo | doing | blocked | done`.
@@ -40,12 +40,18 @@ Referencia de ejecución P1: `docs/ARRANQUE_P1_LOBBY_V0_1.md`.
 
 ## P2 (mejora / hardening)
 
+Referencias P2:
+- `docs/CHECKLIST_METRICAS_UI_CLASSIC_VS_CANVAS_P2_V1.md`
+- `docs/CONTRATO_TOOLKIT_LOBBY_IMPORT_EXPORT_V0_1.md`
+- `docs/TEMPLATE_REPORTE_GO_NO_GO_CANVAS_P2_V1.md`
+- `docs/PLAN_PREADAPTADORES_CATALOGOS_JSON_V0_2.md`
+
 | ID | Tarea | Entregable | Estado | Responsable |
 |---|---|---|---|---|
-| P2-01 | Definir métricas técnicas de UI (classic vs canvas) | Checklist evaluación | todo | UI/Tech lead |
-| P2-02 | Documentar contrato toolkit -> lobby (import/export simple) | Borrador v0.1 | todo | Data/Tools |
-| P2-03 | Diseñar template de reporte Go/No-Go del spike canvas | Plantilla decisión | todo | PM |
-| P2-04 | Pre-adaptadores para catálogos JSON canónicos | Plan v0.2 | todo | Data/Gameplay |
+| P2-01 | Definir métricas técnicas de UI (classic vs canvas) | Checklist evaluación | done | UI/Tech lead |
+| P2-02 | Documentar contrato toolkit -> lobby (import/export simple) | Borrador v0.1 | done | Data/Tools |
+| P2-03 | Diseñar template de reporte Go/No-Go del spike canvas | Plantilla decisión | done | PM |
+| P2-04 | Pre-adaptadores para catálogos JSON canónicos | Plan v0.2 | done | Data/Gameplay |
 
 ---
 
