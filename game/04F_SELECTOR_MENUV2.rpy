@@ -508,17 +508,24 @@ screen battle_command_menu():
     # ============================================================
     else:
         $ _tech_zoom = BTN_ZOOM if isinstance(BTN_ZOOM, (int, float)) and BTN_ZOOM > 0 else 1.0
-        $ _tech_row_height = max(1, int((95 + 6) * _tech_zoom))
+        $ _low_spec = bool(getattr(store, "bs_battle_low_spec_mode", False))
+        $ _off_rows = list(OFF[:12]) if _low_spec else list(OFF)
+        $ _def_rows = list(DEF[:12]) if _low_spec else list(DEF)
+        $ _btn_h = 72 if _low_spec else 95
+        $ _btn_text_size = 23 if _low_spec else 30
+        $ _tech_row_height = max(1, int((_btn_h + 6) * _tech_zoom))
         $ _tech_viewport_height = 380
         $ _visible_tech_rows = max(1, _tech_viewport_height // _tech_row_height)
-        $ _off_need_scroll = len(OFF) > _visible_tech_rows
-        $ _def_need_scroll = len(DEF) > _visible_tech_rows
+        $ _off_need_scroll = len(_off_rows) > _visible_tech_rows
+        $ _def_need_scroll = len(_def_rows) > _visible_tech_rows
 
         frame:
             background "#0000"
             align (0.03, 0.60)
 
             vbox spacing 6:
+                if _low_spec:
+                    text "Low-spec: lista recortada para estabilidad (12 por columna)." size 14 color "#FFD166"
 
                 hbox:
                     spacing 14
@@ -541,7 +548,7 @@ screen battle_command_menu():
                                     ymaximum _tech_viewport_height
 
                                     vbox spacing 6 at tech_btn_scale:
-                                        for tech_key in OFF:
+                                        for tech_key in _off_rows:
                                             $ label = TECH_LABEL[tech_key]
                                             $ tip   = tech_preview(tech_key, "offensive")
                                             $ ok, fr, fe = tech_cost_check(tech_key)
@@ -551,8 +558,8 @@ screen battle_command_menu():
                                             $ _chip_text = tech_chip_caption(tech_key, "offensive")
                                             textbutton _chip_text:
                                                 xminimum 492
-                                                yminimum 95
-                                                text_size 30
+                                                yminimum _btn_h
+                                                text_size _btn_text_size
                                                 text_color ("#DFF2FF" if can_use else "#8F8F8F")
                                                 left_padding 16
                                                 right_padding 16
@@ -581,7 +588,7 @@ screen battle_command_menu():
                                     ymaximum _tech_viewport_height
 
                                     vbox spacing 6 at tech_btn_scale:
-                                        for tech_key in DEF:
+                                        for tech_key in _def_rows:
                                             $ label = TECH_LABEL[tech_key]
                                             $ tip   = tech_preview(tech_key, "defensive")
                                             $ ok, fr, fe = tech_cost_check(tech_key)
@@ -591,8 +598,8 @@ screen battle_command_menu():
                                             $ _chip_text = tech_chip_caption(tech_key, "defensive")
                                             textbutton _chip_text:
                                                 xminimum 492
-                                                yminimum 95
-                                                text_size 30
+                                                yminimum _btn_h
+                                                text_size _btn_text_size
                                                 text_color ("#FFEAEA" if can_use else "#8F8F8F")
                                                 left_padding 16
                                                 right_padding 16
