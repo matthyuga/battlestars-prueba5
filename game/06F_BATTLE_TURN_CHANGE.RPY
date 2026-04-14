@@ -129,10 +129,13 @@ init -966 python:
             slot_txt = " ({})".format(S.bs_slot_tag(owner_team, owner_slot) if callable(getattr(S, "bs_slot_tag", None)) else "S{}".format(owner_slot + 1)) if team_mode == "2v2" else ""
 
             if not actor_name:
+                _disp = getattr(S, "bs_battle_display_name", None)
                 if owner_team == "player":
-                    actor_name = str(getattr(S, "battle_player_id", "Jugador") or "Jugador")
+                    _pid = str(getattr(S, "battle_player_id", "Jugador") or "Jugador")
+                    actor_name = str(_disp(_pid, fallback=_pid) if callable(_disp) else _pid)
                 else:
-                    actor_name = str(getattr(S, "battle_enemy_id", "Enemigo") or "Enemigo")
+                    _eid = str(getattr(S, "battle_enemy_id", "Enemigo") or "Enemigo")
+                    actor_name = str(_disp(_eid, fallback=_eid) if callable(_disp) else _eid)
 
             actor_team_txt = "PLAYER" if owner_team == "player" else "ENEMY"
             actor_full = "{}{} · {}".format(actor_name, slot_txt, actor_team_txt)

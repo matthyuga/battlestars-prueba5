@@ -487,6 +487,8 @@ init -880 python:
         if not my_hero:
             bs_saga_set_message("Selecciona tu héroe antes de iniciar duelo.")
             return False
+
+        # Inicializar identidad base siempre antes de calcular equipos.
         S.battle_player_id = my_hero
         S.battle_team_mode = mode if mode in ("1v1", "2v2") else "1v1"
         all_ids = [str(x.get("hero_id", "")) for x in bs_saga_available_hero_rows() if str(x.get("hero_id", ""))]
@@ -502,6 +504,10 @@ init -880 python:
             if not candidates:
                 candidates = ["Hollow"]
             enemy_id = str(candidates[renpy.random.randint(0, len(candidates) - 1)])
+        if not enemy_id:
+            enemy_id = "Hollow"
+
+        # Dual-write obligatorio: id activo + listas para evitar fallbacks legacy inconsistentes.
         S.battle_enemy_id = enemy_id
         S.battle_player_ids = [my_hero]
         S.battle_enemy_ids = [enemy_id]
@@ -518,6 +524,15 @@ init -880 python:
             S.battle_player_slot_1 = p2
             S.battle_enemy_slot_0 = enemy_id
             S.battle_enemy_slot_1 = e2
+
+        # Cierre defensivo de coherencia: IDs activos nunca vacíos antes de jump battle_start.
+        if not (getattr(S, "battle_player_ids", None) or []):
+            S.battle_player_ids = [my_hero]
+        if not (getattr(S, "battle_enemy_ids", None) or []):
+            S.battle_enemy_ids = [enemy_id]
+        S.battle_player_id = str((S.battle_player_ids or [my_hero])[0] or my_hero)
+        S.battle_enemy_id = str((S.battle_enemy_ids or [enemy_id])[0] or enemy_id)
+
         S.battle_prepared_item_id = str(getattr(S, "bs_saga_prep_flag_item_id", "") or "")
         S.battle_prepared_consumable_id = str(getattr(S, "bs_saga_prep_flag_consumable_id", "") or "")
         bs_saga_register_hero_usage(my_hero)

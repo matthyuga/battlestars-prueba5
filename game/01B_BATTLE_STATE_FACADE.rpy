@@ -1955,6 +1955,26 @@ init -989 python:
                 return n
         return str(getattr(S, "battle_enemy_id", "Hollow") or "Hollow")
 
+    def bs_battle_display_name(char_id, fallback=""):
+        cid = str(char_id or "").strip()
+        fb = str(fallback or "").strip()
+        try:
+            fn = getattr(S, "get_character", None)
+            if callable(fn):
+                ch = fn(cid)
+                if isinstance(ch, dict):
+                    nm = str(ch.get("name", "") or "").strip()
+                    if nm:
+                        return nm
+        except:
+            pass
+
+        if cid:
+            return cid
+        if fb:
+            return fb
+        return "Unidad"
+
     def bs_get_player_display_name():
         return bs_get_active_name("player")
 
@@ -2208,6 +2228,7 @@ init -989 python:
     S.bs_reflect_consume_for_current_turn = bs_reflect_consume_for_current_turn
     S.bs_reflect_expire_for_current_turn = bs_reflect_expire_for_current_turn
     S.bs_get_active_name = bs_get_active_name
+    S.bs_battle_display_name = bs_battle_display_name
     S.bs_get_player_display_name = bs_get_player_display_name
     S.bs_auto_advance_active_if_ko = bs_auto_advance_active_if_ko
     S.bs_get_turn_ctx = bs_get_turn_ctx

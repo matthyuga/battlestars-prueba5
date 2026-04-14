@@ -175,11 +175,10 @@ screen battle_hp_overlay():
                     add im.Scale("images/character/Jugador_a.png", 64, 64)
                     vbox:
                         spacing 2
-                        $ _player_display_name = (
-                            getattr(store, "story_player_name", None)
-                            or getattr(store, "player_name", None)
-                            or "Jugador"
-                        )
+                        $ _pdisp_fn = getattr(store, "bs_battle_display_name", None)
+                        $ _player_display_name = str(getattr(store, "battle_player_id", "Jugador") or "Jugador")
+                        if callable(_pdisp_fn):
+                            $ _player_display_name = str(_pdisp_fn(getattr(store, "battle_player_id", _player_display_name), fallback=_player_display_name))
                         text "Jugador ({})".format(_player_display_name) size 17 color "#00BFFF"
                         text ("HP %s / %s" % (_php_fake, _pmax)) size 15
                         text ("Reiatsu %s / %s" % (_prei_fake, _pmax_rei)) size 14
@@ -209,7 +208,11 @@ screen battle_hp_overlay():
                     vbox:
                         xalign 1.0
                         spacing 2
-                        text "Enemigo (Hollow)" size 17 color "#FF7777" xalign 1.0
+                        $ _edisp_fn = getattr(store, "bs_battle_display_name", None)
+                        $ _enemy_display_name = str(getattr(store, "battle_enemy_id", "Enemigo") or "Enemigo")
+                        if callable(_edisp_fn):
+                            $ _enemy_display_name = str(_edisp_fn(getattr(store, "battle_enemy_id", _enemy_display_name), fallback=_enemy_display_name))
+                        text "Enemigo ({})".format(_enemy_display_name) size 17 color "#FF7777" xalign 1.0
                         text ("HP %s / %s" % (_ehp_fake, _emax)) size 15 xalign 1.0
                         text ("Reiatsu %s / %s" % (_erei_fake, _emax_rei)) size 14 xalign 1.0
                         text ("Energía %s / %s" % (_eene_fake, _emax_ene)) size 14 xalign 1.0
