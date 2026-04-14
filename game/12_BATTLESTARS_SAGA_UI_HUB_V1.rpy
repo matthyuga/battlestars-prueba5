@@ -286,12 +286,10 @@ init -880 python:
         return True
 
     def bs_saga_inventory_rows():
+        if not bs_saga_inventory_contract_ok():
+            return []
         inv = getattr(S, "bs_saga_inventory_state", {})
-        if not isinstance(inv, dict):
-            return []
         account_inv = inv.get("account_inventory", {})
-        if not isinstance(account_inv, dict):
-            return []
         rows = []
         for bucket in ("consumables", "equipables", "materials"):
             data = account_inv.get(bucket, {})
@@ -604,6 +602,16 @@ init -880 python:
         return True
 
     def bs_saga_db_rows():
+        fn_v1 = getattr(S, "bs_get_hero_catalog_v1", None)
+        if callable(fn_v1):
+            rows_v1 = fn_v1()
+            if isinstance(rows_v1, list) and rows_v1:
+                return list(rows_v1)
+
+        db_override = getattr(S, "bs_hero_catalog_v1", None)
+        if isinstance(db_override, list) and db_override:
+            return list(db_override)
+
         db = getattr(S, "CHARACTER_DB", []) or []
         if isinstance(db, list):
             return list(db)
@@ -643,7 +651,17 @@ init -880 python:
         return out
 
     def bs_saga_item_schema():
-        # Esquema inicial del catálogo para UI (v1 wireframe)
+        fn_v1 = getattr(S, "bs_get_item_catalog_v1", None)
+        if callable(fn_v1):
+            cat_v1 = fn_v1()
+            if isinstance(cat_v1, dict) and cat_v1:
+                return dict(cat_v1)
+
+        cat_override = getattr(S, "bs_item_catalog_v1", None)
+        if isinstance(cat_override, dict) and cat_override:
+            return dict(cat_override)
+
+        # Esquema fallback de catálogo para UI (v1 wireframe local).
         return {
             "consumibles": {
                 "title": "Consumibles",
@@ -726,6 +744,18 @@ init -880 python:
                 },
             },
         }
+
+    def bs_saga_inventory_contract_ok():
+        inv = getattr(S, "bs_saga_inventory_state", None)
+        if not isinstance(inv, dict):
+            return False
+        chest = inv.get("account_inventory", {})
+        if not isinstance(chest, dict):
+            return False
+        for k in ("consumables", "equipables", "materials"):
+            if not isinstance(chest.get(k, {}), dict):
+                return False
+        return isinstance(inv.get("hero_inventories", {}), dict)
 
     def bs_saga_catalog_category_keys():
         return ["consumibles", "permanentes", "materiales"]
