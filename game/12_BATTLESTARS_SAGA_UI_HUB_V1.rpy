@@ -766,22 +766,23 @@ screen bs_saga_lobby_screen():
 
     frame:
         xalign 0.5
-        yalign 0.08
-        xsize 1120
-        ypadding 10
+        yalign 0.10
+        xfill True
+        xmaximum 1120
+        ypadding 12
         background Solid("#1A2938")
 
         hbox:
             spacing 16
-            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
+            text "BATTLESTARS SAGA" size 32 color "#5FC6FF"
             text "Lobby táctico" size 22 color "#D7EEFF" yalign 0.7
             text ("Tier " + _tier) size 20 color "#D7EEFF" yalign 0.7
             text ("Lv " + str(_lvl)) size 20 color "#D7EEFF" yalign 0.7
             text ("EXP " + str(_exp) + "/" + str(_next)) size 18 color "#B9D9F3" yalign 0.7
-            null width 24
+            null width 8
             text ("Oro: " + str(_gold)) size 22 color "#F7D774" yalign 0.7
-            null width 24
-            textbutton "Salir al menú principal" action MainMenu()
+            null width 8
+            textbutton "Salir" action MainMenu()
         bar:
             value _exp_ratio
             xfill True

@@ -7,6 +7,7 @@ default ai_difficulty = "basic"   # "basic" / "intermediate" / "advanced"
 
 # Switch: si True, usa persistent; si False, usa ai_difficulty
 default ai_difficulty_save = False
+default ai_difficulty_hud_visible = False
 
 # Defaults de selección (compat)
 default battle_player_id = "Harribel"
@@ -50,24 +51,26 @@ init -20 python:
 
 screen ai_difficulty_hud():
     zorder 200
-    frame:
-        xalign 0.985
-        yalign 0.02
-        xsize 360
-        background Solid("#0008")
-        padding (10, 8)
-        vbox:
-            spacing 6
-            text "Dificultad IA" size 22 color "#FFD166"
-            $ _ai = ai_difficulty_current()
-            text ("Actual: " + _ai.upper()) size 17 color "#DCEBFF"
-            hbox:
+    key "ctrl_p" action ToggleVariable("ai_difficulty_hud_visible")
+    if ai_difficulty_hud_visible:
+        frame:
+            xalign 0.985
+            yalign 0.02
+            xsize 360
+            background Solid("#0008")
+            padding (10, 8)
+            vbox:
                 spacing 6
-                textbutton "Basic" action Function(ai_difficulty_set, "basic")
-                textbutton "Intermedio" action Function(ai_difficulty_set, "intermediate")
-                textbutton "Avanzado" action Function(ai_difficulty_set, "advanced")
-            textbutton ("Guardar en perfil: ON" if ai_difficulty_save else "Guardar en perfil: OFF"):
-                action [ToggleVariable("ai_difficulty_save"), Function(ai_difficulty_set, ai_difficulty_current())]
+                text "Dificultad IA" size 22 color "#FFD166"
+                $ _ai = ai_difficulty_current()
+                text ("Actual: " + _ai.upper()) size 17 color "#DCEBFF"
+                hbox:
+                    spacing 6
+                    textbutton "Basic" action Function(ai_difficulty_set, "basic")
+                    textbutton "Intermedio" action Function(ai_difficulty_set, "intermediate")
+                    textbutton "Avanzado" action Function(ai_difficulty_set, "advanced")
+                textbutton ("Guardar en perfil: ON" if ai_difficulty_save else "Guardar en perfil: OFF"):
+                    action [ToggleVariable("ai_difficulty_save"), Function(ai_difficulty_set, ai_difficulty_current())]
 
 
 label battle_select_player:

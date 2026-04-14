@@ -20,10 +20,12 @@ Estado: implementado en lobby v0.1 (base funcional).
 
 4. **Registro de uso de héroes**
    - al seleccionar héroe en flujo de combate (1v1 y slots 2v2) se incrementa contador de uso.
+5. **HUD de dificultad IA en combate**
+   - queda oculto por defecto,
+   - se activa/desactiva con `Ctrl+P`.
 
 ## Pendiente (siguiente iteración)
 
 - historial de combates detallado en Perfil,
 - chequeo completo de técnicas/pool por tier en panel de preparación,
-- reemplazo integral de hardcode de roster de combate por catálogo del lobby.
-
+- reemplazo integral de hardcode de roster de combate por catálogo del lobby (actualmente mantiene selector legacy).
