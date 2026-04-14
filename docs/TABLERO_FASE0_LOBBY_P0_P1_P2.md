@@ -7,6 +7,8 @@ Uso:
 - Actualizar `Estado` en cada sesión: `todo | doing | blocked | done`.
 - Si una tarea queda en `blocked`, documentar causa y siguiente acción.
 
+Referencia de ejecución P1: `docs/ARRANQUE_P1_LOBBY_V0_1.md`.
+
 ---
 
 ## P0 (bloqueante de arranque)
@@ -19,8 +21,8 @@ Uso:
 | P0-04 | Congelar contrato `inventory_state` | Contrato v0.1 | done | Gameplay/State |
 | P0-05 | Congelar contrato `audit_event` + eventos mínimos | Contrato v0.1 | done | Gameplay/State |
 | P0-06 | Publicar checklist no-regresión combate | Checklist v0.1 activo | done | QA |
-| P0-07 | Definir feature flag `experimental_canvas_ui` | Config de entorno | doing | UI |
-| P0-08 | Definir gate de salida Fase 0 | Acta de cierre F0 | todo | PM/Tech lead |
+| P0-07 | Definir feature flag `experimental_canvas_ui` | Config de entorno | done | UI |
+| P0-08 | Definir gate de salida Fase 0 | Acta de cierre F0 | done | PM/Tech lead |
 
 ---
 
@@ -52,5 +54,5 @@ Uso:
 - [x] Alcance sin ambigüedad.
 - [x] Contratos de estado congelados.
 - [x] Checklist no-regresión combate listo.
-- [ ] Acta de cierre Fase 0 firmada.
+- [x] Acta de cierre Fase 0 firmada.
 

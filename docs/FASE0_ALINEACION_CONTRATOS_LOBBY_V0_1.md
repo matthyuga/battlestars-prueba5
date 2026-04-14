@@ -1,7 +1,7 @@
 # Fase 0 — Alineación y congelación de contratos (Lobby MVP v0.1)
 
 Fecha: 2026-04-14  
-Estado: En ejecución (baseline de arranque)
+Estado: Cerrada (acta emitida)
 Base:
 - `docs/SPEC_LOBBY_MVP_V0_1.md`
 - `docs/PLAN_TRABAJO_LOBBY_MVP_V0_1.md`
@@ -147,4 +147,12 @@ Fase 0 se considera completada cuando:
 2. Contratos de estado `account/heroes/inventory/audit` quedan congelados.
 3. Checklist no-regresión combate queda creado y listo para ejecución.
 4. Tablero P0/P1/P2 queda publicado con responsables y estado inicial.
+
+
+---
+
+## 7) Evidencia administrativa de cierre
+
+- Acta de cierre: `docs/ACTA_CIERRE_FASE0_LOBBY_V0_1.md`.
+- Tablero P0/P1/P2 actualizado con P0-07 y P0-08 en `done`.
 
