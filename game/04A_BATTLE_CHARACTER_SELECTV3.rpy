@@ -23,6 +23,48 @@ default battle_multiplayer_manual = False
 default battle_player_count = 1
 default battle_enemy_count = 1
 
+init -20 python:
+    import renpy.store as S
+
+    if not hasattr(persistent, "ai_difficulty"):
+        persistent.ai_difficulty = "basic"
+
+    def ai_difficulty_current():
+        use_persistent = bool(getattr(S, "ai_difficulty_save", False))
+        if use_persistent:
+            return str(getattr(persistent, "ai_difficulty", "basic") or "basic")
+        return str(getattr(S, "ai_difficulty", "basic") or "basic")
+
+    def ai_difficulty_set(level):
+        lv = str(level or "basic").strip().lower()
+        if lv not in ("basic", "intermediate", "advanced"):
+            lv = "basic"
+        S.ai_difficulty = lv
+        if bool(getattr(S, "ai_difficulty_save", False)):
+            persistent.ai_difficulty = lv
+        return None
+
+screen ai_difficulty_hud():
+    zorder 200
+    frame:
+        xalign 0.985
+        yalign 0.02
+        xsize 360
+        background Solid("#0008")
+        padding (10, 8)
+        vbox:
+            spacing 6
+            text "Dificultad IA" size 22 color "#FFD166"
+            $ _ai = ai_difficulty_current()
+            text ("Actual: " + _ai.upper()) size 17 color "#DCEBFF"
+            hbox:
+                spacing 6
+                textbutton "Basic" action Function(ai_difficulty_set, "basic")
+                textbutton "Intermedio" action Function(ai_difficulty_set, "intermediate")
+                textbutton "Avanzado" action Function(ai_difficulty_set, "advanced")
+            textbutton ("Guardar en perfil: ON" if ai_difficulty_save else "Guardar en perfil: OFF"):
+                action [ToggleVariable("ai_difficulty_save"), Function(ai_difficulty_set, ai_difficulty_current())]
+
 
 label battle_select_player:
     scene bg_battle_base
