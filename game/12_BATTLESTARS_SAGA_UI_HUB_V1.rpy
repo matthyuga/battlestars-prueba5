@@ -766,29 +766,37 @@ screen bs_saga_lobby_screen():
 
     frame:
         xalign 0.5
-        yalign 0.10
-        xfill True
-        xmaximum 1120
-        ypadding 12
-        background Solid("#1A2938")
+        yalign 0.08
+        xsize 1128
+        ysize 96
+        background Solid("#66C8FF")
 
-        hbox:
-            spacing 16
-            text "BATTLESTARS SAGA" size 32 color "#5FC6FF"
-            text "Lobby táctico" size 22 color "#D7EEFF" yalign 0.7
-            text ("Tier " + _tier) size 20 color "#D7EEFF" yalign 0.7
-            text ("Lv " + str(_lvl)) size 20 color "#D7EEFF" yalign 0.7
-            text ("EXP " + str(_exp) + "/" + str(_next)) size 18 color "#B9D9F3" yalign 0.7
-            null width 8
-            text ("Oro: " + str(_gold)) size 22 color "#F7D774" yalign 0.7
-            null width 8
-            textbutton "Salir" action MainMenu()
-        bar:
-            value _exp_ratio
-            xfill True
-            ymaximum 10
-            left_bar Solid("#4AD4FF")
-            right_bar Solid("#2A3D4E")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
+        ysize 84
+        ypadding 8
+        xpadding 10
+        background Solid("#1A2938")
+        vbox:
+            spacing 6
+            hbox:
+                spacing 14
+                text "BATTLESTARS SAGA" size 30 color "#5FC6FF"
+                text "Lobby táctico" size 22 color "#D7EEFF" yalign 0.7
+                text ("Tier " + _tier) size 20 color "#D7EEFF" yalign 0.7
+                text ("Lv " + str(_lvl)) size 20 color "#D7EEFF" yalign 0.7
+                text ("EXP " + str(_exp) + "/" + str(_next)) size 18 color "#B9D9F3" yalign 0.7
+                text ("Oro: " + str(_gold)) size 22 color "#F7D774" yalign 0.7
+                null width 8
+                textbutton "Salir" action MainMenu()
+            bar:
+                value _exp_ratio
+                xfill True
+                ymaximum 8
+                left_bar Solid("#4AD4FF")
+                right_bar Solid("#2A3D4E")
 
     frame:
         xalign 0.5
