@@ -20,10 +20,13 @@ P2 queda completado a nivel de diseño/documentación operativa.
 
 ---
 
-## 3) Próxima validación recomendada
+## 3) Estado de validación y próximos pasos
 
-Antes de declarar cierre global del bloque lobby:
-1. correr smoke QA runtime de no-regresión,
-2. ejecutar métricas de P2-01 en classic y canvas,
-3. emitir reporte usando template P2-03.
+Estado actual:
+1. smoke QA runtime de no-regresión: completado (PASS provisional en alcance actual),
+2. ejecución de métricas P2-01 classic/canvas: pendiente según disponibilidad de modo canvas experimental,
+3. reporte Go/No-Go P2-03: pendiente de corrida comparativa final.
 
+Próximos pasos:
+- continuar con hardening UX/flujo de combate sin romper baseline,
+- cerrar reporte comparativo cuando se habilite medición completa classic vs canvas.

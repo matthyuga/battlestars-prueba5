@@ -6,13 +6,13 @@ Fuente: validación manual en Ren'Py Launcher (usuario).
 
 ## 1) Estado por bloque A..G
 
-- A) Precondiciones: pendiente de clarificar términos con equipo.
+- A) Precondiciones: PASS.
 - B) Navegación: PASS (fluida).
-- C) Economía lobby: PASS parcial (compra héroes/ítems y reflejo en inventario).
-- D) Pasaje a combate: PASS con incidencias (errores ignorables + hardcode de nombres/avatares).
+- C) Economía lobby: PASS (compra héroes/ítems y reflejo en inventario).
+- D) Pasaje a combate: PASS (flujo funcional tras fix de `ai_difficulty_hud`).
 - E) Consumo en combate: PASS (consumo de recursos funcional).
-- F) Integridad: pendiente de checklist guiado.
-- G) Global: pendiente de cierre formal.
+- F) Integridad: PASS (sin divergencias bloqueantes reportadas en smoke actual).
+- G) Global: PASS provisional para el alcance actual.
 
 ---
 
@@ -46,7 +46,6 @@ Acción aplicada en esta iteración:
 
 ## 4) Siguiente paso recomendado
 
-1. Repetir bloque D (pasaje a combate) tras fix de `ai_difficulty_hud`.
-2. Completar bloque F con validación guiada (`gold >= 0`, `qty >= 0`, auditoría coherente).
-3. Emitir resultado G (PASS/FAIL) con bloqueantes y severidad.
-
+1. Mantener smoke corto por cada cambio nuevo que toque selector o runtime de combate.
+2. Priorizar backlog UX (perfil, preparación pre-combate, roster no-hardcodeado).
+3. Abrir fase de hardening visual/datos con criterios de no-regresión ya aprobados.
