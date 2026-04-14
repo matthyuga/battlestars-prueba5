@@ -1,0 +1,4 @@
+interface:
+  display_name: "Critical Objective Review"
+  short_description: "Evidence-based critique with risks, tradeoffs, and action plan"
+  default_prompt: "Analyze this objectively: list strengths, risks by severity, tradeoffs, and a prioritized action plan (P0/P1/P2). Avoid flattery."
