@@ -39,6 +39,7 @@ default bs_saga_inventory_state = {
 default bs_saga_audit_log = []
 default bs_saga_last_tx_message = ""
 default bs_saga_rotation_hero_ids = []
+default bs_saga_prep_duel_rotation_ids = []
 default bs_saga_hero_usage_stats = {}
 default bs_saga_prep_selected_hero = ""
 default bs_saga_prep_selected_mode = "1v1"
@@ -415,27 +416,45 @@ init -880 python:
 
     def bs_saga_duel_combat_pool_rows():
         ready = [str(x) for x in (bs_saga_combat_ready_ids() or [])]
-        ready_set = {x.lower(): x for x in ready}
-        rows = bs_saga_available_hero_rows()
-        out = []
-        for row in rows:
-            hid = str(row.get("hero_id", "") or "")
-            if hid.lower() in ready_set:
-                out.append(row)
+        if not ready:
+            ready = ["Harribel", "Grimmjow", "Nel", "Hollow"]
+        rot = getattr(S, "bs_saga_prep_duel_rotation_ids", None)
+        if not isinstance(rot, list) or not rot:
+            rot = bs_saga_refresh_duel_rotation_heroes(min(5, len(ready)))
+        rot_lc = {str(x).lower() for x in (rot or [])}
 
-        # Si no hay match con inventario/rotación, habilitar pool mínimo jugable.
-        if not out:
-            for cid in ready:
-                out.append({
-                    "hero_id": cid,
-                    "name": cid,
-                    "tier": "C",
-                    "owned": False,
-                    "in_rotation": True,
-                    "available": True,
-                    "state": "para_probar",
-                })
+        out = []
+        for cid in ready:
+            is_owned = bs_saga_hero_is_owned(cid)
+            in_rotation = cid.lower() in rot_lc
+            state = "disponible" if is_owned else ("para_probar" if in_rotation else "bloqueado")
+            out.append({
+                "hero_id": cid,
+                "name": cid,
+                "tier": "C",
+                "owned": bool(is_owned),
+                "in_rotation": bool(in_rotation),
+                "available": bool(is_owned or in_rotation),
+                "state": state
+            })
         return out
+
+    def bs_saga_refresh_duel_rotation_heroes(count=4):
+        pool = [str(x) for x in (bs_saga_combat_ready_ids() or [])]
+        if not pool:
+            pool = ["Harribel", "Grimmjow", "Nel", "Hollow"]
+        unique = []
+        for hid in pool:
+            if hid not in unique:
+                unique.append(hid)
+        renpy.random.shuffle(unique)
+        c = int(count or 4)
+        if c < 1:
+            c = 1
+        if len(unique) < c:
+            c = len(unique)
+        S.bs_saga_prep_duel_rotation_ids = unique[:c]
+        return list(S.bs_saga_prep_duel_rotation_ids)
 
     def bs_saga_resolve_combat_id(hero_id, fallback="Harribel"):
         hid = str(hero_id or "").strip()
@@ -1456,14 +1475,12 @@ screen bs_saga_profile_screen():
 screen bs_saga_preparation_screen():
     tag menu
     $ _rows = bs_saga_duel_combat_pool_rows()
-    $ _rows_all = bs_saga_available_hero_rows()
-    $ _excluded_count = max(0, len(_rows_all) - len(_rows))
     $ _hero = str(bs_saga_prep_selected_hero or "")
     $ _mode = str(bs_saga_prep_selected_mode or "1v1")
     $ _enemy_mode = str(bs_saga_prep_enemy_mode or "random")
     $ _enemy_hero = str(bs_saga_prep_selected_enemy_hero or "")
     $ _build = str(bs_saga_prep_selected_build or "balanceado")
-    $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_rotation_hero_ids or [])[:5]])
+    $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_prep_duel_rotation_ids or [])[:5]])
 
     add Solid("#0E1A28")
     frame:
@@ -1503,10 +1520,8 @@ screen bs_saga_preparation_screen():
                     spacing 8
                     text "Roster disponible (rotación o adquirido)" size 22 color "#EAF6FF"
                     text ("Rotación actual (5): " + (_rotation_preview if _rotation_preview else "sin generar")) size 14 color "#9FC4E2"
-                    if _excluded_count > 0:
-                        text ("Nota: " + str(_excluded_count) + " héroes del lobby aún no están conectados al runtime de combate.") size 13 color "#FFD166"
                     textbutton "Aleatorizar rotación":
-                        action [Function(bs_saga_refresh_rotation_heroes, 5), Jump("bs_saga_preparacion")]
+                        action [Function(bs_saga_refresh_duel_rotation_heroes, 5), Jump("bs_saga_preparacion")]
                     viewport:
                         draggable True
                         mousewheel True
@@ -1951,6 +1966,8 @@ label bs_saga_torre_cielo:
 # ---------- rutas panel gestión ----------
 
 label bs_saga_preparacion:
+    if not (bs_saga_prep_duel_rotation_ids or []):
+        $ bs_saga_refresh_duel_rotation_heroes(5)
     call screen bs_saga_preparation_screen
     return
 
