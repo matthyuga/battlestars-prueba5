@@ -23,9 +23,27 @@ default bs_saga_account_state = {
     "level": 1,
     "exp": 0,
     "exp_to_next": 100,
-    "tier": "C",
+    "tier": "",
     "gold": 5000,
     "gems": 0
+}
+default bs_saga_tier_hero_requirements = {
+    "C": 20,
+    "B": 15,
+    "A": 10,
+    "S": 5,
+    "SS": 4,
+    "SSS": 3,
+    "IV": 1
+}
+default bs_saga_tier_level_requirements = {
+    "C": 1,
+    "B": 5,
+    "A": 10,
+    "S": 15,
+    "SS": 20,
+    "SSS": 25,
+    "IV": 30
 }
 default bs_saga_heroes_owned = {}
 default bs_saga_inventory_state = {
@@ -71,7 +89,7 @@ init -880 python:
             "level": 1,
             "exp": 0,
             "exp_to_next": 100,
-            "tier": "C",
+            "tier": "",
             "gold": 5000,
             "gems": 0
         }
@@ -142,6 +160,81 @@ init -880 python:
                 count += 1
         return count
 
+    def bs_saga_owned_heroes_count_by_tier(tier):
+        t = str(tier or "").upper().strip()
+        if not t:
+            return 0
+        owned = getattr(S, "bs_saga_heroes_owned", {})
+        if not isinstance(owned, dict):
+            return 0
+        count = 0
+        for _, row in owned.items():
+            if not isinstance(row, dict):
+                continue
+            if not bool(row.get("owned", False)):
+                continue
+            rt = str(row.get("tier", "C") or "C").upper().strip()
+            if rt == t:
+                count += 1
+        return count
+
+    def bs_saga_eval_account_tier():
+        acc = bs_saga_account()
+        try:
+            lvl = int(acc.get("level", 1) or 1)
+        except:
+            lvl = 1
+        req_h = getattr(S, "bs_saga_tier_hero_requirements", {}) or {}
+        req_l = getattr(S, "bs_saga_tier_level_requirements", {}) or {}
+        order = ["IV", "SSS", "SS", "S", "A", "B", "C"]
+        for t in order:
+            heroes_req = int(req_h.get(t, 999999) or 999999)
+            level_req = int(req_l.get(t, 1) or 1)
+            if lvl < level_req:
+                continue
+            if bs_saga_owned_heroes_count_by_tier(t) >= heroes_req:
+                return t
+        return ""
+
+    def bs_saga_refresh_account_tier(reason="runtime"):
+        acc = bs_saga_account()
+        prev = str(acc.get("tier", "") or "").upper().strip()
+        now = str(bs_saga_eval_account_tier() or "").upper().strip()
+        if prev == now:
+            return now
+        acc["tier"] = now
+        bs_saga_audit_push("account_tier_update", {
+            "reason": str(reason or "runtime"),
+            "tier_before": prev,
+            "tier_after": now,
+            "level": int(acc.get("level", 1) or 1),
+        })
+        return now
+
+    def bs_saga_tier_progress_rows():
+        req_h = getattr(S, "bs_saga_tier_hero_requirements", {}) or {}
+        req_l = getattr(S, "bs_saga_tier_level_requirements", {}) or {}
+        order = ["C", "B", "A", "S", "SS", "SSS", "IV"]
+        acc = bs_saga_account()
+        try:
+            lvl = int(acc.get("level", 1) or 1)
+        except:
+            lvl = 1
+        out = []
+        for t in order:
+            need_h = int(req_h.get(t, 999999) or 999999)
+            need_l = int(req_l.get(t, 1) or 1)
+            have_h = bs_saga_owned_heroes_count_by_tier(t)
+            ok = bool(lvl >= need_l and have_h >= need_h)
+            out.append({
+                "tier": t,
+                "need_heroes": need_h,
+                "have_heroes": have_h,
+                "need_level": need_l,
+                "ok": ok,
+            })
+        return out
+
     def bs_saga_buy_hero(hero_row):
         if not isinstance(hero_row, dict):
             bs_saga_set_message("Compra inválida: héroe no encontrado.")
@@ -172,8 +265,10 @@ init -880 python:
             "level": 1,
             "exp": 0,
             "is_rotation_free": False,
-            "name": hero_name
+            "name": hero_name,
+            "tier": str(hero_row.get("tier", "C") or "C").upper()
         }
+        _tier_now = bs_saga_refresh_account_tier(reason="buy_hero")
         bs_saga_audit_push("buy_hero", {
             "hero_id": hero_id,
             "hero_name": hero_name,
@@ -187,7 +282,10 @@ init -880 python:
             "gold_before": gold_before,
             "gold_after": gold_after
         })
-        bs_saga_set_message("Compraste a {} por {} oro.".format(hero_name, price))
+        if _tier_now:
+            bs_saga_set_message("Compraste a {} por {} oro. Tier actual: {}.".format(hero_name, price, _tier_now))
+        else:
+            bs_saga_set_message("Compraste a {} por {} oro. Aún sin tier (sigue coleccionando).".format(hero_name, price))
         return True
 
     def bs_saga_item_id(item_row):
@@ -978,11 +1076,13 @@ init -880 python:
 screen bs_saga_lobby_screen():
     tag menu
     $ _acc = bs_saga_account()
+    $ _tier_current = bs_saga_refresh_account_tier(reason="lobby_screen")
     $ _gold = int(_acc.get("gold", 0) or 0)
     $ _lvl = int(_acc.get("level", 1) or 1)
     $ _exp = int(_acc.get("exp", 0) or 0)
     $ _next = int(_acc.get("exp_to_next", 100) or 100)
-    $ _tier = str(_acc.get("tier", "C") or "C")
+    $ _tier = str(_tier_current or "")
+    $ _tier_txt = ("Tier " + _tier) if _tier else "Sin tier"
     $ _owned_count = bs_saga_owned_heroes_count()
     $ _last_msg = str(bs_saga_last_tx_message or "")
     $ _exp_ratio = bs_saga_exp_progress()
@@ -1010,7 +1110,7 @@ screen bs_saga_lobby_screen():
                 spacing 14
                 text "BATTLESTARS SAGA" size 30 color "#5FC6FF"
                 text "Lobby táctico" size 22 color "#D7EEFF" yalign 0.7
-                text ("Tier " + _tier) size 20 color "#D7EEFF" yalign 0.7
+                text _tier_txt size 20 color "#D7EEFF" yalign 0.7
                 text ("Lv " + str(_lvl)) size 20 color "#D7EEFF" yalign 0.7
                 text ("EXP " + str(_exp) + "/" + str(_next)) size 18 color "#B9D9F3" yalign 0.7
                 text ("Oro: " + str(_gold)) size 22 color "#F7D774" yalign 0.7
@@ -1430,13 +1530,16 @@ screen bs_saga_inventory_screen():
 screen bs_saga_profile_screen():
     tag menu
     $ _acc = bs_saga_account()
+    $ _tier_current = bs_saga_refresh_account_tier(reason="profile_screen")
     $ _gold = int(_acc.get("gold", 0) or 0)
     $ _lvl = int(_acc.get("level", 1) or 1)
     $ _exp = int(_acc.get("exp", 0) or 0)
     $ _next = int(_acc.get("exp_to_next", 100) or 100)
-    $ _tier = str(_acc.get("tier", "C") or "C")
+    $ _tier = str(_tier_current or "")
+    $ _tier_txt = (_tier if _tier else "Sin tier")
     $ _top_total = bs_saga_top_heroes(3, False)
     $ _top_24 = bs_saga_top_heroes(3, True)
+    $ _tier_rows = bs_saga_tier_progress_rows()
 
     add Solid("#0E1A28")
     frame:
@@ -1475,11 +1578,19 @@ screen bs_saga_profile_screen():
                 vbox:
                     spacing 8
                     text "Resumen de cuenta" size 28 color "#EAF6FF"
-                    text ("Tier: " + _tier) size 18 color "#D0E9FF"
+                    text ("Tier: " + _tier_txt) size 18 color "#D0E9FF"
                     text ("Nivel: " + str(_lvl)) size 18 color "#D0E9FF"
                     text ("EXP: " + str(_exp) + "/" + str(_next)) size 18 color "#D0E9FF"
                     text ("Oro: " + str(_gold)) size 18 color "#F7D774"
-                    text "Historial de combate: pendiente de integración detallada." size 16 color "#9FC4E2"
+                    null height 4
+                    text "Progreso de tier (nivel + héroes por tier)" size 16 color "#9FC4E2"
+                    for row in _tier_rows:
+                        $ _tt = str(row.get("tier", "?"))
+                        $ _hv = int(row.get("have_heroes", 0) or 0)
+                        $ _nh = int(row.get("need_heroes", 0) or 0)
+                        $ _nl = int(row.get("need_level", 0) or 0)
+                        $ _ok = bool(row.get("ok", False))
+                        text ("• " + _tt + ": Lv " + str(_lvl) + "/" + str(_nl) + " · Héroes " + str(_hv) + "/" + str(_nh)) size 14 color ("#8BD6A7" if _ok else "#9FC4E2")
             frame:
                 xfill True
                 yfill True
