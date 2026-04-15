@@ -105,6 +105,7 @@ default bs_saga_prep_filter_owned_only = False
 default bs_saga_prep_flag_item_id = ""
 default bs_saga_prep_flag_consumable_id = ""
 default bs_saga_prep_intent_duel = False
+default bs_saga_prep_context = "room"  # room | staging
 default bs_saga_hero_tech_builds = {}
 default bs_saga_dev_admin_enabled = True
 default bs_saga_dev_infinite_gold = False
@@ -2364,6 +2365,8 @@ screen bs_saga_preparation_screen():
     $ _dmg_rules = dict(bs_saga_damage_coherence_rules or {})
     $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
     $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_prep_duel_rotation_ids or [])[:5]])
+    $ _ctx = str(bs_saga_prep_context or "room").strip().lower()
+    $ _is_staging = (_ctx == "staging")
 
     add Solid("#0E1A28")
     frame:
@@ -2381,7 +2384,7 @@ screen bs_saga_preparation_screen():
         hbox:
             spacing 16
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
-            text "Preparación pre-combate" size 22 color "#D7EEFF" yalign 0.7
+            text ("Pre-combate (duelo)" if _is_staging else "Sala de preparación") size 22 color "#D7EEFF" yalign 0.7
             null width 90
             textbutton "Volver al lobby" action Jump("bs_saga_lobby")
 
@@ -2449,11 +2452,12 @@ screen bs_saga_preparation_screen():
                     spacing 8
                     text "Configuración de entrada" size 22 color "#EAF6FF"
                     text ("Héroe activo: " + (_hero if _hero else "sin seleccionar")) size 16 color "#CFE6FA"
-                    text "Modo de juego" size 16 color "#D0E9FF"
-                    hbox:
-                        spacing 6
-                        textbutton "1v1" action [Function(bs_saga_set_prep_mode, "1v1"), Jump("bs_saga_preparacion")]
-                        textbutton "2v2" action [Function(bs_saga_set_prep_mode, "2v2"), Jump("bs_saga_preparacion")]
+                    if _is_staging:
+                        text "Modo de juego" size 16 color "#D0E9FF"
+                        hbox:
+                            spacing 6
+                            textbutton "1v1" action [Function(bs_saga_set_prep_mode, "1v1"), Jump("bs_saga_preparacion")]
+                            textbutton "2v2" action [Function(bs_saga_set_prep_mode, "2v2"), Jump("bs_saga_preparacion")]
                     text ("Equipo seleccionado: " + _party_txt) size 14 color "#9FC4E2"
                     text ("Config activa: " + _cfg.upper()) size 14 color "#9FC4E2"
                     text ("Build activa: " + _build) size 14 color "#9FC4E2"
@@ -2496,26 +2500,27 @@ screen bs_saga_preparation_screen():
                                     action [Function(bs_saga_equip_item_to_hero, _hero, _iid, None, _cfg, _build), Jump("bs_saga_preparacion")]
                         else:
                             text "No hay equipables en inventario de cuenta." size 14 color "#9FB9D1"
-                    text "Modo de enemigo" size 16 color "#D0E9FF"
-                    hbox:
-                        spacing 6
-                        textbutton "Aleatorio" action SetVariable("bs_saga_prep_enemy_mode", "random")
-                        textbutton "Manual" action SetVariable("bs_saga_prep_enemy_mode", "manual")
-                    if _enemy_mode == "manual":
-                        text "Enemigo manual" size 16 color "#D0E9FF"
-                        viewport:
-                            draggable True
-                            mousewheel True
-                            scrollbars "vertical"
-                            ymaximum 120
-                            vbox:
-                                spacing 4
-                                for row in _rows:
-                                    $ _eh = str(row.get("hero_id", ""))
-                                    textbutton _eh:
-                                        action [Function(bs_saga_set_prep_enemy, _eh), Jump("bs_saga_preparacion")]
-                        text ("Enemigo activo: " + (_enemy_hero if _enemy_hero else "sin seleccionar")) size 14 color "#9FC4E2"
-                    text "Build rápida" size 16 color "#D0E9FF"
+                    if _is_staging:
+                        text "Modo de enemigo" size 16 color "#D0E9FF"
+                        hbox:
+                            spacing 6
+                            textbutton "Aleatorio" action SetVariable("bs_saga_prep_enemy_mode", "random")
+                            textbutton "Manual" action SetVariable("bs_saga_prep_enemy_mode", "manual")
+                        if _enemy_mode == "manual":
+                            text "Enemigo manual" size 16 color "#D0E9FF"
+                            viewport:
+                                draggable True
+                                mousewheel True
+                                scrollbars "vertical"
+                                ymaximum 120
+                                vbox:
+                                    spacing 4
+                                    for row in _rows:
+                                        $ _eh = str(row.get("hero_id", ""))
+                                        textbutton _eh:
+                                            action [Function(bs_saga_set_prep_enemy, _eh), Jump("bs_saga_preparacion")]
+                            text ("Enemigo activo: " + (_enemy_hero if _enemy_hero else "sin seleccionar")) size 14 color "#9FC4E2"
+                    text ("Build rápida (duelo)" if _is_staging else "Build base (sala)") size 16 color "#D0E9FF"
                     hbox:
                         spacing 6
                         textbutton "Balanceado" action [Function(bs_saga_set_prep_build, "balanceado"), Jump("bs_saga_preparacion")]
@@ -2524,8 +2529,14 @@ screen bs_saga_preparation_screen():
                     null height 12
                     text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
                     text "Chequear técnicas/pool por tier: pendiente de integración detallada." size 15 color "#9FC4E2"
-                    textbutton "Verificar preparación e iniciar duelo":
-                        action Jump("bs_saga_preparation_verify")
+                    if _is_staging:
+                        textbutton "Verificar preparación e iniciar duelo":
+                            action Jump("bs_saga_preparation_verify")
+                        textbutton "Volver a sala de preparación":
+                            action [SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
+                    else:
+                        textbutton "Pasar a pre-combate":
+                            action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
 
 screen bs_saga_preparation_verify_screen():
     tag menu
@@ -2861,6 +2872,7 @@ label bs_saga_lobby:
 
 label bs_saga_duelo_libre:
     $ bs_saga_prep_intent_duel = True
+    $ bs_saga_prep_context = "staging"
     jump bs_saga_preparacion
 
 label bs_saga_preparation_verify:
@@ -2872,6 +2884,7 @@ label bs_saga_launch_prepared_duel:
     if not _ok:
         jump bs_saga_preparacion
     $ bs_saga_prep_intent_duel = False
+    $ bs_saga_prep_context = "room"
     jump battle_start
 
 label bs_saga_torneo_tier_c:
@@ -2901,6 +2914,10 @@ label bs_saga_torre_cielo:
 # ---------- rutas panel gestión ----------
 
 label bs_saga_preparacion:
+    if bool(getattr(store, "bs_saga_prep_intent_duel", False)):
+        $ bs_saga_prep_context = "staging"
+    elif str(getattr(store, "bs_saga_prep_context", "") or "") not in ("room", "staging"):
+        $ bs_saga_prep_context = "room"
     if not (bs_saga_prep_duel_rotation_ids or []):
         $ bs_saga_refresh_duel_rotation_heroes(5)
     if not (bs_saga_prep_selected_party_ids or []):
