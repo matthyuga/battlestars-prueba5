@@ -107,6 +107,7 @@ Mantener un registro único de pendientes, ejecución y evidencia para continuar
 | Fecha | Sesión | Responsable | Foco | Resultado | Estado |
 |---|---|---|---|---|---|
 | 2026-04-15 | Preparación | Equipo | Crear itinerario y consolidar pendientes | Itinerario inicial publicado | ✅ Hecho |
+| 2026-04-15 | Revisión HC | Equipo | Auditoría de hardcodes lobby/combate | Documento de hotspots y priorización P0/P1/P2 publicado | ✅ Hecho |
 | YYYY-MM-DD | S1 |  | Baseline Win7/Win10 |  | ⏳ Pendiente |
 | YYYY-MM-DD | S2 |  | Fase A |  | ⏳ Pendiente |
 | YYYY-MM-DD | S3 |  | Fase B |  | ⏳ Pendiente |
