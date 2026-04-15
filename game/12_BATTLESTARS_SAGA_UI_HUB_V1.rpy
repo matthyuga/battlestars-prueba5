@@ -106,6 +106,7 @@ default bs_saga_prep_flag_item_id = ""
 default bs_saga_prep_flag_consumable_id = ""
 default bs_saga_prep_intent_duel = False
 default bs_saga_prep_context = "room"  # room | staging
+default bs_saga_heroes_scroll_y = 0.0
 default bs_saga_hero_tech_builds = {}
 default bs_saga_dev_admin_enabled = True
 default bs_saga_dev_infinite_gold = False
@@ -383,10 +384,6 @@ init -880 python:
             bs_saga_set_message("Compraste a {} por {} oro. Tier actual: {}.".format(hero_name, price, _tier_now))
         else:
             bs_saga_set_message("Compraste a {} por {} oro. Aún sin tier (sigue coleccionando).".format(hero_name, price))
-        try:
-            renpy.restart_interaction()
-        except:
-            pass
         return True
 
     def bs_saga_item_id(item_row):
@@ -2059,10 +2056,11 @@ screen bs_saga_heroes_screen():
                                     mousewheel True
                                     scrollbars "vertical"
                                     ymaximum 300
+                                    yinitial float(bs_saga_heroes_scroll_y or 0.0)
                                     vbox:
                                         spacing 5
                                         if _heroes:
-                                            for h in _heroes:
+                                            for i, h in enumerate(_heroes):
                                                 $ _hn = str(h.get("name", "?") or "?")
                                                 $ _hf = str(h.get("franchise", "?") or "?")
                                                 $ _hid = bs_saga_hero_id(h)
@@ -2082,7 +2080,11 @@ screen bs_saga_heroes_screen():
                                                             text "Adquirido" size 16 color "#8BD6A7"
                                                         else:
                                                             textbutton "Comprar":
-                                                                action Function(bs_saga_buy_hero, h)
+                                                                action [
+                                                                    SetVariable("bs_saga_heroes_scroll_y", (float(i) / float(max(1, len(_heroes) - 1)))),
+                                                                    Function(bs_saga_buy_hero, h),
+                                                                    Jump("bs_saga_heroes")
+                                                                ]
                                         else:
                                             text "No hay héroes para ese filtro." size 18 color "#9FB9D1"
 
