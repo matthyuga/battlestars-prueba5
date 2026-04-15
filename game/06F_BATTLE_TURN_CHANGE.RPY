@@ -93,6 +93,14 @@ init -966 python:
             except:
                 pass
 
+            # Reinicio de comodín por turno del actor activo.
+            try:
+                fn_reset_extra = getattr(S, "reset_extra_tech_turn", None)
+                if callable(fn_reset_extra):
+                    fn_reset_extra(owner_team)
+            except:
+                pass
+
             # Sincronizar HUD/legacy con unidades activas actuales
             try:
                 fn_sync_hp = getattr(S, "bs_sync_to_legacy", None)
