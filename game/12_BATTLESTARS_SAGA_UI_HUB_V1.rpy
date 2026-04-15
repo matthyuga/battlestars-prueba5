@@ -2369,7 +2369,7 @@ screen bs_saga_profile_screen():
                     else:
                         text "Sin datos de 24h todavía." size 16 color "#9FB9D1"
 
-screen bs_saga_preparation_screen():
+screen bs_saga_preparation_room_screen():
     tag menu
     $ _rows = bs_saga_preparation_rows_filtered()
     $ _hero = str(bs_saga_prep_selected_hero or "")
@@ -2390,8 +2390,7 @@ screen bs_saga_preparation_screen():
     $ _dmg_rules = dict(bs_saga_damage_coherence_rules or {})
     $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
     $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_prep_duel_rotation_ids or [])[:5]])
-    $ _ctx = str(bs_saga_prep_context or "room").strip().lower()
-    $ _is_staging = (_ctx == "staging")
+    $ _is_staging = False
 
     add Solid("#0E1A28")
     frame:
@@ -2409,7 +2408,7 @@ screen bs_saga_preparation_screen():
         hbox:
             spacing 16
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
-            text ("Pre-combate (duelo)" if _is_staging else "Sala de preparación") size 22 color "#D7EEFF" yalign 0.7
+            text "Sala de preparación" size 22 color "#D7EEFF" yalign 0.7
             null width 90
             textbutton "Volver al lobby" action Jump("bs_saga_lobby")
 
@@ -2550,7 +2549,7 @@ screen bs_saga_preparation_screen():
                                             textbutton _eh:
                                                 action [Function(bs_saga_set_prep_enemy, _eh), Jump("bs_saga_preparacion")]
                                 text ("Enemigo activo: " + (_enemy_hero if _enemy_hero else "sin seleccionar")) size 14 color "#9FC4E2"
-                        text ("Build rápida (duelo)" if _is_staging else "Build base (sala)") size 16 color "#D0E9FF"
+                        text "Build base (sala)" size 16 color "#D0E9FF"
                         hbox:
                             spacing 6
                             textbutton "Balanceado" action [Function(bs_saga_set_prep_build, "balanceado"), Jump("bs_saga_preparacion")]
@@ -2559,14 +2558,154 @@ screen bs_saga_preparation_screen():
                         null height 12
                         text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
                         text "Chequear técnicas/pool por tier: pendiente de integración detallada." size 15 color "#9FC4E2"
-                        if _is_staging:
-                            textbutton "Verificar preparación e iniciar duelo":
-                                action Jump("bs_saga_preparation_verify")
-                            textbutton "Volver a sala de preparación":
-                                action [SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
-                        else:
-                            textbutton "Pasar a pre-combate":
-                                action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
+                        textbutton "Pasar a pre-combate":
+                            action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
+
+screen bs_saga_duel_staging_screen():
+    tag menu
+    $ _rows = bs_saga_preparation_rows_filtered()
+    $ _hero = str(bs_saga_prep_selected_hero or "")
+    $ _mode = str(bs_saga_prep_selected_mode or "1v1")
+    $ _enemy_mode = str(bs_saga_prep_enemy_mode or "random")
+    $ _enemy_hero = str(bs_saga_prep_selected_enemy_hero or "")
+    $ _build = str(bs_saga_prep_selected_build or "balanceado")
+    $ _cfg = str(bs_saga_prep_selected_config or "cfg1")
+    $ _party = [str(x) for x in (bs_saga_prep_selected_party_ids or []) if str(x)]
+    $ _party_txt = ", ".join(_party) if _party else "sin equipo"
+    $ _tier = bs_saga_hero_tier(_hero, "C") if _hero else "C"
+    $ _pool = bs_saga_tier_pool_total(_tier) if _hero else 0
+    $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
+    $ _loadout = bs_saga_hero_loadout_slots(_hero, _cfg, _build) if _hero else []
+    $ _loadout_count = len([x for x in _loadout if str(x or "").strip()])
+    $ _enemy_ok = (_enemy_mode == "random") or bool(_enemy_hero)
+    $ _party_ok = (len(_party) >= (2 if _mode == "2v2" else 1))
+
+    add Solid("#0E1A28")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
+        ypadding 10
+        background Solid("#2C4963")
+        hbox:
+            spacing 16
+            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
+            text "Pre-combate (duelo)" size 22 color "#D7EEFF" yalign 0.7
+            null width 90
+            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+
+    frame:
+        xalign 0.5
+        yalign 0.56
+        xsize 1120
+        ysize 500
+        padding (16, 16)
+        background Solid("#13273A")
+        hbox:
+            spacing 14
+            frame:
+                xsize 620
+                yfill True
+                background Solid("#1A3044")
+                padding (10, 10)
+                vbox:
+                    spacing 8
+                    text "Roster para duelo (selección rápida)" size 22 color "#EAF6FF"
+                    text ("Héroe activo: " + (_hero if _hero else "sin seleccionar")) size 15 color "#CFE6FA"
+                    text ("Equipo: " + _party_txt) size 14 color "#9FC4E2"
+                    viewport:
+                        draggable True
+                        mousewheel True
+                        scrollbars "vertical"
+                        ymaximum 390
+                        vbox:
+                            spacing 6
+                            if _rows:
+                                for row in _rows:
+                                    $ _hid = str(row.get("hero_id", ""))
+                                    $ _state = str(row.get("state", "bloqueado"))
+                                    $ _is_av = bool(row.get("available", False))
+                                    frame:
+                                        xfill True
+                                        background Solid("#173048")
+                                        padding (8, 6)
+                                        hbox:
+                                            spacing 8
+                                            text (str(row.get("name", _hid) or _hid) + " (" + str(row.get("tier", "C")) + ")") size 17 color "#D0E9FF" xminimum 320
+                                            text ("Disponible" if _state == "disponible" else ("Para probar" if _state == "para_probar" else "Bloqueado")) size 15 color ("#8BD6A7" if _state == "disponible" else ("#FFD166" if _state == "para_probar" else "#FF9F9F")) xminimum 120
+                                            if _is_av:
+                                                textbutton ("Activo" if _hero == _hid else "Elegir"):
+                                                    action [Function(bs_saga_set_prep_hero, _hid), Jump("bs_saga_preparacion")]
+                                                textbutton ("Quitar" if _hid in _party else "Equipo"):
+                                                    action [Function(bs_saga_toggle_prep_party_hero, _hid), Jump("bs_saga_preparacion")]
+                            else:
+                                text "No hay roster cargado." size 18 color "#9FB9D1"
+
+            frame:
+                xfill True
+                yfill True
+                background Solid("#102438")
+                padding (10, 10)
+                viewport:
+                    draggable True
+                    mousewheel True
+                    scrollbars "vertical"
+                    ymaximum 468
+                    vbox:
+                        spacing 8
+                        text "Checklist pre-duelo" size 22 color "#EAF6FF"
+                        text ("• Héroe activo: " + ("OK" if _hero else "Falta")) size 15 color ("#8BD6A7" if _hero else "#FF9F9F")
+                        text ("• Party " + _mode + ": " + ("OK" if _party_ok else "Incompleta")) size 15 color ("#8BD6A7" if _party_ok else "#FF9F9F")
+                        text ("• Rival: " + ("OK" if _enemy_ok else "Falta rival manual")) size 15 color ("#8BD6A7" if _enemy_ok else "#FF9F9F")
+                        text ("• Técnicas: " + str(_tech_prof.get("mode", "virgen")) + " · Pool " + str(_tech_prof.get("pool_total", 0))) size 14 color "#9FC4E2"
+                        text ("• Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"
+                        null height 6
+
+                        text "Modo de juego" size 16 color "#D0E9FF"
+                        hbox:
+                            spacing 6
+                            textbutton "1v1" action [Function(bs_saga_set_prep_mode, "1v1"), Jump("bs_saga_preparacion")]
+                            textbutton "2v2" action [Function(bs_saga_set_prep_mode, "2v2"), Jump("bs_saga_preparacion")]
+
+                        text "Rival de duelo" size 16 color "#D0E9FF"
+                        hbox:
+                            spacing 6
+                            textbutton "Aleatorio" action SetVariable("bs_saga_prep_enemy_mode", "random")
+                            textbutton "Manual" action SetVariable("bs_saga_prep_enemy_mode", "manual")
+                        if _enemy_mode == "manual":
+                            text ("Enemigo activo: " + (_enemy_hero if _enemy_hero else "sin seleccionar")) size 14 color "#9FC4E2"
+                            viewport:
+                                draggable True
+                                mousewheel True
+                                scrollbars "vertical"
+                                ymaximum 120
+                                vbox:
+                                    spacing 4
+                                    for row in _rows:
+                                        $ _eh = str(row.get("hero_id", ""))
+                                        textbutton _eh:
+                                            action [Function(bs_saga_set_prep_enemy, _eh), Jump("bs_saga_preparacion")]
+
+                        text "Build duelo" size 16 color "#D0E9FF"
+                        hbox:
+                            spacing 6
+                            textbutton "Balanceado" action [Function(bs_saga_set_prep_build, "balanceado"), Jump("bs_saga_preparacion")]
+                            textbutton "Ofensivo" action [Function(bs_saga_set_prep_build, "ofensivo"), Jump("bs_saga_preparacion")]
+                            textbutton "Defensivo" action [Function(bs_saga_set_prep_build, "defensivo"), Jump("bs_saga_preparacion")]
+
+                        text ("Config: " + _cfg.upper() + " · Tier: " + _tier + " · Pool duelo: " + str(_pool)) size 14 color "#9FC4E2"
+                        text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
+
+                        textbutton "Verificar preparación e iniciar duelo":
+                            action Jump("bs_saga_preparation_verify")
+                        textbutton "Volver a sala de preparación":
+                            action [SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
 
 screen bs_saga_preparation_verify_screen():
     tag menu
@@ -2953,7 +3092,10 @@ label bs_saga_preparacion:
     if not (bs_saga_prep_selected_party_ids or []):
         if bs_saga_prep_selected_hero:
             $ bs_saga_prep_selected_party_ids = [str(bs_saga_prep_selected_hero)]
-    call screen bs_saga_preparation_screen
+    if str(getattr(store, "bs_saga_prep_context", "room") or "room").strip().lower() == "staging":
+        call screen bs_saga_duel_staging_screen
+    else:
+        call screen bs_saga_preparation_room_screen
     return
 
 label bs_saga_perfil:
