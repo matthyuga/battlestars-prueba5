@@ -566,12 +566,25 @@ init -880 python:
             out = list(fn_pool(True) or [])
             if out:
                 return [str(x) for x in out if str(x)]
-        return ["Harribel", "Grimmjow", "Nel", "Hollow"]
+        out = []
+        for row in bs_saga_db_rows():
+            if not isinstance(row, dict):
+                continue
+            hid = str(bs_saga_hero_id(row) or "").strip()
+            if hid:
+                out.append(hid)
+        unique = []
+        seen = {}
+        for hid in out:
+            k = hid.lower()
+            if seen.get(k):
+                continue
+            seen[k] = True
+            unique.append(hid)
+        return unique
 
     def bs_saga_duel_combat_pool_rows():
         ready = [str(x) for x in (bs_saga_combat_ready_ids() or [])]
-        if not ready:
-            ready = ["Harribel", "Grimmjow", "Nel", "Hollow"]
         rot = getattr(S, "bs_saga_prep_duel_rotation_ids", None)
         if not isinstance(rot, list) or not rot:
             rot = bs_saga_refresh_duel_rotation_heroes(min(5, len(ready)))
@@ -595,12 +608,13 @@ init -880 python:
 
     def bs_saga_refresh_duel_rotation_heroes(count=4):
         pool = [str(x) for x in (bs_saga_combat_ready_ids() or [])]
-        if not pool:
-            pool = ["Harribel", "Grimmjow", "Nel", "Hollow"]
         unique = []
         for hid in pool:
             if hid not in unique:
                 unique.append(hid)
+        if not unique:
+            S.bs_saga_prep_duel_rotation_ids = []
+            return []
         renpy.random.shuffle(unique)
         c = int(count or 4)
         if c < 1:
@@ -610,7 +624,7 @@ init -880 python:
         S.bs_saga_prep_duel_rotation_ids = unique[:c]
         return list(S.bs_saga_prep_duel_rotation_ids)
 
-    def bs_saga_resolve_combat_id(hero_id, fallback="Harribel"):
+    def bs_saga_resolve_combat_id(hero_id, fallback=""):
         hid = str(hero_id or "").strip()
         ready = [str(x) for x in (bs_saga_combat_ready_ids() or [])]
         if hid in ready:
@@ -618,7 +632,7 @@ init -880 python:
         fb = str(fallback or "").strip()
         if fb in ready:
             return fb
-        return str(ready[0] if ready else "Harribel")
+        return str(ready[0] if ready else "")
 
     def bs_saga_refresh_rotation_heroes(count=5):
         rows = []
@@ -628,12 +642,13 @@ init -880 python:
             hid = bs_saga_hero_id(r)
             if hid:
                 rows.append(str(hid))
-        if not rows:
-            rows = ["Harribel", "Grimmjow", "Nel", "Hollow", "Harribel"]
         unique = []
         for hid in rows:
             if hid not in unique:
                 unique.append(hid)
+        if not unique:
+            S.bs_saga_rotation_hero_ids = []
+            return []
         renpy.random.shuffle(unique)
         c = int(count or 5)
         if c < 1:
@@ -720,10 +735,12 @@ init -880 python:
         else:
             candidates = [x for x in all_ids if x != my_hero]
             if not candidates:
-                candidates = ["Hollow"]
+                bs_saga_set_message("No hay rival disponible en el roster de preparación.")
+                return False
             enemy_id = str(candidates[renpy.random.randint(0, len(candidates) - 1)])
         if not enemy_id:
-            enemy_id = "Hollow"
+            bs_saga_set_message("No se pudo resolver rival de combate.")
+            return False
 
         # Dual-write obligatorio: id activo + listas para evitar fallbacks legacy inconsistentes.
         S.battle_enemy_id = enemy_id
@@ -732,10 +749,11 @@ init -880 python:
         if S.battle_team_mode == "2v2":
             candidates = [x for x in all_ids if x not in (my_hero, enemy_id)]
             if len(candidates) < 2:
-                candidates = ["Grimmjow", "Nel", "Hollow", "Harribel"]
+                bs_saga_set_message("No hay suficientes héroes disponibles para iniciar 2v2.")
+                return False
             renpy.random.shuffle(candidates)
             p2 = candidates[0]
-            e2 = candidates[1] if len(candidates) > 1 else "Hollow"
+            e2 = candidates[1]
             S.battle_player_ids = [my_hero, p2]
             S.battle_enemy_ids = [enemy_id, e2]
             S.battle_player_slot_0 = my_hero

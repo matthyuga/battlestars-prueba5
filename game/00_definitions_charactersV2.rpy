@@ -3,7 +3,7 @@
 # Versión v3.2 Reiatsu/Energy Stable Edition (Safe Templates)
 # -----------------------------------------------------------
 # - Define HP, Reiatsu, Energía, Fuerza, Defensa y fondos
-# - get_character() seguro: copia shallow + defaults + fallback a Hollow
+# - get_character() seguro: copia shallow + defaults + plantilla para IDs dinámicos
 # - Separación ID (sistema) vs NAME (display para jugador)
 # - Background como string tag (usar con scene expression)
 # - Compatible con REIATSU/ENERGY SYSTEM + GLOBALS CORE
@@ -119,10 +119,17 @@ init -995 python:
         """
         Devuelve un dict SEGURO (copia shallow) del personaje.
         - Usa DEFAULT_CHARACTER para completar campos faltantes.
-        - Si el ID no existe, devuelve Hollow por defecto.
+        - Si el ID no existe, genera plantilla segura con ese ID/nombre.
         - No devuelve referencias vivas a CHARACTER_DATA (evita mutar plantillas).
         """
-        base = CHARACTER_DATA.get(char_id, CHARACTER_DATA.get("Hollow", {}))
+        key = str(char_id or "").strip()
+        base = CHARACTER_DATA.get(key, None)
+        if not isinstance(base, dict):
+            fallback = dict(DEFAULT_CHARACTER)
+            fallback["id"] = key or "Unknown"
+            fallback["name"] = key or "Unknown"
+            fallback["race"] = "unknown"
+            base = fallback
 
         # Normaliza con defaults (evita KeyError)
         out = dict(DEFAULT_CHARACTER)
@@ -131,7 +138,7 @@ init -995 python:
         # Asegura que el id esté siempre seteado y coherente
         # (si alguien olvidó ponerlo dentro del dict del personaje)
         if not out.get("id") or out["id"] == "Unknown":
-            out["id"] = char_id if char_id in CHARACTER_DATA else "Hollow"
+            out["id"] = key or "Unknown"
 
         return out  # <- copia shallow (out es nuevo dict)
 
@@ -144,14 +151,63 @@ init -995 python:
 
     def get_combat_character_ids(include_hollow=True):
         """
-        IDs disponibles en el runtime de combate (fuente: CHARACTER_DATA).
+        IDs disponibles en el runtime de combate.
+        Orden de prioridad:
+        1) Catálogo inyectado/activo del Hub Saga.
+        2) CHARACTER_DATA local.
         """
-        ids = [str(k) for k in CHARACTER_DATA.keys() if str(k)]
-        if not include_hollow:
-            ids = [x for x in ids if str(x).lower() != "hollow"]
-        if ids:
-            return ids
-        return ["Harribel", "Grimmjow", "Nel", "Hollow"] if include_hollow else ["Harribel", "Grimmjow", "Nel"]
+        try:
+            import renpy.store as S
+        except:
+            S = None
+
+        ids = []
+        rows = []
+        if S is not None:
+            try:
+                fn = getattr(S, "bs_get_hero_catalog_v1", None)
+                if callable(fn):
+                    rows = list(fn() or [])
+            except:
+                rows = []
+            if not rows:
+                try:
+                    rows = list(getattr(S, "bs_hero_catalog_v1", []) or [])
+                except:
+                    rows = []
+            if not rows:
+                try:
+                    rows = list(getattr(S, "CHARACTER_DB", []) or [])
+                except:
+                    rows = []
+
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            raw = row.get("hero_id", None) or row.get("id", None) or row.get("name", None)
+            hid = str(raw or "").strip()
+            if hid:
+                ids.append(hid)
+
+        if not ids:
+            ids = [str(k) for k in CHARACTER_DATA.keys() if str(k)]
+
+        unique = []
+        seen = {}
+        for hid in ids:
+            k = str(hid).strip().lower()
+            if not k or seen.get(k):
+                continue
+            seen[k] = True
+            unique.append(str(hid).strip())
+
+        if include_hollow:
+            if "hollow" not in [x.lower() for x in unique] and "Hollow" in CHARACTER_DATA:
+                unique.append("Hollow")
+        else:
+            unique = [x for x in unique if x.lower() != "hollow"]
+
+        return unique
 
 
     def get_character_stat(char_id, stat_key, fallback=None):
