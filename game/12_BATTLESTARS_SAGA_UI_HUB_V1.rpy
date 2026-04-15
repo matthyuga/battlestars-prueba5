@@ -64,6 +64,9 @@ default bs_saga_prep_selected_mode = "1v1"
 default bs_saga_prep_enemy_mode = "random"
 default bs_saga_prep_selected_enemy_hero = ""
 default bs_saga_prep_selected_build = "balanceado"
+default bs_saga_prep_selected_config = "cfg1"
+default bs_saga_prep_selected_party_ids = []
+default bs_saga_prep_filter_owned_only = False
 default bs_saga_prep_flag_item_id = ""
 default bs_saga_prep_flag_consumable_id = ""
 default bs_saga_prep_intent_duel = False
@@ -464,6 +467,198 @@ init -880 python:
         rows.sort(key=lambda r: (r.get("bucket", ""), r.get("item_id", "")))
         return rows
 
+    def bs_saga_hero_inventory_slot_count():
+        return 6
+
+    def bs_saga_prep_config_keys():
+        return ["cfg1", "cfg2", "cfg3"]
+
+    def bs_saga_inventory_bootstrap():
+        inv = getattr(S, "bs_saga_inventory_state", None)
+        if not isinstance(inv, dict):
+            inv = {}
+            S.bs_saga_inventory_state = inv
+        chest = inv.get("account_inventory", None)
+        if not isinstance(chest, dict):
+            chest = {}
+            inv["account_inventory"] = chest
+        for k in ("consumables", "equipables", "materials"):
+            if not isinstance(chest.get(k), dict):
+                chest[k] = {}
+        if not isinstance(inv.get("hero_inventories"), dict):
+            inv["hero_inventories"] = {}
+        return inv
+
+    def bs_saga_hero_inventory_get(hero_id):
+        hid = str(hero_id or "").strip()
+        if not hid:
+            return None
+        inv = bs_saga_inventory_bootstrap()
+        hero_inv = inv.get("hero_inventories", {})
+        row = hero_inv.get(hid, None)
+        if not isinstance(row, dict):
+            row = {}
+            hero_inv[hid] = row
+        active_cfg = str(row.get("active_config", "cfg1") or "cfg1")
+        if active_cfg not in bs_saga_prep_config_keys():
+            active_cfg = "cfg1"
+        row["active_config"] = active_cfg
+        cfgs = row.get("configs", None)
+        if not isinstance(cfgs, dict):
+            cfgs = {}
+        slot_count = bs_saga_hero_inventory_slot_count()
+        for ck in bs_saga_prep_config_keys():
+            slots = cfgs.get(ck, None)
+            if not isinstance(slots, list):
+                slots = []
+            clean = []
+            for v in slots[:slot_count]:
+                clean.append(str(v) if v else "")
+            while len(clean) < slot_count:
+                clean.append("")
+            cfgs[ck] = clean
+        row["configs"] = cfgs
+        hero_inv[hid] = row
+        inv["hero_inventories"] = hero_inv
+        return row
+
+    def bs_saga_hero_loadout_slots(hero_id, config_id=None):
+        row = bs_saga_hero_inventory_get(hero_id)
+        if not isinstance(row, dict):
+            return []
+        cfg = str(config_id or row.get("active_config", "cfg1") or "cfg1")
+        if cfg not in bs_saga_prep_config_keys():
+            cfg = "cfg1"
+        slots = row.get("configs", {}).get(cfg, [])
+        return list(slots) if isinstance(slots, list) else []
+
+    def bs_saga_set_prep_config(config_id):
+        cfg = str(config_id or "").strip().lower()
+        if cfg not in bs_saga_prep_config_keys():
+            return False
+        S.bs_saga_prep_selected_config = cfg
+        hid = str(getattr(S, "bs_saga_prep_selected_hero", "") or "").strip()
+        if hid:
+            row = bs_saga_hero_inventory_get(hid)
+            if isinstance(row, dict):
+                row["active_config"] = cfg
+        return True
+
+    def bs_saga_account_bucket_qty(bucket, item_id):
+        inv = bs_saga_inventory_bootstrap()
+        chest = inv.get("account_inventory", {})
+        data = chest.get(str(bucket or ""), {})
+        if not isinstance(data, dict):
+            return 0
+        try:
+            return int(data.get(str(item_id or ""), 0) or 0)
+        except:
+            return 0
+
+    def bs_saga_account_bucket_add(bucket, item_id, delta):
+        inv = bs_saga_inventory_bootstrap()
+        chest = inv.get("account_inventory", {})
+        b = str(bucket or "").strip().lower()
+        if b not in ("consumables", "equipables", "materials"):
+            return 0
+        data = chest.get(b, {})
+        if not isinstance(data, dict):
+            data = {}
+        iid = str(item_id or "").strip()
+        try:
+            d = int(delta or 0)
+        except:
+            d = 0
+        before = int(data.get(iid, 0) or 0)
+        after = before + d
+        if after <= 0:
+            if iid in data:
+                del data[iid]
+            after = 0
+        else:
+            data[iid] = after
+        chest[b] = data
+        inv["account_inventory"] = chest
+        return after
+
+    def bs_saga_equip_item_to_hero(hero_id, item_id, slot_index=None, config_id=None):
+        hid = str(hero_id or "").strip()
+        iid = str(item_id or "").strip()
+        if not hid or not iid:
+            bs_saga_set_message("Equipar inválido: faltan héroe o item.")
+            return False
+        if bs_saga_account_bucket_qty("equipables", iid) <= 0:
+            bs_saga_set_message("No tienes {} disponible en inventario de cuenta.".format(iid))
+            return False
+        row = bs_saga_hero_inventory_get(hid)
+        if not isinstance(row, dict):
+            return False
+        cfg = str(config_id or row.get("active_config", "cfg1") or "cfg1")
+        if cfg not in bs_saga_prep_config_keys():
+            cfg = "cfg1"
+        slots = bs_saga_hero_loadout_slots(hid, cfg)
+        target = -1
+        if slot_index is not None:
+            try:
+                idx = int(slot_index)
+            except:
+                idx = -1
+            if 0 <= idx < len(slots):
+                target = idx
+        if target < 0:
+            for i in range(len(slots)):
+                if not str(slots[i] or "").strip():
+                    target = i
+                    break
+        if target < 0:
+            target = 0
+        prev = str(slots[target] or "").strip()
+        if prev:
+            bs_saga_account_bucket_add("equipables", prev, 1)
+        bs_saga_account_bucket_add("equipables", iid, -1)
+        slots[target] = iid
+        row.get("configs", {})[cfg] = slots
+        row["active_config"] = cfg
+        bs_saga_audit_push("equip_item", {"hero_id": hid, "config": cfg, "slot": target, "item_id": iid, "replaced": prev})
+        bs_saga_set_message("Equipado {} en {} [{} · slot {}].".format(iid, hid, cfg.upper(), target + 1))
+        return True
+
+    def bs_saga_unequip_item_from_hero(hero_id, slot_index, config_id=None):
+        hid = str(hero_id or "").strip()
+        if not hid:
+            return False
+        row = bs_saga_hero_inventory_get(hid)
+        if not isinstance(row, dict):
+            return False
+        cfg = str(config_id or row.get("active_config", "cfg1") or "cfg1")
+        if cfg not in bs_saga_prep_config_keys():
+            cfg = "cfg1"
+        slots = bs_saga_hero_loadout_slots(hid, cfg)
+        try:
+            idx = int(slot_index)
+        except:
+            idx = -1
+        if idx < 0 or idx >= len(slots):
+            return False
+        old = str(slots[idx] or "").strip()
+        if not old:
+            bs_saga_set_message("Slot vacío: no hay item para desequipar.")
+            return False
+        slots[idx] = ""
+        bs_saga_account_bucket_add("equipables", old, 1)
+        row.get("configs", {})[cfg] = slots
+        row["active_config"] = cfg
+        bs_saga_audit_push("unequip_item", {"hero_id": hid, "config": cfg, "slot": idx, "item_id": old})
+        bs_saga_set_message("Desequipado {} de {} [{} · slot {}].".format(old, hid, cfg.upper(), idx + 1))
+        return True
+
+    def bs_saga_preparation_rows_filtered():
+        rows = list(bs_saga_duel_combat_pool_rows() or [])
+        only_owned = bool(getattr(S, "bs_saga_prep_filter_owned_only", False))
+        if only_owned:
+            rows = [r for r in rows if bool(r.get("owned", False))]
+        return rows
+
     def bs_saga_exp_progress():
         acc = bs_saga_account()
         try:
@@ -672,10 +867,74 @@ init -880 python:
                 bs_saga_set_message("Héroe no disponible (sin compra ni rotación).")
                 return False
             S.bs_saga_prep_selected_hero = hid
+            inv = bs_saga_hero_inventory_get(hid)
+            if isinstance(inv, dict):
+                cfg = str(inv.get("active_config", "cfg1") or "cfg1")
+                if cfg in bs_saga_prep_config_keys():
+                    S.bs_saga_prep_selected_config = cfg
             bs_saga_set_message("Preparación: héroe activo = {}.".format(str(row.get("name", hid))))
             return True
         bs_saga_set_message("Héroe no encontrado para preparación.")
         return False
+
+    def bs_saga_toggle_prep_party_hero(hero_id):
+        hid = bs_saga_resolve_combat_id(hero_id, fallback="")
+        if not hid:
+            return False
+        rows = bs_saga_duel_combat_pool_rows()
+        allowed = False
+        for row in rows:
+            if str(row.get("hero_id", "")) == hid and bool(row.get("available", False)):
+                allowed = True
+                break
+        if not allowed:
+            bs_saga_set_message("No puedes agregar héroes bloqueados al equipo.")
+            return False
+        party = getattr(S, "bs_saga_prep_selected_party_ids", None)
+        if not isinstance(party, list):
+            party = []
+        clean = []
+        for v in party:
+            vv = str(v or "").strip()
+            if vv and vv not in clean:
+                clean.append(vv)
+        party = clean
+        if hid in party:
+            party = [x for x in party if x != hid]
+            if str(getattr(S, "bs_saga_prep_selected_hero", "") or "") == hid:
+                S.bs_saga_prep_selected_hero = str(party[0] if party else "")
+            bs_saga_set_message("Equipo: removido {}.".format(hid))
+        else:
+            mode = str(getattr(S, "bs_saga_prep_selected_mode", "1v1") or "1v1")
+            max_party = 2 if mode == "2v2" else 1
+            if len(party) >= max_party:
+                bs_saga_set_message("Equipo lleno para modo {} (máx {}).".format(mode, max_party))
+                return False
+            party.append(hid)
+            if not str(getattr(S, "bs_saga_prep_selected_hero", "") or ""):
+                S.bs_saga_prep_selected_hero = hid
+            bs_saga_set_message("Equipo: agregado {}.".format(hid))
+        S.bs_saga_prep_selected_party_ids = party
+        return True
+
+    def bs_saga_set_prep_mode(mode):
+        m = str(mode or "").strip().lower()
+        if m not in ("1v1", "2v2"):
+            return False
+        S.bs_saga_prep_selected_mode = m
+        max_party = 2 if m == "2v2" else 1
+        party = getattr(S, "bs_saga_prep_selected_party_ids", None)
+        if not isinstance(party, list):
+            party = []
+        clean = []
+        for hid in party:
+            vv = bs_saga_resolve_combat_id(hid, fallback="")
+            if vv and vv not in clean:
+                clean.append(vv)
+        S.bs_saga_prep_selected_party_ids = clean[:max_party]
+        if S.bs_saga_prep_selected_party_ids:
+            S.bs_saga_prep_selected_hero = str(S.bs_saga_prep_selected_party_ids[0])
+        return True
 
     def bs_saga_set_prep_enemy(hero_id):
         hid = bs_saga_resolve_combat_id(hero_id, fallback="")
@@ -716,7 +975,21 @@ init -880 python:
 
     def bs_saga_apply_preparation_for_duel():
         mode = str(getattr(S, "bs_saga_prep_selected_mode", "1v1") or "1v1")
-        my_hero = bs_saga_resolve_combat_id(getattr(S, "bs_saga_prep_selected_hero", ""), fallback="")
+        party = getattr(S, "bs_saga_prep_selected_party_ids", None)
+        if not isinstance(party, list):
+            party = []
+        party = [bs_saga_resolve_combat_id(x, fallback="") for x in party]
+        party = [x for x in party if x]
+        clean_party = []
+        for hid in party:
+            if hid not in clean_party:
+                clean_party.append(hid)
+        party = clean_party
+        if not party:
+            fallback_hero = bs_saga_resolve_combat_id(getattr(S, "bs_saga_prep_selected_hero", ""), fallback="")
+            if fallback_hero:
+                party = [fallback_hero]
+        my_hero = str(party[0] if party else "")
         if not my_hero:
             bs_saga_set_message("Selecciona tu héroe antes de iniciar duelo.")
             return False
@@ -747,13 +1020,21 @@ init -880 python:
         S.battle_player_ids = [my_hero]
         S.battle_enemy_ids = [enemy_id]
         if S.battle_team_mode == "2v2":
-            candidates = [x for x in all_ids if x not in (my_hero, enemy_id)]
-            if len(candidates) < 2:
-                bs_saga_set_message("No hay suficientes héroes disponibles para iniciar 2v2.")
+            if len(party) >= 2:
+                p2 = party[1]
+            else:
+                candidates = [x for x in all_ids if x not in (my_hero, enemy_id)]
+                if len(candidates) < 1:
+                    bs_saga_set_message("No hay suficientes héroes disponibles para iniciar 2v2.")
+                    return False
+                renpy.random.shuffle(candidates)
+                p2 = candidates[0]
+            candidates = [x for x in all_ids if x not in (my_hero, p2, enemy_id)]
+            if len(candidates) < 1:
+                bs_saga_set_message("No hay suficientes héroes rivales para iniciar 2v2.")
                 return False
             renpy.random.shuffle(candidates)
-            p2 = candidates[0]
-            e2 = candidates[1]
+            e2 = candidates[0]
             S.battle_player_ids = [my_hero, p2]
             S.battle_enemy_ids = [enemy_id, e2]
             S.battle_player_slot_0 = my_hero
@@ -1705,12 +1986,18 @@ screen bs_saga_profile_screen():
 
 screen bs_saga_preparation_screen():
     tag menu
-    $ _rows = bs_saga_duel_combat_pool_rows()
+    $ _rows = bs_saga_preparation_rows_filtered()
     $ _hero = str(bs_saga_prep_selected_hero or "")
     $ _mode = str(bs_saga_prep_selected_mode or "1v1")
     $ _enemy_mode = str(bs_saga_prep_enemy_mode or "random")
     $ _enemy_hero = str(bs_saga_prep_selected_enemy_hero or "")
     $ _build = str(bs_saga_prep_selected_build or "balanceado")
+    $ _cfg = str(bs_saga_prep_selected_config or "cfg1")
+    $ _party = [str(x) for x in (bs_saga_prep_selected_party_ids or []) if str(x)]
+    $ _party_txt = ", ".join(_party) if _party else "sin equipo"
+    $ _owned_only = bool(bs_saga_prep_filter_owned_only)
+    $ _equipables = bs_saga_prep_inventory_candidates("equipables")
+    $ _slots = bs_saga_hero_loadout_slots(_hero, _cfg) if _hero else []
     $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_prep_duel_rotation_ids or [])[:5]])
 
     add Solid("#0E1A28")
@@ -1750,7 +2037,10 @@ screen bs_saga_preparation_screen():
                 vbox:
                     spacing 8
                     text "Roster disponible (rotación o adquirido)" size 22 color "#EAF6FF"
+                    text ("Héroes listados: " + str(len(_rows))) size 14 color "#9FC4E2"
                     text ("Rotación actual (5): " + (_rotation_preview if _rotation_preview else "sin generar")) size 14 color "#9FC4E2"
+                    textbutton ("Filtro adquiridos: " + ("ON" if _owned_only else "OFF")):
+                        action [ToggleVariable("bs_saga_prep_filter_owned_only"), Jump("bs_saga_preparacion")]
                     textbutton "Aleatorizar rotación":
                         action [Function(bs_saga_refresh_duel_rotation_heroes, 5), Jump("bs_saga_preparacion")]
                     viewport:
@@ -1780,6 +2070,9 @@ screen bs_saga_preparation_screen():
                                             elif _is_av:
                                                 textbutton "Elegir":
                                                     action [Function(bs_saga_set_prep_hero, _hid), Jump("bs_saga_preparacion")]
+                                            if _is_av:
+                                                textbutton ("Quitar" if _hid in _party else "Equipo"):
+                                                    action [Function(bs_saga_toggle_prep_party_hero, _hid), Jump("bs_saga_preparacion")]
                             else:
                                 text "No hay roster cargado." size 18 color "#9FB9D1"
             frame:
@@ -1794,8 +2087,36 @@ screen bs_saga_preparation_screen():
                     text "Modo de juego" size 16 color "#D0E9FF"
                     hbox:
                         spacing 6
-                        textbutton "1v1" action SetVariable("bs_saga_prep_selected_mode", "1v1")
-                        textbutton "2v2" action SetVariable("bs_saga_prep_selected_mode", "2v2")
+                        textbutton "1v1" action [Function(bs_saga_set_prep_mode, "1v1"), Jump("bs_saga_preparacion")]
+                        textbutton "2v2" action [Function(bs_saga_set_prep_mode, "2v2"), Jump("bs_saga_preparacion")]
+                    text ("Equipo seleccionado: " + _party_txt) size 14 color "#9FC4E2"
+                    text ("Config activa: " + _cfg.upper()) size 14 color "#9FC4E2"
+                    hbox:
+                        spacing 6
+                        textbutton "CFG1" action [Function(bs_saga_set_prep_config, "cfg1"), Jump("bs_saga_preparacion")]
+                        textbutton "CFG2" action [Function(bs_saga_set_prep_config, "cfg2"), Jump("bs_saga_preparacion")]
+                        textbutton "CFG3" action [Function(bs_saga_set_prep_config, "cfg3"), Jump("bs_saga_preparacion")]
+                    text "Loadout del héroe (6 slots equipables)" size 15 color "#D0E9FF"
+                    if _hero:
+                        for i in range(6):
+                            $ _slot_item = str(_slots[i] if i < len(_slots) else "")
+                            hbox:
+                                spacing 6
+                                text ("Slot " + str(i + 1) + ": " + (_slot_item if _slot_item else "vacío")) size 14 color "#CFE6FA" xminimum 270
+                                if _slot_item:
+                                    textbutton "Desequipar":
+                                        action [Function(bs_saga_unequip_item_from_hero, _hero, i, _cfg), Jump("bs_saga_preparacion")]
+                    else:
+                        text "Selecciona héroe para administrar equipables." size 14 color "#9FB9D1"
+                    if _hero:
+                        text "Equipar desde inventario de cuenta" size 15 color "#D0E9FF"
+                        if _equipables:
+                            for row in _equipables[:8]:
+                                $ _iid = str(row.get("item_id", ""))
+                                textbutton (_iid + " x" + str(row.get("qty", 0))):
+                                    action [Function(bs_saga_equip_item_to_hero, _hero, _iid, None, _cfg), Jump("bs_saga_preparacion")]
+                        else:
+                            text "No hay equipables en inventario de cuenta." size 14 color "#9FB9D1"
                     text "Modo de enemigo" size 16 color "#D0E9FF"
                     hbox:
                         spacing 6
@@ -2199,6 +2520,9 @@ label bs_saga_torre_cielo:
 label bs_saga_preparacion:
     if not (bs_saga_prep_duel_rotation_ids or []):
         $ bs_saga_refresh_duel_rotation_heroes(5)
+    if not (bs_saga_prep_selected_party_ids or []):
+        if bs_saga_prep_selected_hero:
+            $ bs_saga_prep_selected_party_ids = [str(bs_saga_prep_selected_hero)]
     call screen bs_saga_preparation_screen
     return
 
