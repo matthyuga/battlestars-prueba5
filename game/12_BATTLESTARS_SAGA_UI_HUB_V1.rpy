@@ -1323,6 +1323,99 @@ init -880 python:
             return True
         return False
 
+    def bs_saga_precombat_contract_validate():
+        """
+        Contrato de validación final pre-duelo.
+        Devuelve checks + estado bloqueante para staging/verify/launch.
+        """
+        mode = str(getattr(S, "bs_saga_prep_selected_mode", "1v1") or "1v1").strip().lower()
+        if mode not in ("1v1", "2v2"):
+            mode = "1v1"
+
+        hero = str(getattr(S, "bs_saga_prep_selected_hero", "") or "").strip()
+        enemy_mode = str(getattr(S, "bs_saga_prep_enemy_mode", "random") or "random").strip().lower()
+        enemy_manual = str(getattr(S, "bs_saga_prep_selected_enemy_hero", "") or "").strip()
+        cfg = str(getattr(S, "bs_saga_prep_selected_config", "cfg1") or "cfg1")
+        bld = str(getattr(S, "bs_saga_prep_selected_build", "balanceado") or "balanceado")
+
+        party = getattr(S, "bs_saga_prep_selected_party_ids", None)
+        if not isinstance(party, list):
+            party = []
+        party = [str(x or "").strip() for x in party if str(x or "").strip()]
+        # dedupe preserve order
+        party_u = []
+        for p in party:
+            if p not in party_u:
+                party_u.append(p)
+        party = party_u
+
+        required_party = 2 if mode == "2v2" else 1
+        checks = []
+
+        checks.append({
+            "id": "hero_selected",
+            "ok": bool(hero),
+            "severity": "block",
+            "label": "Héroe activo seleccionado",
+            "detail": hero or "Falta seleccionar héroe."
+        })
+
+        checks.append({
+            "id": "party_size",
+            "ok": len(party) >= required_party,
+            "severity": "block",
+            "label": "Equipo completo para modo {}".format(mode),
+            "detail": "Actual: {} / Requerido: {}".format(len(party), required_party)
+        })
+
+        checks.append({
+            "id": "enemy_manual",
+            "ok": (enemy_mode != "manual") or bool(enemy_manual),
+            "severity": "block",
+            "label": "Rival válido",
+            "detail": "manual={}".format(enemy_manual or "sin seleccionar")
+        })
+
+        # warning: loadout mínimo recomendado (no bloquea)
+        loadout = bs_saga_hero_loadout_slots(hero, cfg, bld) if hero else []
+        equipped = len([x for x in (loadout or []) if str(x or "").strip()])
+        checks.append({
+            "id": "loadout_min",
+            "ok": equipped >= 1,
+            "severity": "warn",
+            "label": "Loadout recomendado (>=1 slot equipado)",
+            "detail": "Equipados: {}/6".format(int(equipped))
+        })
+
+        # warning: coherencia pool técnico si está en preconfig
+        tp = bs_saga_hero_tech_profile_get(hero, cfg, bld) if hero else {}
+        mode_tp = str((tp or {}).get("mode", "virgen") or "virgen").strip().lower()
+        pool_total = int((tp or {}).get("pool_total", 0) or 0)
+        spent_off = int((tp or {}).get("pool_spent_off", 0) or 0)
+        spent_def = int((tp or {}).get("pool_spent_def", 0) or 0)
+        spent_total = int(spent_off + spent_def)
+        ok_pool = True if mode_tp != "preconfig" else (spent_total <= pool_total)
+        checks.append({
+            "id": "pool_consistency",
+            "ok": ok_pool,
+            "severity": "block" if mode_tp == "preconfig" else "warn",
+            "label": "Pool técnico consistente",
+            "detail": "Modo={} · Gastado {} / Total {}".format(mode_tp, spent_total, pool_total)
+        })
+
+        blocking = [c for c in checks if (str(c.get("severity", "warn")) == "block" and (not bool(c.get("ok", False))))]
+        warnings = [c for c in checks if (str(c.get("severity", "warn")) == "warn" and (not bool(c.get("ok", False))))]
+        return {
+            "ok": len(blocking) == 0,
+            "blocking": blocking,
+            "warnings": warnings,
+            "checks": checks,
+            "mode": mode,
+            "hero": hero,
+            "party_count": len(party),
+            "required_party": required_party
+        }
+
     def bs_saga_apply_preparation_for_duel():
         mode = str(getattr(S, "bs_saga_prep_selected_mode", "1v1") or "1v1")
         party = getattr(S, "bs_saga_prep_selected_party_ids", None)
@@ -2577,8 +2670,10 @@ screen bs_saga_duel_staging_screen():
     $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
     $ _loadout = bs_saga_hero_loadout_slots(_hero, _cfg, _build) if _hero else []
     $ _loadout_count = len([x for x in _loadout if str(x or "").strip()])
-    $ _enemy_ok = (_enemy_mode == "random") or bool(_enemy_hero)
-    $ _party_ok = (len(_party) >= (2 if _mode == "2v2" else 1))
+    $ _contract = bs_saga_precombat_contract_validate()
+    $ _checks = list((_contract or {}).get("checks", []) or [])
+    $ _block_n = len((_contract or {}).get("blocking", []) or [])
+    $ _warn_n = len((_contract or {}).get("warnings", []) or [])
 
     add Solid("#0E1A28")
     frame:
@@ -2660,9 +2755,13 @@ screen bs_saga_duel_staging_screen():
                     vbox:
                         spacing 8
                         text "Checklist pre-duelo" size 22 color "#EAF6FF"
-                        text ("• Héroe activo: " + ("OK" if _hero else "Falta")) size 15 color ("#8BD6A7" if _hero else "#FF9F9F")
-                        text ("• Party " + _mode + ": " + ("OK" if _party_ok else "Incompleta")) size 15 color ("#8BD6A7" if _party_ok else "#FF9F9F")
-                        text ("• Rival: " + ("OK" if _enemy_ok else "Falta rival manual")) size 15 color ("#8BD6A7" if _enemy_ok else "#FF9F9F")
+                        text ("Bloqueantes: " + str(int(_block_n)) + " · Warnings: " + str(int(_warn_n))) size 14 color ("#FF9F9F" if _block_n > 0 else ("#FFD166" if _warn_n > 0 else "#8BD6A7"))
+                        for c in _checks:
+                            $ _ok = bool(c.get("ok", False))
+                            $ _sev = str(c.get("severity", "warn"))
+                            $ _icon = "✅" if _ok else ("⛔" if _sev == "block" else "⚠")
+                            $ _col = "#8BD6A7" if _ok else ("#FF9F9F" if _sev == "block" else "#FFD166")
+                            text (_icon + " " + str(c.get("label", "")) + " · " + str(c.get("detail", ""))) size 14 color _col
                         text ("• Técnicas: " + str(_tech_prof.get("mode", "virgen")) + " · Pool " + str(_tech_prof.get("pool_total", 0))) size 14 color "#9FC4E2"
                         text ("• Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"
                         null height 6
@@ -3049,6 +3148,15 @@ label bs_saga_preparation_verify:
     return
 
 label bs_saga_launch_prepared_duel:
+    $ _contract = bs_saga_precombat_contract_validate()
+    if not bool((_contract or {}).get("ok", False)):
+        $ _block = list((_contract or {}).get("blocking", []) or [])
+        if _block:
+            $ _first = _block[0]
+            $ bs_saga_set_message("No puedes iniciar duelo: " + str(_first.get("label", "check bloqueante")) + ".")
+        else:
+            $ bs_saga_set_message("No puedes iniciar duelo: validación pre-combate incompleta.")
+        jump bs_saga_preparacion
     $ _ok = bs_saga_apply_preparation_for_duel()
     if not _ok:
         jump bs_saga_preparacion
