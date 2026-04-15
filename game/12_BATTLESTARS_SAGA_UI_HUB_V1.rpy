@@ -55,13 +55,28 @@ default bs_saga_tier_duel_pool = {
     "IV": 1000000
 }
 default bs_saga_tier_core_stats = {
-    "C": {"hp": 1000, "ep": 1000, "ec": 1000, "durability": 0, "cover": 0},
-    "B": {"hp": 5000, "ep": 5000, "ec": 5000, "durability": 0, "cover": 0},
-    "A": {"hp": 10000, "ep": 10000, "ec": 10000, "durability": 1000, "cover": 1000},
-    "S": {"hp": 50000, "ep": 50000, "ec": 50000, "durability": 5000, "cover": 5000},
-    "SS": {"hp": 100000, "ep": 100000, "ec": 100000, "durability": 10000, "cover": 10000},
-    "SSS": {"hp": 500000, "ep": 500000, "ec": 500000, "durability": 50000, "cover": 50000},
-    "IV": {"hp": 1000000, "ep": 1000000, "ec": 1000000, "durability": 100000, "cover": 100000}
+    "C": {"hp": 5000, "ep": 1000, "ec": 1000, "durability": 0, "cover": 0},
+    "B": {"hp": 25000, "ep": 5000, "ec": 5000, "durability": 0, "cover": 0},
+    "A": {"hp": 60000, "ep": 10000, "ec": 10000, "durability": 5000, "cover": 5000},
+    "S": {"hp": 350000, "ep": 50000, "ec": 50000, "durability": 30000, "cover": 30000},
+    "SS": {"hp": 700000, "ep": 100000, "ec": 100000, "durability": 60000, "cover": 60000},
+    "SSS": {"hp": 3500000, "ep": 500000, "ec": 500000, "durability": 300000, "cover": 300000},
+    "IV": {"hp": 7000000, "ep": 1000000, "ec": 1000000, "durability": 600000, "cover": 600000}
+}
+default bs_saga_tier_combat_tuning = {
+    "C": {"hp_factor": 5.0, "rest_hp_pct": 0.06},
+    "B": {"hp_factor": 5.0, "rest_hp_pct": 0.05},
+    "A": {"hp_factor": 6.0, "rest_hp_pct": 0.04},
+    "S": {"hp_factor": 7.0, "rest_hp_pct": 0.03},
+    "SS": {"hp_factor": 7.0, "rest_hp_pct": 0.03},
+    "SSS": {"hp_factor": 7.0, "rest_hp_pct": 0.03},
+    "IV": {"hp_factor": 7.0, "rest_hp_pct": 0.03}
+}
+default bs_saga_damage_coherence_rules = {
+    "normal_hit_min_pct": 0.08,
+    "normal_hit_max_pct": 0.12,
+    "combo_hit_min_pct": 0.18,
+    "combo_hit_max_pct": 0.25
 }
 default bs_saga_heroes_owned = {}
 default bs_saga_inventory_state = {
@@ -787,6 +802,26 @@ init -880 python:
             out["cover"] = 0
         return out
 
+    def bs_saga_tier_combat_tuning_profile(tier):
+        t = str(tier or "C").strip().upper()
+        rows = getattr(S, "bs_saga_tier_combat_tuning", {}) or {}
+        base = rows.get(t, rows.get("C", {}))
+        if not isinstance(base, dict):
+            base = {}
+        try:
+            hp_factor = float(base.get("hp_factor", 5.0) or 5.0)
+        except:
+            hp_factor = 5.0
+        try:
+            rest_hp_pct = float(base.get("rest_hp_pct", 0.05) or 0.05)
+        except:
+            rest_hp_pct = 0.05
+        if hp_factor < 1.0:
+            hp_factor = 1.0
+        if rest_hp_pct < 0.0:
+            rest_hp_pct = 0.0
+        return {"hp_factor": hp_factor, "rest_hp_pct": rest_hp_pct}
+
     def bs_saga_hero_tech_profile_get(hero_id, config_id=None, build_id=None):
         hid = str(hero_id or "").strip()
         if not hid:
@@ -841,6 +876,43 @@ init -880 python:
         root[hid] = h
         S.bs_saga_hero_tech_builds = root
         return item
+
+    def bs_saga_resolve_hero_tech_profile(hero_id, config_id=None, build_id=None):
+        """
+        Resuelve perfil final para combate:
+        - mode=virgen => tech_points vacíos.
+        - mode=preconfig => intenta preset externo y cae a tech_points guardados.
+        """
+        item = bs_saga_hero_tech_profile_get(hero_id, config_id, build_id)
+        if not isinstance(item, dict):
+            return {}
+        out = dict(item)
+        mode = str(out.get("mode", "virgen") or "virgen").strip().lower()
+        if mode == "virgen":
+            out["tech_points"] = {}
+            out["pool_spent_off"] = 0
+            out["pool_spent_def"] = 0
+            return out
+        preset = None
+        try:
+            fn = getattr(S, "bs_get_hero_tech_preset_v1", None)
+            if callable(fn):
+                preset = fn(str(hero_id or ""), str(out.get("tier", "C") or "C"))
+        except:
+            preset = None
+        if isinstance(preset, dict):
+            tech_points = preset.get("tech_points", {})
+            if isinstance(tech_points, dict):
+                out["tech_points"] = dict(tech_points)
+            try:
+                out["pool_spent_off"] = int(preset.get("pool_spent_off", out.get("pool_spent_off", 0)) or 0)
+            except:
+                pass
+            try:
+                out["pool_spent_def"] = int(preset.get("pool_spent_def", out.get("pool_spent_def", 0)) or 0)
+            except:
+                pass
+        return out
 
     def bs_saga_hero_tech_mode_set(hero_id, mode, config_id=None, build_id=None):
         item = bs_saga_hero_tech_profile_get(hero_id, config_id, build_id)
@@ -1274,14 +1346,17 @@ init -880 python:
         S.battle_prepared_build_id = prep_build
         S.battle_prepared_player_loadouts = {}
         S.battle_prepared_player_tech_profiles = {}
+        S.battle_prepared_combat_tuning = {}
+        S.battle_prepared_damage_rules = dict(getattr(S, "bs_saga_damage_coherence_rules", {}) or {})
         S.bs_runtime_character_overrides = {}
         for pid in (S.battle_player_ids or []):
             S.battle_prepared_player_loadouts[str(pid)] = bs_saga_hero_loadout_slots(pid, prep_cfg, prep_build)
-            S.battle_prepared_player_tech_profiles[str(pid)] = dict(bs_saga_hero_tech_profile_get(pid, prep_cfg, prep_build) or {})
+            S.battle_prepared_player_tech_profiles[str(pid)] = dict(bs_saga_resolve_hero_tech_profile(pid, prep_cfg, prep_build) or {})
         # También dejamos override de stats por tier para participantes del combate (player/enemy).
         for pid in (S.battle_player_ids or []) + (S.battle_enemy_ids or []):
             tier = bs_saga_hero_tier(pid, "C")
             prof = bs_saga_tier_core_profile(tier)
+            tune = bs_saga_tier_combat_tuning_profile(tier)
             S.bs_runtime_character_overrides[str(pid)] = {
                 "HP": int(prof.get("hp", 1000) or 1000),
                 "Reiatsu": int(prof.get("ep", 1000) or 1000),
@@ -1289,6 +1364,7 @@ init -880 python:
                 "coating_durability": int(prof.get("durability", 0) or 0),
                 "coating_cover": int(prof.get("cover", 0) or 0)
             }
+            S.battle_prepared_combat_tuning[str(pid)] = dict(tune)
 
         S.battle_prepared_item_id = str(getattr(S, "bs_saga_prep_flag_item_id", "") or "")
         S.battle_prepared_consumable_id = str(getattr(S, "bs_saga_prep_flag_consumable_id", "") or "")
@@ -2241,6 +2317,8 @@ screen bs_saga_preparation_screen():
     $ _hero_tier = bs_saga_hero_tier(_hero, "C") if _hero else ""
     $ _tier_pool = bs_saga_tier_pool_total(_hero_tier) if _hero else 0
     $ _tier_stats = bs_saga_tier_core_profile(_hero_tier) if _hero else {"hp":0,"ep":0,"ec":0,"durability":0,"cover":0}
+    $ _tier_tuning = bs_saga_tier_combat_tuning_profile(_hero_tier) if _hero else {"hp_factor":0.0,"rest_hp_pct":0.0}
+    $ _dmg_rules = dict(bs_saga_damage_coherence_rules or {})
     $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
     $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_prep_duel_rotation_ids or [])[:5]])
 
@@ -2340,6 +2418,9 @@ screen bs_saga_preparation_screen():
                         text ("Tier héroe: " + _hero_tier + " · Pool duelo: " + str(_tier_pool)) size 14 color "#9FC4E2"
                         text ("HP " + str(_tier_stats.get("hp", 0)) + " · EP " + str(_tier_stats.get("ep", 0)) + " · EC " + str(_tier_stats.get("ec", 0))) size 14 color "#9FC4E2"
                         text ("Durabilidad " + str(_tier_stats.get("durability", 0)) + " · Cubre " + str(_tier_stats.get("cover", 0))) size 14 color "#9FC4E2"
+                        text ("Factor HP/Pool x" + str(_tier_tuning.get("hp_factor", 0.0)) + " · Descansar HP " + str(int(float(_tier_tuning.get("rest_hp_pct", 0.0)) * 100)) + "%") size 14 color "#9FC4E2"
+                        text ("Daño normal objetivo " + str(int(float(_dmg_rules.get("normal_hit_min_pct", 0.0)) * 100)) + "-" + str(int(float(_dmg_rules.get("normal_hit_max_pct", 0.0)) * 100)) + "% HP") size 14 color "#9FC4E2"
+                        text ("Daño combo objetivo " + str(int(float(_dmg_rules.get("combo_hit_min_pct", 0.0)) * 100)) + "-" + str(int(float(_dmg_rules.get("combo_hit_max_pct", 0.0)) * 100)) + "% HP") size 14 color "#9FC4E2"
                         text ("Técnicas: " + str(_tech_prof.get("mode", "virgen")) + " · Pool técnico " + str(_tech_prof.get("pool_total", 0))) size 14 color "#9FC4E2"
                         hbox:
                             spacing 6
