@@ -55,18 +55,18 @@ default bs_saga_tier_duel_pool = {
     "IV": 1000000
 }
 default bs_saga_tier_core_stats = {
-    "C": {"hp": 5000, "ep": 1000, "ec": 1000, "durability": 0, "cover": 0},
-    "B": {"hp": 25000, "ep": 5000, "ec": 5000, "durability": 0, "cover": 0},
-    "A": {"hp": 60000, "ep": 10000, "ec": 10000, "durability": 5000, "cover": 5000},
-    "S": {"hp": 350000, "ep": 50000, "ec": 50000, "durability": 30000, "cover": 30000},
-    "SS": {"hp": 700000, "ep": 100000, "ec": 100000, "durability": 60000, "cover": 60000},
-    "SSS": {"hp": 3500000, "ep": 500000, "ec": 500000, "durability": 300000, "cover": 300000},
-    "IV": {"hp": 7000000, "ep": 1000000, "ec": 1000000, "durability": 600000, "cover": 600000}
+    "C": {"hp": 5000, "ep": 15000, "ec": 1000, "durability": 0, "cover": 0},
+    "B": {"hp": 25000, "ep": 75000, "ec": 5000, "durability": 0, "cover": 0},
+    "A": {"hp": 60000, "ep": 180000, "ec": 10000, "durability": 5000, "cover": 5000},
+    "S": {"hp": 350000, "ep": 1000000, "ec": 50000, "durability": 30000, "cover": 30000},
+    "SS": {"hp": 700000, "ep": 2000000, "ec": 100000, "durability": 60000, "cover": 60000},
+    "SSS": {"hp": 3500000, "ep": 10000000, "ec": 500000, "durability": 300000, "cover": 300000},
+    "IV": {"hp": 7000000, "ep": 20000000, "ec": 1000000, "durability": 600000, "cover": 600000}
 }
 default bs_saga_tier_combat_tuning = {
-    "C": {"hp_factor": 5.0, "rest_hp_pct": 0.06},
-    "B": {"hp_factor": 5.0, "rest_hp_pct": 0.05},
-    "A": {"hp_factor": 6.0, "rest_hp_pct": 0.04},
+    "C": {"hp_factor": 5.0, "rest_hp_pct": 0.03, "rest_ep_pct": 0.20, "rest_ec_pct": 0.20, "rest_ec_scales": 2},
+    "B": {"hp_factor": 5.0, "rest_hp_pct": 0.03, "rest_ep_pct": 0.20, "rest_ec_pct": 0.20, "rest_ec_scales": 2},
+    "A": {"hp_factor": 6.0, "rest_hp_pct": 0.03, "rest_ep_pct": 0.20, "rest_ec_pct": 0.20, "rest_ec_scales": 2},
     "S": {"hp_factor": 7.0, "rest_hp_pct": 0.03},
     "SS": {"hp_factor": 7.0, "rest_hp_pct": 0.03},
     "SSS": {"hp_factor": 7.0, "rest_hp_pct": 0.03},
@@ -816,11 +816,35 @@ init -880 python:
             rest_hp_pct = float(base.get("rest_hp_pct", 0.05) or 0.05)
         except:
             rest_hp_pct = 0.05
+        try:
+            rest_ep_pct = float(base.get("rest_ep_pct", 0.20) or 0.20)
+        except:
+            rest_ep_pct = 0.20
+        try:
+            rest_ec_pct = float(base.get("rest_ec_pct", 0.20) or 0.20)
+        except:
+            rest_ec_pct = 0.20
+        try:
+            rest_ec_scales = int(base.get("rest_ec_scales", 2) or 2)
+        except:
+            rest_ec_scales = 2
         if hp_factor < 1.0:
             hp_factor = 1.0
         if rest_hp_pct < 0.0:
             rest_hp_pct = 0.0
-        return {"hp_factor": hp_factor, "rest_hp_pct": rest_hp_pct}
+        if rest_ep_pct < 0.0:
+            rest_ep_pct = 0.0
+        if rest_ec_pct < 0.0:
+            rest_ec_pct = 0.0
+        if rest_ec_scales < 0:
+            rest_ec_scales = 0
+        return {
+            "hp_factor": hp_factor,
+            "rest_hp_pct": rest_hp_pct,
+            "rest_ep_pct": rest_ep_pct,
+            "rest_ec_pct": rest_ec_pct,
+            "rest_ec_scales": rest_ec_scales
+        }
 
     def bs_saga_hero_tech_profile_get(hero_id, config_id=None, build_id=None):
         hid = str(hero_id or "").strip()
@@ -2317,7 +2341,7 @@ screen bs_saga_preparation_screen():
     $ _hero_tier = bs_saga_hero_tier(_hero, "C") if _hero else ""
     $ _tier_pool = bs_saga_tier_pool_total(_hero_tier) if _hero else 0
     $ _tier_stats = bs_saga_tier_core_profile(_hero_tier) if _hero else {"hp":0,"ep":0,"ec":0,"durability":0,"cover":0}
-    $ _tier_tuning = bs_saga_tier_combat_tuning_profile(_hero_tier) if _hero else {"hp_factor":0.0,"rest_hp_pct":0.0}
+    $ _tier_tuning = bs_saga_tier_combat_tuning_profile(_hero_tier) if _hero else {"hp_factor":0.0,"rest_hp_pct":0.0,"rest_ep_pct":0.0,"rest_ec_pct":0.0,"rest_ec_scales":0}
     $ _dmg_rules = dict(bs_saga_damage_coherence_rules or {})
     $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
     $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_prep_duel_rotation_ids or [])[:5]])
@@ -2419,6 +2443,7 @@ screen bs_saga_preparation_screen():
                         text ("HP " + str(_tier_stats.get("hp", 0)) + " · EP " + str(_tier_stats.get("ep", 0)) + " · EC " + str(_tier_stats.get("ec", 0))) size 14 color "#9FC4E2"
                         text ("Durabilidad " + str(_tier_stats.get("durability", 0)) + " · Cubre " + str(_tier_stats.get("cover", 0))) size 14 color "#9FC4E2"
                         text ("Factor HP/Pool x" + str(_tier_tuning.get("hp_factor", 0.0)) + " · Descansar HP " + str(int(float(_tier_tuning.get("rest_hp_pct", 0.0)) * 100)) + "%") size 14 color "#9FC4E2"
+                        text ("Descansar EP " + str(int(float(_tier_tuning.get("rest_ep_pct", 0.0)) * 100)) + "% · EC " + str(int(float(_tier_tuning.get("rest_ec_pct", 0.0)) * 100)) + "% (+ " + str(int(_tier_tuning.get("rest_ec_scales", 0) or 0)) + " escalas)") size 14 color "#9FC4E2"
                         text ("Daño normal objetivo " + str(int(float(_dmg_rules.get("normal_hit_min_pct", 0.0)) * 100)) + "-" + str(int(float(_dmg_rules.get("normal_hit_max_pct", 0.0)) * 100)) + "% HP") size 14 color "#9FC4E2"
                         text ("Daño combo objetivo " + str(int(float(_dmg_rules.get("combo_hit_min_pct", 0.0)) * 100)) + "-" + str(int(float(_dmg_rules.get("combo_hit_max_pct", 0.0)) * 100)) + "% HP") size 14 color "#9FC4E2"
                         text ("Técnicas: " + str(_tech_prof.get("mode", "virgen")) + " · Pool técnico " + str(_tech_prof.get("pool_total", 0))) size 14 color "#9FC4E2"

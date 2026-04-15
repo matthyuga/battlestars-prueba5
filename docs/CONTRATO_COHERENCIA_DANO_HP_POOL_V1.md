@@ -64,21 +64,26 @@ Para SS/SSS/IV se mantiene x7 como base inicial hasta cierre de tuning alto tier
 
 | Tier | HP | EP | EC | Durabilidad | Cubre |
 |---|---:|---:|---:|---:|---:|
-| C | 5,000 | 1,000 | 1,000 | 0 | 0 |
-| B | 25,000 | 5,000 | 5,000 | 0 | 0 |
-| A | 60,000 | 10,000 | 10,000 | 5,000 | 5,000 |
-| S | 350,000 | 50,000 | 50,000 | 30,000 | 30,000 |
+| C | 5,000 | 15,000 | 1,000 | 0 | 0 |
+| B | 25,000 | 75,000 | 5,000 | 0 | 0 |
+| A | 60,000 | 180,000 | 10,000 | 5,000 | 5,000 |
+| S | 350,000 | 1,000,000 | 50,000 | 30,000 | 30,000 |
 
 ---
 
-## 6) Descansar (HP)
+## 6) Descansar (táctico, no curación fuerte)
 
-- C: 6%
-- B: 5%
-- A: 4%
-- S+: 3%
+Base recomendada:
 
-Nota: descanso debe priorizar EP/EC sobre HP para evitar partidas excesivamente largas.
+- HP: **3%** (o 0% en variantes más duras).
+- EP: **20%**.
+- EC: **20% + 2 escalas**.
+
+Regla prudente:
+
+- si el héroe está en `<=25% HP`, no aumentar recuperación de HP (solo EP/EC).
+
+Nota: descanso prioriza EP/EC para mantener tensión y evitar duelos infinitos.
 
 ---
 
