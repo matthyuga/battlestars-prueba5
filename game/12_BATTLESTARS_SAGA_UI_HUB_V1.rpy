@@ -473,6 +473,9 @@ init -880 python:
     def bs_saga_prep_config_keys():
         return ["cfg1", "cfg2", "cfg3"]
 
+    def bs_saga_prep_build_keys():
+        return ["balanceado", "ofensivo", "defensivo"]
+
     def bs_saga_inventory_bootstrap():
         inv = getattr(S, "bs_saga_inventory_state", None)
         if not isinstance(inv, dict):
@@ -508,29 +511,82 @@ init -880 python:
             cfgs = {}
         slot_count = bs_saga_hero_inventory_slot_count()
         for ck in bs_saga_prep_config_keys():
-            slots = cfgs.get(ck, None)
-            if not isinstance(slots, list):
-                slots = []
-            clean = []
-            for v in slots[:slot_count]:
-                clean.append(str(v) if v else "")
-            while len(clean) < slot_count:
-                clean.append("")
-            cfgs[ck] = clean
+            cfg_row = cfgs.get(ck, None)
+            if isinstance(cfg_row, list):
+                # compat hacia atrás: lista directa => se replica en builds.
+                base = []
+                for v in cfg_row[:slot_count]:
+                    base.append(str(v) if v else "")
+                while len(base) < slot_count:
+                    base.append("")
+                cfgs[ck] = {"builds": {bk: list(base) for bk in bs_saga_prep_build_keys()}}
+                continue
+            if not isinstance(cfg_row, dict):
+                cfg_row = {"builds": {}}
+            builds = cfg_row.get("builds", {})
+            if not isinstance(builds, dict):
+                builds = {}
+            for bk in bs_saga_prep_build_keys():
+                slots = builds.get(bk, None)
+                if not isinstance(slots, list):
+                    slots = []
+                clean = []
+                for v in slots[:slot_count]:
+                    clean.append(str(v) if v else "")
+                while len(clean) < slot_count:
+                    clean.append("")
+                builds[bk] = clean
+            cfg_row["builds"] = builds
+            cfgs[ck] = cfg_row
         row["configs"] = cfgs
         hero_inv[hid] = row
         inv["hero_inventories"] = hero_inv
         return row
 
-    def bs_saga_hero_loadout_slots(hero_id, config_id=None):
+    def bs_saga_hero_loadout_slots(hero_id, config_id=None, build_id=None):
         row = bs_saga_hero_inventory_get(hero_id)
         if not isinstance(row, dict):
             return []
         cfg = str(config_id or row.get("active_config", "cfg1") or "cfg1")
         if cfg not in bs_saga_prep_config_keys():
             cfg = "cfg1"
-        slots = row.get("configs", {}).get(cfg, [])
+        bld = str(build_id or getattr(S, "bs_saga_prep_selected_build", "balanceado") or "balanceado").strip().lower()
+        if bld not in bs_saga_prep_build_keys():
+            bld = "balanceado"
+        cfg_row = row.get("configs", {}).get(cfg, {})
+        builds = cfg_row.get("builds", {}) if isinstance(cfg_row, dict) else {}
+        slots = builds.get(bld, [])
         return list(slots) if isinstance(slots, list) else []
+
+    def bs_saga_hero_set_loadout_slots(hero_id, slots, config_id=None, build_id=None):
+        row = bs_saga_hero_inventory_get(hero_id)
+        if not isinstance(row, dict):
+            return False
+        cfg = str(config_id or row.get("active_config", "cfg1") or "cfg1")
+        if cfg not in bs_saga_prep_config_keys():
+            cfg = "cfg1"
+        bld = str(build_id or getattr(S, "bs_saga_prep_selected_build", "balanceado") or "balanceado").strip().lower()
+        if bld not in bs_saga_prep_build_keys():
+            bld = "balanceado"
+        cfgs = row.get("configs", {})
+        cfg_row = cfgs.get(cfg, {})
+        if not isinstance(cfg_row, dict):
+            cfg_row = {"builds": {}}
+        builds = cfg_row.get("builds", {})
+        if not isinstance(builds, dict):
+            builds = {}
+        clean = []
+        slot_count = bs_saga_hero_inventory_slot_count()
+        for v in list(slots or [])[:slot_count]:
+            clean.append(str(v) if v else "")
+        while len(clean) < slot_count:
+            clean.append("")
+        builds[bld] = clean
+        cfg_row["builds"] = builds
+        cfgs[cfg] = cfg_row
+        row["configs"] = cfgs
+        row["active_config"] = cfg
+        return True
 
     def bs_saga_set_prep_config(config_id):
         cfg = str(config_id or "").strip().lower()
@@ -542,6 +598,13 @@ init -880 python:
             row = bs_saga_hero_inventory_get(hid)
             if isinstance(row, dict):
                 row["active_config"] = cfg
+        return True
+
+    def bs_saga_set_prep_build(build_id):
+        b = str(build_id or "").strip().lower()
+        if b not in bs_saga_prep_build_keys():
+            return False
+        S.bs_saga_prep_selected_build = b
         return True
 
     def bs_saga_account_bucket_qty(bucket, item_id):
@@ -581,7 +644,7 @@ init -880 python:
         inv["account_inventory"] = chest
         return after
 
-    def bs_saga_equip_item_to_hero(hero_id, item_id, slot_index=None, config_id=None):
+    def bs_saga_equip_item_to_hero(hero_id, item_id, slot_index=None, config_id=None, build_id=None):
         hid = str(hero_id or "").strip()
         iid = str(item_id or "").strip()
         if not hid or not iid:
@@ -596,7 +659,7 @@ init -880 python:
         cfg = str(config_id or row.get("active_config", "cfg1") or "cfg1")
         if cfg not in bs_saga_prep_config_keys():
             cfg = "cfg1"
-        slots = bs_saga_hero_loadout_slots(hid, cfg)
+        slots = bs_saga_hero_loadout_slots(hid, cfg, build_id)
         target = -1
         if slot_index is not None:
             try:
@@ -617,13 +680,13 @@ init -880 python:
             bs_saga_account_bucket_add("equipables", prev, 1)
         bs_saga_account_bucket_add("equipables", iid, -1)
         slots[target] = iid
-        row.get("configs", {})[cfg] = slots
-        row["active_config"] = cfg
-        bs_saga_audit_push("equip_item", {"hero_id": hid, "config": cfg, "slot": target, "item_id": iid, "replaced": prev})
-        bs_saga_set_message("Equipado {} en {} [{} · slot {}].".format(iid, hid, cfg.upper(), target + 1))
+        bs_saga_hero_set_loadout_slots(hid, slots, cfg, build_id)
+        bld = str(build_id or getattr(S, "bs_saga_prep_selected_build", "balanceado") or "balanceado")
+        bs_saga_audit_push("equip_item", {"hero_id": hid, "config": cfg, "build": bld, "slot": target, "item_id": iid, "replaced": prev})
+        bs_saga_set_message("Equipado {} en {} [{} · {} · slot {}].".format(iid, hid, cfg.upper(), bld, target + 1))
         return True
 
-    def bs_saga_unequip_item_from_hero(hero_id, slot_index, config_id=None):
+    def bs_saga_unequip_item_from_hero(hero_id, slot_index, config_id=None, build_id=None):
         hid = str(hero_id or "").strip()
         if not hid:
             return False
@@ -633,7 +696,7 @@ init -880 python:
         cfg = str(config_id or row.get("active_config", "cfg1") or "cfg1")
         if cfg not in bs_saga_prep_config_keys():
             cfg = "cfg1"
-        slots = bs_saga_hero_loadout_slots(hid, cfg)
+        slots = bs_saga_hero_loadout_slots(hid, cfg, build_id)
         try:
             idx = int(slot_index)
         except:
@@ -646,10 +709,10 @@ init -880 python:
             return False
         slots[idx] = ""
         bs_saga_account_bucket_add("equipables", old, 1)
-        row.get("configs", {})[cfg] = slots
-        row["active_config"] = cfg
-        bs_saga_audit_push("unequip_item", {"hero_id": hid, "config": cfg, "slot": idx, "item_id": old})
-        bs_saga_set_message("Desequipado {} de {} [{} · slot {}].".format(old, hid, cfg.upper(), idx + 1))
+        bs_saga_hero_set_loadout_slots(hid, slots, cfg, build_id)
+        bld = str(build_id or getattr(S, "bs_saga_prep_selected_build", "balanceado") or "balanceado")
+        bs_saga_audit_push("unequip_item", {"hero_id": hid, "config": cfg, "build": bld, "slot": idx, "item_id": old})
+        bs_saga_set_message("Desequipado {} de {} [{} · {} · slot {}].".format(old, hid, cfg.upper(), bld, idx + 1))
         return True
 
     def bs_saga_preparation_rows_filtered():
@@ -1049,6 +1112,18 @@ init -880 python:
             S.battle_enemy_ids = [enemy_id]
         S.battle_player_id = str((S.battle_player_ids or [my_hero])[0] or my_hero)
         S.battle_enemy_id = str((S.battle_enemy_ids or [enemy_id])[0] or enemy_id)
+
+        prep_cfg = str(getattr(S, "bs_saga_prep_selected_config", "cfg1") or "cfg1")
+        if prep_cfg not in bs_saga_prep_config_keys():
+            prep_cfg = "cfg1"
+        prep_build = str(getattr(S, "bs_saga_prep_selected_build", "balanceado") or "balanceado").strip().lower()
+        if prep_build not in bs_saga_prep_build_keys():
+            prep_build = "balanceado"
+        S.battle_prepared_config_id = prep_cfg
+        S.battle_prepared_build_id = prep_build
+        S.battle_prepared_player_loadouts = {}
+        for pid in (S.battle_player_ids or []):
+            S.battle_prepared_player_loadouts[str(pid)] = bs_saga_hero_loadout_slots(pid, prep_cfg, prep_build)
 
         S.battle_prepared_item_id = str(getattr(S, "bs_saga_prep_flag_item_id", "") or "")
         S.battle_prepared_consumable_id = str(getattr(S, "bs_saga_prep_flag_consumable_id", "") or "")
@@ -1997,7 +2072,7 @@ screen bs_saga_preparation_screen():
     $ _party_txt = ", ".join(_party) if _party else "sin equipo"
     $ _owned_only = bool(bs_saga_prep_filter_owned_only)
     $ _equipables = bs_saga_prep_inventory_candidates("equipables")
-    $ _slots = bs_saga_hero_loadout_slots(_hero, _cfg) if _hero else []
+    $ _slots = bs_saga_hero_loadout_slots(_hero, _cfg, _build) if _hero else []
     $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_prep_duel_rotation_ids or [])[:5]])
 
     add Solid("#0E1A28")
@@ -2091,6 +2166,7 @@ screen bs_saga_preparation_screen():
                         textbutton "2v2" action [Function(bs_saga_set_prep_mode, "2v2"), Jump("bs_saga_preparacion")]
                     text ("Equipo seleccionado: " + _party_txt) size 14 color "#9FC4E2"
                     text ("Config activa: " + _cfg.upper()) size 14 color "#9FC4E2"
+                    text ("Build activa: " + _build) size 14 color "#9FC4E2"
                     hbox:
                         spacing 6
                         textbutton "CFG1" action [Function(bs_saga_set_prep_config, "cfg1"), Jump("bs_saga_preparacion")]
@@ -2105,7 +2181,7 @@ screen bs_saga_preparation_screen():
                                 text ("Slot " + str(i + 1) + ": " + (_slot_item if _slot_item else "vacío")) size 14 color "#CFE6FA" xminimum 270
                                 if _slot_item:
                                     textbutton "Desequipar":
-                                        action [Function(bs_saga_unequip_item_from_hero, _hero, i, _cfg), Jump("bs_saga_preparacion")]
+                                        action [Function(bs_saga_unequip_item_from_hero, _hero, i, _cfg, _build), Jump("bs_saga_preparacion")]
                     else:
                         text "Selecciona héroe para administrar equipables." size 14 color "#9FB9D1"
                     if _hero:
@@ -2114,7 +2190,7 @@ screen bs_saga_preparation_screen():
                             for row in _equipables[:8]:
                                 $ _iid = str(row.get("item_id", ""))
                                 textbutton (_iid + " x" + str(row.get("qty", 0))):
-                                    action [Function(bs_saga_equip_item_to_hero, _hero, _iid, None, _cfg), Jump("bs_saga_preparacion")]
+                                    action [Function(bs_saga_equip_item_to_hero, _hero, _iid, None, _cfg, _build), Jump("bs_saga_preparacion")]
                         else:
                             text "No hay equipables en inventario de cuenta." size 14 color "#9FB9D1"
                     text "Modo de enemigo" size 16 color "#D0E9FF"
@@ -2139,9 +2215,9 @@ screen bs_saga_preparation_screen():
                     text "Build rápida" size 16 color "#D0E9FF"
                     hbox:
                         spacing 6
-                        textbutton "Balanceado" action SetVariable("bs_saga_prep_selected_build", "balanceado")
-                        textbutton "Ofensivo" action SetVariable("bs_saga_prep_selected_build", "ofensivo")
-                        textbutton "Defensivo" action SetVariable("bs_saga_prep_selected_build", "defensivo")
+                        textbutton "Balanceado" action [Function(bs_saga_set_prep_build, "balanceado"), Jump("bs_saga_preparacion")]
+                        textbutton "Ofensivo" action [Function(bs_saga_set_prep_build, "ofensivo"), Jump("bs_saga_preparacion")]
+                        textbutton "Defensivo" action [Function(bs_saga_set_prep_build, "defensivo"), Jump("bs_saga_preparacion")]
                     null height 12
                     text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
                     text "Chequear técnicas/pool por tier: pendiente de integración detallada." size 15 color "#9FC4E2"
@@ -2155,6 +2231,8 @@ screen bs_saga_preparation_verify_screen():
     $ _enemy_mode = str(bs_saga_prep_enemy_mode or "random")
     $ _enemy = str(bs_saga_prep_selected_enemy_hero or "")
     $ _build = str(bs_saga_prep_selected_build or "balanceado")
+    $ _cfg = str(bs_saga_prep_selected_config or "cfg1")
+    $ _hero_slots = bs_saga_hero_loadout_slots(_hero, _cfg, _build) if _hero else []
     $ _cons = bs_saga_prep_inventory_candidates("consumables")
     $ _items = bs_saga_prep_inventory_candidates("equipables")
     $ _flag_cons = str(bs_saga_prep_flag_consumable_id or "")
@@ -2201,8 +2279,10 @@ screen bs_saga_preparation_verify_screen():
                     text ("Modo: " + _mode) size 16 color "#D0E9FF"
                     text ("Enemigo: " + (_enemy if _enemy_mode == "manual" else "aleatorio")) size 16 color "#D0E9FF"
                     text ("Build: " + _build) size 16 color "#D0E9FF"
+                    text ("Config: " + _cfg.upper()) size 16 color "#D0E9FF"
                     text ("Item flag: " + (_flag_item if _flag_item else "ninguno")) size 14 color "#9FC4E2"
                     text ("Consumible flag: " + (_flag_cons if _flag_cons else "ninguno")) size 14 color "#9FC4E2"
+                    text ("Slots equipados: " + ", ".join([s for s in _hero_slots if str(s)]) if _hero_slots else "Slots equipados: ninguno") size 14 color "#9FC4E2"
                     textbutton "Iniciar duelo":
                         action Jump("bs_saga_launch_prepared_duel")
             frame:
