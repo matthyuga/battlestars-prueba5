@@ -383,6 +383,10 @@ init -880 python:
             bs_saga_set_message("Compraste a {} por {} oro. Tier actual: {}.".format(hero_name, price, _tier_now))
         else:
             bs_saga_set_message("Compraste a {} por {} oro. Aún sin tier (sigue coleccionando).".format(hero_name, price))
+        try:
+            renpy.restart_interaction()
+        except:
+            pass
         return True
 
     def bs_saga_item_id(item_row):
@@ -1098,6 +1102,18 @@ init -880 python:
             hid = str(bs_saga_hero_id(row) or "").strip()
             if hid:
                 out.append(hid)
+        # Asegurar que los héroes comprados aparezcan siempre en preparación,
+        # aunque get_combat_character_ids() no los incluya todavía.
+        owned = getattr(S, "bs_saga_heroes_owned", {}) or {}
+        if isinstance(owned, dict):
+            for hid, info in owned.items():
+                if not isinstance(info, dict):
+                    continue
+                if not bool(info.get("owned", False)):
+                    continue
+                h = str(hid or "").strip()
+                if h:
+                    out.append(h)
         unique = []
         seen = {}
         for hid in out:
@@ -1120,10 +1136,17 @@ init -880 python:
             is_owned = bs_saga_hero_is_owned(cid)
             in_rotation = cid.lower() in rot_lc
             state = "disponible" if is_owned else ("para_probar" if in_rotation else "bloqueado")
+            row = bs_saga_hero_row(cid)
+            if isinstance(row, dict):
+                name = str(row.get("name", cid) or cid)
+                tier = str(row.get("tier", "C") or "C").upper()
+            else:
+                name = str(cid)
+                tier = "C"
             out.append({
                 "hero_id": cid,
-                "name": cid,
-                "tier": "C",
+                "name": name,
+                "tier": tier,
                 "owned": bool(is_owned),
                 "in_rotation": bool(in_rotation),
                 "available": bool(is_owned or in_rotation),
@@ -2059,7 +2082,7 @@ screen bs_saga_heroes_screen():
                                                             text "Adquirido" size 16 color "#8BD6A7"
                                                         else:
                                                             textbutton "Comprar":
-                                                                action [Function(bs_saga_buy_hero, h), Jump("bs_saga_heroes")]
+                                                                action Function(bs_saga_buy_hero, h)
                                         else:
                                             text "No hay héroes para ese filtro." size 18 color "#9FB9D1"
 

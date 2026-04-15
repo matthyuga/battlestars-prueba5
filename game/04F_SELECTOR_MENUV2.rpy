@@ -89,6 +89,47 @@ init python:
     # Keys que NO son técnicas reales (son "special buttons")
     _SPECIAL_ZERO_COST_KEYS = ("focus_attack", "focus_defense", "rest_recovery", "fury_attack")
 
+    # ------------------------------------------------------------
+    # Gating por tier del héroe (capa mínima sin romper lógica base)
+    # ------------------------------------------------------------
+    _TIER_TECH_KEYS = {
+        "C": set(["stronger_attack", "defense_strong_block", "direct_attack", "focus_attack", "rest_recovery", "fury_attack"]),
+        "B": set(["extra_attack", "defense_extra", "focus_defense"]),
+        "A": set(["extra_tech", "attack_reducer", "defense_reducer"]),
+        "S": set(["noatk_attack", "defense_reflect"]),
+    }
+
+    def _selector_player_tier():
+        try:
+            hid = str(getattr(S, "battle_player_id", "") or "").strip()
+        except:
+            hid = ""
+        if not hid:
+            return "C"
+        try:
+            fn_tier = getattr(S, "bs_saga_hero_tier", None)
+            if callable(fn_tier):
+                return str(fn_tier(hid, "C") or "C").upper()
+        except:
+            pass
+        return "C"
+
+    def selector_filter_tech_keys_by_player_tier(keys):
+        try:
+            seq = list(keys or [])
+        except:
+            seq = []
+        if not seq:
+            return []
+
+        t = _selector_player_tier()
+        allowed = _TIER_TECH_KEYS.get(t, None)
+        if not isinstance(allowed, set) or (len(allowed) == 0):
+            return seq
+
+        out = [k for k in seq if k in allowed]
+        return out if out else seq
+
 
     # ============================================================
     # CHEQUEO DE COSTOS REALES usando el sistema 04X dinámico
@@ -456,6 +497,7 @@ screen battle_command_menu():
     $ _show_off_col = _show_off and (battle_mode == "offensive")
     $ _show_def_col = _show_def and (battle_mode == "defensive")
     $ current = OFF if battle_mode == "offensive" else DEF
+    $ current = selector_filter_tech_keys_by_player_tier(current)
     $ current = current if ((battle_mode == "offensive" and _show_off) or (battle_mode == "defensive" and _show_def)) else []
     $ _off_cancel = bool(getattr(store, "offense_cancelled", False))
     $ _only_defense = _off_cancel and battle_mode == "offensive"
