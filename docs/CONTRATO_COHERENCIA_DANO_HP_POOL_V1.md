@@ -59,6 +59,8 @@ Para SS/SSS/IV se mantiene x7 como base inicial hasta cierre de tuning alto tier
 ### Regla especial
 - **Durabilidad y cubre** se habilitan desde **Tier A**.
 - En **D/C/B** ambos se fuerzan a 0.
+- Para **A/S** se recomienda mantener: **HP > Durabilidad > Cubre**.
+- Relación objetivo de armadura en A/S: **Durabilidad = Cubre x10**.
 
 ### Tabla operativa
 
@@ -66,8 +68,12 @@ Para SS/SSS/IV se mantiene x7 como base inicial hasta cierre de tuning alto tier
 |---|---:|---:|---:|---:|---:|
 | C | 5,000 | 15,000 | 1,000 | 0 | 0 |
 | B | 25,000 | 75,000 | 5,000 | 0 | 0 |
-| A | 60,000 | 180,000 | 10,000 | 5,000 | 5,000 |
-| S | 350,000 | 1,000,000 | 50,000 | 30,000 | 30,000 |
+| A | 60,000 | 180,000 | 10,000 | 12,000 | 1,200 |
+| S | 350,000 | 1,000,000 | 50,000 | 50,000 | 5,000 |
+
+Rango guía para no sobredimensionar armadura:
+- **Cubre**: idealmente entre **2% y 4%** del HP en A/S (hasta 15% como techo duro).
+- **Durabilidad**: entre **40% y 80%** del HP como banda alta; evitar que supere HP.
 
 ---
 

@@ -57,8 +57,10 @@ default bs_saga_tier_duel_pool = {
 default bs_saga_tier_core_stats = {
     "C": {"hp": 5000, "ep": 15000, "ec": 1000, "durability": 0, "cover": 0},
     "B": {"hp": 25000, "ep": 75000, "ec": 5000, "durability": 0, "cover": 0},
-    "A": {"hp": 60000, "ep": 180000, "ec": 10000, "durability": 5000, "cover": 5000},
-    "S": {"hp": 350000, "ep": 1000000, "ec": 50000, "durability": 30000, "cover": 30000},
+    # Nota de balance: para A/S se mantiene HP > durability > cover
+    # y relación objetivo durability = cover * 10.
+    "A": {"hp": 60000, "ep": 180000, "ec": 10000, "durability": 12000, "cover": 1200},
+    "S": {"hp": 350000, "ep": 1000000, "ec": 50000, "durability": 50000, "cover": 5000},
     "SS": {"hp": 700000, "ep": 2000000, "ec": 100000, "durability": 60000, "cover": 60000},
     "SSS": {"hp": 3500000, "ep": 10000000, "ec": 500000, "durability": 300000, "cover": 300000},
     "IV": {"hp": 7000000, "ep": 20000000, "ec": 1000000, "durability": 600000, "cover": 600000}
@@ -800,6 +802,23 @@ init -880 python:
         if t in ("D", "C", "B"):
             out["durability"] = 0
             out["cover"] = 0
+        # Reglas objetivo A/S: HP > durability > cover y ratio 1:10.
+        elif t in ("A", "S"):
+            if out["cover"] < 0:
+                out["cover"] = 0
+            if out["durability"] < 0:
+                out["durability"] = 0
+
+            # Evita armadura dominante: cap de cover ~15% HP.
+            cover_cap = int(max(0, out["hp"]) * 0.15)
+            if out["cover"] > cover_cap:
+                out["cover"] = cover_cap
+
+            # Durabilidad siempre al menos cover*10, pero nunca >= HP.
+            min_dur = int(out["cover"] * 10)
+            out["durability"] = max(int(out["durability"] or 0), min_dur)
+            if out["durability"] >= out["hp"]:
+                out["durability"] = max(0, int(out["hp"] - 1))
         return out
 
     def bs_saga_tier_combat_tuning_profile(tier):
