@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import tempfile
 from pathlib import Path
 from typing import Dict, Any, List
 from compare_economy_baselines import compare_suites, load_json as load_json_diff, load_thresholds, evaluate_alerts
@@ -277,7 +278,8 @@ def main() -> int:
     ap.add_argument("--old-version", default="", help="Versión anterior (requiere --base-dir).")
     ap.add_argument("--new-version", default="", help="Versión nueva (requiere --base-dir).")
     ap.add_argument("--thresholds-file", default="tools/scenarios/economy_alert_thresholds.json")
-    ap.add_argument("--out-html", default="/tmp/economy_dashboard.html", help="Ruta de salida HTML.")
+    default_out = str(Path(tempfile.gettempdir()) / "economy_dashboard.html")
+    ap.add_argument("--out-html", default=default_out, help="Ruta de salida HTML.")
     ap.add_argument("--title", default="Economy Lab Dashboard")
     args = ap.parse_args()
 

@@ -142,6 +142,17 @@ init -995 python:
         """Nombre visible para el jugador (display)."""
         return get_character(char_id).get("name", DEFAULT_CHARACTER["name"])
 
+    def get_combat_character_ids(include_hollow=True):
+        """
+        IDs disponibles en el runtime de combate (fuente: CHARACTER_DATA).
+        """
+        ids = [str(k) for k in CHARACTER_DATA.keys() if str(k)]
+        if not include_hollow:
+            ids = [x for x in ids if str(x).lower() != "hollow"]
+        if ids:
+            return ids
+        return ["Harribel", "Grimmjow", "Nel", "Hollow"] if include_hollow else ["Harribel", "Grimmjow", "Nel"]
+
 
     def get_character_stat(char_id, stat_key, fallback=None):
         """
@@ -169,3 +180,7 @@ init -995 python:
 # -----------------------------------------------------------
 image bg_battle_base   = "images/fondo3.png"
 image bg_battle_desert = "images/hollow1.png"
+
+init -994 python:
+    import renpy.store as S
+    S.get_combat_character_ids = get_combat_character_ids

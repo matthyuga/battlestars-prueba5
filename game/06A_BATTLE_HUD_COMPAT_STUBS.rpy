@@ -146,20 +146,32 @@ screen battle_hp_overlay():
             $ _erei_fake = _erei_show
         if _eene_fake <= 0:
             $ _eene_fake = _eene_show
-        timer 0.08 repeat True action [
-            SetScreenVariable("_php_fake", _hud_fake_hp_step(_php_fake, _php)),
-            SetScreenVariable("_ehp_fake", _hud_fake_hp_step(_ehp_fake, _ehp)),
-            SetScreenVariable("_php_damage_fake", _hud_hp_fake_on_damage(_php_damage_fake, _php_fake, _php, _php_prev_real)),
-            SetScreenVariable("_ehp_damage_fake", _hud_hp_fake_on_damage(_ehp_damage_fake, _ehp_fake, _ehp, _ehp_prev_real)),
-            SetScreenVariable("_php_damage_alpha", _hud_hp_fake_alpha_step(_php_damage_alpha, _php_damage_fake, _php_fake, _php, _php_prev_real)),
-            SetScreenVariable("_ehp_damage_alpha", _hud_hp_fake_alpha_step(_ehp_damage_alpha, _ehp_damage_fake, _ehp_fake, _ehp, _ehp_prev_real)),
-            SetScreenVariable("_php_prev_real", _php),
-            SetScreenVariable("_ehp_prev_real", _ehp),
-            SetScreenVariable("_prei_fake", _hud_fake_resource_step(_prei_fake, _prei_show)),
-            SetScreenVariable("_pene_fake", _hud_fake_resource_step(_pene_fake, _pene_show)),
-            SetScreenVariable("_erei_fake", _hud_fake_resource_step(_erei_fake, _erei_show)),
-            SetScreenVariable("_eene_fake", _hud_fake_resource_step(_eene_fake, _eene_show))
-        ]
+        if bool(getattr(store, "bs_battle_low_spec_mode", False)):
+            $ _php_fake = _php
+            $ _ehp_fake = _ehp
+            $ _php_damage_fake = _php
+            $ _ehp_damage_fake = _ehp
+            $ _php_damage_alpha = 0.0
+            $ _ehp_damage_alpha = 0.0
+            $ _prei_fake = _prei_show
+            $ _pene_fake = _pene_show
+            $ _erei_fake = _erei_show
+            $ _eene_fake = _eene_show
+        else:
+            timer 0.08 repeat True action [
+                SetScreenVariable("_php_fake", _hud_fake_hp_step(_php_fake, _php)),
+                SetScreenVariable("_ehp_fake", _hud_fake_hp_step(_ehp_fake, _ehp)),
+                SetScreenVariable("_php_damage_fake", _hud_hp_fake_on_damage(_php_damage_fake, _php_fake, _php, _php_prev_real)),
+                SetScreenVariable("_ehp_damage_fake", _hud_hp_fake_on_damage(_ehp_damage_fake, _ehp_fake, _ehp, _ehp_prev_real)),
+                SetScreenVariable("_php_damage_alpha", _hud_hp_fake_alpha_step(_php_damage_alpha, _php_damage_fake, _php_fake, _php, _php_prev_real)),
+                SetScreenVariable("_ehp_damage_alpha", _hud_hp_fake_alpha_step(_ehp_damage_alpha, _ehp_damage_fake, _ehp_fake, _ehp, _ehp_prev_real)),
+                SetScreenVariable("_php_prev_real", _php),
+                SetScreenVariable("_ehp_prev_real", _ehp),
+                SetScreenVariable("_prei_fake", _hud_fake_resource_step(_prei_fake, _prei_show)),
+                SetScreenVariable("_pene_fake", _hud_fake_resource_step(_pene_fake, _pene_show)),
+                SetScreenVariable("_erei_fake", _hud_fake_resource_step(_erei_fake, _erei_show)),
+                SetScreenVariable("_eene_fake", _hud_fake_resource_step(_eene_fake, _eene_show))
+            ]
 
         frame:
             xalign 0.0
@@ -172,14 +184,15 @@ screen battle_hp_overlay():
                 spacing 4
                 hbox:
                     spacing 8
-                    add im.Scale("images/character/Jugador_a.png", 64, 64)
+                    $ _picon_fn = getattr(store, "bs_battle_head_portrait", None)
+                    $ _picon = str(_picon_fn(getattr(store, "battle_player_id", ""), "player") if callable(_picon_fn) else "images/character/Jugador_a.png")
+                    add im.Scale(_picon, 64, 64)
                     vbox:
                         spacing 2
-                        $ _player_display_name = (
-                            getattr(store, "story_player_name", None)
-                            or getattr(store, "player_name", None)
-                            or "Jugador"
-                        )
+                        $ _pdisp_fn = getattr(store, "bs_battle_display_name", None)
+                        $ _player_display_name = str(getattr(store, "battle_player_id", "Jugador") or "Jugador")
+                        if callable(_pdisp_fn):
+                            $ _player_display_name = str(_pdisp_fn(getattr(store, "battle_player_id", _player_display_name), fallback=_player_display_name))
                         text "Jugador ({})".format(_player_display_name) size 17 color "#00BFFF"
                         text ("HP %s / %s" % (_php_fake, _pmax)) size 15
                         text ("Reiatsu %s / %s" % (_prei_fake, _pmax_rei)) size 14
@@ -209,11 +222,17 @@ screen battle_hp_overlay():
                     vbox:
                         xalign 1.0
                         spacing 2
-                        text "Enemigo (Hollow)" size 17 color "#FF7777" xalign 1.0
+                        $ _edisp_fn = getattr(store, "bs_battle_display_name", None)
+                        $ _enemy_display_name = str(getattr(store, "battle_enemy_id", "Enemigo") or "Enemigo")
+                        if callable(_edisp_fn):
+                            $ _enemy_display_name = str(_edisp_fn(getattr(store, "battle_enemy_id", _enemy_display_name), fallback=_enemy_display_name))
+                        text "Enemigo ({})".format(_enemy_display_name) size 17 color "#FF7777" xalign 1.0
                         text ("HP %s / %s" % (_ehp_fake, _emax)) size 15 xalign 1.0
                         text ("Reiatsu %s / %s" % (_erei_fake, _emax_rei)) size 14 xalign 1.0
                         text ("Energía %s / %s" % (_eene_fake, _emax_ene)) size 14 xalign 1.0
-                    add im.Scale("gui/battle/hud_ai/portraits/portrait_hollow_head.png", 64, 64)
+                    $ _eicon_fn = getattr(store, "bs_battle_head_portrait", None)
+                    $ _eicon = str(_eicon_fn(getattr(store, "battle_enemy_id", ""), "enemy") if callable(_eicon_fn) else "gui/battle/hud_ai/portraits/portrait_hollow_head.png")
+                    add im.Scale(_eicon, 64, 64)
                 fixed:
                     xmaximum _bar_w
                     ymaximum 18

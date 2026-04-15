@@ -7,6 +7,7 @@ default ai_difficulty = "basic"   # "basic" / "intermediate" / "advanced"
 
 # Switch: si True, usa persistent; si False, usa ai_difficulty
 default ai_difficulty_save = False
+default ai_difficulty_hud_visible = False
 
 # Defaults de selección (compat)
 default battle_player_id = "Harribel"
@@ -22,6 +23,54 @@ default battle_enemy_pick_mode = "random"   # "random" | "manual"
 default battle_multiplayer_manual = False
 default battle_player_count = 1
 default battle_enemy_count = 1
+
+init -20 python:
+    import renpy.store as S
+
+    if not hasattr(persistent, "ai_difficulty"):
+        persistent.ai_difficulty = "basic"
+    if not hasattr(S, "bs_saga_register_hero_usage"):
+        def _noop_usage_register(_hero_id):
+            return None
+        S.bs_saga_register_hero_usage = _noop_usage_register
+
+    def ai_difficulty_current():
+        use_persistent = bool(getattr(S, "ai_difficulty_save", False))
+        if use_persistent:
+            return str(getattr(persistent, "ai_difficulty", "basic") or "basic")
+        return str(getattr(S, "ai_difficulty", "basic") or "basic")
+
+    def ai_difficulty_set(level):
+        lv = str(level or "basic").strip().lower()
+        if lv not in ("basic", "intermediate", "advanced"):
+            lv = "basic"
+        S.ai_difficulty = lv
+        if bool(getattr(S, "ai_difficulty_save", False)):
+            persistent.ai_difficulty = lv
+        return None
+
+screen ai_difficulty_hud():
+    zorder 200
+    key "ctrl_p" action ToggleVariable("ai_difficulty_hud_visible")
+    if ai_difficulty_hud_visible:
+        frame:
+            xalign 0.985
+            yalign 0.02
+            xsize 360
+            background Solid("#0008")
+            padding (10, 8)
+            vbox:
+                spacing 6
+                text "Dificultad IA" size 22 color "#FFD166"
+                $ _ai = ai_difficulty_current()
+                text ("Actual: " + _ai.upper()) size 17 color "#DCEBFF"
+                hbox:
+                    spacing 6
+                    textbutton "Basic" action Function(ai_difficulty_set, "basic")
+                    textbutton "Intermedio" action Function(ai_difficulty_set, "intermediate")
+                    textbutton "Avanzado" action Function(ai_difficulty_set, "advanced")
+                textbutton ("Guardar en perfil: ON" if ai_difficulty_save else "Guardar en perfil: OFF"):
+                    action [ToggleVariable("ai_difficulty_save"), Function(ai_difficulty_set, ai_difficulty_current())]
 
 
 label battle_select_player:
@@ -84,18 +133,22 @@ label battle_select_player_1v1:
     menu:
         "Harribel":
             $ battle_player_id = "Harribel"
+            $ bs_saga_register_hero_usage("harribel")
             jump battle_select_opponent
 
         "Grimmjow":
             $ battle_player_id = "Grimmjow"
+            $ bs_saga_register_hero_usage("grimmjow")
             jump battle_select_opponent
 
         "Nel":
             $ battle_player_id = "Nel"
+            $ bs_saga_register_hero_usage("nel")
             jump battle_select_opponent
 
         "Hollow":
             $ battle_player_id = "Hollow"
+            $ bs_saga_register_hero_usage("hollow")
             jump battle_select_opponent
 
 
@@ -129,15 +182,19 @@ label battle_select_player_slot_0:
     menu:
         "Harribel":
             $ battle_player_slot_0 = "Harribel"
+            $ bs_saga_register_hero_usage("harribel")
             jump battle_select_player_slot_1
         "Grimmjow":
             $ battle_player_slot_0 = "Grimmjow"
+            $ bs_saga_register_hero_usage("grimmjow")
             jump battle_select_player_slot_1
         "Nel":
             $ battle_player_slot_0 = "Nel"
+            $ bs_saga_register_hero_usage("nel")
             jump battle_select_player_slot_1
         "Hollow":
             $ battle_player_slot_0 = "Hollow"
+            $ bs_saga_register_hero_usage("hollow")
             jump battle_select_player_slot_1
 
 
@@ -155,15 +212,19 @@ label battle_select_player_slot_1:
     menu:
         "Harribel" if battle_player_slot_0 != "Harribel":
             $ battle_player_slot_1 = "Harribel"
+            $ bs_saga_register_hero_usage("harribel")
             jump battle_select_enemy_mode_2v2
         "Grimmjow" if battle_player_slot_0 != "Grimmjow":
             $ battle_player_slot_1 = "Grimmjow"
+            $ bs_saga_register_hero_usage("grimmjow")
             jump battle_select_enemy_mode_2v2
         "Nel" if battle_player_slot_0 != "Nel":
             $ battle_player_slot_1 = "Nel"
+            $ bs_saga_register_hero_usage("nel")
             jump battle_select_enemy_mode_2v2
         "Hollow" if battle_player_slot_0 != "Hollow":
             $ battle_player_slot_1 = "Hollow"
+            $ bs_saga_register_hero_usage("hollow")
             jump battle_select_enemy_mode_2v2
 
 
@@ -247,7 +308,8 @@ label battle_select_enemy_slot_1_2v2:
 label battle_select_enemy_slots_2v2_random:
     python:
         import renpy.store as S
-        pool = ["Hollow", "Grimmjow", "Nel", "Harribel"]
+        fn_pool = getattr(S, "get_combat_character_ids", None)
+        pool = list(fn_pool(True) if callable(fn_pool) else ["Hollow", "Grimmjow", "Nel", "Harribel"])
 
         candidates = [c for c in pool if c not in (S.battle_player_ids or [])]
         if len(candidates) < 2:

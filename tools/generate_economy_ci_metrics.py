@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
@@ -18,7 +19,8 @@ def load_json(path: str) -> Dict[str, Any]:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Genera resumen de métricas operativas desde diff JSON.")
     ap.add_argument("--diff-json", required=True)
-    ap.add_argument("--out-json", default="/tmp/economy_ci_metrics.json")
+    default_out = str(Path(tempfile.gettempdir()) / "economy_ci_metrics.json")
+    ap.add_argument("--out-json", default=default_out)
     args = ap.parse_args()
 
     payload = load_json(args.diff_json)

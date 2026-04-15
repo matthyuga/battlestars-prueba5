@@ -1,0 +1,33 @@
+# Iteración — Perfil + Preparación pre-combate (2026-04-14)
+
+Estado: implementado en lobby v0.1 (base funcional).
+
+## Incluido
+
+1. **Pantalla Perfil**
+   - resumen de cuenta (tier, nivel, oro, EXP numérica),
+   - top héroes más usados (global y últimas 24h) basado en uso registrado.
+
+2. **Pantalla Preparación pre-combate**
+   - roster disponible por regla de estado (`bloqueado` / `para_probar` / `disponible`),
+   - rotación aleatoria de 5 héroes (`para_probar`) con acción de refresco,
+   - selección de héroe activo,
+   - configuración rápida de modo (1v1/2v2), enemigo (aleatorio/manual) y build (balanceado/ofensivo/defensivo),
+   - resumen de configuración y mensaje de estado,
+   - paso de verificación previo al duelo con flags de item/consumible (`próximamente` para consumo real en combate).
+
+3. **Lobby**
+   - botón nuevo de Perfil,
+   - barra de progreso de EXP visible en cabecera.
+
+4. **Registro de uso de héroes**
+   - al seleccionar héroe en flujo de combate (1v1 y slots 2v2) se incrementa contador de uso.
+5. **HUD de dificultad IA en combate**
+   - queda oculto por defecto,
+   - se activa/desactiva con `Ctrl+P`.
+
+## Pendiente (siguiente iteración)
+
+- historial de combates detallado en Perfil,
+- chequeo completo de técnicas/pool por tier en panel de preparación,
+- reemplazo integral del selector legacy de combate por selector data-driven desde roster de lobby.

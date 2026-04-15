@@ -31,6 +31,8 @@ default bs_hero_progress_v1 = {}
 
 # Auditoría económica simple (ring buffer).
 default bs_economy_audit_log_v1 = []
+default bs_hero_catalog_v1 = []
+default bs_item_catalog_v1 = {}
 
 
 init -850 python:
@@ -68,6 +70,34 @@ init -850 python:
             return at
         dd = str(default or "BETA").upper().strip()
         return dd if dd in BS_SAGA_CANON_ACTOR_TYPES_V1 else "BETA"
+
+    def bs_get_hero_catalog_v1():
+        rows = getattr(S, "bs_hero_catalog_v1", None)
+        if isinstance(rows, list):
+            return list(rows)
+        return []
+
+    def bs_get_item_catalog_v1():
+        cat = getattr(S, "bs_item_catalog_v1", None)
+        if isinstance(cat, dict):
+            return dict(cat)
+        return {}
+
+    def bs_set_catalog_bundle_v1(payload):
+        data = payload if isinstance(payload, dict) else {}
+        heroes = data.get("heroes", [])
+        items = data.get("items", {})
+        if not isinstance(heroes, list):
+            heroes = []
+        if not isinstance(items, dict):
+            items = {}
+        S.bs_hero_catalog_v1 = list(heroes)
+        S.bs_item_catalog_v1 = dict(items)
+        bs_audit_append_v1("catalog_bundle_set", {
+            "heroes_count": len(heroes),
+            "item_categories": len(items.keys()),
+        })
+        return {"ok": True, "heroes_count": len(heroes), "item_categories": len(items.keys())}
 
     def bs_get_account_inventory_v1():
         inv = getattr(S, "bs_account_inventory_v1", None)
@@ -353,6 +383,9 @@ init -850 python:
     # Exponer helpers en store para uso desde otros módulos.
     S.BS_SAGA_CANON_ACTOR_TYPES_V1 = BS_SAGA_CANON_ACTOR_TYPES_V1
     S.bs_saga_actor_type_or_default = bs_saga_actor_type_or_default
+    S.bs_get_hero_catalog_v1 = bs_get_hero_catalog_v1
+    S.bs_get_item_catalog_v1 = bs_get_item_catalog_v1
+    S.bs_set_catalog_bundle_v1 = bs_set_catalog_bundle_v1
     S.bs_get_account_inventory_v1 = bs_get_account_inventory_v1
     S.bs_get_account_progress_v1 = bs_get_account_progress_v1
     S.bs_get_hero_inventory_v1 = bs_get_hero_inventory_v1
