@@ -551,8 +551,10 @@ screen battle_command_menu():
     else:
         $ _tech_zoom = BTN_ZOOM if isinstance(BTN_ZOOM, (int, float)) and BTN_ZOOM > 0 else 1.0
         $ _low_spec = bool(getattr(store, "bs_battle_low_spec_mode", False))
-        $ _off_rows = list(OFF[:12]) if _low_spec else list(OFF)
-        $ _def_rows = list(DEF[:12]) if _low_spec else list(DEF)
+        $ _off_src = selector_filter_tech_keys_by_player_tier(OFF)
+        $ _def_src = selector_filter_tech_keys_by_player_tier(DEF)
+        $ _off_rows = list(_off_src[:12]) if _low_spec else list(_off_src)
+        $ _def_rows = list(_def_src[:12]) if _low_spec else list(_def_src)
         $ _btn_h = 72 if _low_spec else 95
         $ _btn_text_size = 23 if _low_spec else 30
         $ _tech_row_height = max(1, int((_btn_h + 6) * _tech_zoom))

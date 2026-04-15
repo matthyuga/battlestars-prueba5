@@ -1087,12 +1087,12 @@ init -880 python:
         return rows
 
     def bs_saga_combat_ready_ids():
+        out = []
         fn_pool = getattr(S, "get_combat_character_ids", None)
         if callable(fn_pool):
-            out = list(fn_pool(True) or [])
-            if out:
-                return [str(x) for x in out if str(x)]
-        out = []
+            out = [str(x) for x in list(fn_pool(True) or []) if str(x)]
+
+        # Completar con catálogo local para cubrir IDs no publicados por fn_pool.
         for row in bs_saga_db_rows():
             if not isinstance(row, dict):
                 continue
