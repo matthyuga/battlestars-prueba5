@@ -17,6 +17,7 @@
    - `docs/planilla_costos_tecnicas_ep_ec_v1.csv` (vista horizontal por técnica, extendida hasta 5000 puntos y separadores entre bloques)
    - `docs/patron_escala_1_a_10_ec_v1.csv` (patrón 1..10 por técnica)
    - `docs/regla_escalado_tecnicas_v1.md` (regla y umbrales de crecimiento)
+   - `docs/CONTRATO_ESCALAS_GASTO_TECNICAS_V1.md` (contrato formal para medir gastos por punto/escala)
 
 ## Estado actual
 - **Bloque A (roster unificado):** ✅
