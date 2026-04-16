@@ -15,6 +15,8 @@
    - QA de hardcode/data contracts (`qa_fase5_p0_hardcode_guard.sh`) en PASS.
 3. **Artefacto de continuidad de datos de costos**:
    - `docs/planilla_costos_tecnicas_ep_ec_v1.csv` (formato texto, compatible con repos sin binarios)
+   - `docs/patron_escala_1_a_10_ec_v1.csv` (patrón 1..10 por técnica)
+   - `docs/regla_escalado_tecnicas_v1.md` (regla y umbrales de crecimiento)
 
 ## Estado actual
 - **Bloque A (roster unificado):** ✅
