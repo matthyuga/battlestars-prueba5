@@ -379,6 +379,17 @@ init -959 python:
             _rn_notify("⚠ Ya seleccionaste '%s'." % tech_name)
             return
 
+        # Técnica Extra comodín: una sola vez por turno (of/def).
+        try:
+            tech_id = get_tech_id(tech_name)
+        except:
+            tech_id = None
+        if tech_id == "extra_tech":
+            fn_can_extra = getattr(S, "can_use_extra_tech", None)
+            if callable(fn_can_extra) and (not bool(fn_can_extra("player"))):
+                _rn_notify("⚠ Técnica Extra ya fue usada este turno.")
+                return
+
         ok, fr, fe = can_pay_simulated(tech_name)
         if not ok:
             msg = "⚠ No puedes seleccionar '%s':" % tech_name

@@ -1,0 +1,54 @@
+{
+  "tier": {
+    "C": [
+      {"name": "Ataque básico", "desc": "Ataque base. Escala con EP: a mayor potencia, mayor gasto de EP."},
+      {"name": "Defensa básica", "desc": "Defensa base. Escala con EP: más protección implica mayor gasto de EP."},
+      {"name": "Ataque directo", "desc": "Si sale 3/4 en dados, el golpe se vuelve indefendible; si no, se puede bloquear."},
+      {"name": "Efecto especial", "desc": "Cada héroe tiene un efecto propio, aplicado en ataque o defensa según su kit."},
+      {"name": "Concentrar", "desc": "Multiplica x2 un ataque elegido. No consume acción disponible."},
+      {"name": "Descansar", "desc": "Recupera un porcentaje de HP, EP y EC."},
+      {"name": "Dados de furia", "desc": "Se activa con 10% de HP o menos. Multiplica x2 una técnica elegida de ataque o defensa y no consume acción disponible."}
+    ],
+    "B": [
+      {"name": "Ataque extra", "desc": "Otorga una acción ofensiva adicional en el turno."},
+      {"name": "Defensa extra", "desc": "Otorga una acción defensiva adicional en el turno."},
+      {"name": "Potenciar", "desc": "Multiplica x2 una defensa elegida y no consume acción disponible."}
+    ],
+    "A": [
+      {"name": "Técnica extra", "desc": "Habilita una acción adicional de técnica en el turno. Puede usarse para ataque o defensa."},
+      {"name": "Ataque reductor", "desc": "Reduce un porcentaje de la defensa general del enemigo."},
+      {"name": "Defensa reductora", "desc": "Reduce un porcentaje del ataque general del enemigo."}
+    ],
+    "S": [
+      {"name": "Ataque negador", "desc": "Con 3/4 dados exitosos, anula el siguiente turno enemigo."},
+      {"name": "Defensa reflectora", "desc": "Refleja un porcentaje del daño de ataque enemigo."}
+    ]
+  },
+  "type": {
+    "ofensivas": [
+      {"name": "Ataque básico", "desc": "Ataque base del turno ofensivo."},
+      {"name": "Ataque extra", "desc": "Otorga una acción ofensiva adicional en el turno."},
+      {"name": "Técnica extra", "desc": "Acción adicional de técnica usable también en defensa."},
+      {"name": "Ataque reductor", "desc": "Reduce un porcentaje de la defensa general del enemigo."},
+      {"name": "Ataque directo", "desc": "Con 3/4 en dados se vuelve indefendible."},
+      {"name": "Ataque negador", "desc": "Con 3/4 dados exitosos, anula el siguiente turno enemigo."}
+    ],
+    "defensivas": [
+      {"name": "Defensa básica", "desc": "Defensa base del turno defensivo."},
+      {"name": "Defensa extra", "desc": "Otorga una acción defensiva adicional en el turno."},
+      {"name": "Técnica extra", "desc": "Acción adicional de técnica usable también en defensa."},
+      {"name": "Defensa reductora", "desc": "Reduce un porcentaje del ataque general del enemigo."},
+      {"name": "Defensa reflectora", "desc": "Refleja un porcentaje del daño de ataque enemigo."}
+    ],
+    "neutras": [
+      {"name": "Descansar", "desc": "Recupera un porcentaje de HP, EP y EC."},
+      {"name": "Técnica extra", "desc": "Puede aplicarse para extender ataque o defensa según necesidad."},
+      {"name": "Dados de furia", "desc": "Multiplica x2 una técnica de ataque o defensa sin consumir acción disponible."}
+    ],
+    "especiales": [
+      {"name": "Concentrar", "desc": "Multiplica x2 un ataque elegido y no consume acción disponible."},
+      {"name": "Potenciar", "desc": "Multiplica x2 una defensa elegida y no consume acción disponible."},
+      {"name": "Efecto especial", "desc": "Efecto propio del héroe, aplicable en ataque o defensa."}
+    ]
+  }
+}
