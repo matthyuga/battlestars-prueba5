@@ -922,6 +922,147 @@ init -880 python:
         S.bs_saga_hero_tech_builds = root
         return item
 
+    def bs_saga_tier_allowed_tech_ids(tier):
+        t = str(tier or "C").strip().upper()
+        table = {
+            "C": ["stronger_attack", "defense_strong_block", "direct_attack", "focus", "defense_boost", "fury_dice"],
+            "B": ["extra_attack", "defense_extra"],
+            "A": ["extra_tech", "attack_reducer", "defense_reducer"],
+            "S": ["noatk_attack", "defense_reflect"],
+        }
+        ids = list(table.get(t, table.get("C", [])))
+        out = []
+        for x in ids:
+            k = str(x or "").strip()
+            if k and k not in out:
+                out.append(k)
+        return out
+
+    def bs_saga_tech_display_name(tech_id):
+        key = str(tech_id or "").strip()
+        bt = getattr(S, "battle_techniques", {}) or {}
+        row = bt.get(key, {}) if isinstance(bt, dict) else {}
+        if isinstance(row, dict):
+            nm = str(row.get("name", "") or "").strip()
+            if nm:
+                return nm
+        return key
+
+    def bs_saga_recalc_tech_pool_spent(hero_id, config_id=None, build_id=None):
+        item = bs_saga_hero_tech_profile_get(hero_id, config_id, build_id)
+        if not isinstance(item, dict):
+            return False
+        tp = item.get("tech_points", {})
+        if not isinstance(tp, dict):
+            tp = {}
+
+        bt = getattr(S, "battle_techniques", {}) or {}
+        off = 0
+        deff = 0
+        for k, v in tp.items():
+            key = str(k or "").strip().lower()
+            if not key:
+                continue
+            try:
+                pts = int(v or 0)
+            except:
+                pts = 0
+            if pts < 0:
+                pts = 0
+            ttype = ""
+            row = bt.get(key, {}) if isinstance(bt, dict) else {}
+            if isinstance(row, dict):
+                ttype = str(row.get("type", "") or "").strip().lower()
+            if ttype == "defensive":
+                deff += pts
+            elif ttype == "offensive":
+                off += pts
+            else:
+                # specials/neutras: por ahora cargan al bucket ofensivo para no perder control de pool total
+                off += pts
+        item["pool_spent_off"] = int(off)
+        item["pool_spent_def"] = int(deff)
+        return True
+
+    def bs_saga_hero_tech_points_add(hero_id, tech_key, delta, config_id=None, build_id=None):
+        item = bs_saga_hero_tech_profile_get(hero_id, config_id, build_id)
+        if not isinstance(item, dict):
+            return False
+        key = str(tech_key or "").strip().lower()
+        if not key:
+            return False
+
+        try:
+            d = int(delta or 0)
+        except:
+            d = 0
+        if d == 0:
+            return False
+
+        tp = item.get("tech_points", {})
+        if not isinstance(tp, dict):
+            tp = {}
+        try:
+            cur = int(tp.get(key, 0) or 0)
+        except:
+            cur = 0
+        nxt = cur + d
+        if nxt < 0:
+            nxt = 0
+
+        # Validar que la técnica esté permitida por tier
+        tier = str(item.get("tier", bs_saga_hero_tier(hero_id, "C")) or "C").upper()
+        allowed = bs_saga_tier_allowed_tech_ids(tier)
+        if key not in allowed:
+            bs_saga_set_message("Técnica no permitida para tier {}: {}.".format(tier, key))
+            return False
+
+        # Aplicación tentativa + control pool total
+        old = dict(tp)
+        tp[key] = int(nxt)
+        item["tech_points"] = tp
+        bs_saga_recalc_tech_pool_spent(hero_id, config_id, build_id)
+        total = int(item.get("pool_total", 0) or 0)
+        spent = int(item.get("pool_spent_off", 0) or 0) + int(item.get("pool_spent_def", 0) or 0)
+        if spent > total:
+            item["tech_points"] = old
+            bs_saga_recalc_tech_pool_spent(hero_id, config_id, build_id)
+            bs_saga_set_message("Pool excedido ({}/{}).".format(spent, total))
+            return False
+        return True
+
+    def bs_saga_allowed_tech_ids_for_combat(hero_id=None):
+        hid = str(hero_id or getattr(S, "battle_player_id", "") or "").strip()
+        if not hid:
+            return []
+        # Fallback por tier
+        tier = bs_saga_hero_tier(hid, "C")
+        base_allowed = bs_saga_tier_allowed_tech_ids(tier)
+
+        profiles = getattr(S, "battle_prepared_player_tech_profiles", {}) or {}
+        prof = profiles.get(hid, {}) if isinstance(profiles, dict) else {}
+        if not isinstance(prof, dict):
+            return list(base_allowed)
+        mode = str(prof.get("mode", "virgen") or "virgen").strip().lower()
+        tp = prof.get("tech_points", {})
+        if mode != "preconfig" or (not isinstance(tp, dict)):
+            return list(base_allowed)
+
+        chosen = []
+        for k, v in tp.items():
+            key = str(k or "").strip().lower()
+            if not key:
+                continue
+            try:
+                pts = int(v or 0)
+            except:
+                pts = 0
+            if pts > 0 and key in base_allowed and key not in chosen:
+                chosen.append(key)
+
+        # Si no hay asignación válida, cae al set tier.
+        return chosen if chosen else list(base_allowed)
+
     def bs_saga_resolve_hero_tech_profile(hero_id, config_id=None, build_id=None):
         """
         Resuelve perfil final para combate:
@@ -983,11 +1124,22 @@ init -880 python:
             val = 0
         if val < 0:
             val = 0
+        tier = str(item.get("tier", bs_saga_hero_tier(hero_id, "C")) or "C").upper()
+        if key not in bs_saga_tier_allowed_tech_ids(tier):
+            return False
         tp = item.get("tech_points", {})
         if not isinstance(tp, dict):
             tp = {}
+        prev = dict(tp)
         tp[key] = val
         item["tech_points"] = tp
+        bs_saga_recalc_tech_pool_spent(hero_id, config_id, build_id)
+        total = int(item.get("pool_total", 0) or 0)
+        spent = int(item.get("pool_spent_off", 0) or 0) + int(item.get("pool_spent_def", 0) or 0)
+        if spent > total:
+            item["tech_points"] = prev
+            bs_saga_recalc_tech_pool_spent(hero_id, config_id, build_id)
+            return False
         return True
 
     def bs_saga_exp_progress():
@@ -2482,6 +2634,11 @@ screen bs_saga_preparation_room_screen():
     $ _tier_tuning = bs_saga_tier_combat_tuning_profile(_hero_tier) if _hero else {"hp_factor":0.0,"rest_hp_pct":0.0,"rest_ep_pct":0.0,"rest_ec_pct":0.0,"rest_ec_scales":0}
     $ _dmg_rules = dict(bs_saga_damage_coherence_rules or {})
     $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
+    $ _tier_allowed = bs_saga_tier_allowed_tech_ids(_hero_tier) if _hero else []
+    $ _tp_map = dict(_tech_prof.get("tech_points", {}) or {}) if _hero else {}
+    $ _pool_total_cfg = int(_tech_prof.get("pool_total", 0) or 0) if _hero else 0
+    $ _spent_cfg = int(_tech_prof.get("pool_spent_off", 0) or 0) + int(_tech_prof.get("pool_spent_def", 0) or 0) if _hero else 0
+    $ _pool_left_cfg = max(0, _pool_total_cfg - _spent_cfg)
     $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_prep_duel_rotation_ids or [])[:5]])
     $ _is_staging = False
 
@@ -2596,6 +2753,28 @@ screen bs_saga_preparation_room_screen():
                                 spacing 6
                                 textbutton "Téc. Virgen" action [Function(bs_saga_hero_tech_mode_set, _hero, "virgen", _cfg, _build), Jump("bs_saga_preparacion")]
                                 textbutton "Téc. Preconfig" action [Function(bs_saga_hero_tech_mode_set, _hero, "preconfig", _cfg, _build), Jump("bs_saga_preparacion")]
+                            null height 4
+                            text ("Pool técnico cfg/build: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre: " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
+                            text "Asignación de técnicas (tier actual)" size 15 color "#D0E9FF"
+                            viewport:
+                                draggable True
+                                mousewheel True
+                                scrollbars "vertical"
+                                ymaximum 160
+                                vbox:
+                                    spacing 4
+                                    if _tier_allowed:
+                                        for _tid in _tier_allowed:
+                                            $ _pts = int(_tp_map.get(_tid, 0) or 0)
+                                            hbox:
+                                                spacing 6
+                                                text (bs_saga_tech_display_name(_tid) + " [" + str(_pts) + "]") size 14 color "#CFE6FA" xminimum 300
+                                                textbutton "+25":
+                                                    action [Function(bs_saga_hero_tech_points_add, _hero, _tid, +25, _cfg, _build), Jump("bs_saga_preparacion")]
+                                                textbutton "-25":
+                                                    action [Function(bs_saga_hero_tech_points_add, _hero, _tid, -25, _cfg, _build), Jump("bs_saga_preparacion")]
+                                    else:
+                                        text "Sin técnicas habilitadas para este tier." size 14 color "#9FB9D1"
                         hbox:
                             spacing 6
                             textbutton "CFG1" action [Function(bs_saga_set_prep_config, "cfg1"), Jump("bs_saga_preparacion")]

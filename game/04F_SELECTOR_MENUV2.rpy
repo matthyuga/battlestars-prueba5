@@ -122,6 +122,21 @@ init python:
         if not seq:
             return []
 
+        # 1) Perfil preparado (preconfig) si existe
+        try:
+            fn_allowed = getattr(S, "bs_saga_allowed_tech_ids_for_combat", None)
+            hid = str(getattr(S, "battle_player_id", "") or "").strip()
+            if callable(fn_allowed):
+                arr = list(fn_allowed(hid) or [])
+                prof_allowed = set([str(x or "").strip().lower() for x in arr if str(x or "").strip()])
+                if len(prof_allowed) > 0:
+                    out_prof = [k for k in seq if str(k or "").strip().lower() in prof_allowed]
+                    if len(out_prof) > 0:
+                        return out_prof
+        except:
+            pass
+
+        # 2) Fallback por tier (regla base)
         t = _selector_player_tier()
         allowed = _TIER_TECH_KEYS.get(t, None)
         if not isinstance(allowed, set) or (len(allowed) == 0):
