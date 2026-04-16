@@ -45,9 +45,48 @@ init -990 python:
         hp_cap = max(0, hp_cap)
         rei_cap = max(0, rei_cap)
         ene_cap = max(0, ene_cap)
-        hp_gain = int(round(hp_cap * 0.05))
-        rei_gain = int(round(rei_cap * 0.25))
-        ene_gain = int(round(ene_cap * 0.25))
+        tune = {"rest_hp_pct": 0.03, "rest_ep_pct": 0.20, "rest_ec_pct": 0.20, "rest_ec_scales": 2}
+        try:
+            pid = str(getattr(S, "battle_player_id", "") or "")
+            tmap = getattr(S, "battle_prepared_combat_tuning", {}) or {}
+            if isinstance(tmap, dict) and isinstance(tmap.get(pid, None), dict):
+                tune.update(dict(tmap.get(pid)))
+        except:
+            pass
+        try:
+            hp_pct = float(tune.get("rest_hp_pct", 0.03) or 0.03)
+        except:
+            hp_pct = 0.03
+        try:
+            ep_pct = float(tune.get("rest_ep_pct", 0.20) or 0.20)
+        except:
+            ep_pct = 0.20
+        try:
+            ec_pct = float(tune.get("rest_ec_pct", 0.20) or 0.20)
+        except:
+            ec_pct = 0.20
+        try:
+            ec_scales = int(tune.get("rest_ec_scales", 2) or 2)
+        except:
+            ec_scales = 2
+        if hp_pct < 0.0: hp_pct = 0.0
+        if ep_pct < 0.0: ep_pct = 0.0
+        if ec_pct < 0.0: ec_pct = 0.0
+        if ec_scales < 0: ec_scales = 0
+
+        # Variante prudente: si está bajo 25% HP, no subir curación de HP (solo EP/EC).
+        try:
+            hp_ratio = (float(hp_now) / float(hp_cap)) if hp_cap > 0 else 0.0
+        except:
+            hp_ratio = 0.0
+        hp_gain = int(round(hp_cap * hp_pct))
+        if hp_ratio <= 0.25:
+            hp_gain = 0
+        rei_gain = int(round(rei_cap * ep_pct))
+        ene_gain = int(round(ene_cap * ec_pct))
+        # EC por escalas: suma plana adicional por cada escala.
+        if ec_scales > 0:
+            ene_gain += int(round(max(1, ene_cap * 0.05) * ec_scales))
 
         hp_after = min(hp_cap, max(0, hp_now + hp_gain))
         rei_after = min(rei_cap, max(0, rei_now + rei_gain))
@@ -85,7 +124,7 @@ init -990 python:
                 eg = str(int(ene_after - ene_now))
             fn_log = getattr(S, "battle_log_add", None)
             if callable(fn_log):
-                fn_log("{color=#A5D6A7}Descansar: +%s HP (5%% base), +%s Reiatsu y +%s Energía (25%% base).{/color}" % (hg, rg, eg))
+                fn_log("{color=#A5D6A7}Descansar: +%s HP, +%s Reiatsu y +%s Energía (perfil táctico).{/color}" % (hg, rg, eg))
         except:
             pass
 
