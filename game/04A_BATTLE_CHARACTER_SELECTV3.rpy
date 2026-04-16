@@ -10,8 +10,8 @@ default ai_difficulty_save = False
 default ai_difficulty_hud_visible = False
 
 # Defaults de selección (compat)
-default battle_player_id = "Harribel"
-default battle_enemy_id = "Hollow"
+default battle_player_id = ""
+default battle_enemy_id = ""
 default battle_team_mode = "1v1"   # "1v1" | "2v2"
 default battle_player_ids = []
 default battle_enemy_ids = []
@@ -49,6 +49,55 @@ init -20 python:
             persistent.ai_difficulty = lv
         return None
 
+    def battle_select_available_ids(include_all=False):
+        out = []
+        fn_roster = getattr(S, "bs_saga_resolve_roster_v1", None)
+        if callable(fn_roster):
+            out = [str(x) for x in list(fn_roster(bool(include_all), True) or []) if str(x)]
+        fn_pool = getattr(S, "get_combat_character_ids", None)
+        if (not out) and callable(fn_pool):
+            out = [str(x) for x in list(fn_pool(bool(include_all)) or []) if str(x)]
+        if not out:
+            fn_ready = getattr(S, "bs_saga_combat_ready_ids", None)
+            if callable(fn_ready):
+                out = [str(x) for x in list(fn_ready() or []) if str(x)]
+        unique = []
+        seen = {}
+        for hid in out:
+            k = str(hid or "").strip().lower()
+            if not k or seen.get(k):
+                continue
+            seen[k] = True
+            unique.append(str(hid))
+        return unique
+
+    def battle_select_pick_default(index=0, exclude=None, include_all=False):
+        pool = battle_select_available_ids(include_all)
+        exc = {str(x).strip().lower() for x in (exclude or []) if str(x).strip()}
+        filtered = [hid for hid in pool if hid.lower() not in exc]
+        src = filtered if filtered else pool
+        if not src:
+            return ""
+        idx = int(index or 0)
+        if idx < 0:
+            idx = 0
+        if idx >= len(src):
+            idx = len(src) - 1
+        return str(src[idx] or "")
+
+    def battle_select_options(exclude=None, include_all=True):
+        pool = battle_select_available_ids(include_all)
+        exc = {str(x).strip().lower() for x in (exclude or []) if str(x).strip()}
+        out = []
+        for hid in pool:
+            h = str(hid or "").strip()
+            if not h:
+                continue
+            if h.lower() in exc:
+                continue
+            out.append(h)
+        return out
+
 screen ai_difficulty_hud():
     zorder 200
     key "ctrl_p" action ToggleVariable("ai_difficulty_hud_visible")
@@ -71,6 +120,34 @@ screen ai_difficulty_hud():
                     textbutton "Avanzado" action Function(ai_difficulty_set, "advanced")
                 textbutton ("Guardar en perfil: ON" if ai_difficulty_save else "Guardar en perfil: OFF"):
                     action [ToggleVariable("ai_difficulty_save"), Function(ai_difficulty_set, ai_difficulty_current())]
+
+screen battle_select_dynamic_list_screen(title_txt, options, subtitle_txt=""):
+    modal True
+    tag menu
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xmaximum 800
+        ymaximum 620
+        padding (20, 16)
+        vbox:
+            spacing 10
+            text "[title_txt]" size 30 color "#FFD166"
+            if subtitle_txt:
+                text "[subtitle_txt]" size 18 color "#DCEBFF"
+            viewport:
+                mousewheel True
+                draggable True
+                ymaximum 420
+                vbox:
+                    spacing 8
+                    for opt in (options or []):
+                        textbutton "[opt]":
+                            xfill True
+                            action Return(str(opt))
+            textbutton "Cancelar":
+                xfill True
+                action Return("")
 
 
 label battle_select_player:
@@ -130,26 +207,17 @@ label battle_select_player_1v1:
     show screen ai_difficulty_hud
     "Selecciona tu personaje."
 
-    menu:
-        "Harribel":
-            $ battle_player_id = "Harribel"
-            $ bs_saga_register_hero_usage("harribel")
-            jump battle_select_opponent
-
-        "Grimmjow":
-            $ battle_player_id = "Grimmjow"
-            $ bs_saga_register_hero_usage("grimmjow")
-            jump battle_select_opponent
-
-        "Nel":
-            $ battle_player_id = "Nel"
-            $ bs_saga_register_hero_usage("nel")
-            jump battle_select_opponent
-
-        "Hollow":
-            $ battle_player_id = "Hollow"
-            $ bs_saga_register_hero_usage("hollow")
-            jump battle_select_opponent
+    $ _player_opts = battle_select_options([], True)
+    if not _player_opts:
+        "No hay héroes disponibles para selección."
+        jump battle_select_player
+    call screen battle_select_dynamic_list_screen("Selecciona tu personaje", _player_opts)
+    $ _pick = _return
+    if not _pick:
+        jump battle_select_player
+    $ battle_player_id = str(_pick)
+    $ bs_saga_register_hero_usage(str(_pick).lower())
+    jump battle_select_opponent
 
 
 label battle_select_opponent:
@@ -158,18 +226,18 @@ label battle_select_opponent:
     show screen ai_difficulty_hud
     "Selecciona a tu oponente."
 
-    menu:
-        "Hollow":
-            $ battle_enemy_id = "Hollow"
-            jump battle_start
-
-        "Grimmjow":
-            $ battle_enemy_id = "Grimmjow"
-            jump battle_start
-
-        "Nel":
-            $ battle_enemy_id = "Nel"
-            jump battle_start
+    $ _enemy_opts = battle_select_options([battle_player_id], True)
+    if not _enemy_opts:
+        $ _enemy_opts = battle_select_options([], True)
+    if not _enemy_opts:
+        "No hay oponentes disponibles."
+        jump battle_select_player_1v1
+    call screen battle_select_dynamic_list_screen("Selecciona a tu oponente", _enemy_opts)
+    $ _pick = _return
+    if not _pick:
+        jump battle_select_player_1v1
+    $ battle_enemy_id = str(_pick)
+    jump battle_start
 
 
 label battle_select_player_slot_0:
@@ -179,23 +247,17 @@ label battle_select_player_slot_0:
     $ _msg_mode = "Multijugador" if battle_multiplayer_manual else "2v2"
     "[_msg_mode] — Selecciona tu personaje (slot 1)."
 
-    menu:
-        "Harribel":
-            $ battle_player_slot_0 = "Harribel"
-            $ bs_saga_register_hero_usage("harribel")
-            jump battle_select_player_slot_1
-        "Grimmjow":
-            $ battle_player_slot_0 = "Grimmjow"
-            $ bs_saga_register_hero_usage("grimmjow")
-            jump battle_select_player_slot_1
-        "Nel":
-            $ battle_player_slot_0 = "Nel"
-            $ bs_saga_register_hero_usage("nel")
-            jump battle_select_player_slot_1
-        "Hollow":
-            $ battle_player_slot_0 = "Hollow"
-            $ bs_saga_register_hero_usage("hollow")
-            jump battle_select_player_slot_1
+    $ _opts = battle_select_options([], True)
+    if not _opts:
+        "No hay héroes disponibles para armar el equipo PLAYER."
+        jump battle_select_player
+    call screen battle_select_dynamic_list_screen("Equipo PLAYER — Slot 1", _opts)
+    $ _pick = _return
+    if not _pick:
+        jump battle_select_player
+    $ battle_player_slot_0 = str(_pick)
+    $ bs_saga_register_hero_usage(str(_pick).lower())
+    jump battle_select_player_slot_1
 
 
 label battle_select_player_slot_1:
@@ -209,23 +271,17 @@ label battle_select_player_slot_1:
         $ battle_player_slot_1 = ""
         jump battle_select_enemy_mode_2v2
 
-    menu:
-        "Harribel" if battle_player_slot_0 != "Harribel":
-            $ battle_player_slot_1 = "Harribel"
-            $ bs_saga_register_hero_usage("harribel")
-            jump battle_select_enemy_mode_2v2
-        "Grimmjow" if battle_player_slot_0 != "Grimmjow":
-            $ battle_player_slot_1 = "Grimmjow"
-            $ bs_saga_register_hero_usage("grimmjow")
-            jump battle_select_enemy_mode_2v2
-        "Nel" if battle_player_slot_0 != "Nel":
-            $ battle_player_slot_1 = "Nel"
-            $ bs_saga_register_hero_usage("nel")
-            jump battle_select_enemy_mode_2v2
-        "Hollow" if battle_player_slot_0 != "Hollow":
-            $ battle_player_slot_1 = "Hollow"
-            $ bs_saga_register_hero_usage("hollow")
-            jump battle_select_enemy_mode_2v2
+    $ _opts = battle_select_options([battle_player_slot_0], True)
+    if not _opts:
+        $ battle_player_slot_1 = ""
+        jump battle_select_enemy_mode_2v2
+    call screen battle_select_dynamic_list_screen("Equipo PLAYER — Slot 2", _opts, "Sin duplicados.")
+    $ _pick = _return
+    if not _pick:
+        jump battle_select_player_slot_0
+    $ battle_player_slot_1 = str(_pick)
+    $ bs_saga_register_hero_usage(str(_pick).lower())
+    jump battle_select_enemy_mode_2v2
 
 
 label battle_select_enemy_mode_2v2:
@@ -237,10 +293,10 @@ label battle_select_enemy_mode_2v2:
 
     python:
         import renpy.store as S
-        p0 = str(getattr(S, "battle_player_slot_0", "Harribel") or "Harribel")
-        p1 = str(getattr(S, "battle_player_slot_1", "Grimmjow") or "Grimmjow")
+        p0 = str(getattr(S, "battle_player_slot_0", "") or battle_select_pick_default(0))
+        p1 = str(getattr(S, "battle_player_slot_1", "") or battle_select_pick_default(1, exclude=[p0]))
         if (not getattr(S, "battle_multiplayer_manual", False)) and p0 == p1:
-            p1 = "Grimmjow" if p0 != "Grimmjow" else "Nel"
+            p1 = battle_select_pick_default(0, exclude=[p0])
         pcount = int(getattr(S, "battle_player_count", 2) or 2) if getattr(S, "battle_multiplayer_manual", False) else 2
         if pcount <= 1:
             S.battle_player_ids = [p0]
@@ -264,19 +320,19 @@ label battle_select_enemy_slot_0_2v2:
     $ _msg_mode = "Multijugador" if battle_multiplayer_manual else "2v2"
     "[_msg_mode] — Elige enemigo (slot 1)."
 
-    menu:
-        "Hollow":
-            $ battle_enemy_slot_0 = "Hollow"
-            jump battle_select_enemy_slot_1_2v2
-        "Grimmjow":
-            $ battle_enemy_slot_0 = "Grimmjow"
-            jump battle_select_enemy_slot_1_2v2
-        "Nel":
-            $ battle_enemy_slot_0 = "Nel"
-            jump battle_select_enemy_slot_1_2v2
-        "Harribel":
-            $ battle_enemy_slot_0 = "Harribel"
-            jump battle_select_enemy_slot_1_2v2
+    $ _exclude = list(battle_player_ids or [])
+    $ _opts = battle_select_options(_exclude, True)
+    if not _opts:
+        $ _opts = battle_select_options([], True)
+    if not _opts:
+        "No hay candidatos para equipo ENEMY."
+        jump battle_select_enemy_mode_2v2
+    call screen battle_select_dynamic_list_screen("Equipo ENEMY — Slot 1", _opts)
+    $ _pick = _return
+    if not _pick:
+        jump battle_select_enemy_mode_2v2
+    $ battle_enemy_slot_0 = str(_pick)
+    jump battle_select_enemy_slot_1_2v2
 
 
 label battle_select_enemy_slot_1_2v2:
@@ -290,34 +346,31 @@ label battle_select_enemy_slot_1_2v2:
         $ battle_enemy_slot_1 = ""
         jump battle_finalize_teams_2v2
 
-    menu:
-        "Hollow" if battle_enemy_slot_0 != "Hollow":
-            $ battle_enemy_slot_1 = "Hollow"
-            jump battle_finalize_teams_2v2
-        "Grimmjow" if battle_enemy_slot_0 != "Grimmjow":
-            $ battle_enemy_slot_1 = "Grimmjow"
-            jump battle_finalize_teams_2v2
-        "Nel" if battle_enemy_slot_0 != "Nel":
-            $ battle_enemy_slot_1 = "Nel"
-            jump battle_finalize_teams_2v2
-        "Harribel" if battle_enemy_slot_0 != "Harribel":
-            $ battle_enemy_slot_1 = "Harribel"
-            jump battle_finalize_teams_2v2
+    $ _exclude = [battle_enemy_slot_0]
+    $ _opts = battle_select_options(_exclude, True)
+    if not _opts:
+        $ battle_enemy_slot_1 = ""
+        jump battle_finalize_teams_2v2
+    call screen battle_select_dynamic_list_screen("Equipo ENEMY — Slot 2", _opts, "Sin duplicados.")
+    $ _pick = _return
+    if not _pick:
+        jump battle_select_enemy_slot_0_2v2
+    $ battle_enemy_slot_1 = str(_pick)
+    jump battle_finalize_teams_2v2
 
 
 label battle_select_enemy_slots_2v2_random:
     python:
         import renpy.store as S
-        fn_pool = getattr(S, "get_combat_character_ids", None)
-        pool = list(fn_pool(True) if callable(fn_pool) else ["Hollow", "Grimmjow", "Nel", "Harribel"])
+        pool = list(battle_select_available_ids(True) or battle_select_available_ids(False))
 
         candidates = [c for c in pool if c not in (S.battle_player_ids or [])]
         if len(candidates) < 2:
             candidates = list(pool)
 
         renpy.random.shuffle(candidates)
-        e0 = str(candidates[0] if len(candidates) > 0 else "Hollow")
-        e1 = str(candidates[1] if len(candidates) > 1 else ("Grimmjow" if e0 != "Grimmjow" else "Nel"))
+        e0 = str(candidates[0] if len(candidates) > 0 else battle_select_pick_default(0))
+        e1 = str(candidates[1] if len(candidates) > 1 else battle_select_pick_default(0, exclude=[e0]))
         if e0 == e1:
             for c in pool:
                 if c != e0:
@@ -334,10 +387,10 @@ label battle_select_enemy_slots_2v2_random:
 label battle_finalize_teams_2v2:
     python:
         import renpy.store as S
-        p0 = str(getattr(S, "battle_player_slot_0", "Harribel") or "Harribel")
-        p1 = str(getattr(S, "battle_player_slot_1", "Grimmjow") or "Grimmjow")
-        e0 = str(getattr(S, "battle_enemy_slot_0", "Hollow") or "Hollow")
-        e1 = str(getattr(S, "battle_enemy_slot_1", "Nel") or "Nel")
+        p0 = str(getattr(S, "battle_player_slot_0", "") or battle_select_pick_default(0))
+        p1 = str(getattr(S, "battle_player_slot_1", "") or battle_select_pick_default(1, exclude=[p0]))
+        e0 = str(getattr(S, "battle_enemy_slot_0", "") or battle_select_pick_default(0, exclude=[p0, p1]))
+        e1 = str(getattr(S, "battle_enemy_slot_1", "") or battle_select_pick_default(1, exclude=[e0]))
 
         pmulti = bool(getattr(S, "battle_multiplayer_manual", False))
         pcount = int(getattr(S, "battle_player_count", 2) or 2) if pmulti else 2
@@ -348,7 +401,7 @@ label battle_finalize_teams_2v2:
             S.battle_player_slot_1 = ""
         else:
             if p0 == p1:
-                p1 = "Grimmjow" if p0 != "Grimmjow" else "Nel"
+                p1 = battle_select_pick_default(0, exclude=[p0])
             p_ids = [p0, p1]
 
         if ecount <= 1:
@@ -356,7 +409,7 @@ label battle_finalize_teams_2v2:
             S.battle_enemy_slot_1 = ""
         else:
             if e0 == e1:
-                e1 = "Grimmjow" if e0 != "Grimmjow" else "Nel"
+                e1 = battle_select_pick_default(0, exclude=[e0])
             e_ids = [e0, e1]
 
         S.battle_player_ids = p_ids

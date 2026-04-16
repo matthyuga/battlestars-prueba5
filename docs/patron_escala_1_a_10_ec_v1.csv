@@ -1,0 +1,111 @@
+tecnica,escala_base,escala,ec_costo
+ataque extra,9,1,10
+ataque extra,9,2,10
+ataque extra,9,3,10
+ataque extra,9,4,10
+ataque extra,9,5,10
+ataque extra,9,6,10
+ataque extra,9,7,10
+ataque extra,9,8,10
+ataque extra,9,9,10
+ataque extra,9,10,20
+tecnica extra,7,1,20
+tecnica extra,7,2,20
+tecnica extra,7,3,20
+tecnica extra,7,4,20
+tecnica extra,7,5,20
+tecnica extra,7,6,20
+tecnica extra,7,7,20
+tecnica extra,7,8,30
+tecnica extra,7,9,30
+tecnica extra,7,10,30
+ataque reductor,5,1,40
+ataque reductor,5,2,40
+ataque reductor,5,3,40
+ataque reductor,5,4,40
+ataque reductor,5,5,40
+ataque reductor,5,6,50
+ataque reductor,5,7,50
+ataque reductor,5,8,50
+ataque reductor,5,9,50
+ataque reductor,5,10,50
+ataque directo,6,1,30
+ataque directo,6,2,30
+ataque directo,6,3,30
+ataque directo,6,4,30
+ataque directo,6,5,30
+ataque directo,6,6,30
+ataque directo,6,7,40
+ataque directo,6,8,40
+ataque directo,6,9,40
+ataque directo,6,10,40
+ataque negador,6,1,30
+ataque negador,6,2,30
+ataque negador,6,3,30
+ataque negador,6,4,30
+ataque negador,6,5,30
+ataque negador,6,6,30
+ataque negador,6,7,40
+ataque negador,6,8,40
+ataque negador,6,9,40
+ataque negador,6,10,40
+efecto especial,5,1,500
+efecto especial,5,2,500
+efecto especial,5,3,500
+efecto especial,5,4,500
+efecto especial,5,5,500
+efecto especial,5,6,510
+efecto especial,5,7,510
+efecto especial,5,8,510
+efecto especial,5,9,510
+efecto especial,5,10,510
+ataque basico,no usa EC,1,
+ataque basico,no usa EC,2,
+ataque basico,no usa EC,3,
+ataque basico,no usa EC,4,
+ataque basico,no usa EC,5,
+ataque basico,no usa EC,6,
+ataque basico,no usa EC,7,
+ataque basico,no usa EC,8,
+ataque basico,no usa EC,9,
+ataque basico,no usa EC,10,
+defensa extra,9,1,10
+defensa extra,9,2,10
+defensa extra,9,3,10
+defensa extra,9,4,10
+defensa extra,9,5,10
+defensa extra,9,6,10
+defensa extra,9,7,10
+defensa extra,9,8,10
+defensa extra,9,9,10
+defensa extra,9,10,20
+defensa reductora,5,1,40
+defensa reductora,5,2,40
+defensa reductora,5,3,40
+defensa reductora,5,4,40
+defensa reductora,5,5,40
+defensa reductora,5,6,50
+defensa reductora,5,7,50
+defensa reductora,5,8,50
+defensa reductora,5,9,50
+defensa reductora,5,10,50
+defensa basica,no usa EC,1,
+defensa basica,no usa EC,2,
+defensa basica,no usa EC,3,
+defensa basica,no usa EC,4,
+defensa basica,no usa EC,5,
+defensa basica,no usa EC,6,
+defensa basica,no usa EC,7,
+defensa basica,no usa EC,8,
+defensa basica,no usa EC,9,
+defensa basica,no usa EC,10,
+defensa reflectora,4,1,50
+defensa reflectora,4,2,50
+defensa reflectora,4,3,50
+defensa reflectora,4,4,50
+defensa reflectora,4,5,60
+defensa reflectora,4,6,60
+defensa reflectora,4,7,60
+defensa reflectora,4,8,60
+defensa reflectora,4,9,70
+defensa reflectora,4,10,70

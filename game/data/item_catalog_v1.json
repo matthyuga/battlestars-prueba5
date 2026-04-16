@@ -1,0 +1,74 @@
+{
+  "consumibles": {
+    "title": "Consumibles",
+    "groups": {
+      "pociones": [
+        {"name": "Poción HP roja", "rarity": "", "tier_req": "", "meta": "+50% HP"},
+        {"name": "Poción HP naranja", "rarity": "", "tier_req": "", "meta": "+35% HP"},
+        {"name": "Poción HP amarilla", "rarity": "", "tier_req": "", "meta": "+25% HP"},
+        {"name": "Poción EP roja", "rarity": "", "tier_req": "", "meta": "+50% EP"},
+        {"name": "Poción EP naranja", "rarity": "", "tier_req": "", "meta": "+35% EP"},
+        {"name": "Poción EP amarilla", "rarity": "", "tier_req": "", "meta": "+25% EP"},
+        {"name": "Poción EC roja", "rarity": "", "tier_req": "", "meta": "+50% EC"},
+        {"name": "Poción EC naranja", "rarity": "", "tier_req": "", "meta": "+35% EC"},
+        {"name": "Poción EC amarilla", "rarity": "", "tier_req": "", "meta": "+25% EC"},
+        {"name": "Poción de durabilidad roja", "rarity": "", "tier_req": "", "meta": "+50% durabilidad"},
+        {"name": "Poción de durabilidad naranja", "rarity": "", "tier_req": "", "meta": "+35% durabilidad"},
+        {"name": "Poción de durabilidad amarilla", "rarity": "", "tier_req": "", "meta": "+25% durabilidad"},
+        {"name": "Poción de fuerza verde", "rarity": "", "tier_req": "", "meta": "+1 punto fuerza · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de fuerza celeste", "rarity": "", "tier_req": "", "meta": "+2 puntos fuerza · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de fuerza azul", "rarity": "", "tier_req": "", "meta": "+3 puntos fuerza · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de agilidad verde", "rarity": "", "tier_req": "", "meta": "+1 punto agilidad · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de agilidad celeste", "rarity": "", "tier_req": "", "meta": "+2 puntos agilidad · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de agilidad azul", "rarity": "", "tier_req": "", "meta": "+3 puntos agilidad · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de resistencia verde", "rarity": "", "tier_req": "", "meta": "+1 punto resistencia · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de resistencia celeste", "rarity": "", "tier_req": "", "meta": "+2 puntos resistencia · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de resistencia azul", "rarity": "", "tier_req": "", "meta": "+3 puntos resistencia · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de inteligencia verde", "rarity": "", "tier_req": "", "meta": "+1 punto inteligencia · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de inteligencia celeste", "rarity": "", "tier_req": "", "meta": "+2 puntos inteligencia · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de inteligencia azul", "rarity": "", "tier_req": "", "meta": "+3 puntos inteligencia · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de espíritu verde", "rarity": "", "tier_req": "", "meta": "+1 punto espíritu · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de espíritu celeste", "rarity": "", "tier_req": "", "meta": "+2 puntos espíritu · Solo Torre · dura 1 duelo"},
+        {"name": "Poción de espíritu azul", "rarity": "", "tier_req": "", "meta": "+3 puntos espíritu · Solo Torre · dura 1 duelo"}
+      ],
+      "amuletos": [
+        {"name": "Espejo reflector", "rarity": "rare", "tier_req": "B", "meta": "Refleja 30% daño (3 usos)"},
+        {"name": "Cilindro mágico", "rarity": "rare", "tier_req": "B", "meta": "Absorbe 30% daño (3 usos)"},
+        {"name": "Espada sagrada", "rarity": "epic", "tier_req": "A", "meta": "+30% daño (3 usos)"},
+        {"name": "Daga maldita", "rarity": "epic", "tier_req": "A", "meta": "30% a daño directo (3 usos)"},
+        {"name": "Daga envenenada", "rarity": "epic", "tier_req": "A", "meta": "30% directo a HP (3 usos)"}
+      ]
+    }
+  },
+  "permanentes": {
+    "title": "Permanentes",
+    "groups": {
+      "anillos": [],
+      "pulseras": [],
+      "pendientes": [],
+      "collares": [],
+      "diademas": [],
+      "cinturones": [],
+      "tobilleras": [],
+      "tatuajes": []
+    }
+  },
+  "materiales": {
+    "title": "Materiales",
+    "groups": {
+      "basicos": [
+        {"name": "Chatarra común", "rarity": "common", "tier_req": "C", "meta": "Moneda de trueque"},
+        {"name": "Fragmento reciclado", "rarity": "common", "tier_req": "C", "meta": "Moneda de trueque"}
+      ],
+      "ascenso": [
+        {"name": "Material ascenso común", "rarity": "common", "tier_req": "C", "meta": "Ascenso C→B"},
+        {"name": "Material ascenso raro", "rarity": "rare", "tier_req": "B", "meta": "Ascenso B→A"},
+        {"name": "Material ascenso especial", "rarity": "special", "tier_req": "A", "meta": "Ascenso A→S"},
+        {"name": "Material ascenso épico", "rarity": "epic", "tier_req": "S", "meta": "Ascenso S→SS"},
+        {"name": "Material ascenso legendario", "rarity": "legendary", "tier_req": "SS", "meta": "Ascenso SS→SSS"},
+        {"name": "Material ascenso mítico", "rarity": "mythic", "tier_req": "SSS", "meta": "Ascenso SSS→IV"},
+        {"name": "Material ascenso infernal", "rarity": "infernal", "tier_req": "IV", "meta": "Reserva tier IV"}
+      ]
+    }
+  }
+}
