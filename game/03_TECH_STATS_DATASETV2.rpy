@@ -23,6 +23,11 @@ init -970 python:
         "focus",          # Concentrar
         "defense_boost",  # Potenciar
     ])
+    # Técnicas base: consumen solo Reiatsu (sin Energy)
+    BASIC_NO_ENERGY = set([
+        "stronger_attack",      # Ataque básica
+        "defense_strong_block", # Defensa básica
+    ])
 
     # ------------------------------------------------------------
     # 📌 TABLA DE ESCALAS (cuántas casillas para subir energía)
@@ -90,6 +95,19 @@ init -970 python:
         block = (cell - 1) // sc      # 0.. según escala
         return 10 + block * 10
 
+    def _extra_tech_flag_name(actor="player"):
+        who = "enemy" if str(actor or "").strip().lower() == "enemy" else "player"
+        return "{}_extra_tech_used_turn".format(who)
+
+    def can_use_extra_tech(actor="player"):
+        return not bool(getattr(S, _extra_tech_flag_name(actor), False))
+
+    def mark_extra_tech_used(actor="player"):
+        setattr(S, _extra_tech_flag_name(actor), True)
+
+    def reset_extra_tech_turn(actor="player"):
+        setattr(S, _extra_tech_flag_name(actor), False)
+
     # ============================================================
     # 📌 FUNCIÓN PRINCIPAL: Obtener costos de técnica (SEGURA)
     # ============================================================
@@ -119,7 +137,7 @@ init -970 python:
 
         rei   = calc_reiatsu(value)
         scale = TECH_SCALE.get(tech_id, 9)
-        ene   = calc_energy(value, scale)
+        ene   = 0 if tech_id in BASIC_NO_ENERGY else calc_energy(value, scale)
 
         return {
             "value":   value,
@@ -156,6 +174,9 @@ init -970 python:
     # ⭐ FUNCIÓN universal para verificar recursos
     # ============================================================
     def can_afford(tech_id, actor="player"):
+        if tech_id == "extra_tech" and not can_use_extra_tech(actor):
+            return False
+
         c = get_tech_costs(tech_id)
         rei = int(c.get("reiatsu", 0) or 0)
         ene = int(c.get("energy", 0) or 0)
@@ -176,10 +197,14 @@ init -970 python:
         if actor == "enemy":
             S.enemy_reiatsu = max(0, int(getattr(S, "enemy_reiatsu", 0)) - rei)
             S.enemy_energy  = max(0, int(getattr(S, "enemy_energy", 0))  - ene)
+            if tech_id == "extra_tech":
+                mark_extra_tech_used("enemy")
             return rei, ene
 
         S.player_reiatsu = max(0, int(getattr(S, "player_reiatsu", 0)) - rei)
         S.player_energy  = max(0, int(getattr(S, "player_energy", 0))  - ene)
+        if tech_id == "extra_tech":
+            mark_extra_tech_used("player")
         return rei, ene
 
     # ============================================================
@@ -244,6 +269,7 @@ init -970 python:
     S.TECH_SCALE = TECH_SCALE
     S.TECH_STATS = TECH_STATS
     S.SPECIAL_ZERO_COST = SPECIAL_ZERO_COST
+    S.BASIC_NO_ENERGY = BASIC_NO_ENERGY
 
     S.calc_reiatsu = calc_reiatsu
     S.calc_energy  = calc_energy
@@ -251,4 +277,6 @@ init -970 python:
     S.set_tech_value = set_tech_value
     S.can_afford = can_afford
     S.pay_costs  = pay_costs
+    S.can_use_extra_tech = can_use_extra_tech
+    S.reset_extra_tech_turn = reset_extra_tech_turn
     S.tech_stats_validate_against_battle_techniques = tech_stats_validate_against_battle_techniques

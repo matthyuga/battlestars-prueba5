@@ -57,6 +57,12 @@ init -950 python:
             return tech_id in zero
         return tech_id in ("focus", "defense_boost", "strong_attack")
 
+    def _is_basic_no_energy(tech_id):
+        ids = getattr(S, "BASIC_NO_ENERGY", None)
+        if isinstance(ids, (set, list, tuple)):
+            return tech_id in ids
+        return tech_id in ("stronger_attack", "defense_strong_block")
+
     # -----------------------------------------------------------
     # ✅ Detectar objetivo real de Focus / Potenciar por cola
     # -----------------------------------------------------------
@@ -127,7 +133,7 @@ init -950 python:
 
         scale = scale_map.get(tech_id, 1)
         reiatsu = int(value)
-        energy  = int(_calc_energy(value, scale))
+        energy  = 0 if _is_basic_no_energy(tech_id) else int(_calc_energy(value, scale))
 
         return {
             "value": value,
@@ -227,13 +233,16 @@ init -950 python:
 
         # Energía escala por valor final (base + bonus por slot)
         # y mantiene independencia del multiplicador de focus.
-        try:
-            energy_cost = int(_calc_energy(value_final, scale))
-        except:
+        if _is_basic_no_energy(tech_id):
+            energy_cost = 0
+        else:
             try:
-                energy_cost = int(base.get("energy", 0) or 0)
+                energy_cost = int(_calc_energy(value_final, scale))
             except:
-                energy_cost = 0
+                try:
+                    energy_cost = int(base.get("energy", 0) or 0)
+                except:
+                    energy_cost = 0
 
         mult = 1
 
