@@ -2,7 +2,6 @@
 # Fase 2 de split: ownership, rotación, resolver roster.
 
 init -880 python:
-    import renpy
     import renpy.store as S
 
     def bs_saga_hero_is_owned(hero_id):
