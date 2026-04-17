@@ -11,6 +11,21 @@ init -880 python:
     import re
     import time
 
+    def bs_saga_ui_hub_bootstrap_status_v1():
+        return {
+            "module": "12_BATTLESTARS_SAGA_UI_HUB_V1",
+            "status": "phase_5_bootstrap",
+            "purpose": "labels/flow + compat bridge",
+            "split_modules": [
+                "game/ui_hub/ui_hub_state.rpy",
+                "game/ui_hub/ui_hub_roster_service.rpy",
+                "game/ui_hub/ui_hub_tech_service.rpy",
+                "game/ui_hub/ui_hub_screens_lobby.rpy",
+                "game/ui_hub/ui_hub_screens_prep.rpy",
+                "game/ui_hub/ui_hub_audit_economy.rpy"
+            ]
+        }
+
     def bs_saga_slug(text):
         raw = str(text or "").strip().lower()
         raw = re.sub(r"[^a-z0-9]+", "_", raw)
@@ -1588,235 +1603,10 @@ init -880 python:
 # - bs_saga_preparation_verify_screen
 # ahora viven en `game/ui_hub/ui_hub_screens_prep.rpy`.
 
-screen bs_saga_tech_catalog_screen():
-    tag menu
-    $ _mode = str(bs_saga_tech_catalog_mode or "").lower()
-    $ _tier = str(bs_saga_tech_catalog_tier or "C").upper()
-    $ _tiers = bs_saga_tech_tier_keys()
-    $ _ttype = str(bs_saga_tech_catalog_type or "ofensivas").lower()
-    $ _types = bs_saga_tech_type_keys()
-    $ _rows = bs_saga_tech_catalog().get(_tier, []) if _mode == "tier" else (bs_saga_tech_catalog_by_type().get(_ttype, []) if _mode == "type" else [])
-
-    add Solid("#0E1A28")
-
-    frame:
-        xalign 0.5
-        yalign 0.08
-        xsize 1128
-        ysize 78
-        background Solid("#66C8FF")
-
-    frame:
-        xalign 0.5
-        yalign 0.08
-        xsize 1116
-        ypadding 10
-        background Solid("#2C4963")
-        hbox:
-            spacing 16
-            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
-            text "Territorio: Catálogo de técnicas" size 22 color "#D7EEFF" yalign 0.7
-            null width 70
-            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
-
-    frame:
-        xalign 0.5
-        yalign 0.56
-        xsize 1120
-        ysize 500
-        padding (16, 16)
-        background Solid("#13273A")
-
-        hbox:
-            spacing 14
-
-            frame:
-                xsize 240
-                yfill True
-                padding (10, 10)
-                background Solid("#1F3348")
-                vbox:
-                    spacing 8
-                    text "Modo de listado" size 24 color "#DDEEFF"
-                    textbutton "Por tier":
-                        action Function(bs_saga_tech_catalog_set_mode, "tier")
-                    textbutton "Por tipo":
-                        action Function(bs_saga_tech_catalog_set_mode, "type")
-                    null height 8
-
-                    if _mode == "tier":
-                        text "Tiers" size 24 color "#DDEEFF"
-                        for tt in _tiers:
-                            textbutton "Tier [tt]":
-                                action SetVariable("bs_saga_tech_catalog_tier", tt)
-                    elif _mode == "type":
-                        text "Tipos" size 24 color "#DDEEFF"
-                        for tp in _types:
-                            $ _tp_label = bs_saga_labelize(tp)
-                            textbutton _tp_label:
-                                action SetVariable("bs_saga_tech_catalog_type", tp)
-
-            frame:
-                xfill True
-                yfill True
-                padding (12, 12)
-                background Solid("#102438")
-                vbox:
-                    spacing 8
-                    if _mode == "tier":
-                        text "Técnicas liberadas · Tier [_tier]" size 22 color "#EAF6FF"
-                    elif _mode == "type":
-                        $ _type_label = bs_saga_labelize(_ttype)
-                        text "Técnicas liberadas · Tipo [_type_label]" size 22 color "#EAF6FF"
-                    else:
-                        text "Selecciona \"Por tier\" o \"Por tipo\" para desplegar categorías." size 20 color "#AFCFE8"
-                    viewport:
-                        draggable True
-                        mousewheel True
-                        scrollbars "vertical"
-                        ymaximum 410
-                        vbox:
-                            spacing 8
-                            if _rows:
-                                for row in _rows:
-                                    $ _n = str(row.get("name", "?") or "?")
-                                    $ _d = str(row.get("desc", "") or "")
-                                    frame:
-                                        xfill True
-                                        background Solid("#173048")
-                                        padding (10, 8)
-                                        vbox:
-                                            spacing 4
-                                            text _n size 20 color "#CDE7FF"
-                                            text _d size 16 color "#AFCFE8"
-                            else:
-                                text ("Sin técnicas configuradas para este tier." if _mode == "tier" else ("Sin técnicas configuradas para este tipo." if _mode == "type" else "")) size 18 color "#9FB9D1"
-
-screen bs_saga_tower_screen():
-    tag menu
-
-    $ _tf = str(bs_saga_tower_tier_filter or "ALL").upper()
-    $ _selected_floor = int(bs_saga_tower_selected_floor or 1)
-    $ _rows = bs_saga_tower_filter_floors(_tf, 100)
-    $ _selected = bs_saga_tower_selected_row(_selected_floor, 100)
-    $ _selected_tier = str(_selected.get("tier", "C") or "C").upper()
-    $ _selected_tier_start = int(_selected.get("tier_range_start", 1) or 1)
-    $ _selected_tier_end = int(_selected.get("tier_range_end", 10) or 10)
-    $ _selected_slot_type = str(_selected.get("slot_type", "guardian") or "guardian")
-    $ _selected_title = str(_selected.get("title", "—") or "—")
-    $ _selected_subtitle = str(_selected.get("subtitle", "—") or "—")
-    $ _selected_floor_label = int(_selected.get("floor", 1) or 1)
-    $ _filter_label = ("todas" if _tf == "ALL" else ("tier " + _tf))
-
-    add Solid("#0E1A28")
-
-    frame:
-        xalign 0.5
-        yalign 0.08
-        xsize 1128
-        ysize 78
-        background Solid("#66C8FF")
-
-    frame:
-        xalign 0.5
-        yalign 0.08
-        xsize 1116
-        ypadding 10
-        background Solid("#2C4963")
-        hbox:
-            spacing 16
-            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
-            text "Territorio: Torre del cielo" size 22 color "#D7EEFF" yalign 0.7
-            null width 40
-            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
-
-    frame:
-        xalign 0.5
-        yalign 0.56
-        xsize 1120
-        ysize 500
-        padding (18, 18)
-        background Solid("#14273B")
-
-        hbox:
-            spacing 16
-
-            frame:
-                xsize 240
-                yfill True
-                padding (10, 10)
-                background Solid("#1F3348")
-                vbox:
-                    spacing 8
-                    text "Pisos (1-100)" size 22 color "#DDEEFF"
-                    text "Filtro: [_filter_label]" size 16 color "#9FC4E2"
-                    viewport:
-                        draggable True
-                        mousewheel True
-                        scrollbars "vertical"
-                        ymaximum 420
-                        vbox:
-                            spacing 6
-                            for row in _rows:
-                                $ _f = int(row.get("floor", 1) or 1)
-                                $ _tier = str(row.get("tier", "C") or "C").upper()
-                                textbutton ("Piso %03d · Tier %s" % (_f, _tier)):
-                                    action SetVariable("bs_saga_tower_selected_floor", _f)
-
-            frame:
-                xfill True
-                yfill True
-                padding (14, 14)
-                background Solid("#11253A")
-                vbox:
-                    spacing 10
-
-                    hbox:
-                        spacing 8
-                        text "Tiers" size 20 color "#DCEEFF"
-                        textbutton "Todos" action SetVariable("bs_saga_tower_tier_filter", "ALL")
-                        textbutton "Tier C" action SetVariable("bs_saga_tower_tier_filter", "C")
-                        textbutton "Tier B" action SetVariable("bs_saga_tower_tier_filter", "B")
-                        textbutton "Tier A" action SetVariable("bs_saga_tower_tier_filter", "A")
-                        textbutton "Tier S" action SetVariable("bs_saga_tower_tier_filter", "S")
-
-                    hbox:
-                        spacing 20
-                        frame:
-                            xsize 290
-                            ysize 360
-                            background Solid("#0D1A2A")
-                            padding (12, 12)
-                            vbox:
-                                spacing 8
-                                text ("Panel visual · Piso %03d" % _selected_floor_label) size 18 color "#CDE7FF"
-                                null height 240
-                                text "Placeholder visual (héroe / NPC / evento)." size 16 color "#8EABC5"
-
-                        frame:
-                            xfill True
-                            ysize 360
-                            padding (10, 10)
-                            background Solid("#1A3044")
-                            vbox:
-                                spacing 8
-                                text ("Información del piso %03d" % _selected_floor_label) size 20 color "#E5F4FF"
-                                frame:
-                                    xfill True
-                                    background Solid("#1B3348")
-                                    padding (10, 8)
-                                    vbox:
-                                        spacing 6
-                                        text ("Tier asignado: " + _selected_tier) size 18 color "#D0E9FF"
-                                        text ("Rango tier: pisos %03d-%03d" % (_selected_tier_start, _selected_tier_end)) size 17 color "#B8D9F2"
-                                        text ("Tipo de nodo: " + ("Guardián" if _selected_slot_type == "guardian" else "Buff / Sorpresa")) size 18 color "#D0E9FF"
-                                        text ("Estado: " + _selected_title) size 17 color "#B8D9F2"
-                                        text ("Detalle: " + _selected_subtitle) size 17 color "#B8D9F2"
-                                frame:
-                                    xfill True
-                                    background Solid("#173048")
-                                    padding (10, 8)
-                                    text "Placeholder de stats/loot/requisitos del piso (por completar)." size 16 color "#AFCFE8"
+# Fase 5 de split:
+# - bs_saga_tech_catalog_screen
+# - bs_saga_tower_screen
+# ahora viven en `game/ui_hub/ui_hub_screens_lobby.rpy`.
 
 # ---------- flujo de entrada ----------
 

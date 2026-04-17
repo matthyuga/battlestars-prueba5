@@ -18,7 +18,8 @@ Separar estado, servicios y pantallas para mejorar mantenimiento y reducir riesg
 2. **Fase 2:** migrar helpers puros (sin UI) a `roster_service` y `tech_service`. ✅
 3. **Fase 3:** mover pantallas (`screen`) a archivos de UI por dominio. ✅
 4. **Fase 4:** mover compra/auditoría/economía a `audit_economy`. ✅
-5. **Fase 5:** dejar `12_BATTLESTARS_SAGA_UI_HUB_V1.rpy` como bootstrap/compatibilidad.
+5. **Fase 5:** dejar `12_BATTLESTARS_SAGA_UI_HUB_V1.rpy` como bootstrap/compatibilidad. ✅
 
 ## Nota operativa
-Hasta completar la migración por fases, el monolito actual sigue siendo la fuente de verdad para evitar regresiones.
+Con Fase 5 cerrada, el monolito queda como **bootstrap/compatibilidad** (labels + puente),
+y la fuente funcional se distribuye en los módulos de `game/ui_hub/`.
