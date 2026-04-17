@@ -1350,23 +1350,36 @@ init -880 python:
         return out
 
     def bs_saga_load_json_contract(rel_path, default_obj=None):
-        try:
-            f = renpy.loader.load(str(rel_path or ""))
-            raw = f.read()
+        path_raw = str(rel_path or "").strip()
+        if not path_raw:
+            return default_obj
+
+        candidates = [path_raw]
+        if path_raw.startswith("game/"):
+            candidates.append(path_raw[len("game/"):])
+        else:
+            candidates.append("game/" + path_raw)
+
+        for p in candidates:
             try:
-                f.close()
+                f = renpy.loader.load(str(p or ""))
+                raw = f.read()
+                try:
+                    f.close()
+                except:
+                    pass
+                if raw is None:
+                    continue
+                try:
+                    txt = raw.decode("utf-8")
+                except:
+                    txt = str(raw)
+                obj = json.loads(txt)
+                if isinstance(obj, dict):
+                    return obj
             except:
                 pass
-            if raw is None:
-                return default_obj
-            try:
-                txt = raw.decode("utf-8")
-            except:
-                txt = str(raw)
-            obj = json.loads(txt)
-            return obj if isinstance(obj, dict) else default_obj
-        except:
-            return default_obj
+        return default_obj
 
     def bs_saga_item_schema():
         fn_v1 = getattr(S, "bs_get_item_catalog_v1", None)
@@ -1383,11 +1396,55 @@ init -880 python:
         if isinstance(contract, dict) and contract:
             return contract
 
-        # Fallback técnico mínimo (si falta contrato externo).
+        # Fallback funcional completo (si falta contrato externo).
         return {
-            "consumibles": {"title": "Consumibles", "groups": {"pociones": [], "amuletos": []}},
-            "permanentes": {"title": "Permanentes", "groups": {}},
-            "materiales": {"title": "Materiales", "groups": {"basicos": [], "ascenso": []}},
+            "consumibles": {
+                "title": "Consumibles",
+                "groups": {
+                    "pociones": [
+                        {"name": "Poción HP roja", "rarity": "", "tier_req": "", "meta": "+50% HP"},
+                        {"name": "Poción EP roja", "rarity": "", "tier_req": "", "meta": "+50% EP"},
+                        {"name": "Poción EC roja", "rarity": "", "tier_req": "", "meta": "+50% EC"},
+                        {"name": "Poción de durabilidad roja", "rarity": "", "tier_req": "", "meta": "+50% durabilidad"},
+                    ],
+                    "amuletos": [
+                        {"name": "Espejo reflector", "rarity": "rare", "tier_req": "B", "meta": "Refleja 30% daño (3 usos)"},
+                        {"name": "Cilindro mágico", "rarity": "rare", "tier_req": "B", "meta": "Absorbe 30% daño (3 usos)"},
+                        {"name": "Espada sagrada", "rarity": "epic", "tier_req": "A", "meta": "+30% daño (3 usos)"},
+                    ],
+                }
+            },
+            "permanentes": {
+                "title": "Permanentes",
+                "groups": {
+                    "anillos": [],
+                    "pulseras": [],
+                    "pendientes": [],
+                    "collares": [],
+                    "diademas": [],
+                    "cinturones": [],
+                    "tobilleras": [],
+                    "tatuajes": [],
+                }
+            },
+            "materiales": {
+                "title": "Materiales",
+                "groups": {
+                    "basicos": [
+                        {"name": "Chatarra común", "rarity": "common", "tier_req": "C", "meta": "Material de cambio/trueque"},
+                        {"name": "Fragmento reciclado", "rarity": "common", "tier_req": "C", "meta": "Material de cambio/trueque"},
+                    ],
+                    "ascenso": [
+                        {"name": "Material ascenso común", "rarity": "common", "tier_req": "C", "meta": "Ascenso C→B"},
+                        {"name": "Material ascenso raro", "rarity": "rare", "tier_req": "B", "meta": "Ascenso B→A"},
+                        {"name": "Material ascenso especial", "rarity": "special", "tier_req": "A", "meta": "Ascenso A→S"},
+                        {"name": "Material ascenso épico", "rarity": "epic", "tier_req": "S", "meta": "Ascenso S→SS"},
+                        {"name": "Material ascenso legendario", "rarity": "legendary", "tier_req": "SS", "meta": "Ascenso SS→SSS"},
+                        {"name": "Material ascenso mítico", "rarity": "mythic", "tier_req": "SSS", "meta": "Ascenso SSS→IV"},
+                        {"name": "Material ascenso infernal", "rarity": "infernal", "tier_req": "IV", "meta": "Reserva tier IV"},
+                    ],
+                }
+            },
         }
 
     def bs_saga_inventory_contract_ok():
@@ -1566,14 +1623,64 @@ init -880 python:
         tier = contract.get("tier", {}) if isinstance(contract, dict) else {}
         if isinstance(tier, dict) and tier:
             return tier
-        return {"C": [], "B": [], "A": [], "S": []}
+        return {
+            "C": [
+                {"name": "Ataque básico", "desc": "Ataque base. Escala con EP: a mayor potencia, mayor gasto de EP."},
+                {"name": "Defensa básica", "desc": "Defensa base. Escala con EP: más protección implica mayor gasto de EP."},
+                {"name": "Ataque directo", "desc": "Si sale 3/4 en dados, el golpe se vuelve indefendible; si no, se puede bloquear."},
+                {"name": "Efecto especial", "desc": "Cada héroe tiene un efecto propio, aplicado en ataque o defensa según su kit."},
+                {"name": "Concentrar", "desc": "Multiplica x2 un ataque elegido. No consume acción disponible."},
+                {"name": "Descansar", "desc": "Recupera un porcentaje de HP, EP y EC."},
+                {"name": "Dados de furia", "desc": "Se activa con 10% de HP o menos. Multiplica x2 una técnica elegida."},
+            ],
+            "B": [
+                {"name": "Ataque extra", "desc": "Otorga una acción ofensiva adicional en el turno."},
+                {"name": "Defensa extra", "desc": "Otorga una acción defensiva adicional en el turno."},
+                {"name": "Potenciar", "desc": "Multiplica x2 una defensa elegida y no consume acción disponible."},
+            ],
+            "A": [
+                {"name": "Técnica extra", "desc": "Habilita una acción adicional de técnica en el turno."},
+                {"name": "Ataque reductor", "desc": "Reduce un porcentaje de la defensa general del enemigo."},
+                {"name": "Defensa reductora", "desc": "Reduce un porcentaje del ataque general del enemigo."},
+            ],
+            "S": [
+                {"name": "Ataque negador", "desc": "Con 3/4 dados exitosos, anula el siguiente turno enemigo."},
+                {"name": "Defensa reflectora", "desc": "Refleja un porcentaje del daño de ataque enemigo."},
+            ],
+        }
 
     def bs_saga_tech_catalog_by_type():
         contract = bs_saga_load_json_contract("data/tech_catalog_v1.json", {})
         by_type = contract.get("type", {}) if isinstance(contract, dict) else {}
         if isinstance(by_type, dict) and by_type:
             return by_type
-        return {"ofensivas": [], "defensivas": [], "neutras": [], "especiales": []}
+        return {
+            "ofensivas": [
+                {"name": "Ataque básico", "desc": "Ataque base del turno ofensivo."},
+                {"name": "Ataque extra", "desc": "Otorga una acción ofensiva adicional en el turno."},
+                {"name": "Técnica extra", "desc": "Acción adicional de técnica usable también en defensa."},
+                {"name": "Ataque reductor", "desc": "Reduce un porcentaje de la defensa general del enemigo."},
+                {"name": "Ataque directo", "desc": "Con 3/4 en dados se vuelve indefendible."},
+                {"name": "Ataque negador", "desc": "Con 3/4 dados exitosos, anula el siguiente turno enemigo."},
+            ],
+            "defensivas": [
+                {"name": "Defensa básica", "desc": "Defensa base del turno defensivo."},
+                {"name": "Defensa extra", "desc": "Otorga una acción defensiva adicional en el turno."},
+                {"name": "Técnica extra", "desc": "Acción adicional de técnica usable también en defensa."},
+                {"name": "Defensa reductora", "desc": "Reduce un porcentaje del ataque general del enemigo."},
+                {"name": "Defensa reflectora", "desc": "Refleja un porcentaje del daño de ataque enemigo."},
+            ],
+            "neutras": [
+                {"name": "Descansar", "desc": "Recupera un porcentaje de HP, EP y EC."},
+                {"name": "Técnica extra", "desc": "Puede aplicarse para extender ataque o defensa según necesidad."},
+                {"name": "Dados de furia", "desc": "Multiplica x2 una técnica de ataque o defensa sin consumir acción."},
+            ],
+            "especiales": [
+                {"name": "Concentrar", "desc": "Multiplica x2 un ataque elegido y no consume acción disponible."},
+                {"name": "Potenciar", "desc": "Multiplica x2 una defensa elegida y no consume acción disponible."},
+                {"name": "Efecto especial", "desc": "Efecto propio del héroe, aplicable en ataque o defensa."},
+            ],
+        }
 
     def bs_saga_tech_catalog_set_mode(mode):
         m = str(mode or "").strip().lower()
