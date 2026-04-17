@@ -243,11 +243,33 @@ init -880 python:
         return 1200
 
     def bs_saga_hero_is_owned(hero_id):
+        item = bs_saga_owned_hero_entry(hero_id)
+        return bool(isinstance(item, dict) and item.get("owned", False))
+
+    def bs_saga_owned_hero_entry(hero_id):
         owned = getattr(S, "bs_saga_heroes_owned", {})
         if not isinstance(owned, dict):
-            return False
-        item = owned.get(str(hero_id), {})
-        return bool(isinstance(item, dict) and item.get("owned", False))
+            return {}
+        target = str(hero_id or "").strip()
+        if not target:
+            return {}
+
+        # Ruta rápida: key exacta.
+        item = owned.get(target, None)
+        if isinstance(item, dict):
+            return item
+
+        # Compatibilidad: comparar de forma case-insensitive tanto por key
+        # como por hero_id persistido dentro de cada fila.
+        target_lc = target.lower()
+        for k, row in owned.items():
+            if not isinstance(row, dict):
+                continue
+            key_lc = str(k or "").strip().lower()
+            row_hid_lc = str(row.get("hero_id", "") or "").strip().lower()
+            if key_lc == target_lc or row_hid_lc == target_lc:
+                return row
+        return {}
 
     def bs_saga_owned_heroes_count():
         owned = getattr(S, "bs_saga_heroes_owned", {})
@@ -1349,7 +1371,7 @@ init -880 python:
                         continue
                     if not bool(info.get("owned", False)):
                         continue
-                    h = str(hid or "").strip()
+                    h = str(info.get("hero_id", hid) or hid).strip()
                     if h:
                         out.append(h)
 
