@@ -23,7 +23,7 @@ Este contrato es el estándar para balance, QA y futuras migraciones runtime.
 
 La referencia operativa del contrato vive en:
 
-- `docs/planilla_costos_tecnicas_ep_ec_v1.csv` (vista horizontal extendida a 10000)
+- `docs/planilla_costos_tecnicas_ep_ec_v1.csv` (vista horizontal extendida a 20000)
 - `docs/patron_escala_1_a_10_ec_v1.csv` (patrón 1..10 por técnica)
 - `docs/regla_escalado_tecnicas_v1.md` (fórmula resumida)
 
