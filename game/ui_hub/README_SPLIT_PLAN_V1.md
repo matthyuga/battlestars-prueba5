@@ -14,7 +14,7 @@ Separar estado, servicios y pantallas para mejorar mantenimiento y reducir riesg
 - `ui_hub_audit_economy.rpy`: compras, oro, inventario de cuenta y auditoría de transacciones.
 
 ## Estrategia de migración recomendada
-1. **Fase 1 (sin riesgo funcional):** mover definiciones `default` a `ui_hub_state.rpy`.
+1. **Fase 1 (sin riesgo funcional):** mover definiciones `default` a `ui_hub_state.rpy`. ✅
 2. **Fase 2:** migrar helpers puros (sin UI) a `roster_service` y `tech_service`.
 3. **Fase 3:** mover pantallas (`screen`) a archivos de UI por dominio.
 4. **Fase 4:** mover compra/auditoría/economía a `audit_economy`.
