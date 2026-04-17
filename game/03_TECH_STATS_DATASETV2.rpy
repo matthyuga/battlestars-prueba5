@@ -25,7 +25,7 @@ init -970 python:
     ])
     # Técnicas base: consumen solo Reiatsu (sin Energy)
     BASIC_NO_ENERGY = set([
-        "stronger_attack",      # Ataque básica
+        "stronger_attack",      # Ataque básico
         "defense_strong_block", # Defensa básica
     ])
 

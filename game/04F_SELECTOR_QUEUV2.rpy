@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04F_SELECTOR_QUEUE.rpy – Cola de Técnicas (Modern v4.2 FIXED)
 # Soporta Focus/Potenciar según posición en la cola
 # ------------------------------------------------------------
@@ -40,7 +40,8 @@ init python:
         "Ataque Reductor":     "attack_reducer",
         "Ataque Directo":      "direct_attack",
         "Ataque Negador":      "noatk_attack",
-        "Ataque más fuerte":   "stronger_attack",
+        "Ataque básico":   "stronger_attack",
+        "Ataque más fuerte":   "stronger_attack",  # alias legacy
         "Ladrón ofensivo":     "ladron_ofensivo",
         "Ladrón defensivo":    "ladron_defensivo",
         "Ladrón de concentrar": "ladron_concentrar",
@@ -48,7 +49,8 @@ init python:
         "Defensa Extra":       "defense_extra",
         "Defensa Reductora":   "defense_reducer",
         "Defensa Reflectora":  "defense_reflect",
-        "Defensa Fuerte":      "defense_strong_block",
+        "Defensa Básica":      "defense_strong_block",
+        "Defensa Fuerte":      "defense_strong_block",  # alias legacy
         "Salvaguarda principiante": "salvaguarda_principiante",
 
         # especiales (no consumen recursos directos)

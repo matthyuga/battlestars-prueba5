@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04C_OFFENSIVE_ACTIONS.rpy – Offensive Core (Action Objects)
 # ============================================================
 # v12.5 – SafeLogHub + StoreSafe LogRefs + BaseValue SafeCall Fix + 04X SSOT
@@ -273,7 +273,8 @@ init python:
             "Ataque Reductor":    "attack_reducer",
             "Ataque Directo":     "direct_attack",
             "Ataque Negador":     "noatk_attack",
-            "Ataque más fuerte":  "stronger_attack",
+            "Ataque básico":  "stronger_attack",
+            "Ataque más fuerte":  "stronger_attack",  # alias legacy
             "Ladrón ofensivo":    "ladron_ofensivo",
             "Ladrón defensivo":   "ladron_defensivo",
             "Ladrón de concentrar": "ladron_concentrar",
@@ -805,18 +806,18 @@ label offensive_process_actions(selected):
                 try:
                     if callable(fmt_red) and callable(fmt_white):
                         _blog(
-                            fmt_red("Ataque más fuerte") +
+                            fmt_red("Ataque básico") +
                             fmt_white(" → Inflige ") +
                             fmt_red(make_dmg_text(action.base_value, dmg)) +
                             fmt_white(" de daño. ") +
                             _cost_line(rei_cost, ene_cost)
                         )
                     else:
-                        _blog("Ataque más fuerte → {} daño. (Reiatsu {} / Energía {})".format(
+                        _blog("Ataque básico → {} daño. (Reiatsu {} / Energía {})".format(
                             make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                         ), "#FF4444")
                 except:
-                    _blog("Ataque más fuerte → {} daño. (Reiatsu {} / Energía {})".format(
+                    _blog("Ataque básico → {} daño. (Reiatsu {} / Energía {})".format(
                         make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                     ), "#FF4444")
 

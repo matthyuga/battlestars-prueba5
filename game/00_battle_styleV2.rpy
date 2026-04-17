@@ -1,4 +1,4 @@
-﻿#============================================================
+#============================================================
 #00_BATTLE_STYLE.RPY – Estilos, Formato y Logs del Sistema
 #Versión v4.3 – Store-Safe + Markup-Safe + Wrapper-Aware + SafeLogHub
 #------------------------------------------------------------
@@ -349,7 +349,7 @@ init -970 python:
             final = base
 
         return "{} → Bloquea {}{}".format(
-            fmt_cyan("Defensa Fuerte"),
+            fmt_cyan("Defensa Básica"),
             _defense_block_text(base, final),
             fmt_white(" de daño.")
         )

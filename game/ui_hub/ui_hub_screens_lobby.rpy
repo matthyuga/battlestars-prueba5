@@ -271,11 +271,7 @@ screen bs_saga_heroes_screen():
                                                             text "Adquirido" size 16 color "#8BD6A7"
                                                         else:
                                                             textbutton "Comprar":
-                                                                action [
-                                                                    SetVariable("bs_saga_heroes_scroll_y", (float(i) / float(max(1, len(_heroes) - 1)))),
-                                                                    Function(bs_saga_buy_hero, h),
-                                                                    Jump("bs_saga_heroes")
-                                                                ]
+                                                                action Function(bs_saga_buy_hero, h)
                                         else:
                                             text "No hay héroes para ese filtro." size 18 color "#9FB9D1"
 

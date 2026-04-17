@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04D_AI_REACTIVE_DEFENSE_ENGINE.rpy – Execution Engine
 # v12.4.1 ReflectQueue Centralized (Target=Attacker, Source=Defender) ✅
 # ------------------------------------------------------------
@@ -234,7 +234,7 @@ init -988 python:
                     if callable(fn_strong):
                         summary_lines.append(fn_strong(base_blk, blk))
                     else:
-                        summary_lines.append("Defensa Fuerte → Bloquea %s" % S.battle_fmt_num(blk))
+                        summary_lines.append("Defensa Básica → Bloquea %s" % S.battle_fmt_num(blk))
                 except:
                     pass
 

@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04D_DEFENSIVE_ACTIONS.rpy – Defensive Actions (v14.0 ONE-SHOT)
 # ============================================================
 # ✔ Arquitectura Action (igual a ofensivo)
@@ -91,7 +91,8 @@ init python:
             "Defensa Extra":       "defense_extra",
             "Defensa Reductora":   "defense_reducer",
             "Defensa Reflectora":  "defense_reflect",
-            "Defensa Fuerte":      "defense_strong_block",
+            "Defensa Básica":      "defense_strong_block",
+            "Defensa Fuerte":      "defense_strong_block",  # alias legacy
             "Salvaguarda principiante": "salvaguarda_principiante",
             "Potenciar":           "defense_boost",
             "Descansar":           "rest_recovery",
@@ -127,7 +128,7 @@ init python:
         else:
             block_txt = fmt_cyan(_fmt_num(final_blk))
 
-        return fmt_cyan("Defensa Fuerte") + fmt_white(" → Bloquea ") + block_txt + fmt_white(" de daño.")
+        return fmt_cyan("Defensa Básica") + fmt_white(" → Bloquea ") + block_txt + fmt_white(" de daño.")
 
 
 # ============================================================

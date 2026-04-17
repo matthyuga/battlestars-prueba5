@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04F_SELECTOR_MENUV2.rpy – Menú de Técnicas Moderno (v7.2 FIXED)
 # Dynamic Cost Edition – basado en el sistema 04X
 # ------------------------------------------------------------
@@ -69,7 +69,7 @@ init python:
         "attack_reducer": "Ataque Reductor",
         "direct_attack": "Ataque Directo",
         "noatk_attack": "Ataque Negador",
-        "stronger_attack": "Ataque más fuerte",
+        "stronger_attack": "Ataque básico",
         "ladron_ofensivo": "Ladrón ofensivo",
         "ladron_defensivo": "Ladrón defensivo",
         "ladron_concentrar": "Ladrón de concentrar",
@@ -77,7 +77,7 @@ init python:
         "defense_extra": "Defensa Extra",
         "defense_reducer": "Defensa Reductora",
         "defense_reflect": "Defensa Reflectora",
-        "defense_strong_block": "Defensa Fuerte",
+        "defense_strong_block": "Defensa Básica",
         "salvaguarda_principiante": "Salvaguarda principiante",
 
         "focus_attack": "Concentrar x2",

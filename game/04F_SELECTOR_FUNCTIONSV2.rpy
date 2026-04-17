@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04F_SELECTOR_FUNCTIONSV2.rpy – Selector Moderno (v7.2 FIX SAFE)
 # Rebuild Simulation Safe Edition – basado en 04X
 # ------------------------------------------------------------
@@ -47,7 +47,8 @@ init -959 python:
         "Ataque Reductor":   "attack_reducer",
         "Ataque Directo":    "direct_attack",
         "Ataque Negador":    "noatk_attack",
-        "Ataque más fuerte": "stronger_attack",
+        "Ataque básico": "stronger_attack",
+        "Ataque más fuerte": "stronger_attack",  # alias legacy
         "Ladrón ofensivo":   "ladron_ofensivo",
         "Ladrón defensivo":  "ladron_defensivo",
         "Ladrón de concentrar": "ladron_concentrar",
@@ -56,7 +57,8 @@ init -959 python:
         "Defensa Extra":       "defense_extra",
         "Defensa Reductora":   "defense_reducer",
         "Defensa Reflectora":  "defense_reflect",
-        "Defensa Fuerte":      "defense_strong_block",
+        "Defensa Básica":      "defense_strong_block",
+        "Defensa Fuerte":      "defense_strong_block",  # alias legacy
         "Salvaguarda principiante": "salvaguarda_principiante",
 
         # FOCUS (sin tech_id real)
@@ -124,7 +126,8 @@ init -959 python:
         "Ataque Directo":    {"cost": 1, "bonus": 0},
         "Ataque Negador":    {"cost": 1, "bonus": 0},
         "Ataque Reductor":   {"cost": 1, "bonus": 0},
-        "Ataque más fuerte": {"cost": 1, "bonus": 0},
+        "Ataque básico": {"cost": 1, "bonus": 0},
+        "Ataque más fuerte": {"cost": 1, "bonus": 0},  # alias legacy
         "Ladrón ofensivo":   {"cost": 1, "bonus": 0},
         "Ladrón defensivo":  {"cost": 1, "bonus": 0},
         "Ladrón de concentrar": {"cost": 1, "bonus": 0},
@@ -140,7 +143,8 @@ init -959 python:
         "Defensa Extra":       {"cost": 1, "bonus": 1},
         "Defensa Reductora":   {"cost": 1, "bonus": 0},
         "Defensa Reflectora":  {"cost": 1, "bonus": 0},
-        "Defensa Fuerte":      {"cost": 1, "bonus": 0},
+        "Defensa Básica":      {"cost": 1, "bonus": 0},
+        "Defensa Fuerte":      {"cost": 1, "bonus": 0},  # alias legacy
         "Salvaguarda principiante": {"cost": 1, "bonus": 0},
     }
 
