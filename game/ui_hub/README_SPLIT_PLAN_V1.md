@@ -23,3 +23,8 @@ Separar estado, servicios y pantallas para mejorar mantenimiento y reducir riesg
 ## Nota operativa
 Con Fase 5 cerrada, el monolito queda como **bootstrap/compatibilidad** (labels + puente),
 y la fuente funcional se distribuye en los módulos de `game/ui_hub/`.
+
+## Micro-regla anti-conflictos (Ren'Py runtime)
+- En módulos `init python`, **no usar `import renpy` directo**.
+- Usar `import renpy.store as S` para estado compartido.
+- Si se necesita aleatoriedad, reutilizar `renpy.random` del runtime sin reimportar el módulo base.

@@ -155,7 +155,7 @@ screen bs_saga_preparation_room_screen():
                                             $ _pts = int(_tp_map.get(_tid, 0) or 0)
                                             hbox:
                                                 spacing 6
-                                                text (bs_saga_tech_display_name(_tid) + " [" + str(_pts) + "]") size 14 color "#CFE6FA" xminimum 300
+                                                text (bs_saga_tech_display_name(_tid) + " [" + str(_pts) + "]") substitute False size 14 color "#CFE6FA" xminimum 300
                                                 textbutton "+25":
                                                     action [Function(bs_saga_hero_tech_points_add, _hero, _tid, +25, _cfg, _build), Jump("bs_saga_preparacion")]
                                                 textbutton "-25":
