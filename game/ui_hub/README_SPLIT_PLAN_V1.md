@@ -17,7 +17,7 @@ Separar estado, servicios y pantallas para mejorar mantenimiento y reducir riesg
 1. **Fase 1 (sin riesgo funcional):** mover definiciones `default` a `ui_hub_state.rpy`. ✅
 2. **Fase 2:** migrar helpers puros (sin UI) a `roster_service` y `tech_service`. ✅
 3. **Fase 3:** mover pantallas (`screen`) a archivos de UI por dominio. ✅
-4. **Fase 4:** mover compra/auditoría/economía a `audit_economy`.
+4. **Fase 4:** mover compra/auditoría/economía a `audit_economy`. ✅
 5. **Fase 5:** dejar `12_BATTLESTARS_SAGA_UI_HUB_V1.rpy` como bootstrap/compatibilidad.
 
 ## Nota operativa
