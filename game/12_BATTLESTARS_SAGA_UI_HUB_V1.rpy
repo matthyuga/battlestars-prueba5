@@ -969,8 +969,8 @@ init -880 python:
         if isinstance(row, dict):
             nm = str(row.get("name", "") or "").strip()
             if nm:
-                return nm
-        return key
+                return nm.replace("{", "{{").replace("}", "}}")
+        return key.replace("{", "{{").replace("}", "}}")
 
     def bs_saga_recalc_tech_pool_spent(hero_id, config_id=None, build_id=None):
         item = bs_saga_hero_tech_profile_get(hero_id, config_id, build_id)
