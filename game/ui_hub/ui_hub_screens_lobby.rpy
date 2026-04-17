@@ -271,7 +271,7 @@ screen bs_saga_heroes_screen():
                                                             text "Adquirido" size 16 color "#8BD6A7"
                                                         else:
                                                             textbutton "Comprar":
-                                                                action Function(bs_saga_buy_hero, h)
+                                                                action Function(bs_saga_buy_hero_from_ui, h)
                                         else:
                                             text "No hay héroes para ese filtro." size 18 color "#9FB9D1"
 

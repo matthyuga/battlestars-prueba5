@@ -129,6 +129,13 @@ init -880 python:
             bs_saga_set_message("Compraste a {} por {} oro. Aún sin tier (sigue coleccionando).".format(hero_name, price))
         return True
 
+    def bs_saga_buy_hero_from_ui(hero_row):
+        # Wrapper para acciones de botón en screens:
+        # evita que el retorno bool de bs_saga_buy_hero
+        # interfiera con el flujo de navegación del screen.
+        bs_saga_buy_hero(hero_row)
+        return None
+
     def bs_saga_item_id(item_row):
         if not isinstance(item_row, dict):
             return "unknown_item"
@@ -274,6 +281,7 @@ init -880 python:
                 "bs_saga_dev_set_account_state",
                 "bs_saga_audit_push",
                 "bs_saga_buy_hero",
+                "bs_saga_buy_hero_from_ui",
                 "bs_saga_item_id",
                 "bs_saga_item_price",
                 "bs_saga_item_bucket",
