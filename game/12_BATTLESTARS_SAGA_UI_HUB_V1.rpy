@@ -634,8 +634,8 @@ init -880 python:
             elif ttype == "offensive":
                 off += pts
             else:
-                # specials/neutras: por ahora cargan al bucket ofensivo para no perder control de pool total
-                off += pts
+                # Fase 2: specials/neutras no consumen pool de asignación.
+                continue
         item["pool_spent_off"] = int(off)
         item["pool_spent_def"] = int(deff)
         return True
@@ -671,6 +671,10 @@ init -880 python:
         allowed = bs_saga_tier_allowed_tech_ids(tier)
         if key not in allowed:
             bs_saga_set_message("Técnica no permitida para tier {}: {}.".format(tier, key))
+            return False
+        fn_point_alloc = getattr(S, "bs_saga_is_point_alloc_tech", None)
+        if callable(fn_point_alloc) and (not bool(fn_point_alloc(key))):
+            bs_saga_set_message("Técnica especial sin asignación de puntos: {}.".format(bs_saga_tech_display_name(key)))
             return False
 
         # Aplicación tentativa + control pool total
@@ -848,6 +852,9 @@ init -880 python:
             val = 0
         tier = str(item.get("tier", bs_saga_hero_tier(hero_id, "C")) or "C").upper()
         if key not in bs_saga_tier_allowed_tech_ids(tier):
+            return False
+        fn_point_alloc = getattr(S, "bs_saga_is_point_alloc_tech", None)
+        if callable(fn_point_alloc) and (not bool(fn_point_alloc(key))):
             return False
         tp = item.get("tech_points", {})
         if not isinstance(tp, dict):

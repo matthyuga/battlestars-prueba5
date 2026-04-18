@@ -30,13 +30,26 @@ init -880 python:
                 return nm.replace("{", "{{").replace("}", "}}")
         return key.replace("{", "{{").replace("}", "}}")
 
+    def bs_saga_is_point_alloc_tech(tech_id):
+        key = str(tech_id or "").strip().lower()
+        if not key:
+            return False
+        bt = getattr(S, "battle_techniques", {}) or {}
+        row = bt.get(key, {}) if isinstance(bt, dict) else {}
+        if not isinstance(row, dict):
+            return False
+        ttype = str(row.get("type", "") or "").strip().lower()
+        # Fase 2: solo ofensivas/defensivas consumen puntos.
+        return ttype in ("offensive", "defensive")
+
     def bs_saga_ui_hub_tech_split_status_v1():
         return {
             "module": "ui_hub_tech_service",
             "status": "phase_2_done",
             "migrated_symbols": [
                 "bs_saga_tier_allowed_tech_ids",
-                "bs_saga_tech_display_name"
+                "bs_saga_tech_display_name",
+                "bs_saga_is_point_alloc_tech"
             ],
             "next_symbols": [
                 "bs_saga_recalc_tech_pool_spent",

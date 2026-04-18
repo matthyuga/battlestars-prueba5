@@ -149,6 +149,8 @@ screen bs_saga_hero_config_screen():
     $ _dmg_rules = dict(bs_saga_damage_coherence_rules or {})
     $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
     $ _tier_allowed = bs_saga_tier_allowed_tech_ids(_hero_tier) if _hero else []
+    $ _tier_point_alloc = [tid for tid in _tier_allowed if bs_saga_is_point_alloc_tech(tid)]
+    $ _tier_special = [tid for tid in _tier_allowed if tid not in _tier_point_alloc]
     $ _tp_map = dict(_tech_prof.get("tech_points", {}) or {}) if _hero else {}
     $ _pool_total_cfg = int(_tech_prof.get("pool_total", 0) or 0) if _hero else 0
     $ _spent_cfg = int(_tech_prof.get("pool_spent_off", 0) or 0) + int(_tech_prof.get("pool_spent_def", 0) or 0) if _hero else 0
@@ -224,8 +226,9 @@ screen bs_saga_hero_config_screen():
                                 textbutton "Téc. Virgen" action [Function(bs_saga_hero_tech_mode_set, _hero, "virgen", _cfg, _build), Jump("bs_saga_preparacion")]
                                 textbutton "Téc. Preconfig" action [Function(bs_saga_hero_tech_mode_set, _hero, "preconfig", _cfg, _build), Jump("bs_saga_preparacion")]
                             text ("Pool técnico cfg/build: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre: " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
-                            if _tier_allowed:
-                                for _tid in _tier_allowed:
+                            if _tier_point_alloc:
+                                text "Técnicas con puntos (ofensivas/defensivas)" size 15 color "#D0E9FF"
+                                for _tid in _tier_point_alloc:
                                     $ _pts = int(_tp_map.get(_tid, 0) or 0)
                                     hbox:
                                         spacing 6
@@ -235,7 +238,12 @@ screen bs_saga_hero_config_screen():
                                         textbutton "-25":
                                             action [Function(bs_saga_hero_tech_points_add, _hero, _tid, -25, _cfg, _build), Jump("bs_saga_preparacion")]
                             else:
-                                text "Sin técnicas habilitadas para este tier." size 14 color "#9FB9D1"
+                                text "Sin técnicas ofensivas/defensivas asignables para este tier." size 14 color "#9FB9D1"
+                            if _tier_special:
+                                null height 6
+                                text "Técnicas especiales (sin asignación de puntos)" size 15 color "#D0E9FF"
+                                for _tid in _tier_special:
+                                    text ("• " + bs_saga_tech_display_name(_tid)) size 14 color "#9FC4E2"
                         elif _tab == "equipamiento":
                             text "Equipamiento y loadout" size 21 color "#EAF6FF"
                             for i in range(6):
