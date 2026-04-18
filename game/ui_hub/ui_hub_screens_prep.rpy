@@ -308,6 +308,7 @@ screen bs_saga_duel_staging_screen():
     $ _checks = list((_contract or {}).get("checks", []) or [])
     $ _block_n = len((_contract or {}).get("blocking", []) or [])
     $ _warn_n = len((_contract or {}).get("warnings", []) or [])
+    $ _diag = bs_saga_capture_prep_diag(_hero, _cfg, _build) if _hero else {}
     $ _cons = bs_saga_prep_inventory_candidates("consumables")
     $ _items = bs_saga_prep_inventory_candidates("equipables")
     $ _flag_cons = str(bs_saga_prep_flag_consumable_id or "")
@@ -389,6 +390,12 @@ screen bs_saga_duel_staging_screen():
                             text (_icon + " " + str(c.get("label", "")) + " · " + str(c.get("detail", ""))) size 14 color _col
                         text ("• Técnicas: " + str(_tech_prof.get("mode", "virgen")) + " · Pool " + str(_tech_prof.get("pool_total", 0))) size 14 color "#9FC4E2"
                         text ("• Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"
+                        if _diag:
+                            text ("• Diag modo raw/resuelto: " + str(_diag.get("raw_mode", "virgen")) + " / " + str(_diag.get("resolved_mode", "virgen"))) size 13 color "#9FC4E2"
+                            text ("• Diag puntos raw/resuelto: " + str(int(_diag.get("raw_points_positive", 0) or 0)) + " / " + str(int(_diag.get("resolved_points_positive", 0) or 0))) size 13 color "#9FC4E2"
+                            text ("• Diag preset externo: " + ("SI" if bool(_diag.get("preset_applied", False)) else "NO")) size 13 color "#9FC4E2"
+                            if bool(_diag.get("suspicious", False)):
+                                text "⚠ Diag: posible sobreescritura de puntos al resolver preconfig." size 13 color "#FFD166"
                         null height 6
 
                         text "Modo de juego" size 16 color "#D0E9FF"

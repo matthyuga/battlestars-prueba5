@@ -936,6 +936,77 @@ init -880 python:
 
         return True
 
+    def bs_saga_capture_prep_diag(hero_id, config_id=None, build_id=None):
+        """
+        Barrido A+B (instrumentación):
+        - A: visibilidad de modo/points raw vs perfil resuelto para combate.
+        - B: detección de preset externo potencialmente sobrescribiendo.
+        """
+        hid = str(hero_id or "").strip()
+        if not hid:
+            return {}
+        cfg = str(config_id or getattr(S, "bs_saga_prep_selected_config", "cfg1") or "cfg1")
+        bld = str(build_id or getattr(S, "bs_saga_prep_selected_build", "balanceado") or "balanceado")
+
+        raw = bs_saga_hero_tech_profile_get(hid, cfg, bld)
+        resolved = bs_saga_resolve_hero_tech_profile(hid, cfg, bld)
+        if not isinstance(raw, dict):
+            raw = {}
+        if not isinstance(resolved, dict):
+            resolved = {}
+
+        raw_mode = str(raw.get("mode", "virgen") or "virgen").strip().lower()
+        res_mode = str(resolved.get("mode", "virgen") or "virgen").strip().lower()
+        raw_tp = raw.get("tech_points", {}) if isinstance(raw.get("tech_points", {}), dict) else {}
+        res_tp = resolved.get("tech_points", {}) if isinstance(resolved.get("tech_points", {}), dict) else {}
+        raw_positive = 0
+        for _, v in raw_tp.items():
+            try:
+                if int(v or 0) > 0:
+                    raw_positive += 1
+            except:
+                pass
+        res_positive = 0
+        for _, v in res_tp.items():
+            try:
+                if int(v or 0) > 0:
+                    res_positive += 1
+            except:
+                pass
+
+        preset_callable = bool(callable(getattr(S, "bs_get_hero_tech_preset_v1", None)))
+        preset_applied = False
+        try:
+            fn_preset = getattr(S, "bs_get_hero_tech_preset_v1", None)
+            if callable(fn_preset):
+                p = fn_preset(hid, str(raw.get("tier", "C") or "C"))
+                preset_applied = bool(isinstance(p, dict))
+        except:
+            preset_applied = False
+
+        points_changed_by_resolve = (raw_tp != res_tp)
+        suspicious = bool(
+            raw_mode == "preconfig" and (
+                (res_mode != "preconfig") or
+                (raw_positive > 0 and res_positive <= 0) or
+                points_changed_by_resolve
+            )
+        )
+
+        return {
+            "hero_id": hid,
+            "cfg": cfg,
+            "build": bld,
+            "raw_mode": raw_mode,
+            "resolved_mode": res_mode,
+            "raw_points_positive": int(raw_positive),
+            "resolved_points_positive": int(res_positive),
+            "preset_callable": bool(preset_callable),
+            "preset_applied": bool(preset_applied),
+            "points_changed_by_resolve": bool(points_changed_by_resolve),
+            "suspicious": bool(suspicious),
+        }
+
     def bs_saga_exp_progress():
         acc = bs_saga_account()
         try:
@@ -1346,12 +1417,14 @@ init -880 python:
         S.battle_prepared_build_id = prep_build
         S.battle_prepared_player_loadouts = {}
         S.battle_prepared_player_tech_profiles = {}
+        S.bs_saga_last_prep_diag_by_player = {}
         S.battle_prepared_combat_tuning = {}
         S.battle_prepared_damage_rules = dict(getattr(S, "bs_saga_damage_coherence_rules", {}) or {})
         S.bs_runtime_character_overrides = {}
         for pid in (S.battle_player_ids or []):
             S.battle_prepared_player_loadouts[str(pid)] = bs_saga_hero_loadout_slots(pid, prep_cfg, prep_build)
             S.battle_prepared_player_tech_profiles[str(pid)] = dict(bs_saga_resolve_hero_tech_profile(pid, prep_cfg, prep_build) or {})
+            S.bs_saga_last_prep_diag_by_player[str(pid)] = dict(bs_saga_capture_prep_diag(pid, prep_cfg, prep_build) or {})
         # Fase 3: conectar puntos de preparación con valores runtime por slot.
         bs_saga_apply_prep_points_to_runtime_slots()
         # También dejamos override de stats por tier para participantes del combate (player/enemy).
