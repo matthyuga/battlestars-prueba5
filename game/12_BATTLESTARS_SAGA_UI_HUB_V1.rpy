@@ -464,6 +464,26 @@ init -880 python:
         except:
             return 1000
 
+    def bs_saga_account_tier_current():
+        acc = getattr(S, "bs_saga_account_state", {}) or {}
+        t = str(acc.get("tier", "") or "").strip().upper()
+        if not t:
+            t = str(bs_saga_refresh_account_tier(reason="prep_pool_eval") or "").strip().upper()
+        return t if t else "C"
+
+    def bs_saga_prep_pool_tier_for_hero(hero_id):
+        hid = str(hero_id or "").strip()
+        hero_tier = bs_saga_hero_tier(hid, "C")
+        account_tier = bs_saga_account_tier_current()
+        rank_fn = getattr(S, "bs_saga_tier_rank_value", None)
+        if not callable(rank_fn):
+            return account_tier
+        # Héroes de rotación/prueba no pueden usar pool superior al tier de cuenta.
+        # Para héroes propios, también se respeta el tier de cuenta como tope.
+        if int(rank_fn(hero_tier)) > int(rank_fn(account_tier)):
+            return account_tier
+        return hero_tier
+
     def bs_saga_tier_core_profile(tier):
         t = str(tier or "C").strip().upper()
         table = getattr(S, "bs_saga_tier_core_stats", {}) or {}
@@ -574,10 +594,12 @@ init -880 python:
         item = builds.get(bld, None)
         if not isinstance(item, dict):
             tier = bs_saga_hero_tier(hid, "C")
+            pool_tier = bs_saga_prep_pool_tier_for_hero(hid)
             item = {
                 "mode": "virgen",
                 "tier": tier,
-                "pool_total": bs_saga_tier_pool_total(tier),
+                "pool_tier": pool_tier,
+                "pool_total": bs_saga_tier_pool_total(pool_tier),
                 "pool_spent_off": 0,
                 "pool_spent_def": 0,
                 "tech_points": {}
@@ -586,11 +608,10 @@ init -880 python:
             item["mode"] = "virgen"
         if not isinstance(item.get("tech_points", {}), dict):
             item["tech_points"] = {}
-        try:
-            item["pool_total"] = int(item.get("pool_total", bs_saga_tier_pool_total(item.get("tier", "C"))) or bs_saga_tier_pool_total(item.get("tier", "C")))
-        except:
-            item["pool_total"] = bs_saga_tier_pool_total(item.get("tier", "C"))
         item["tier"] = str(item.get("tier", bs_saga_hero_tier(hid, "C")) or bs_saga_hero_tier(hid, "C")).upper()
+        pool_tier_now = bs_saga_prep_pool_tier_for_hero(hid)
+        item["pool_tier"] = str(pool_tier_now or "C").upper()
+        item["pool_total"] = bs_saga_tier_pool_total(item["pool_tier"])
         builds[bld] = item
         c["builds"] = builds
         cfgs[cfg] = c

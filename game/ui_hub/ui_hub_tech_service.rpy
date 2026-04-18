@@ -4,6 +4,13 @@
 init -880 python:
     import renpy.store as S
 
+    def bs_saga_tier_rank_value(tier):
+        t = str(tier or "C").strip().upper()
+        order = ["C", "B", "A", "S", "SS", "SSS", "IV"]
+        if t in order:
+            return order.index(t)
+        return 0
+
     def bs_saga_tier_allowed_tech_ids(tier):
         t = str(tier or "C").strip().upper()
         table = {
@@ -12,7 +19,14 @@ init -880 python:
             "A": ["extra_tech", "attack_reducer", "defense_reducer", "focus", "defense_boost", "fury_dice"],
             "S": ["noatk_attack", "defense_reflect", "focus", "defense_boost", "fury_dice"],
         }
-        ids = list(table.get(t, table.get("C", [])))
+        ordered = ["C", "B", "A", "S"]
+        if t not in ordered:
+            t = "C"
+        ids = []
+        for tt in ordered:
+            ids.extend(list(table.get(tt, [])))
+            if tt == t:
+                break
         out = []
         for x in ids:
             k = str(x or "").strip()
@@ -47,6 +61,7 @@ init -880 python:
             "module": "ui_hub_tech_service",
             "status": "phase_2_done",
             "migrated_symbols": [
+                "bs_saga_tier_rank_value",
                 "bs_saga_tier_allowed_tech_ids",
                 "bs_saga_tech_display_name",
                 "bs_saga_is_point_alloc_tech"
