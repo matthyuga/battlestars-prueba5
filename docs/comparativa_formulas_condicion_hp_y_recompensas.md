@@ -122,8 +122,92 @@ Supuestos para comparar solo el efecto HP:
 
 ---
 
+## Regla adicional propuesta: Tier, nivel, pool y matchmaking
+
+Esta sección agrega la regla que pediste para evitar injusticias cuando el héroe elegido (por ejemplo, tier B) está por encima del progreso real de la cuenta.
+
+### 1) Desbloqueo de tier por nivel de cuenta
+
+Regla objetivo:
+
+- Tier **D**: nivel `1..9` (inicio/tutorial)
+- Tier **C**: nivel `>=10`
+- Tier **B**: nivel `>=20`
+- Tier **A**: nivel `>=30`
+- Tier **S**: nivel `>=50`
+
+### 2) Pool base por tier (economía de progresión)
+
+- `D = 500`
+- `C = 1000`
+- `B = 5000`
+- `A = 10000`
+- `S = 50000`
+
+### 3) Tier efectivo del jugador en duelo
+
+Para evitar que un héroe de tier alto “salte” progresión de cuenta:
+
+- `tier_perfil = tier máximo desbloqueado por nivel`
+- `tier_cola = tier seleccionado para matchmaking` (persistente, default `C`)
+- `tier_heroe = tier nominal del héroe elegido`
+
+Definimos:
+
+- `tier_efectivo_jugador = min(tier_perfil, tier_cola, tier_heroe)`
+- `pool_efectivo_jugador = pool_base(tier_efectivo_jugador)`
+
+Con esto, un jugador nuevo que use un héroe tier B pero aún no desbloqueó B, **pelea con pool de C (o menor)**, no con B.
+
+### 4) Matchmaking por tier (incluye duelo aleatorio)
+
+- En **duelo aleatorio**, el rival debe salir por defecto del mismo `tier_cola` del jugador.
+- Si no hay candidatos, fallback controlado (expandir ±1 tier con aviso).
+- `tier_cola` se guarda en estado persistente para que no se reinicie cada combate.
+
+### 5) Impacto en recompensa por diferencia de poder (underdog)
+
+Además de la fórmula #3, sumar un factor de desbalance por pool:
+
+- `pool_ratio = pool_efectivo_jugador / max(pool_efectivo_rival, 1)`
+- `m_underdog_exp = clamp((1 / pool_ratio)^0.35, 0.85, 1.35)`
+- `m_underdog_oro = clamp((1 / pool_ratio)^0.25, 0.90, 1.25)`
+
+Y aplicar:
+
+- `EXP_final_v3_tier = EXP_final_v3 * m_underdog_exp`
+- `ORO_final_v3_tier = ORO_final_v3 * m_underdog_oro`
+
+Interpretación:
+- Si peleas con menos pool que rival, cobras más (bono underdog).
+- Si peleas con ventaja clara, cobras menos.
+- Se mantienen caps para evitar exploits.
+
+### 6) Ejemplo con tu caso (B vs C estando bajo de nivel)
+
+Jugador:
+- Nivel 6 ⇒ `tier_perfil = D`
+- Elige héroe tier B
+- `tier_cola = C` (default recomendado)
+
+Entonces:
+- `tier_efectivo_jugador = min(D, C, B) = D`
+- `pool_efectivo_jugador = 500`
+
+Si rival sale C:
+- `pool_efectivo_rival = 1000`
+- `pool_ratio = 500/1000 = 0.5`
+- `m_underdog_exp ≈ (2^0.35)=1.27`
+- `m_underdog_oro ≈ (2^0.25)=1.19`
+
+Resultado: si ganas en desventaja, el sistema compensa con reward mayor; si pierdes, no regala payout excesivo por los caps.
+
+---
+
 ## Notas de implementación sugerida
 
 - La propuesta #3 puede entrar sin romper contratos si se agrega como preset nuevo, por ejemplo:
   - `preset = "medium_v3_hp_soft"`
 - Así se puede comparar `v2` vs `v3` en QA con misma semilla y mismos actores.
+- Para esta extensión de tiers, sugerir preset hermano:
+  - `preset = "medium_v3_hp_soft_tier_guard"`
