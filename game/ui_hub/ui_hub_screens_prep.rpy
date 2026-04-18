@@ -300,6 +300,11 @@ screen bs_saga_duel_staging_screen():
     $ _checks = list((_contract or {}).get("checks", []) or [])
     $ _block_n = len((_contract or {}).get("blocking", []) or [])
     $ _warn_n = len((_contract or {}).get("warnings", []) or [])
+    $ _cons = bs_saga_prep_inventory_candidates("consumables")
+    $ _items = bs_saga_prep_inventory_candidates("equipables")
+    $ _flag_cons = str(bs_saga_prep_flag_consumable_id or "")
+    $ _flag_item = str(bs_saga_prep_flag_item_id or "")
+    $ _status = "listo" if _block_n <= 0 and _warn_n <= 0 else ("warnings" if _block_n <= 0 else "bloqueado")
 
     add Solid("#0E1A28")
     frame:
@@ -366,6 +371,7 @@ screen bs_saga_duel_staging_screen():
                     vbox:
                         spacing 8
                         text "Checklist pre-duelo" size 22 color "#EAF6FF"
+                        text ("Estado: " + _status.upper()) size 16 color ("#FF9F9F" if _block_n > 0 else ("#FFD166" if _warn_n > 0 else "#8BD6A7"))
                         text ("Bloqueantes: " + str(int(_block_n)) + " · Warnings: " + str(int(_warn_n))) size 14 color ("#FF9F9F" if _block_n > 0 else ("#FFD166" if _warn_n > 0 else "#8BD6A7"))
                         for c in _checks:
                             $ _ok = bool(c.get("ok", False))
@@ -411,9 +417,33 @@ screen bs_saga_duel_staging_screen():
 
                         text ("Config: " + _cfg.upper() + " · Tier: " + _tier + " · Pool duelo: " + str(_pool)) size 14 color "#9FC4E2"
                         text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
+                        null height 8
+                        text "Flags opcionales (item/consumible)" size 16 color "#D0E9FF"
+                        text ("Item flag: " + (_flag_item if _flag_item else "ninguno")) size 14 color "#9FC4E2"
+                        text ("Consumible flag: " + (_flag_cons if _flag_cons else "ninguno")) size 14 color "#9FC4E2"
+                        if _cons:
+                            text "Consumibles" size 14 color "#CFE6FA"
+                            hbox:
+                                spacing 6
+                                for row in _cons[:3]:
+                                    $ _cid = str(row.get("item_id", ""))
+                                    textbutton (_cid + " x" + str(row.get("qty", 0))):
+                                        action [Function(bs_saga_set_prep_flag, "consumable", _cid), Jump("bs_saga_preparacion")]
+                        if _items:
+                            text "Equipables" size 14 color "#CFE6FA"
+                            hbox:
+                                spacing 6
+                                for row in _items[:3]:
+                                    $ _iid = str(row.get("item_id", ""))
+                                    textbutton (_iid + " x" + str(row.get("qty", 0))):
+                                        action [Function(bs_saga_set_prep_flag, "item", _iid), Jump("bs_saga_preparacion")]
+                        if _flag_item or _flag_cons:
+                            textbutton "Limpiar flags":
+                                action [Function(bs_saga_set_prep_flag, "item", ""), Function(bs_saga_set_prep_flag, "consumable", ""), Jump("bs_saga_preparacion")]
+                        null height 6
 
-                        textbutton "Verificar preparación e iniciar duelo":
-                            action Jump("bs_saga_preparation_verify")
+                        textbutton ("Iniciar duelo" if _block_n <= 0 else "Iniciar duelo (bloqueado por validación)"):
+                            action Jump("bs_saga_launch_prepared_duel")
                         textbutton "Volver a sala de preparación":
                             action [SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
 
@@ -467,7 +497,7 @@ screen bs_saga_preparation_verify_screen():
                 padding (10, 10)
                 vbox:
                     spacing 8
-                    text "Resumen previo al duelo" size 24 color "#EAF6FF"
+                    text "Resumen previo al duelo (ruta legacy)" size 24 color "#EAF6FF"
                     text ("Tu héroe: " + (_hero if _hero else "sin seleccionar")) size 16 color "#D0E9FF"
                     text ("Modo: " + _mode) size 16 color "#D0E9FF"
                     text ("Enemigo: " + (_enemy if _enemy_mode == "manual" else "aleatorio")) size 16 color "#D0E9FF"
@@ -476,6 +506,7 @@ screen bs_saga_preparation_verify_screen():
                     text ("Item flag: " + (_flag_item if _flag_item else "ninguno")) size 14 color "#9FC4E2"
                     text ("Consumible flag: " + (_flag_cons if _flag_cons else "ninguno")) size 14 color "#9FC4E2"
                     text ("Slots equipados: " + ", ".join([s for s in _hero_slots if str(s)]) if _hero_slots else "Slots equipados: ninguno") size 14 color "#9FC4E2"
+                    text "Esta pantalla se conserva por compatibilidad. El flujo principal inicia duelo desde Pre-combate." size 13 color "#9FC4E2"
                     textbutton "Iniciar duelo":
                         action Jump("bs_saga_launch_prepared_duel")
             frame:
@@ -508,7 +539,7 @@ init -899 python:
     def bs_saga_ui_hub_prep_screen_split_status_v1():
         return {
             "module": "ui_hub_screens_prep",
-            "status": "phase_3_done",
+            "status": "phase_5_done",
             "migrated_screens": [
                 "bs_saga_preparation_room_screen",
                 "bs_saga_hero_config_screen",

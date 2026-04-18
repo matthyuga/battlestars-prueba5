@@ -1704,8 +1704,9 @@ init -880 python:
 # - bs_saga_profile_screen
 # ahora viven en `game/ui_hub/ui_hub_screens_lobby.rpy`.
 
-# Fase 3 de split:
+# Fase 5 de split:
 # - bs_saga_preparation_room_screen
+# - bs_saga_hero_config_screen
 # - bs_saga_duel_staging_screen
 # - bs_saga_preparation_verify_screen
 # ahora viven en `game/ui_hub/ui_hub_screens_prep.rpy`.
@@ -1736,8 +1737,10 @@ label bs_saga_duelo_libre:
     jump bs_saga_preparacion
 
 label bs_saga_preparation_verify:
-    call screen bs_saga_preparation_verify_screen
-    return
+    # Ruta legacy: se mantiene por compatibilidad, pero el flujo principal
+    # de validación/inicio quedó consolidado en staging.
+    $ bs_saga_prep_context = "staging"
+    jump bs_saga_preparacion
 
 label bs_saga_launch_prepared_duel:
     $ _contract = bs_saga_precombat_contract_validate()

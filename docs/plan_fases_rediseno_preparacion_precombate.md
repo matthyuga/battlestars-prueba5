@@ -1,7 +1,7 @@
 # Plan de fases — Rediseño de Preparación y Pre-combate (Battlestars Saga)
 
 Fecha de inicio: 2026-04-18
-Estado general: **Fase 3 completada**
+Estado general: **Fase 5 completada**
 
 ---
 
@@ -24,8 +24,8 @@ Sin romper la lógica funcional actual de validación y lanzamiento de combate.
 | 1 | Sala de preparación (selección + resumen) | ✅ Completada | Reducir sobrecarga visual en pantalla inicial |
 | 2 | Pantalla Configurar héroe (tabs) | ✅ Completada | Separar edición en bloques lógicos |
 | 3 | Pre-combate orientado a validación | ✅ Completada | Checklist y decisiones finales sin edición profunda |
-| 4 | Consolidación de flujo y rutas | ⏳ Pendiente | Unificar navegación y eliminar redundancias |
-| 5 | Pulido visual / jerarquía UI | ⏳ Pendiente | Mejor legibilidad, estados y CTA |
+| 4 | Consolidación de flujo y rutas | ✅ Completada | Navegación unificada y menos pasos duplicados |
+| 5 | Pulido visual / jerarquía UI | ✅ Completada | Mejor legibilidad, jerarquía visual y CTA |
 
 ---
 
@@ -147,3 +147,33 @@ Pre-combate actual contiene:
 - 2026-04-18 — **Fase 1 completada** (sala resumida + edición detallada diferida a Fase 2).
 - 2026-04-18 — **Fase 2 completada** (pantalla Configurar héroe con tabs + navegación de contexto).
 - 2026-04-18 — **Fase 3 completada** (pre-combate centrado en validación y sin edición profunda de roster).
+- 2026-04-18 — **Fase 4 completada** (staging y verify consolidados en una sola ruta principal para reducir pasos redundantes).
+- 2026-04-18 — **Fase 5 completada** (pulido visual de estados/checklist/CTA y jerarquía UI entre sala, configuración y pre-combate).
+
+---
+
+## 8) Fase 4 — Consolidación de flujo y rutas (COMPLETADA)
+
+### 8.1 Cambios aplicados
+- Se consolidó la validación final dentro de `Pre-combate` para que el flujo principal sea:
+  - `room` → `config` → `staging` → `iniciar duelo`.
+- Se mantuvo `label bs_saga_preparation_verify` por compatibilidad, redirigiendo a `staging`.
+- Se eliminaron duplicidades de CTA entre `staging` y `verify` en el flujo normal.
+
+### 8.2 Criterio de salida Fase 4
+✅ Navegación unificada sin paso obligatorio extra para verificar, manteniendo compatibilidad con rutas antiguas.
+
+---
+
+## 9) Fase 5 — Pulido visual / jerarquía UI (COMPLETADA)
+
+### 9.1 Cambios aplicados
+- Se reforzó la jerarquía visual en `Pre-combate` con:
+  - estado general de validación (listo / warnings / bloqueado),
+  - indicadores de bloqueantes y warnings más visibles,
+  - separación clara entre checklist, decisiones de duelo y preparación de flags.
+- Se priorizó el CTA principal (`Iniciar duelo`) dentro del mismo staging.
+- Se añadieron mensajes contextuales para reducir ambigüedad de acciones y estado.
+
+### 9.2 Criterio de salida Fase 5
+✅ Flujo final más legible y directo, con validación y acción principal en una sola pantalla.
