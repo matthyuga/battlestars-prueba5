@@ -127,6 +127,13 @@ label battle_enemy_turn_legacy_entry:
                     fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
                     if callable(fn_apply_key) and akey:
                         fn_apply_key(akey, int(total_in), source_key=getattr(S, "current_actor_unit_key", None), reason="combat_deferred_enemy", tags=["deferred", "enemy_defense"])
+                        # Sync HUD legacy inmediato para reflejar daño real en barra superior.
+                        try:
+                            fn_sync = getattr(S, "bs_sync_to_legacy", None)
+                            if callable(fn_sync):
+                                fn_sync()
+                        except:
+                            pass
                     else:
                         fn_set = getattr(S, "bs_set_hp", None)
                         cur = int(getattr(S, "enemy_hp", 0) or 0)
