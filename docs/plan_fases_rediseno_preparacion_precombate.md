@@ -238,3 +238,20 @@ Cambios de fase:
 
 ### Criterio de salida Fase 3
 ✅ Fin de duelo con continuidad de sesión para encadenar combates y validar persistencia desde lobby.
+
+---
+
+## 14) Fase 4 (Iteración UX v2) — Cierre y validación final (COMPLETADA)
+
+Fecha: 2026-04-18
+
+Validaciones de cierre ejecutadas:
+
+- Flujo UX objetivo confirmado: `room -> config -> staging -> duelo -> resumen -> lobby`.
+- Modo técnico único confirmado en UI: `preconfig`.
+- Step configurable de asignación confirmado: `25, 50, 100, 150, 200, 500, 1000`.
+- Salida post-combate confirmada a lobby con fallback defensivo a `full_restart` solo si falta label.
+- Suite automatizada del repositorio ejecutada sin fallos (`pytest -q`).
+
+### Criterio de salida Fase 4
+✅ Iteración UX v2 cerrada; lista para etapa de estabilización/ajustes finos.
