@@ -192,3 +192,18 @@ Alineación cerrada con aprobación de producto para iniciar implementación:
 
 ### Gate de avance
 ✅ **Fase 0 aprobada**. Lista para iniciar Fase 1 de implementación.
+
+---
+
+## 11) Fase 1 (Iteración UX v2) — Preconfig único (COMPLETADA)
+
+Fecha: 2026-04-18
+
+Cambios de fase:
+
+- Se elimina el botón `Téc. Virgen` de la UI de configuración de técnicas.
+- Se estandariza el modo técnico interno a `preconfig` para perfiles nuevos y legacy.
+- La validación de pool pasa a evaluarse siempre en modo `preconfig` (severidad bloqueante).
+
+### Criterio de salida Fase 1
+✅ Flujo técnico sin selector de modo ambiguo; preparación opera de forma única en `preconfig`.

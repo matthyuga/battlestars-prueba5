@@ -225,7 +225,6 @@ screen bs_saga_hero_config_screen():
                             text "Técnicas y pool técnico" size 21 color "#EAF6FF"
                             hbox:
                                 spacing 6
-                                textbutton "Téc. Virgen" action [Function(bs_saga_hero_tech_mode_set, _hero, "virgen", _cfg, _build), Jump("bs_saga_preparacion")]
                                 textbutton "Téc. Preconfig" action [Function(bs_saga_hero_tech_mode_set, _hero, "preconfig", _cfg, _build), Jump("bs_saga_preparacion")]
                             text ("Pool técnico cfg/build: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre: " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
                             if _tier_point_alloc:

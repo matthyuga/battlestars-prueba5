@@ -612,7 +612,7 @@ init -880 python:
             tier = bs_saga_hero_tier(hid, "C")
             pool_tier = bs_saga_prep_pool_tier_for_hero(hid)
             item = {
-                "mode": "virgen",
+                "mode": "preconfig",
                 "tier": tier,
                 "pool_tier": pool_tier,
                 "pool_total": bs_saga_tier_pool_total(pool_tier),
@@ -620,8 +620,12 @@ init -880 python:
                 "pool_spent_def": 0,
                 "tech_points": {}
             }
-        if str(item.get("mode", "virgen") or "virgen") not in ("virgen", "preconfig"):
-            item["mode"] = "virgen"
+        mode_norm = str(item.get("mode", "preconfig") or "preconfig").strip().lower()
+        # Fase 1 UX v2: se elimina "virgen" como modo operativo.
+        # Compatibilidad: perfiles legacy en virgen se migran a preconfig.
+        if mode_norm != "preconfig":
+            mode_norm = "preconfig"
+        item["mode"] = mode_norm
         if not isinstance(item.get("tech_points", {}), dict):
             item["tech_points"] = {}
         item["tier"] = str(item.get("tier", bs_saga_hero_tier(hid, "C")) or bs_saga_hero_tier(hid, "C")).upper()
@@ -806,9 +810,9 @@ init -880 python:
         prof = profiles.get(hid, {}) if isinstance(profiles, dict) else {}
         if not isinstance(prof, dict):
             return list(base_allowed)
-        mode = str(prof.get("mode", "virgen") or "virgen").strip().lower()
+        mode = str(prof.get("mode", "preconfig") or "preconfig").strip().lower()
         tp = prof.get("tech_points", {})
-        if mode != "preconfig" or (not isinstance(tp, dict)):
+        if (not isinstance(tp, dict)):
             return list(base_allowed)
 
         chosen = []
@@ -836,12 +840,10 @@ init -880 python:
         if not isinstance(item, dict):
             return {}
         out = dict(item)
-        mode = str(out.get("mode", "virgen") or "virgen").strip().lower()
-        if mode == "virgen":
-            out["tech_points"] = {}
-            out["pool_spent_off"] = 0
-            out["pool_spent_def"] = 0
-            return out
+        mode = str(out.get("mode", "preconfig") or "preconfig").strip().lower()
+        if mode != "preconfig":
+            mode = "preconfig"
+        out["mode"] = mode
         preset = None
         try:
             fn = getattr(S, "bs_get_hero_tech_preset_v1", None)
@@ -868,8 +870,8 @@ init -880 python:
         if not isinstance(item, dict):
             return False
         m = str(mode or "").strip().lower()
-        if m not in ("virgen", "preconfig"):
-            return False
+        if m != "preconfig":
+            m = "preconfig"
         item["mode"] = m
         bs_saga_set_message("Técnicas {}: modo {}.".format(str(hero_id or ""), m))
         return True
@@ -1340,16 +1342,18 @@ init -880 python:
 
         # warning: coherencia pool técnico si está en preconfig
         tp = bs_saga_hero_tech_profile_get(hero, cfg, bld) if hero else {}
-        mode_tp = str((tp or {}).get("mode", "virgen") or "virgen").strip().lower()
+        mode_tp = str((tp or {}).get("mode", "preconfig") or "preconfig").strip().lower()
+        if mode_tp != "preconfig":
+            mode_tp = "preconfig"
         pool_total = int((tp or {}).get("pool_total", 0) or 0)
         spent_off = int((tp or {}).get("pool_spent_off", 0) or 0)
         spent_def = int((tp or {}).get("pool_spent_def", 0) or 0)
         spent_total = int(spent_off + spent_def)
-        ok_pool = True if mode_tp != "preconfig" else (spent_total <= pool_total)
+        ok_pool = (spent_total <= pool_total)
         checks.append({
             "id": "pool_consistency",
             "ok": ok_pool,
-            "severity": "block" if mode_tp == "preconfig" else "warn",
+            "severity": "block",
             "label": "Pool técnico consistente",
             "detail": "Modo={} · Gastado {} / Total {}".format(mode_tp, spent_total, pool_total)
         })
