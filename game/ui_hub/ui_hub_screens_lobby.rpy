@@ -98,7 +98,8 @@ screen bs_saga_lobby_screen():
             hbox:
                 spacing 10
                 textbutton "Perfil" action Jump("bs_saga_perfil")
-                textbutton "Preparación" action Jump("bs_saga_preparacion")
+                textbutton "Preparación":
+                    action [SetVariable("bs_saga_prep_intent_duel", False), SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
                 textbutton "Héroes" action Jump("bs_saga_heroes")
                 textbutton "Tienda" action Jump("bs_saga_tienda")
                 textbutton "Inventario" action Jump("bs_saga_inventario")
@@ -271,11 +272,7 @@ screen bs_saga_heroes_screen():
                                                             text "Adquirido" size 16 color "#8BD6A7"
                                                         else:
                                                             textbutton "Comprar":
-                                                                action [
-                                                                    SetVariable("bs_saga_heroes_scroll_y", (float(i) / float(max(1, len(_heroes) - 1)))),
-                                                                    Function(bs_saga_buy_hero, h),
-                                                                    Jump("bs_saga_heroes")
-                                                                ]
+                                                                action Function(bs_saga_buy_hero_from_ui, h)
                                         else:
                                             text "No hay héroes para ese filtro." size 18 color "#9FB9D1"
 

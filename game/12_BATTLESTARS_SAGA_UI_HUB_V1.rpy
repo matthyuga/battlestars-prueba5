@@ -354,6 +354,45 @@ init -880 python:
         S.bs_saga_prep_selected_build = b
         return True
 
+    def bs_saga_clamp_hp_reward_multiplier(value):
+        try:
+            m = int(value or 1)
+        except:
+            m = 1
+        if m < 1:
+            m = 1
+        if m > 5:
+            m = 5
+        return int(m)
+
+    def bs_saga_set_prep_hp_reward_multiplier(value):
+        m = bs_saga_clamp_hp_reward_multiplier(value)
+        S.bs_saga_prep_hp_reward_multiplier = int(m)
+        return int(m)
+
+    def bs_saga_clamp_prep_tech_step(value):
+        allowed = (25, 50, 100, 150, 200, 500, 1000)
+        try:
+            raw = int(value or 25)
+        except:
+            raw = 25
+        if raw in allowed:
+            return int(raw)
+        # fallback al valor permitido más cercano.
+        best = 25
+        best_diff = abs(raw - best)
+        for x in allowed:
+            d = abs(raw - int(x))
+            if d < best_diff:
+                best = int(x)
+                best_diff = d
+        return int(best)
+
+    def bs_saga_set_prep_tech_step(value):
+        step = bs_saga_clamp_prep_tech_step(value)
+        S.bs_saga_prep_tech_step = int(step)
+        return int(step)
+
     # Fase 4 de split:
     # - bs_saga_account_bucket_qty
     # - bs_saga_account_bucket_add
@@ -463,6 +502,26 @@ init -880 python:
             return int(table.get(t, table.get("C", 1000)) or 1000)
         except:
             return 1000
+
+    def bs_saga_account_tier_current():
+        acc = getattr(S, "bs_saga_account_state", {}) or {}
+        t = str(acc.get("tier", "") or "").strip().upper()
+        if not t:
+            t = str(bs_saga_refresh_account_tier(reason="prep_pool_eval") or "").strip().upper()
+        return t if t else "C"
+
+    def bs_saga_prep_pool_tier_for_hero(hero_id):
+        hid = str(hero_id or "").strip()
+        hero_tier = bs_saga_hero_tier(hid, "C")
+        account_tier = bs_saga_account_tier_current()
+        rank_fn = getattr(S, "bs_saga_tier_rank_value", None)
+        if not callable(rank_fn):
+            return account_tier
+        # Héroes de rotación/prueba no pueden usar pool superior al tier de cuenta.
+        # Para héroes propios, también se respeta el tier de cuenta como tope.
+        if int(rank_fn(hero_tier)) > int(rank_fn(account_tier)):
+            return account_tier
+        return hero_tier
 
     def bs_saga_tier_core_profile(tier):
         t = str(tier or "C").strip().upper()
@@ -574,23 +633,28 @@ init -880 python:
         item = builds.get(bld, None)
         if not isinstance(item, dict):
             tier = bs_saga_hero_tier(hid, "C")
+            pool_tier = bs_saga_prep_pool_tier_for_hero(hid)
             item = {
-                "mode": "virgen",
+                "mode": "preconfig",
                 "tier": tier,
-                "pool_total": bs_saga_tier_pool_total(tier),
+                "pool_tier": pool_tier,
+                "pool_total": bs_saga_tier_pool_total(pool_tier),
                 "pool_spent_off": 0,
                 "pool_spent_def": 0,
                 "tech_points": {}
             }
-        if str(item.get("mode", "virgen") or "virgen") not in ("virgen", "preconfig"):
-            item["mode"] = "virgen"
+        mode_norm = str(item.get("mode", "preconfig") or "preconfig").strip().lower()
+        # Fase 1 UX v2: se elimina "virgen" como modo operativo.
+        # Compatibilidad: perfiles legacy en virgen se migran a preconfig.
+        if mode_norm != "preconfig":
+            mode_norm = "preconfig"
+        item["mode"] = mode_norm
         if not isinstance(item.get("tech_points", {}), dict):
             item["tech_points"] = {}
-        try:
-            item["pool_total"] = int(item.get("pool_total", bs_saga_tier_pool_total(item.get("tier", "C"))) or bs_saga_tier_pool_total(item.get("tier", "C")))
-        except:
-            item["pool_total"] = bs_saga_tier_pool_total(item.get("tier", "C"))
         item["tier"] = str(item.get("tier", bs_saga_hero_tier(hid, "C")) or bs_saga_hero_tier(hid, "C")).upper()
+        pool_tier_now = bs_saga_prep_pool_tier_for_hero(hid)
+        item["pool_tier"] = str(pool_tier_now or "C").upper()
+        item["pool_total"] = bs_saga_tier_pool_total(item["pool_tier"])
         builds[bld] = item
         c["builds"] = builds
         cfgs[cfg] = c
@@ -634,8 +698,8 @@ init -880 python:
             elif ttype == "offensive":
                 off += pts
             else:
-                # specials/neutras: por ahora cargan al bucket ofensivo para no perder control de pool total
-                off += pts
+                # Fase 2: specials/neutras no consumen pool de asignación.
+                continue
         item["pool_spent_off"] = int(off)
         item["pool_spent_def"] = int(deff)
         return True
@@ -671,6 +735,10 @@ init -880 python:
         allowed = bs_saga_tier_allowed_tech_ids(tier)
         if key not in allowed:
             bs_saga_set_message("Técnica no permitida para tier {}: {}.".format(tier, key))
+            return False
+        fn_point_alloc = getattr(S, "bs_saga_is_point_alloc_tech", None)
+        if callable(fn_point_alloc) and (not bool(fn_point_alloc(key))):
+            bs_saga_set_message("Técnica especial sin asignación de puntos: {}.".format(bs_saga_tech_display_name(key)))
             return False
 
         # Aplicación tentativa + control pool total
@@ -765,9 +833,9 @@ init -880 python:
         prof = profiles.get(hid, {}) if isinstance(profiles, dict) else {}
         if not isinstance(prof, dict):
             return list(base_allowed)
-        mode = str(prof.get("mode", "virgen") or "virgen").strip().lower()
+        mode = str(prof.get("mode", "preconfig") or "preconfig").strip().lower()
         tp = prof.get("tech_points", {})
-        if mode != "preconfig" or (not isinstance(tp, dict)):
+        if (not isinstance(tp, dict)):
             return list(base_allowed)
 
         chosen = []
@@ -795,12 +863,10 @@ init -880 python:
         if not isinstance(item, dict):
             return {}
         out = dict(item)
-        mode = str(out.get("mode", "virgen") or "virgen").strip().lower()
-        if mode == "virgen":
-            out["tech_points"] = {}
-            out["pool_spent_off"] = 0
-            out["pool_spent_def"] = 0
-            return out
+        mode = str(out.get("mode", "preconfig") or "preconfig").strip().lower()
+        if mode != "preconfig":
+            mode = "preconfig"
+        out["mode"] = mode
         preset = None
         try:
             fn = getattr(S, "bs_get_hero_tech_preset_v1", None)
@@ -827,8 +893,8 @@ init -880 python:
         if not isinstance(item, dict):
             return False
         m = str(mode or "").strip().lower()
-        if m not in ("virgen", "preconfig"):
-            return False
+        if m != "preconfig":
+            m = "preconfig"
         item["mode"] = m
         bs_saga_set_message("Técnicas {}: modo {}.".format(str(hero_id or ""), m))
         return True
@@ -849,6 +915,9 @@ init -880 python:
         tier = str(item.get("tier", bs_saga_hero_tier(hero_id, "C")) or "C").upper()
         if key not in bs_saga_tier_allowed_tech_ids(tier):
             return False
+        fn_point_alloc = getattr(S, "bs_saga_is_point_alloc_tech", None)
+        if callable(fn_point_alloc) and (not bool(fn_point_alloc(key))):
+            return False
         tp = item.get("tech_points", {})
         if not isinstance(tp, dict):
             tp = {}
@@ -863,6 +932,142 @@ init -880 python:
             bs_saga_recalc_tech_pool_spent(hero_id, config_id, build_id)
             return False
         return True
+
+    def bs_saga_apply_prep_points_to_runtime_slots():
+        """
+        Fase 3: puente de puntos de preparación -> allocator runtime por slot.
+        Solo aplica a técnicas ofensivas/defensivas en modo preconfig.
+        """
+        fn_set_bonus = getattr(S, "spa_set_bonus", None)
+        fn_set_available = getattr(S, "spa_set_available", None)
+        fn_reset_slot = getattr(S, "spa_reset_slot", None)
+        if not callable(fn_set_bonus):
+            return False
+
+        player_ids = [str(x) for x in (getattr(S, "battle_player_ids", []) or []) if str(x or "").strip()]
+        profiles = getattr(S, "battle_prepared_player_tech_profiles", {}) or {}
+        fn_unit_key = getattr(S, "bs_unit_key", None)
+        fn_point_alloc = getattr(S, "bs_saga_is_point_alloc_tech", None)
+
+        for idx, pid in enumerate(player_ids):
+            unit_key = "player:{}".format(int(idx))
+            if callable(fn_unit_key):
+                try:
+                    unit_key = str(fn_unit_key("player", idx) or unit_key)
+                except:
+                    pass
+
+            if callable(fn_reset_slot):
+                try:
+                    fn_reset_slot(unit_key, save=False)
+                except:
+                    pass
+
+            prof = profiles.get(pid, {}) if isinstance(profiles, dict) else {}
+            if not isinstance(prof, dict):
+                continue
+            if callable(fn_set_available):
+                try:
+                    fn_set_available(unit_key, int(prof.get("pool_total", 0) or 0), save=False)
+                except:
+                    pass
+
+            mode = str(prof.get("mode", "virgen") or "virgen").strip().lower()
+            if mode != "preconfig":
+                continue
+            tp = prof.get("tech_points", {})
+            if not isinstance(tp, dict):
+                continue
+
+            for tid, raw_pts in tp.items():
+                tech_id = str(tid or "").strip().lower()
+                if not tech_id:
+                    continue
+                try:
+                    pts = int(raw_pts or 0)
+                except:
+                    pts = 0
+                if pts <= 0:
+                    continue
+                if callable(fn_point_alloc) and (not bool(fn_point_alloc(tech_id))):
+                    continue
+                try:
+                    fn_set_bonus(unit_key, tech_id, int(pts), save=False)
+                except:
+                    pass
+
+        return True
+
+    def bs_saga_capture_prep_diag(hero_id, config_id=None, build_id=None):
+        """
+        Barrido A+B (instrumentación):
+        - A: visibilidad de modo/points raw vs perfil resuelto para combate.
+        - B: detección de preset externo potencialmente sobrescribiendo.
+        """
+        hid = str(hero_id or "").strip()
+        if not hid:
+            return {}
+        cfg = str(config_id or getattr(S, "bs_saga_prep_selected_config", "cfg1") or "cfg1")
+        bld = str(build_id or getattr(S, "bs_saga_prep_selected_build", "balanceado") or "balanceado")
+
+        raw = bs_saga_hero_tech_profile_get(hid, cfg, bld)
+        resolved = bs_saga_resolve_hero_tech_profile(hid, cfg, bld)
+        if not isinstance(raw, dict):
+            raw = {}
+        if not isinstance(resolved, dict):
+            resolved = {}
+
+        raw_mode = str(raw.get("mode", "virgen") or "virgen").strip().lower()
+        res_mode = str(resolved.get("mode", "virgen") or "virgen").strip().lower()
+        raw_tp = raw.get("tech_points", {}) if isinstance(raw.get("tech_points", {}), dict) else {}
+        res_tp = resolved.get("tech_points", {}) if isinstance(resolved.get("tech_points", {}), dict) else {}
+        raw_positive = 0
+        for _, v in raw_tp.items():
+            try:
+                if int(v or 0) > 0:
+                    raw_positive += 1
+            except:
+                pass
+        res_positive = 0
+        for _, v in res_tp.items():
+            try:
+                if int(v or 0) > 0:
+                    res_positive += 1
+            except:
+                pass
+
+        preset_callable = bool(callable(getattr(S, "bs_get_hero_tech_preset_v1", None)))
+        preset_applied = False
+        try:
+            fn_preset = getattr(S, "bs_get_hero_tech_preset_v1", None)
+            if callable(fn_preset):
+                p = fn_preset(hid, str(raw.get("tier", "C") or "C"))
+                preset_applied = bool(isinstance(p, dict))
+        except:
+            preset_applied = False
+
+        points_changed_by_resolve = (raw_tp != res_tp)
+        suspicious = bool(
+            raw_mode == "preconfig" and (
+                (res_mode != "preconfig") or
+                (raw_positive > 0 and res_positive <= 0) or
+                points_changed_by_resolve
+            )
+        )
+
+        return {
+            "hero_id": hid,
+            "cfg": cfg,
+            "build": bld,
+            "raw_mode": raw_mode,
+            "resolved_mode": res_mode,
+            "raw_points_positive": int(raw_positive),
+            "resolved_points_positive": int(res_positive),
+            "preset_callable": bool(preset_callable),
+            "preset_applied": bool(preset_applied),
+            "points_changed_by_resolve": bool(points_changed_by_resolve),
+            "suspicious": bool(suspicious),
+        }
 
     def bs_saga_exp_progress():
         acc = bs_saga_account()
@@ -1160,16 +1365,18 @@ init -880 python:
 
         # warning: coherencia pool técnico si está en preconfig
         tp = bs_saga_hero_tech_profile_get(hero, cfg, bld) if hero else {}
-        mode_tp = str((tp or {}).get("mode", "virgen") or "virgen").strip().lower()
+        mode_tp = str((tp or {}).get("mode", "preconfig") or "preconfig").strip().lower()
+        if mode_tp != "preconfig":
+            mode_tp = "preconfig"
         pool_total = int((tp or {}).get("pool_total", 0) or 0)
         spent_off = int((tp or {}).get("pool_spent_off", 0) or 0)
         spent_def = int((tp or {}).get("pool_spent_def", 0) or 0)
         spent_total = int(spent_off + spent_def)
-        ok_pool = True if mode_tp != "preconfig" else (spent_total <= pool_total)
+        ok_pool = (spent_total <= pool_total)
         checks.append({
             "id": "pool_consistency",
             "ok": ok_pool,
-            "severity": "block" if mode_tp == "preconfig" else "warn",
+            "severity": "block",
             "label": "Pool técnico consistente",
             "detail": "Modo={} · Gastado {} / Total {}".format(mode_tp, spent_total, pool_total)
         })
@@ -1270,16 +1477,23 @@ init -880 python:
         prep_build = str(getattr(S, "bs_saga_prep_selected_build", "balanceado") or "balanceado").strip().lower()
         if prep_build not in bs_saga_prep_build_keys():
             prep_build = "balanceado"
+        hp_reward_mult = bs_saga_clamp_hp_reward_multiplier(getattr(S, "bs_saga_prep_hp_reward_multiplier", 1))
+        S.bs_saga_prep_hp_reward_multiplier = int(hp_reward_mult)
+        S.story_pilot_hp_reward_multiplier = int(hp_reward_mult)
         S.battle_prepared_config_id = prep_cfg
         S.battle_prepared_build_id = prep_build
         S.battle_prepared_player_loadouts = {}
         S.battle_prepared_player_tech_profiles = {}
+        S.bs_saga_last_prep_diag_by_player = {}
         S.battle_prepared_combat_tuning = {}
         S.battle_prepared_damage_rules = dict(getattr(S, "bs_saga_damage_coherence_rules", {}) or {})
         S.bs_runtime_character_overrides = {}
         for pid in (S.battle_player_ids or []):
             S.battle_prepared_player_loadouts[str(pid)] = bs_saga_hero_loadout_slots(pid, prep_cfg, prep_build)
             S.battle_prepared_player_tech_profiles[str(pid)] = dict(bs_saga_resolve_hero_tech_profile(pid, prep_cfg, prep_build) or {})
+            S.bs_saga_last_prep_diag_by_player[str(pid)] = dict(bs_saga_capture_prep_diag(pid, prep_cfg, prep_build) or {})
+        # Fase 3: conectar puntos de preparación con valores runtime por slot.
+        bs_saga_apply_prep_points_to_runtime_slots()
         # También dejamos override de stats por tier para participantes del combate (player/enemy).
         for pid in (S.battle_player_ids or []) + (S.battle_enemy_ids or []):
             tier = bs_saga_hero_tier(pid, "C")
@@ -1350,23 +1564,36 @@ init -880 python:
         return out
 
     def bs_saga_load_json_contract(rel_path, default_obj=None):
-        try:
-            f = renpy.loader.load(str(rel_path or ""))
-            raw = f.read()
+        path_raw = str(rel_path or "").strip()
+        if not path_raw:
+            return default_obj
+
+        candidates = [path_raw]
+        if path_raw.startswith("game/"):
+            candidates.append(path_raw[len("game/"):])
+        else:
+            candidates.append("game/" + path_raw)
+
+        for p in candidates:
             try:
-                f.close()
+                f = renpy.loader.load(str(p or ""))
+                raw = f.read()
+                try:
+                    f.close()
+                except:
+                    pass
+                if raw is None:
+                    continue
+                try:
+                    txt = raw.decode("utf-8")
+                except:
+                    txt = str(raw)
+                obj = json.loads(txt)
+                if isinstance(obj, dict):
+                    return obj
             except:
                 pass
-            if raw is None:
-                return default_obj
-            try:
-                txt = raw.decode("utf-8")
-            except:
-                txt = str(raw)
-            obj = json.loads(txt)
-            return obj if isinstance(obj, dict) else default_obj
-        except:
-            return default_obj
+        return default_obj
 
     def bs_saga_item_schema():
         fn_v1 = getattr(S, "bs_get_item_catalog_v1", None)
@@ -1383,11 +1610,55 @@ init -880 python:
         if isinstance(contract, dict) and contract:
             return contract
 
-        # Fallback técnico mínimo (si falta contrato externo).
+        # Fallback funcional completo (si falta contrato externo).
         return {
-            "consumibles": {"title": "Consumibles", "groups": {"pociones": [], "amuletos": []}},
-            "permanentes": {"title": "Permanentes", "groups": {}},
-            "materiales": {"title": "Materiales", "groups": {"basicos": [], "ascenso": []}},
+            "consumibles": {
+                "title": "Consumibles",
+                "groups": {
+                    "pociones": [
+                        {"name": "Poción HP roja", "rarity": "", "tier_req": "", "meta": "+50% HP"},
+                        {"name": "Poción EP roja", "rarity": "", "tier_req": "", "meta": "+50% EP"},
+                        {"name": "Poción EC roja", "rarity": "", "tier_req": "", "meta": "+50% EC"},
+                        {"name": "Poción de durabilidad roja", "rarity": "", "tier_req": "", "meta": "+50% durabilidad"},
+                    ],
+                    "amuletos": [
+                        {"name": "Espejo reflector", "rarity": "rare", "tier_req": "B", "meta": "Refleja 30% daño (3 usos)"},
+                        {"name": "Cilindro mágico", "rarity": "rare", "tier_req": "B", "meta": "Absorbe 30% daño (3 usos)"},
+                        {"name": "Espada sagrada", "rarity": "epic", "tier_req": "A", "meta": "+30% daño (3 usos)"},
+                    ],
+                }
+            },
+            "permanentes": {
+                "title": "Permanentes",
+                "groups": {
+                    "anillos": [],
+                    "pulseras": [],
+                    "pendientes": [],
+                    "collares": [],
+                    "diademas": [],
+                    "cinturones": [],
+                    "tobilleras": [],
+                    "tatuajes": [],
+                }
+            },
+            "materiales": {
+                "title": "Materiales",
+                "groups": {
+                    "basicos": [
+                        {"name": "Chatarra común", "rarity": "common", "tier_req": "C", "meta": "Material de cambio/trueque"},
+                        {"name": "Fragmento reciclado", "rarity": "common", "tier_req": "C", "meta": "Material de cambio/trueque"},
+                    ],
+                    "ascenso": [
+                        {"name": "Material ascenso común", "rarity": "common", "tier_req": "C", "meta": "Ascenso C→B"},
+                        {"name": "Material ascenso raro", "rarity": "rare", "tier_req": "B", "meta": "Ascenso B→A"},
+                        {"name": "Material ascenso especial", "rarity": "special", "tier_req": "A", "meta": "Ascenso A→S"},
+                        {"name": "Material ascenso épico", "rarity": "epic", "tier_req": "S", "meta": "Ascenso S→SS"},
+                        {"name": "Material ascenso legendario", "rarity": "legendary", "tier_req": "SS", "meta": "Ascenso SS→SSS"},
+                        {"name": "Material ascenso mítico", "rarity": "mythic", "tier_req": "SSS", "meta": "Ascenso SSS→IV"},
+                        {"name": "Material ascenso infernal", "rarity": "infernal", "tier_req": "IV", "meta": "Reserva tier IV"},
+                    ],
+                }
+            },
         }
 
     def bs_saga_inventory_contract_ok():
@@ -1566,14 +1837,64 @@ init -880 python:
         tier = contract.get("tier", {}) if isinstance(contract, dict) else {}
         if isinstance(tier, dict) and tier:
             return tier
-        return {"C": [], "B": [], "A": [], "S": []}
+        return {
+            "C": [
+                {"name": "Ataque básico", "desc": "Ataque base. Escala con EP: a mayor potencia, mayor gasto de EP."},
+                {"name": "Defensa básica", "desc": "Defensa base. Escala con EP: más protección implica mayor gasto de EP."},
+                {"name": "Ataque directo", "desc": "Si sale 3/4 en dados, el golpe se vuelve indefendible; si no, se puede bloquear."},
+                {"name": "Efecto especial", "desc": "Cada héroe tiene un efecto propio, aplicado en ataque o defensa según su kit."},
+                {"name": "Concentrar", "desc": "Multiplica x2 un ataque elegido. No consume acción disponible."},
+                {"name": "Descansar", "desc": "Recupera un porcentaje de HP, EP y EC."},
+                {"name": "Dados de furia", "desc": "Se activa con 10% de HP o menos. Multiplica x2 una técnica elegida."},
+            ],
+            "B": [
+                {"name": "Ataque extra", "desc": "Otorga una acción ofensiva adicional en el turno."},
+                {"name": "Defensa extra", "desc": "Otorga una acción defensiva adicional en el turno."},
+                {"name": "Potenciar", "desc": "Multiplica x2 una defensa elegida y no consume acción disponible."},
+            ],
+            "A": [
+                {"name": "Técnica extra", "desc": "Habilita una acción adicional de técnica en el turno."},
+                {"name": "Ataque reductor", "desc": "Reduce un porcentaje de la defensa general del enemigo."},
+                {"name": "Defensa reductora", "desc": "Reduce un porcentaje del ataque general del enemigo."},
+            ],
+            "S": [
+                {"name": "Ataque negador", "desc": "Con 3/4 dados exitosos, anula el siguiente turno enemigo."},
+                {"name": "Defensa reflectora", "desc": "Refleja un porcentaje del daño de ataque enemigo."},
+            ],
+        }
 
     def bs_saga_tech_catalog_by_type():
         contract = bs_saga_load_json_contract("data/tech_catalog_v1.json", {})
         by_type = contract.get("type", {}) if isinstance(contract, dict) else {}
         if isinstance(by_type, dict) and by_type:
             return by_type
-        return {"ofensivas": [], "defensivas": [], "neutras": [], "especiales": []}
+        return {
+            "ofensivas": [
+                {"name": "Ataque básico", "desc": "Ataque base del turno ofensivo."},
+                {"name": "Ataque extra", "desc": "Otorga una acción ofensiva adicional en el turno."},
+                {"name": "Técnica extra", "desc": "Acción adicional de técnica usable también en defensa."},
+                {"name": "Ataque reductor", "desc": "Reduce un porcentaje de la defensa general del enemigo."},
+                {"name": "Ataque directo", "desc": "Con 3/4 en dados se vuelve indefendible."},
+                {"name": "Ataque negador", "desc": "Con 3/4 dados exitosos, anula el siguiente turno enemigo."},
+            ],
+            "defensivas": [
+                {"name": "Defensa básica", "desc": "Defensa base del turno defensivo."},
+                {"name": "Defensa extra", "desc": "Otorga una acción defensiva adicional en el turno."},
+                {"name": "Técnica extra", "desc": "Acción adicional de técnica usable también en defensa."},
+                {"name": "Defensa reductora", "desc": "Reduce un porcentaje del ataque general del enemigo."},
+                {"name": "Defensa reflectora", "desc": "Refleja un porcentaje del daño de ataque enemigo."},
+            ],
+            "neutras": [
+                {"name": "Descansar", "desc": "Recupera un porcentaje de HP, EP y EC."},
+                {"name": "Técnica extra", "desc": "Puede aplicarse para extender ataque o defensa según necesidad."},
+                {"name": "Dados de furia", "desc": "Multiplica x2 una técnica de ataque o defensa sin consumir acción."},
+            ],
+            "especiales": [
+                {"name": "Concentrar", "desc": "Multiplica x2 un ataque elegido y no consume acción disponible."},
+                {"name": "Potenciar", "desc": "Multiplica x2 una defensa elegida y no consume acción disponible."},
+                {"name": "Efecto especial", "desc": "Efecto propio del héroe, aplicable en ataque o defensa."},
+            ],
+        }
 
     def bs_saga_tech_catalog_set_mode(mode):
         m = str(mode or "").strip().lower()
@@ -1597,8 +1918,9 @@ init -880 python:
 # - bs_saga_profile_screen
 # ahora viven en `game/ui_hub/ui_hub_screens_lobby.rpy`.
 
-# Fase 3 de split:
+# Fase 5 de split:
 # - bs_saga_preparation_room_screen
+# - bs_saga_hero_config_screen
 # - bs_saga_duel_staging_screen
 # - bs_saga_preparation_verify_screen
 # ahora viven en `game/ui_hub/ui_hub_screens_prep.rpy`.
@@ -1629,8 +1951,10 @@ label bs_saga_duelo_libre:
     jump bs_saga_preparacion
 
 label bs_saga_preparation_verify:
-    call screen bs_saga_preparation_verify_screen
-    return
+    # Ruta legacy: se mantiene por compatibilidad, pero el flujo principal
+    # de validación/inicio quedó consolidado en staging.
+    $ bs_saga_prep_context = "staging"
+    jump bs_saga_preparacion
 
 label bs_saga_launch_prepared_duel:
     $ _contract = bs_saga_precombat_contract_validate()
@@ -1678,15 +2002,19 @@ label bs_saga_torre_cielo:
 label bs_saga_preparacion:
     if bool(getattr(store, "bs_saga_prep_intent_duel", False)):
         $ bs_saga_prep_context = "staging"
-    elif str(getattr(store, "bs_saga_prep_context", "") or "") not in ("room", "staging"):
+        $ bs_saga_prep_intent_duel = False
+    elif str(getattr(store, "bs_saga_prep_context", "") or "") not in ("room", "config", "staging"):
         $ bs_saga_prep_context = "room"
     if not (bs_saga_prep_duel_rotation_ids or []):
         $ bs_saga_refresh_duel_rotation_heroes(5)
     if not (bs_saga_prep_selected_party_ids or []):
         if bs_saga_prep_selected_hero:
             $ bs_saga_prep_selected_party_ids = [str(bs_saga_prep_selected_hero)]
-    if str(getattr(store, "bs_saga_prep_context", "room") or "room").strip().lower() == "staging":
+    $ _prep_ctx = str(getattr(store, "bs_saga_prep_context", "room") or "room").strip().lower()
+    if _prep_ctx == "staging":
         call screen bs_saga_duel_staging_screen
+    elif _prep_ctx == "config":
+        call screen bs_saga_hero_config_screen
     else:
         call screen bs_saga_preparation_room_screen
     return

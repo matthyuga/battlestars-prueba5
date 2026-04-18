@@ -74,6 +74,10 @@ label battle_enemy_turn_legacy_entry:
                         if isinstance(ch, dict):
                             S.battle_enemy = ch
                 except:
+                    try:
+                        S.bs_suppress_next_hp_log_line = False
+                    except:
+                        pass
                     pass
 
                 fn_def = getattr(S, "enemy_compute_reactive_defense", None)
@@ -108,10 +112,17 @@ label battle_enemy_turn_legacy_entry:
                         _def_input = int(_dir_part if _direct_only else _def_part)
                         info = fn_def(_def_input, allow_block=(not _direct_only))
                         final_in = max(0, int(info.get("final_damage", _def_input) or _def_input))
+                        _engine_apply = max(0, int(info.get("damage_to_apply", 0) or 0))
                     except:
                         final_in = int(_dir_part if _direct_only else _def_part)
+                        _engine_apply = 0
+                else:
+                    _engine_apply = 0
 
-                total_in = max(0, int(final_in or 0)) + (0 if _direct_only else _dir_part)
+                if _engine_apply > 0:
+                    total_in = int(_engine_apply)
+                else:
+                    total_in = max(0, int(final_in or 0)) + (0 if _direct_only else _dir_part)
 
                 # consumir debuff acumulado de este target y restaurar valor temporal
                 try:
@@ -126,7 +137,15 @@ label battle_enemy_turn_legacy_entry:
                 try:
                     fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
                     if callable(fn_apply_key) and akey:
+                        S.bs_suppress_next_hp_log_line = True
                         fn_apply_key(akey, int(total_in), source_key=getattr(S, "current_actor_unit_key", None), reason="combat_deferred_enemy", tags=["deferred", "enemy_defense"])
+                        # Sync HUD legacy inmediato para reflejar daño real en barra superior.
+                        try:
+                            fn_sync = getattr(S, "bs_sync_to_legacy", None)
+                            if callable(fn_sync):
+                                fn_sync()
+                        except:
+                            pass
                     else:
                         fn_set = getattr(S, "bs_set_hp", None)
                         cur = int(getattr(S, "enemy_hp", 0) or 0)

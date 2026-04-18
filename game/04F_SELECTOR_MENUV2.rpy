@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04F_SELECTOR_MENUV2.rpy – Menú de Técnicas Moderno (v7.2 FIXED)
 # Dynamic Cost Edition – basado en el sistema 04X
 # ------------------------------------------------------------
@@ -69,7 +69,7 @@ init python:
         "attack_reducer": "Ataque Reductor",
         "direct_attack": "Ataque Directo",
         "noatk_attack": "Ataque Negador",
-        "stronger_attack": "Ataque más fuerte",
+        "stronger_attack": "Ataque básico",
         "ladron_ofensivo": "Ladrón ofensivo",
         "ladron_defensivo": "Ladrón defensivo",
         "ladron_concentrar": "Ladrón de concentrar",
@@ -77,7 +77,7 @@ init python:
         "defense_extra": "Defensa Extra",
         "defense_reducer": "Defensa Reductora",
         "defense_reflect": "Defensa Reflectora",
-        "defense_strong_block": "Defensa Fuerte",
+        "defense_strong_block": "Defensa Básica",
         "salvaguarda_principiante": "Salvaguarda principiante",
 
         "focus_attack": "Concentrar x2",
@@ -93,10 +93,10 @@ init python:
     # Gating por tier del héroe (capa mínima sin romper lógica base)
     # ------------------------------------------------------------
     _TIER_TECH_KEYS = {
-        "C": set(["stronger_attack", "defense_strong_block", "direct_attack", "focus_attack", "rest_recovery", "fury_attack"]),
-        "B": set(["extra_attack", "defense_extra", "focus_defense"]),
-        "A": set(["extra_tech", "attack_reducer", "defense_reducer"]),
-        "S": set(["noatk_attack", "defense_reflect"]),
+        "C": set(["stronger_attack", "defense_strong_block", "direct_attack", "focus_attack", "focus_defense", "rest_recovery", "fury_attack"]),
+        "B": set(["extra_attack", "defense_extra", "focus_attack", "focus_defense", "rest_recovery", "fury_attack"]),
+        "A": set(["extra_tech", "attack_reducer", "defense_reducer", "focus_attack", "focus_defense", "rest_recovery", "fury_attack"]),
+        "S": set(["noatk_attack", "defense_reflect", "focus_attack", "focus_defense", "rest_recovery", "fury_attack"]),
     }
 
     def _selector_player_tier():
@@ -130,7 +130,29 @@ init python:
                 arr = list(fn_allowed(hid) or [])
                 prof_allowed = set([str(x or "").strip().lower() for x in arr if str(x or "").strip()])
                 if len(prof_allowed) > 0:
-                    out_prof = [k for k in seq if str(k or "").strip().lower() in prof_allowed]
+                    # Normalizar ids de perfil -> keys del selector.
+                    # Ej.: focus -> focus_attack, fury_dice -> fury_attack.
+                    selector_allowed = set()
+                    for tid in prof_allowed:
+                        selector_allowed.add(tid)
+                        if tid == "focus":
+                            selector_allowed.add("focus_attack")
+                        elif tid == "defense_boost":
+                            selector_allowed.add("focus_defense")
+                        elif tid == "fury_dice":
+                            selector_allowed.add("fury_attack")
+                        elif tid == "rest_recovery":
+                            selector_allowed.add("rest_recovery")
+
+                    # Mantener especiales de tier en preconfig para no ocultarlos
+                    # por diferencias de naming entre capas.
+                    t = _selector_player_tier()
+                    tier_keys = _TIER_TECH_KEYS.get(t, set())
+                    for sk in ("focus_attack", "focus_defense", "fury_attack", "rest_recovery"):
+                        if sk in tier_keys:
+                            selector_allowed.add(sk)
+
+                    out_prof = [k for k in seq if str(k or "").strip().lower() in selector_allowed]
                     if len(out_prof) > 0:
                         return out_prof
         except:
@@ -273,7 +295,7 @@ init python:
             if tech_key == "rest_recovery":
                 return (
                     "Descansar\n"
-                    "Recupera 5% de HP base, 25% de Reiatsu y 25% de Energía base.\n"
+                    "Recupera 5% de HP base, 25% de EP y 25% de EC base.\n"
                     "Consume 1 acción del turno actual.\n"
                     "No inflige daño ni bloquea."
                 )
@@ -287,7 +309,7 @@ init python:
                     "- 3-4 éxitos: x2\n"
                     "- 0-2 éxitos: x1\n"
                     "Requiere HP ≤ 25% (o ítem).\n"
-                    "Consume 10% del Reiatsu/Energía TOTAL."
+                    "Consume 10% del EP/EC TOTAL."
                 )
                 try:
                     _fn_cost = getattr(S, "fury_activation_costs", None)
@@ -363,17 +385,17 @@ init python:
             target = _queue_focus_target(mode)
             if target and target == name:
                 if mode == "offensive":
-                    focus_note = "\n\n✨ ×2 por Concentrar (Reiatsu ×2 / Energía normal)"
+                    focus_note = "\n\n✨ ×2 por Concentrar (daño/bloqueo)"
                 else:
-                    focus_note = "\n\n✨ ×2 por Potenciar (Reiatsu ×2 / Energía normal)"
+                    focus_note = "\n\n✨ ×2 por Potenciar (daño/bloqueo)"
         except:
             pass
 
         txt = (
             "{} base: {}\n"
             "{} final real: {}\n"
-            "Costo Reiatsu real: {}\n"
-            "Costo Energía real: {}"
+            "Costo EP real: {}\n"
+            "Costo EC real: {}"
         ).format(
             tipo,
             S.battle_fmt_num(base_val),
@@ -400,9 +422,9 @@ init python:
         if not ok:
             txt += "\n\n❌ Recursos insuficientes:"
             if fr > 0:
-                txt += "\n - Faltan {} Reiatsu".format(fr)
+                txt += "\n - Faltan {} EP".format(fr)
             if fe > 0:
-                txt += "\n - Faltan {} Energía".format(fe)
+                txt += "\n - Faltan {} EC".format(fe)
 
         return txt
 
@@ -450,9 +472,9 @@ init python:
 
         msg = S.fmt_pink("No puedes seleccionar {}: ".format(label))
         if fr > 0:
-            msg += S.fmt_white("Falta Reiatsu. ")
+            msg += S.fmt_white("Falta EP. ")
         if fe > 0:
-            msg += S.fmt_white("Falta Energía.")
+            msg += S.fmt_white("Falta EC.")
 
         S.battle_log_add(msg)
 

@@ -252,12 +252,12 @@ init -100 python:
         if not any(k in rep for k in ("stronger_attack", "direct_attack")):
             errs.append("Debes incluir al menos una técnica ofensiva inicial.")
         if "defense_strong_block" not in rep:
-            errs.append("Debes incluir Defensa fuerte en repertorio.")
+            errs.append("Debes incluir Defensa básica en repertorio.")
 
         if story_off_spent() <= 0:
-            errs.append("Asigna puntos de ataque a Ataque más fuerte o Ataque directo.")
+            errs.append("Asigna puntos de ataque a Ataque básico o Ataque directo.")
         if story_def_spent() <= 0:
-            errs.append("Asigna puntos defensivos a Defensa fuerte.")
+            errs.append("Asigna puntos defensivos a Defensa básica.")
 
         return errs
 
@@ -332,7 +332,7 @@ screen story_panel_tutorial_basics():
             text "• espiritu -> +100 reiatsu" size 22
             text "Si un atributo es principal: distribuyes 100 en 4 de 5 parámetros (25/50/75/100)." size 22
             text "Pool técnico inicial: 200 (general)." size 22
-            text "Técnicas iniciales: Ataque más fuerte, Ataque directo y Defensa fuerte." size 22
+            text "Técnicas iniciales: Ataque básico, Ataque directo y Defensa básica." size 22
             null height 10
             textbutton "Continuar" action Return()
 
@@ -463,7 +463,7 @@ screen story_panel_tech_and_confirm():
                                 padding (8, 8)
                                 vbox:
                                     spacing 4
-                                    text "Ataque más fuerte" size 15
+                                    text "Ataque básico" size 15
                                     text "Base: 100 | Bonus: %s | Total: %s" % (tp.get("stronger_attack", 0), 100 + int(tp.get("stronger_attack", 0) or 0)) size 14
                                     hbox:
                                         spacing 4
@@ -487,7 +487,7 @@ screen story_panel_tech_and_confirm():
                                 padding (8, 8)
                                 vbox:
                                     spacing 4
-                                    text "Defensa fuerte" size 15
+                                    text "Defensa básica" size 15
                                     text "Base: 100 | Bonus: %s | Total: %s" % (tp.get("defense_strong_block", 0), 100 + int(tp.get("defense_strong_block", 0) or 0)) size 14
                                     hbox:
                                         spacing 4

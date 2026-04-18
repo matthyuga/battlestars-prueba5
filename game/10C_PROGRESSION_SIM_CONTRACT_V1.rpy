@@ -600,6 +600,7 @@ init -875 python:
                 "allow_mid_battle_grants": True,
                 "repetition_count": 1,
                 "multi_factor_enabled": True,
+                "hp_reward_multiplier": 1,
             },
         }
 
@@ -655,6 +656,7 @@ init -875 python:
         cfg["allow_mid_battle_grants"] = bool(cfg.get("allow_mid_battle_grants", True))
         cfg["repetition_count"] = max(1, _sim_to_int(cfg.get("repetition_count", 1), 1))
         cfg["multi_factor_enabled"] = bool(cfg.get("multi_factor_enabled", True))
+        cfg["hp_reward_multiplier"] = _sim_hp_reward_multiplier(cfg.get("hp_reward_multiplier", 1))
         out["config"] = cfg
 
         # actors no vacío
@@ -869,6 +871,17 @@ init -875 python:
             return 1.35
         return float(raw)
 
+    def _sim_hp_reward_multiplier(value):
+        try:
+            m = int(value or 1)
+        except:
+            m = 1
+        if m < 1:
+            m = 1
+        if m > 5:
+            m = 5
+        return int(m)
+
     def _sim_result_multipliers_for_actor(actor, winner_team):
         team = str((actor or {}).get("team", "A") or "A").upper()
         wt = str(winner_team or "DRAW").upper()
@@ -897,6 +910,7 @@ init -875 python:
             "enemies": max(1, _sim_to_int(cfg.get("_enemies_count", 1), 1)),
         }
         multi_factor = compute_multi_factor(team_sizes, cfg.get("multi_factor_enabled", True))
+        hp_reward_mult = _sim_hp_reward_multiplier(cfg.get("hp_reward_multiplier", 1))
 
         repetition_count = max(1, _sim_to_int(cfg.get("repetition_count", 1), 1))
         if repetition_count <= 1:
@@ -919,7 +933,8 @@ init -875 python:
                 float(result_mult["result_exp"]) *
                 float(perf["performance_exp"]) *
                 float(anti) *
-                float(multi_factor)
+                float(multi_factor) *
+                float(hp_reward_mult)
             )
             oro_raw = (
                 float(base["oro"]) *
@@ -927,7 +942,8 @@ init -875 python:
                 float(result_mult["result_oro"]) *
                 float(perf["performance_oro"]) *
                 float(anti) *
-                float(multi_factor)
+                float(multi_factor) *
+                float(hp_reward_mult)
             )
             exp_gain = max(0, int(round(exp_raw)))
             oro_gain = max(0, int(round(oro_raw)))
@@ -955,6 +971,7 @@ init -875 python:
                 "performance_oro": perf["performance_oro"],
                 "antiabuso": anti,
                 "multi_factor": float(multi_factor),
+                "hp_reward_multiplier": int(hp_reward_mult),
             },
             "base": {
                 "exp": int(base["exp"]),
@@ -1257,6 +1274,7 @@ init -875 python:
                 "allow_mid_battle_grants": bool(_sim_get_from_sources(sources, ("allow_mid_battle_grants",), True)),
                 "repetition_count": max(1, _sim_to_int(_sim_get_from_sources(sources, ("repetition_count",), 1), 1)),
                 "multi_factor_enabled": bool(_sim_get_from_sources(sources, ("multi_factor_enabled",), True)),
+                "hp_reward_multiplier": _sim_hp_reward_multiplier(_sim_get_from_sources(sources, ("hp_reward_multiplier",), 1)),
                 "idempotency_registry": _sim_get_from_sources(sources, ("idempotency_registry",), {}),
             },
         }

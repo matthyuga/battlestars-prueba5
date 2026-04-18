@@ -1,11 +1,11 @@
-﻿# ============================================================
+# ============================================================
 # 04C_OFFENSIVE_ACTIONS.rpy – Offensive Core (Action Objects)
 # ============================================================
 # v12.5 – SafeLogHub + StoreSafe LogRefs + BaseValue SafeCall Fix + 04X SSOT
 # ------------------------------------------------------------
 # ✔ Costos finales salen de 04X (reiatsu_energy_dynamic_cost)
-# ✔ Focus/Concentrar multiplica daño y Reiatsu con el MISMO mult (x2 / x4 ...)
-# ✔ Energía NO se duplica
+# ✔ Focus/Concentrar multiplica daño y EP con el MISMO mult (x2 / x4 ...)
+# ✔ EC NO se duplica
 # ✔ Sin doble cobro / sin costos fantasmas
 # ✔ NO resetea focus acá (carry-over/decay lo maneja el hook de fin de turno)
 # ✔ Store-safe (battle_techniques via S)
@@ -236,8 +236,8 @@ init python:
         if callable(log_cost_meta):
             return log_cost_meta(rei, ene)
         if callable(fmt_white):
-            return fmt_white("(Reiatsu {} / Energía {})".format(_fmt_num(rei), _fmt_num(ene)))
-        return "(Reiatsu {} / Energía {})".format(_fmt_num(rei), _fmt_num(ene))
+            return fmt_white("(EP {} / EC {})".format(_fmt_num(rei), _fmt_num(ene)))
+        return "(EP {} / EC {})".format(_fmt_num(rei), _fmt_num(ene))
 
 
     # ------------------------------------------------------------
@@ -273,7 +273,8 @@ init python:
             "Ataque Reductor":    "attack_reducer",
             "Ataque Directo":     "direct_attack",
             "Ataque Negador":     "noatk_attack",
-            "Ataque más fuerte":  "stronger_attack",
+            "Ataque básico":  "stronger_attack",
+            "Ataque más fuerte":  "stronger_attack",  # alias legacy
             "Ladrón ofensivo":    "ladron_ofensivo",
             "Ladrón defensivo":   "ladron_defensivo",
             "Ladrón de concentrar": "ladron_concentrar",
@@ -444,7 +445,7 @@ label offensive_process_actions(selected):
                         gain_hp = max(0, int(getattr(S, "player_hp", 0) or 0) - prev_hp)
                         gain_rei = max(0, int(getattr(S, "player_reiatsu", 0) or 0) - prev_rei)
                         gain_ene = max(0, int(getattr(S, "player_energy", 0) or 0) - prev_ene)
-                        _blog("Descansar → +{} HP / +{} Reiatsu / +{} Energía.".format(_fmt_num(gain_hp), _fmt_num(gain_rei), _fmt_num(gain_ene)), "#A5D6A7")
+                        _blog("Descansar → +{} HP / +{} EP / +{} EC.".format(_fmt_num(gain_hp), _fmt_num(gain_rei), _fmt_num(gain_ene)), "#A5D6A7")
                     else:
                         _blog("Descansar no disponible (falta helper).", "#FF8888")
                 except:
@@ -633,11 +634,11 @@ label offensive_process_actions(selected):
                             _cost_line(rei_cost, ene_cost)
                         )
                     else:
-                        _blog("Ataque Directo → Inflige {} de daño. (Reiatsu {} / Energía {})".format(
+                        _blog("Ataque Directo → Inflige {} de daño. (EP {} / EC {})".format(
                             make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                         ), "#FFDD44")
                 except:
-                    _blog("Ataque Directo → Inflige {} de daño. (Reiatsu {} / Energía {})".format(
+                    _blog("Ataque Directo → Inflige {} de daño. (EP {} / EC {})".format(
                         make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                     ), "#FFDD44")
 
@@ -693,11 +694,11 @@ label offensive_process_actions(selected):
                             fmt_orange("Si saca 2/3 dados de éxito, el enemigo no puede atacar en su siguiente turno.")
                         )
                     else:
-                        _blog("Ataque Negador → Inflige {} de daño. (Reiatsu {} / Energía {})".format(
+                        _blog("Ataque Negador → Inflige {} de daño. (EP {} / EC {})".format(
                             make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                         ), "#FF66CC")
                 except:
-                    _blog("Ataque Negador → Inflige {} de daño. (Reiatsu {} / Energía {})".format(
+                    _blog("Ataque Negador → Inflige {} de daño. (EP {} / EC {})".format(
                         make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                     ), "#FF66CC")
 
@@ -754,7 +755,7 @@ label offensive_process_actions(selected):
                             fmt_white(" ") + _cost_line(rei_cost, ene_cost)
                         )
                     else:
-                        _blog("{} → {} daño. (-{}% DEF) (Reiatsu {} / Energía {})".format(
+                        _blog("{} → {} daño. (-{}% DEF) (EP {} / EC {})".format(
                             action.name,
                             make_dmg_text(action.base_value, dmg),
                             int((getattr(S, "next_defense_reduction", 0.10) or 0.10) * 100),
@@ -762,7 +763,7 @@ label offensive_process_actions(selected):
                             _fmt_num(ene_cost)
                         ), "#FF9966")
                 except:
-                    _blog("{} → {} daño. (-{}% DEF) (Reiatsu {} / Energía {})".format(
+                    _blog("{} → {} daño. (-{}% DEF) (EP {} / EC {})".format(
                         action.name,
                         make_dmg_text(action.base_value, dmg),
                         int((getattr(S, "next_defense_reduction", 0.10) or 0.10) * 100),
@@ -805,18 +806,18 @@ label offensive_process_actions(selected):
                 try:
                     if callable(fmt_red) and callable(fmt_white):
                         _blog(
-                            fmt_red("Ataque más fuerte") +
+                            fmt_red("Ataque básico") +
                             fmt_white(" → Inflige ") +
                             fmt_red(make_dmg_text(action.base_value, dmg)) +
                             fmt_white(" de daño. ") +
                             _cost_line(rei_cost, ene_cost)
                         )
                     else:
-                        _blog("Ataque más fuerte → {} daño. (Reiatsu {} / Energía {})".format(
+                        _blog("Ataque básico → {} daño. (EP {} / EC {})".format(
                             make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                         ), "#FF4444")
                 except:
-                    _blog("Ataque más fuerte → {} daño. (Reiatsu {} / Energía {})".format(
+                    _blog("Ataque básico → {} daño. (EP {} / EC {})".format(
                         make_dmg_text(action.base_value, dmg), _fmt_num(rei_cost), _fmt_num(ene_cost)
                     ), "#FF4444")
 
@@ -863,14 +864,14 @@ label offensive_process_actions(selected):
                             _cost_line(rei_cost, ene_cost)
                         )
                     else:
-                        _blog("{} → {} daño. (Reiatsu {} / Energía {})".format(
+                        _blog("{} → {} daño. (EP {} / EC {})".format(
                             action.name,
                             make_dmg_text(action.base_value, dmg),
                             _fmt_num(rei_cost),
                             _fmt_num(ene_cost)
                         ), "#FF8888")
                 except:
-                    _blog("{} → {} daño. (Reiatsu {} / Energía {})".format(
+                    _blog("{} → {} daño. (EP {} / EC {})".format(
                         action.name,
                         make_dmg_text(action.base_value, dmg),
                         _fmt_num(rei_cost),

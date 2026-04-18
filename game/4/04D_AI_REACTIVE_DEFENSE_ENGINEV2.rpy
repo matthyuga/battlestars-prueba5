@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04D_AI_REACTIVE_DEFENSE_ENGINE.rpy – Execution Engine
 # v12.4.1 ReflectQueue Centralized (Target=Attacker, Source=Defender) ✅
 # ------------------------------------------------------------
@@ -234,7 +234,7 @@ init -988 python:
                     if callable(fn_strong):
                         summary_lines.append(fn_strong(base_blk, blk))
                     else:
-                        summary_lines.append("Defensa Fuerte → Bloquea %s" % S.battle_fmt_num(blk))
+                        summary_lines.append("Defensa Básica → Bloquea %s" % S.battle_fmt_num(blk))
                 except:
                     pass
 
@@ -569,7 +569,12 @@ init -988 python:
         except:
             pass
 
-        return {"final_damage": final_damage, "reflected": reflected_total}
+        return {
+            "final_damage": final_damage,
+            # Daño pre-recubrimiento real a aplicar en facade (incluye directo si corresponde).
+            "damage_to_apply": int(final_for_coating),
+            "reflected": reflected_total
+        }
 
 
 # ✅ Export al store

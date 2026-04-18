@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 04F_SELECTOR_FUNCTIONSV2.rpy – Selector Moderno (v7.2 FIX SAFE)
 # Rebuild Simulation Safe Edition – basado en 04X
 # ------------------------------------------------------------
@@ -6,7 +6,7 @@
 # ✔ Selector trabaja con recursos simulados coherentes
 # ✔ pending_tech_list + HUD sync
 # ✔ FIX CRÍTICO: simulación SIEMPRE se reconstruye (sin drift)
-# ✔ Focus/Potenciar: duplican SOLO el Reiatsu de la técnica objetivo
+# ✔ Focus/Potenciar: aplican x2 al costo EP de la técnica objetivo
 # ✔ Define get_real_cost() (evita NameError del menú)
 # ✔ can_pay_simulated arranca desde actions_available_start (no drift)
 # ✔ FIX: NO import renpy en init (evita crasheos del engine)
@@ -47,7 +47,8 @@ init -959 python:
         "Ataque Reductor":   "attack_reducer",
         "Ataque Directo":    "direct_attack",
         "Ataque Negador":    "noatk_attack",
-        "Ataque más fuerte": "stronger_attack",
+        "Ataque básico": "stronger_attack",
+        "Ataque más fuerte": "stronger_attack",  # alias legacy
         "Ladrón ofensivo":   "ladron_ofensivo",
         "Ladrón defensivo":  "ladron_defensivo",
         "Ladrón de concentrar": "ladron_concentrar",
@@ -56,7 +57,8 @@ init -959 python:
         "Defensa Extra":       "defense_extra",
         "Defensa Reductora":   "defense_reducer",
         "Defensa Reflectora":  "defense_reflect",
-        "Defensa Fuerte":      "defense_strong_block",
+        "Defensa Básica":      "defense_strong_block",
+        "Defensa Fuerte":      "defense_strong_block",  # alias legacy
         "Salvaguarda principiante": "salvaguarda_principiante",
 
         # FOCUS (sin tech_id real)
@@ -124,7 +126,8 @@ init -959 python:
         "Ataque Directo":    {"cost": 1, "bonus": 0},
         "Ataque Negador":    {"cost": 1, "bonus": 0},
         "Ataque Reductor":   {"cost": 1, "bonus": 0},
-        "Ataque más fuerte": {"cost": 1, "bonus": 0},
+        "Ataque básico": {"cost": 1, "bonus": 0},
+        "Ataque más fuerte": {"cost": 1, "bonus": 0},  # alias legacy
         "Ladrón ofensivo":   {"cost": 1, "bonus": 0},
         "Ladrón defensivo":  {"cost": 1, "bonus": 0},
         "Ladrón de concentrar": {"cost": 1, "bonus": 0},
@@ -140,7 +143,8 @@ init -959 python:
         "Defensa Extra":       {"cost": 1, "bonus": 1},
         "Defensa Reductora":   {"cost": 1, "bonus": 0},
         "Defensa Reflectora":  {"cost": 1, "bonus": 0},
-        "Defensa Fuerte":      {"cost": 1, "bonus": 0},
+        "Defensa Básica":      {"cost": 1, "bonus": 0},
+        "Defensa Fuerte":      {"cost": 1, "bonus": 0},  # alias legacy
         "Salvaguarda principiante": {"cost": 1, "bonus": 0},
     }
 
@@ -246,8 +250,7 @@ init -959 python:
     # ============================================================
     # ✅ API que usa el MENÚ (evita NameError)
     # Devuelve: (rei, ene, final_val)
-    # Regla: aplica x2 SOLO al Reiatsu de la técnica objetivo
-    # según la COLA ACTUAL.
+    # Regla: aplica x2 al costo EP de la técnica objetivo según cola actual.
     # ============================================================
     def get_real_cost(tech_name, mode=None):
 
@@ -264,7 +267,7 @@ init -959 python:
         except:
             q = []
 
-        # Si la técnica está en cola, evaluamos si es target del focus
+        # Si la técnica está en cola, evaluamos si es target del focus.
         try:
             if tech_name in q:
                 idx = q.index(tech_name)
@@ -394,9 +397,9 @@ init -959 python:
         if not ok:
             msg = "⚠ No puedes seleccionar '%s':" % tech_name
             if fr > 0:
-                msg += " Falta %s Reiatsu." % fr
+                msg += " Falta %s EP." % fr
             if fe > 0:
-                msg += " Falta %s Energía." % fe
+                msg += " Falta %s EC." % fe
             _rn_notify(msg)
             return
 
@@ -504,7 +507,7 @@ init -959 python:
                 _ci = _fn_cost("player") if callable(_fn_cost) else {}
             except:
                 _ci = {}
-            _rn_notify("⚠ Furia requiere 10% total: Reiatsu %s / Energía %s." % (
+            _rn_notify("⚠ Furia requiere 10% total: EP %s / EC %s." % (
                 str(int((_ci or {}).get("reiatsu_need", 0) or 0)),
                 str(int((_ci or {}).get("energy_need", 0) or 0))
             ))

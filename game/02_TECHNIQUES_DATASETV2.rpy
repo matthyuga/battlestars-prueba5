@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 02_BATTLE_TECHNIQUES_DATASET.RPY – Catálogo de Técnicas
 # ============================================================
 # Versión v8.3 – NO Legacy Block + AliasSafe + StrongAttack Removed
@@ -50,7 +50,7 @@ init -991 python:
 
         "stronger_attack": {
             "id": "stronger_attack",
-            "name": "Ataque más fuerte",
+            "name": "Ataque básico",
             "type": "offensive",
             "bonus_actions": 0,
             "used": False,
@@ -201,7 +201,7 @@ init -991 python:
 
         "defense_strong_block": {
             "id": "defense_strong_block",
-            "name": "Defensa fuerte",
+            "name": "Defensa básica",
             "type": "defensive",
             "used": False,
             "description": "Una defensa sólida de alto rendimiento."
