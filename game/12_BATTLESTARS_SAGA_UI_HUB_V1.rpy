@@ -871,6 +871,71 @@ init -880 python:
             return False
         return True
 
+    def bs_saga_apply_prep_points_to_runtime_slots():
+        """
+        Fase 3: puente de puntos de preparación -> allocator runtime por slot.
+        Solo aplica a técnicas ofensivas/defensivas en modo preconfig.
+        """
+        fn_set_bonus = getattr(S, "spa_set_bonus", None)
+        fn_set_available = getattr(S, "spa_set_available", None)
+        fn_reset_slot = getattr(S, "spa_reset_slot", None)
+        if not callable(fn_set_bonus):
+            return False
+
+        player_ids = [str(x) for x in (getattr(S, "battle_player_ids", []) or []) if str(x or "").strip()]
+        profiles = getattr(S, "battle_prepared_player_tech_profiles", {}) or {}
+        fn_unit_key = getattr(S, "bs_unit_key", None)
+        fn_point_alloc = getattr(S, "bs_saga_is_point_alloc_tech", None)
+
+        for idx, pid in enumerate(player_ids):
+            unit_key = "player:{}".format(int(idx))
+            if callable(fn_unit_key):
+                try:
+                    unit_key = str(fn_unit_key("player", idx) or unit_key)
+                except:
+                    pass
+
+            if callable(fn_reset_slot):
+                try:
+                    fn_reset_slot(unit_key, save=False)
+                except:
+                    pass
+
+            prof = profiles.get(pid, {}) if isinstance(profiles, dict) else {}
+            if not isinstance(prof, dict):
+                continue
+            if callable(fn_set_available):
+                try:
+                    fn_set_available(unit_key, int(prof.get("pool_total", 0) or 0), save=False)
+                except:
+                    pass
+
+            mode = str(prof.get("mode", "virgen") or "virgen").strip().lower()
+            if mode != "preconfig":
+                continue
+            tp = prof.get("tech_points", {})
+            if not isinstance(tp, dict):
+                continue
+
+            for tid, raw_pts in tp.items():
+                tech_id = str(tid or "").strip().lower()
+                if not tech_id:
+                    continue
+                try:
+                    pts = int(raw_pts or 0)
+                except:
+                    pts = 0
+                if pts <= 0:
+                    continue
+                if callable(fn_point_alloc) and (not bool(fn_point_alloc(tech_id))):
+                    continue
+                try:
+                    fn_set_bonus(unit_key, tech_id, int(pts), save=False)
+                except:
+                    pass
+
+        return True
+
     def bs_saga_exp_progress():
         acc = bs_saga_account()
         try:
@@ -1287,6 +1352,8 @@ init -880 python:
         for pid in (S.battle_player_ids or []):
             S.battle_prepared_player_loadouts[str(pid)] = bs_saga_hero_loadout_slots(pid, prep_cfg, prep_build)
             S.battle_prepared_player_tech_profiles[str(pid)] = dict(bs_saga_resolve_hero_tech_profile(pid, prep_cfg, prep_build) or {})
+        # Fase 3: conectar puntos de preparación con valores runtime por slot.
+        bs_saga_apply_prep_points_to_runtime_slots()
         # También dejamos override de stats por tier para participantes del combate (player/enemy).
         for pid in (S.battle_player_ids or []) + (S.battle_enemy_ids or []):
             tier = bs_saga_hero_tier(pid, "C")
