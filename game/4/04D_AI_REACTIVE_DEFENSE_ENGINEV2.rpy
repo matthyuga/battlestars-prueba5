@@ -569,7 +569,12 @@ init -988 python:
         except:
             pass
 
-        return {"final_damage": final_damage, "reflected": reflected_total}
+        return {
+            "final_damage": final_damage,
+            # Daño pre-recubrimiento real a aplicar en facade (incluye directo si corresponde).
+            "damage_to_apply": int(final_for_coating),
+            "reflected": reflected_total
+        }
 
 
 # ✅ Export al store

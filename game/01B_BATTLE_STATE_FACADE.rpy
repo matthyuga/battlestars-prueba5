@@ -81,6 +81,9 @@ init -989 python:
         effect_applied=None,
     ):
         show_stamina_lines = bool(getattr(S, "bs_show_stamina_log_lines", False))
+        suppress_hp_line = bool(getattr(S, "bs_suppress_next_hp_log_line", False))
+        if suppress_hp_line:
+            S.bs_suppress_next_hp_log_line = False
         # 1) Resultado estamina (consumo / overflow) [opcional]
         if show_stamina_lines:
             if overflow_to_hp > 0:
@@ -89,7 +92,8 @@ init -989 python:
                 _bs_log_battle_line("Estamina: {} - {} = {}".format(int(stamina_before), int(incoming_after_coating), int(stamina_after)))
 
         # 2) Resultado HP
-        _bs_log_battle_line("HP: {} - {} = {}".format(int(hp_before), int(overflow_to_hp), int(hp_after)))
+        if not suppress_hp_line:
+            _bs_log_battle_line("HP: {} - {} = {}".format(int(hp_before), int(overflow_to_hp), int(hp_after)))
 
         # 3) Generación de estamina (si aplica) [opcional]
         if show_stamina_lines and int(stamina_gain) > 0:
