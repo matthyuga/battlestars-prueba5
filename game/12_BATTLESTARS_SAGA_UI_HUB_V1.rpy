@@ -354,6 +354,22 @@ init -880 python:
         S.bs_saga_prep_selected_build = b
         return True
 
+    def bs_saga_clamp_hp_reward_multiplier(value):
+        try:
+            m = int(value or 1)
+        except:
+            m = 1
+        if m < 1:
+            m = 1
+        if m > 5:
+            m = 5
+        return int(m)
+
+    def bs_saga_set_prep_hp_reward_multiplier(value):
+        m = bs_saga_clamp_hp_reward_multiplier(value)
+        S.bs_saga_prep_hp_reward_multiplier = int(m)
+        return int(m)
+
     # Fase 4 de split:
     # - bs_saga_account_bucket_qty
     # - bs_saga_account_bucket_add
@@ -1434,6 +1450,9 @@ init -880 python:
         prep_build = str(getattr(S, "bs_saga_prep_selected_build", "balanceado") or "balanceado").strip().lower()
         if prep_build not in bs_saga_prep_build_keys():
             prep_build = "balanceado"
+        hp_reward_mult = bs_saga_clamp_hp_reward_multiplier(getattr(S, "bs_saga_prep_hp_reward_multiplier", 1))
+        S.bs_saga_prep_hp_reward_multiplier = int(hp_reward_mult)
+        S.story_pilot_hp_reward_multiplier = int(hp_reward_mult)
         S.battle_prepared_config_id = prep_cfg
         S.battle_prepared_build_id = prep_build
         S.battle_prepared_player_loadouts = {}

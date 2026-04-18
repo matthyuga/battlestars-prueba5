@@ -303,6 +303,7 @@ screen bs_saga_duel_staging_screen():
     $ _party_txt = ", ".join(_party) if _party else "sin equipo"
     $ _tier = bs_saga_hero_tier(_hero, "C") if _hero else "C"
     $ _pool = bs_saga_tier_pool_total(_tier) if _hero else 0
+    $ _hp_reward_mult = bs_saga_clamp_hp_reward_multiplier(getattr(store, "bs_saga_prep_hp_reward_multiplier", 1))
     $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
     $ _loadout = bs_saga_hero_loadout_slots(_hero, _cfg, _build) if _hero else []
     $ _loadout_count = len([x for x in _loadout if str(x or "").strip()])
@@ -362,6 +363,7 @@ screen bs_saga_duel_staging_screen():
                     text ("Modo: " + _mode + " · Rival: " + ("manual" if _enemy_mode == "manual" else "aleatorio")) size 14 color "#9FC4E2"
                     text ("Build: " + _build + " · Config: " + _cfg.upper()) size 14 color "#9FC4E2"
                     text ("Pool duelo: " + str(_pool) + " · Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"
+                    text ("Condición HP seleccionada: x" + str(_hp_reward_mult) + " · Escala recompensa EXP/Oro: x" + str(_hp_reward_mult)) size 14 color "#9FC4E2"
                     null height 12
                     text "Esta vista está orientada a validación final previa al combate." size 14 color "#9FC4E2"
                     text "Para cambiar héroe/equipo o editar en detalle, vuelve a configuración." size 14 color "#9FC4E2"
@@ -405,6 +407,16 @@ screen bs_saga_duel_staging_screen():
                             spacing 6
                             textbutton "1v1" action [Function(bs_saga_set_prep_mode, "1v1"), Jump("bs_saga_preparacion")]
                             textbutton "2v2" action [Function(bs_saga_set_prep_mode, "2v2"), Jump("bs_saga_preparacion")]
+
+                        text "Condición HP / Reward" size 16 color "#D0E9FF"
+                        text ("Multiplicador activo: x" + str(_hp_reward_mult) + " (mín x1 · máx x5)") size 14 color "#9FC4E2"
+                        hbox:
+                            spacing 6
+                            textbutton "x1" action [Function(bs_saga_set_prep_hp_reward_multiplier, 1), Jump("bs_saga_preparacion")]
+                            textbutton "x2" action [Function(bs_saga_set_prep_hp_reward_multiplier, 2), Jump("bs_saga_preparacion")]
+                            textbutton "x3" action [Function(bs_saga_set_prep_hp_reward_multiplier, 3), Jump("bs_saga_preparacion")]
+                            textbutton "x4" action [Function(bs_saga_set_prep_hp_reward_multiplier, 4), Jump("bs_saga_preparacion")]
+                            textbutton "x5" action [Function(bs_saga_set_prep_hp_reward_multiplier, 5), Jump("bs_saga_preparacion")]
 
                         text "Rival de duelo" size 16 color "#D0E9FF"
                         hbox:

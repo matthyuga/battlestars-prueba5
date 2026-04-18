@@ -61,6 +61,7 @@ label battle_end:
             "repetition_count": int(getattr(S, "story_pilot_repetition_count", 1) or 1),
             "preset": str(getattr(S, "story_pilot_reward_preset", "medium_v2") or "medium_v2"),
             "multi_factor_enabled": bool(getattr(S, "story_pilot_multi_factor_enabled", True)),
+            "hp_reward_multiplier": int(getattr(S, "story_pilot_hp_reward_multiplier", 1) or 1),
             "idempotency_registry": getattr(S, "sim_idempotency_registry_v1", {}),
         }
 
