@@ -1785,15 +1785,18 @@ label bs_saga_torre_cielo:
 label bs_saga_preparacion:
     if bool(getattr(store, "bs_saga_prep_intent_duel", False)):
         $ bs_saga_prep_context = "staging"
-    elif str(getattr(store, "bs_saga_prep_context", "") or "") not in ("room", "staging"):
+    elif str(getattr(store, "bs_saga_prep_context", "") or "") not in ("room", "config", "staging"):
         $ bs_saga_prep_context = "room"
     if not (bs_saga_prep_duel_rotation_ids or []):
         $ bs_saga_refresh_duel_rotation_heroes(5)
     if not (bs_saga_prep_selected_party_ids or []):
         if bs_saga_prep_selected_hero:
             $ bs_saga_prep_selected_party_ids = [str(bs_saga_prep_selected_hero)]
-    if str(getattr(store, "bs_saga_prep_context", "room") or "room").strip().lower() == "staging":
+    $ _prep_ctx = str(getattr(store, "bs_saga_prep_context", "room") or "room").strip().lower()
+    if _prep_ctx == "staging":
         call screen bs_saga_duel_staging_screen
+    elif _prep_ctx == "config":
+        call screen bs_saga_hero_config_screen
     else:
         call screen bs_saga_preparation_room_screen
     return

@@ -125,11 +125,160 @@ screen bs_saga_preparation_room_screen():
                             null height 6
                             text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
                             textbutton "Configurar héroe":
-                                action Function(bs_saga_set_message, "Fase 1: vista resumida activa. Edición detallada pasará a Fase 2.")
+                                action [SetVariable("bs_saga_prep_context", "config"), Jump("bs_saga_preparacion")]
                             textbutton "Ir a pre-combate":
                                 action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
                         else:
                             text "Selecciona un héroe para ver el resumen y continuar." size 14 color "#9FB9D1"
+
+screen bs_saga_hero_config_screen():
+    tag menu
+    $ _hero = str(bs_saga_prep_selected_hero or "")
+    $ _mode = str(bs_saga_prep_selected_mode or "1v1")
+    $ _enemy_mode = str(bs_saga_prep_enemy_mode or "random")
+    $ _build = str(bs_saga_prep_selected_build or "balanceado")
+    $ _cfg = str(bs_saga_prep_selected_config or "cfg1")
+    $ _tab = str(bs_saga_prep_config_tab or "resumen")
+    $ _equipables = bs_saga_prep_inventory_candidates("equipables")
+    $ _slots = bs_saga_hero_loadout_slots(_hero, _cfg, _build) if _hero else []
+    $ _loadout_count = len([x for x in _slots if str(x or "").strip()]) if _hero else 0
+    $ _hero_tier = bs_saga_hero_tier(_hero, "C") if _hero else "C"
+    $ _tier_pool = bs_saga_tier_pool_total(_hero_tier) if _hero else 0
+    $ _tier_stats = bs_saga_tier_core_profile(_hero_tier) if _hero else {"hp":0,"ep":0,"ec":0,"durability":0,"cover":0}
+    $ _tier_tuning = bs_saga_tier_combat_tuning_profile(_hero_tier) if _hero else {"hp_factor":0.0,"rest_hp_pct":0.0,"rest_ep_pct":0.0,"rest_ec_pct":0.0,"rest_ec_scales":0}
+    $ _dmg_rules = dict(bs_saga_damage_coherence_rules or {})
+    $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
+    $ _tier_allowed = bs_saga_tier_allowed_tech_ids(_hero_tier) if _hero else []
+    $ _tp_map = dict(_tech_prof.get("tech_points", {}) or {}) if _hero else {}
+    $ _pool_total_cfg = int(_tech_prof.get("pool_total", 0) or 0) if _hero else 0
+    $ _spent_cfg = int(_tech_prof.get("pool_spent_off", 0) or 0) + int(_tech_prof.get("pool_spent_def", 0) or 0) if _hero else 0
+    $ _pool_left_cfg = max(0, _pool_total_cfg - _spent_cfg)
+
+    add Solid("#0E1A28")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1128
+        ysize 78
+        background Solid("#66C8FF")
+    frame:
+        xalign 0.5
+        yalign 0.08
+        xsize 1116
+        ypadding 10
+        background Solid("#2C4963")
+        hbox:
+            spacing 16
+            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
+            text "Configurar héroe" size 22 color "#D7EEFF" yalign 0.7
+            null width 140
+            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+
+    frame:
+        xalign 0.5
+        yalign 0.56
+        xsize 1120
+        ysize 500
+        padding (14, 14)
+        background Solid("#13273A")
+        vbox:
+            spacing 10
+            text ("Héroe activo: " + (_hero if _hero else "sin seleccionar") + " · Tier " + _hero_tier + " · Pool " + str(_tier_pool)) size 18 color "#CFE6FA"
+            hbox:
+                spacing 6
+                textbutton "Resumen" action SetVariable("bs_saga_prep_config_tab", "resumen")
+                textbutton "Técnicas" action SetVariable("bs_saga_prep_config_tab", "tecnicas")
+                textbutton "Equipamiento" action SetVariable("bs_saga_prep_config_tab", "equipamiento")
+                textbutton "Build" action SetVariable("bs_saga_prep_config_tab", "build")
+                textbutton "CFG" action SetVariable("bs_saga_prep_config_tab", "cfg")
+
+            frame:
+                xfill True
+                ysize 360
+                background Solid("#102438")
+                padding (10, 10)
+                viewport:
+                    draggable True
+                    mousewheel True
+                    scrollbars "vertical"
+                    ymaximum 340
+                    vbox:
+                        spacing 8
+                        if not _hero:
+                            text "Selecciona un héroe en Sala de preparación para editar configuración." size 16 color "#9FB9D1"
+                        elif _tab == "resumen":
+                            text "Resumen de configuración" size 21 color "#EAF6FF"
+                            text ("Config: " + _cfg.upper() + " · Build: " + _build + " · Modo: " + _mode) size 14 color "#9FC4E2"
+                            text ("HP " + str(_tier_stats.get("hp", 0)) + " · EP " + str(_tier_stats.get("ep", 0)) + " · EC " + str(_tier_stats.get("ec", 0))) size 14 color "#9FC4E2"
+                            text ("Durabilidad " + str(_tier_stats.get("durability", 0)) + " · Cubre " + str(_tier_stats.get("cover", 0))) size 14 color "#9FC4E2"
+                            text ("Factor HP/Pool x" + str(_tier_tuning.get("hp_factor", 0.0)) + " · Descansar HP " + str(int(float(_tier_tuning.get("rest_hp_pct", 0.0)) * 100)) + "%") size 14 color "#9FC4E2"
+                            text ("Descansar EP " + str(int(float(_tier_tuning.get("rest_ep_pct", 0.0)) * 100)) + "% · EC " + str(int(float(_tier_tuning.get("rest_ec_pct", 0.0)) * 100)) + "% (+ " + str(int(_tier_tuning.get("rest_ec_scales", 0) or 0)) + " escalas)") size 14 color "#9FC4E2"
+                            text ("Daño normal objetivo " + str(int(float(_dmg_rules.get("normal_hit_min_pct", 0.0)) * 100)) + "-" + str(int(float(_dmg_rules.get("normal_hit_max_pct", 0.0)) * 100)) + "% HP") size 14 color "#9FC4E2"
+                            text ("Daño combo objetivo " + str(int(float(_dmg_rules.get("combo_hit_min_pct", 0.0)) * 100)) + "-" + str(int(float(_dmg_rules.get("combo_hit_max_pct", 0.0)) * 100)) + "% HP") size 14 color "#9FC4E2"
+                            text ("Pool técnico usado/libre: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
+                            text ("Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"
+                        elif _tab == "tecnicas":
+                            text "Técnicas y pool técnico" size 21 color "#EAF6FF"
+                            hbox:
+                                spacing 6
+                                textbutton "Téc. Virgen" action [Function(bs_saga_hero_tech_mode_set, _hero, "virgen", _cfg, _build), Jump("bs_saga_preparacion")]
+                                textbutton "Téc. Preconfig" action [Function(bs_saga_hero_tech_mode_set, _hero, "preconfig", _cfg, _build), Jump("bs_saga_preparacion")]
+                            text ("Pool técnico cfg/build: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre: " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
+                            if _tier_allowed:
+                                for _tid in _tier_allowed:
+                                    $ _pts = int(_tp_map.get(_tid, 0) or 0)
+                                    hbox:
+                                        spacing 6
+                                        text (bs_saga_tech_display_name(_tid) + " [" + str(_pts) + "]") substitute False size 14 color "#CFE6FA" xminimum 320
+                                        textbutton "+25":
+                                            action [Function(bs_saga_hero_tech_points_add, _hero, _tid, +25, _cfg, _build), Jump("bs_saga_preparacion")]
+                                        textbutton "-25":
+                                            action [Function(bs_saga_hero_tech_points_add, _hero, _tid, -25, _cfg, _build), Jump("bs_saga_preparacion")]
+                            else:
+                                text "Sin técnicas habilitadas para este tier." size 14 color "#9FB9D1"
+                        elif _tab == "equipamiento":
+                            text "Equipamiento y loadout" size 21 color "#EAF6FF"
+                            for i in range(6):
+                                $ _slot_item = str(_slots[i] if i < len(_slots) else "")
+                                hbox:
+                                    spacing 6
+                                    text ("Slot " + str(i + 1) + ": " + (_slot_item if _slot_item else "vacío")) size 14 color "#CFE6FA" xminimum 300
+                                    if _slot_item:
+                                        textbutton "Desequipar":
+                                            action [Function(bs_saga_unequip_item_from_hero, _hero, i, _cfg, _build), Jump("bs_saga_preparacion")]
+                            text "Equipar desde inventario de cuenta" size 15 color "#D0E9FF"
+                            if _equipables:
+                                for row in _equipables[:8]:
+                                    $ _iid = str(row.get("item_id", ""))
+                                    textbutton (_iid + " x" + str(row.get("qty", 0))):
+                                        action [Function(bs_saga_equip_item_to_hero, _hero, _iid, None, _cfg, _build), Jump("bs_saga_preparacion")]
+                            else:
+                                text "No hay equipables en inventario de cuenta." size 14 color "#9FB9D1"
+                        elif _tab == "build":
+                            text "Build de entrada" size 21 color "#EAF6FF"
+                            text ("Build actual: " + _build) size 15 color "#9FC4E2"
+                            hbox:
+                                spacing 8
+                                textbutton "Balanceado" action [Function(bs_saga_set_prep_build, "balanceado"), Jump("bs_saga_preparacion")]
+                                textbutton "Ofensivo" action [Function(bs_saga_set_prep_build, "ofensivo"), Jump("bs_saga_preparacion")]
+                                textbutton "Defensivo" action [Function(bs_saga_set_prep_build, "defensivo"), Jump("bs_saga_preparacion")]
+                        else:
+                            text "Configuraciones (CFG)" size 21 color "#EAF6FF"
+                            text ("CFG activa: " + _cfg.upper()) size 15 color "#9FC4E2"
+                            hbox:
+                                spacing 8
+                                textbutton "CFG1" action [Function(bs_saga_set_prep_config, "cfg1"), Jump("bs_saga_preparacion")]
+                                textbutton "CFG2" action [Function(bs_saga_set_prep_config, "cfg2"), Jump("bs_saga_preparacion")]
+                                textbutton "CFG3" action [Function(bs_saga_set_prep_config, "cfg3"), Jump("bs_saga_preparacion")]
+                            text ("Pool técnico usado/libre: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
+                            text ("Loadout: " + str(_loadout_count) + "/6 slots equipados") size 14 color "#9FC4E2"
+
+            hbox:
+                spacing 10
+                textbutton "Volver a sala":
+                    action [SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
+                textbutton "Continuar a pre-combate":
+                    action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
 
 screen bs_saga_duel_staging_screen():
     tag menu
@@ -377,6 +526,7 @@ init -899 python:
             "status": "phase_3_done",
             "migrated_screens": [
                 "bs_saga_preparation_room_screen",
+                "bs_saga_hero_config_screen",
                 "bs_saga_duel_staging_screen",
                 "bs_saga_preparation_verify_screen"
             ]

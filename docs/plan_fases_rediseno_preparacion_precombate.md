@@ -1,7 +1,7 @@
 # Plan de fases — Rediseño de Preparación y Pre-combate (Battlestars Saga)
 
 Fecha de inicio: 2026-04-18
-Estado general: **Fase 1 completada**
+Estado general: **Fase 2 completada**
 
 ---
 
@@ -22,7 +22,7 @@ Sin romper la lógica funcional actual de validación y lanzamiento de combate.
 |---|---|---|---|
 | 0 | Baseline y contrato de no-regresión | ✅ Completada | Documentar estado actual y límites de cambio |
 | 1 | Sala de preparación (selección + resumen) | ✅ Completada | Reducir sobrecarga visual en pantalla inicial |
-| 2 | Pantalla Configurar héroe (tabs) | ⏳ Pendiente | Separar edición en bloques lógicos |
+| 2 | Pantalla Configurar héroe (tabs) | ✅ Completada | Separar edición en bloques lógicos |
 | 3 | Pre-combate orientado a validación | ⏳ Pendiente | Checklist y decisiones finales sin edición profunda |
 | 4 | Consolidación de flujo y rutas | ⏳ Pendiente | Unificar navegación y eliminar redundancias |
 | 5 | Pulido visual / jerarquía UI | ⏳ Pendiente | Mejor legibilidad, estados y CTA |
@@ -99,6 +99,29 @@ Pre-combate actual contiene:
 
 ---
 
-## 5) Registro de avance por fase
+## 5) Fase 2 — Pantalla Configurar héroe (COMPLETADA)
+
+### 5.1 Cambios aplicados
+- Se creó la pantalla `bs_saga_hero_config_screen`.
+- Se incorporaron tabs funcionales:
+  - `Resumen`
+  - `Técnicas`
+  - `Equipamiento`
+  - `Build`
+  - `CFG`
+- Se conectó la navegación desde la sala (`Configurar héroe`) hacia contexto `config`.
+- Se conectó retorno a sala y avance a pre-combate desde la nueva pantalla.
+- Se amplió el contexto de preparación a `room | config | staging`.
+
+### 5.2 Criterio de salida Fase 2
+✅ Existe una pantalla dedicada para edición detallada del héroe y la sala principal quedó enfocada en selección + resumen.
+
+### 5.3 Próximo paso (Fase 3)
+- Ajustar `Pre-combate` para que sea mayormente validación (checklist + decisiones finales), reduciendo edición profunda en esa vista.
+
+---
+
+## 6) Registro de avance por fase
 - 2026-04-18 — **Fase 0 completada** (baseline + contrato de no-regresión).
 - 2026-04-18 — **Fase 1 completada** (sala resumida + edición detallada diferida a Fase 2).
+- 2026-04-18 — **Fase 2 completada** (pantalla Configurar héroe con tabs + navegación de contexto).
