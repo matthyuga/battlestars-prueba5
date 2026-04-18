@@ -2,7 +2,7 @@
 # 04F_SELECTOR_QUEUE.rpy – Cola de Técnicas (Modern v4.2 FIXED)
 # Soporta Focus/Potenciar según posición en la cola
 # ------------------------------------------------------------
-# ✔ Muestra correctamente el x2 en daño/bloqueo y Reiatsu
+# ✔ Muestra correctamente el x2 en daño/bloqueo
 #   para la PRIMERA técnica afectada por Concentrar/Potenciar
 # ✔ Energía NO se duplica
 # ✔ No modifica la lógica interna del turno, solo la vista
@@ -230,11 +230,11 @@ screen tech_tooltip(
 
             if is_focus:
                 text "Multiplicador activo: x2" size 20 color "#7FDBFF"
-                text "Sin costo de Reiatsu / Energía" size 18 color "#AAAAAA"
+                text "Sin costo de EP / EC" size 18 color "#AAAAAA"
             else:
                 text "[tipo]: [final_val]" size 20 color "#C586C0"
-                text "Reiatsu: [final_rei]" size 18 color "#88CCFF"
-                text "Energía: [final_ene]" size 18 color "#FF8844"
+                text "EP: [final_rei]" size 18 color "#88CCFF"
+                text "EC: [final_ene]" size 18 color "#FF8844"
 
 
 transform tooltip_fade:
@@ -296,8 +296,8 @@ screen technique_selector():
 
                         text "🌀 Técnicas en espera:" size 26 color "#FFFFFF" bold True
                         text "Acciones disponibles: [actions_available]" size 22 color "#FFD700"
-                        text "Recursos disponibles → Reiatsu %s | Energía %s" % (_sim_rei, _sim_ene) size 18 color "#88CCFF"
-                        text "Gasto proyectado → Reiatsu %s | Energía %s" % (_spent_rei, _spent_ene) size 17 color "#B8B8B8"
+                        text "Recursos disponibles → EP %s | EC %s" % (_sim_rei, _sim_ene) size 18 color "#88CCFF"
+                        text "Gasto proyectado → EP %s | EC %s" % (_spent_rei, _spent_ene) size 17 color "#B8B8B8"
                         text "Espacio libre: %s" % actions_available size 17 color "#A0A0A0"
                         null height 4
 
@@ -384,7 +384,7 @@ screen technique_selector():
                                                     rei0, ene0, val0 = get_real_cost(tech)
 
                                                     final_val = int(val0) * mult
-                                                    final_rei = int(rei0) * mult
+                                                    final_rei = int(rei0)
                                                     final_ene = int(ene0)          # Energía NO se duplica
 
                                                     # Para tooltip: mostramos "base" como base_val y los costos base como finales sin focus.
@@ -496,7 +496,7 @@ screen technique_selector():
                                         text "[_fury_name_side]" size 14 color "#D5FFD5"
                                         $ _fn_fc = getattr(store, "fury_activation_costs", None)
                                         $ _fc = _fn_fc("player") if callable(_fn_fc) else {}
-                                        text "Coste: Reiatsu [int((_fc or {}).get('reiatsu_need', 0) or 0)] | Energía [int((_fc or {}).get('energy_need', 0) or 0)]" size 12 color "#DDEECC"
+                                        text "Coste: EP [int((_fc or {}).get('reiatsu_need', 0) or 0)] | EC [int((_fc or {}).get('energy_need', 0) or 0)]" size 12 color "#DDEECC"
                                         textbutton "✖ Cancelar furia":
                                             text_size 15
                                             action Function(toggle_fury_target_queue_index, _fury_idx_side)

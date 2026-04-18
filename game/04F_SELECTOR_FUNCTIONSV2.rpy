@@ -6,7 +6,7 @@
 # ✔ Selector trabaja con recursos simulados coherentes
 # ✔ pending_tech_list + HUD sync
 # ✔ FIX CRÍTICO: simulación SIEMPRE se reconstruye (sin drift)
-# ✔ Focus/Potenciar: duplican SOLO el Reiatsu de la técnica objetivo
+# ✔ Focus/Potenciar: aplican x2 al costo EP de la técnica objetivo
 # ✔ Define get_real_cost() (evita NameError del menú)
 # ✔ can_pay_simulated arranca desde actions_available_start (no drift)
 # ✔ FIX: NO import renpy en init (evita crasheos del engine)
@@ -250,8 +250,7 @@ init -959 python:
     # ============================================================
     # ✅ API que usa el MENÚ (evita NameError)
     # Devuelve: (rei, ene, final_val)
-    # Regla: aplica x2 SOLO al Reiatsu de la técnica objetivo
-    # según la COLA ACTUAL.
+    # Regla: aplica x2 al costo EP de la técnica objetivo según cola actual.
     # ============================================================
     def get_real_cost(tech_name, mode=None):
 
@@ -268,7 +267,7 @@ init -959 python:
         except:
             q = []
 
-        # Si la técnica está en cola, evaluamos si es target del focus
+        # Si la técnica está en cola, evaluamos si es target del focus.
         try:
             if tech_name in q:
                 idx = q.index(tech_name)
@@ -398,9 +397,9 @@ init -959 python:
         if not ok:
             msg = "⚠ No puedes seleccionar '%s':" % tech_name
             if fr > 0:
-                msg += " Falta %s Reiatsu." % fr
+                msg += " Falta %s EP." % fr
             if fe > 0:
-                msg += " Falta %s Energía." % fe
+                msg += " Falta %s EC." % fe
             _rn_notify(msg)
             return
 
@@ -508,7 +507,7 @@ init -959 python:
                 _ci = _fn_cost("player") if callable(_fn_cost) else {}
             except:
                 _ci = {}
-            _rn_notify("⚠ Furia requiere 10% total: Reiatsu %s / Energía %s." % (
+            _rn_notify("⚠ Furia requiere 10% total: EP %s / EC %s." % (
                 str(int((_ci or {}).get("reiatsu_need", 0) or 0)),
                 str(int((_ci or {}).get("energy_need", 0) or 0))
             ))

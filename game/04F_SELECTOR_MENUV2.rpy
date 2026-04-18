@@ -295,7 +295,7 @@ init python:
             if tech_key == "rest_recovery":
                 return (
                     "Descansar\n"
-                    "Recupera 5% de HP base, 25% de Reiatsu y 25% de Energía base.\n"
+                    "Recupera 5% de HP base, 25% de EP y 25% de EC base.\n"
                     "Consume 1 acción del turno actual.\n"
                     "No inflige daño ni bloquea."
                 )
@@ -309,7 +309,7 @@ init python:
                     "- 3-4 éxitos: x2\n"
                     "- 0-2 éxitos: x1\n"
                     "Requiere HP ≤ 25% (o ítem).\n"
-                    "Consume 10% del Reiatsu/Energía TOTAL."
+                    "Consume 10% del EP/EC TOTAL."
                 )
                 try:
                     _fn_cost = getattr(S, "fury_activation_costs", None)
@@ -385,17 +385,17 @@ init python:
             target = _queue_focus_target(mode)
             if target and target == name:
                 if mode == "offensive":
-                    focus_note = "\n\n✨ ×2 por Concentrar (Reiatsu ×2 / Energía normal)"
+                    focus_note = "\n\n✨ ×2 por Concentrar (daño/bloqueo)"
                 else:
-                    focus_note = "\n\n✨ ×2 por Potenciar (Reiatsu ×2 / Energía normal)"
+                    focus_note = "\n\n✨ ×2 por Potenciar (daño/bloqueo)"
         except:
             pass
 
         txt = (
             "{} base: {}\n"
             "{} final real: {}\n"
-            "Costo Reiatsu real: {}\n"
-            "Costo Energía real: {}"
+            "Costo EP real: {}\n"
+            "Costo EC real: {}"
         ).format(
             tipo,
             S.battle_fmt_num(base_val),
@@ -422,9 +422,9 @@ init python:
         if not ok:
             txt += "\n\n❌ Recursos insuficientes:"
             if fr > 0:
-                txt += "\n - Faltan {} Reiatsu".format(fr)
+                txt += "\n - Faltan {} EP".format(fr)
             if fe > 0:
-                txt += "\n - Faltan {} Energía".format(fe)
+                txt += "\n - Faltan {} EC".format(fe)
 
         return txt
 
@@ -472,9 +472,9 @@ init python:
 
         msg = S.fmt_pink("No puedes seleccionar {}: ".format(label))
         if fr > 0:
-            msg += S.fmt_white("Falta Reiatsu. ")
+            msg += S.fmt_white("Falta EP. ")
         if fe > 0:
-            msg += S.fmt_white("Falta Energía.")
+            msg += S.fmt_white("Falta EC.")
 
         S.battle_log_add(msg)
 
