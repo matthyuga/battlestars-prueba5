@@ -144,6 +144,16 @@ Regla objetivo:
 - `A = 10000`
 - `S = 50000`
 
+### 2.1) Requisitos de héroes desbloqueados por tier (regla actualizada)
+
+- `C: 9 héroes`
+- `B: 13 héroes`
+- `A: 17 héroes`
+- `S: 13 héroes`
+- `SS: 9 héroes`
+- `SSS: 6 héroes`
+- `IV: 3 héroes`
+
 ### 3) Tier efectivo del jugador en duelo
 
 Para evitar que un héroe de tier alto “salte” progresión de cuenta:

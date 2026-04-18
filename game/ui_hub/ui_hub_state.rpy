@@ -26,22 +26,22 @@ default bs_saga_account_state = {
     "gems": 0
 }
 default bs_saga_tier_hero_requirements = {
-    "C": 20,
-    "B": 15,
-    "A": 10,
-    "S": 5,
-    "SS": 4,
-    "SSS": 3,
-    "IV": 1
+    "C": 9,
+    "B": 13,
+    "A": 17,
+    "S": 13,
+    "SS": 9,
+    "SSS": 6,
+    "IV": 3
 }
 default bs_saga_tier_level_requirements = {
-    "C": 1,
-    "B": 5,
-    "A": 10,
-    "S": 15,
-    "SS": 20,
-    "SSS": 25,
-    "IV": 30
+    "C": 10,
+    "B": 20,
+    "A": 30,
+    "S": 50,
+    "SS": 60,
+    "SSS": 70,
+    "IV": 80
 }
 default bs_saga_tier_duel_pool = {
     "C": 1000,
@@ -113,6 +113,11 @@ default bs_saga_hero_tech_builds = {}
 default bs_saga_dev_admin_enabled = True
 default bs_saga_dev_infinite_gold = False
 default bs_saga_dev_low_spec_mode = False
+default bs_saga_matchmaking_tier_preference = "C"
+default bs_saga_dev_gain_exp_base = 120
+default bs_saga_dev_gain_gold_base = 90
+default bs_saga_dev_gain_variance_pct = 35
+default bs_saga_dev_gain_runs = 1
 
 init -899 python:
     def bs_saga_ui_hub_state_split_status_v1():
