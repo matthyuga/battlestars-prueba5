@@ -1,7 +1,7 @@
 # Plan de fases — Rediseño de Preparación y Pre-combate (Battlestars Saga)
 
 Fecha de inicio: 2026-04-18
-Estado general: **Fase 0 completada**
+Estado general: **Fase 1 completada**
 
 ---
 
@@ -21,7 +21,7 @@ Sin romper la lógica funcional actual de validación y lanzamiento de combate.
 | Fase | Nombre | Estado | Resultado esperado |
 |---|---|---|---|
 | 0 | Baseline y contrato de no-regresión | ✅ Completada | Documentar estado actual y límites de cambio |
-| 1 | Sala de preparación (selección + resumen) | ⏳ Pendiente | Reducir sobrecarga visual en pantalla inicial |
+| 1 | Sala de preparación (selección + resumen) | ✅ Completada | Reducir sobrecarga visual en pantalla inicial |
 | 2 | Pantalla Configurar héroe (tabs) | ⏳ Pendiente | Separar edición en bloques lógicos |
 | 3 | Pre-combate orientado a validación | ⏳ Pendiente | Checklist y decisiones finales sin edición profunda |
 | 4 | Consolidación de flujo y rutas | ⏳ Pendiente | Unificar navegación y eliminar redundancias |
@@ -72,13 +72,33 @@ Pre-combate actual contiene:
 
 ---
 
-## 4) Próximo paso (Fase 1)
-Implementar versión limpia de Sala de preparación:
-- mantener roster y selección en panel izquierdo,
-- dejar panel derecho en modo resumen corto,
-- mover edición pesada (técnicas/loadout/inventario detallado) a Fase 2.
+## 4) Fase 1 — Sala de preparación (COMPLETADA)
+
+### 4.1 Cambios aplicados
+- Se mantuvo la estructura base de dos paneles (roster izquierda + configuración derecha).
+- El panel derecho pasó a **modo resumen**:
+  - héroe/equipo/config/build,
+  - tier + pool de duelo,
+  - stats base (HP/EP/EC/durabilidad/cubre),
+  - modo técnico + pool técnico usado/libre,
+  - loadout resumido (x/6),
+  - CTA de transición a pre-combate.
+- Se removió de esta pantalla la edición detallada (técnicas +25/-25, inventario equipable completo y gestión detallada de slots), que queda diferida a Fase 2.
+
+### 4.2 Criterio de salida Fase 1
+✅ Sala de preparación enfocada en selección + resumen, sin “torre” de edición en el mismo scroll.
+
+### 4.3 Próximo paso (Fase 2)
+- Implementar pantalla dedicada de **Configurar héroe** con tabs:
+  - Resumen
+  - Técnicas
+  - Equipamiento
+  - Build
+  - CFG
+- Conectar navegación desde “Configurar héroe” y retorno a sala/pre-combate.
 
 ---
 
 ## 5) Registro de avance por fase
 - 2026-04-18 — **Fase 0 completada** (baseline + contrato de no-regresión).
+- 2026-04-18 — **Fase 1 completada** (sala resumida + edición detallada diferida a Fase 2).
