@@ -130,7 +130,29 @@ init python:
                 arr = list(fn_allowed(hid) or [])
                 prof_allowed = set([str(x or "").strip().lower() for x in arr if str(x or "").strip()])
                 if len(prof_allowed) > 0:
-                    out_prof = [k for k in seq if str(k or "").strip().lower() in prof_allowed]
+                    # Normalizar ids de perfil -> keys del selector.
+                    # Ej.: focus -> focus_attack, fury_dice -> fury_attack.
+                    selector_allowed = set()
+                    for tid in prof_allowed:
+                        selector_allowed.add(tid)
+                        if tid == "focus":
+                            selector_allowed.add("focus_attack")
+                        elif tid == "defense_boost":
+                            selector_allowed.add("focus_defense")
+                        elif tid == "fury_dice":
+                            selector_allowed.add("fury_attack")
+                        elif tid == "rest_recovery":
+                            selector_allowed.add("rest_recovery")
+
+                    # Mantener especiales de tier en preconfig para no ocultarlos
+                    # por diferencias de naming entre capas.
+                    t = _selector_player_tier()
+                    tier_keys = _TIER_TECH_KEYS.get(t, set())
+                    for sk in ("focus_attack", "focus_defense", "fury_attack", "rest_recovery"):
+                        if sk in tier_keys:
+                            selector_allowed.add(sk)
+
+                    out_prof = [k for k in seq if str(k or "").strip().lower() in selector_allowed]
                     if len(out_prof) > 0:
                         return out_prof
         except:
