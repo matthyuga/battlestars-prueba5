@@ -98,7 +98,8 @@ screen bs_saga_lobby_screen():
             hbox:
                 spacing 10
                 textbutton "Perfil" action Jump("bs_saga_perfil")
-                textbutton "Preparación" action Jump("bs_saga_preparacion")
+                textbutton "Preparación":
+                    action [SetVariable("bs_saga_prep_intent_duel", False), SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
                 textbutton "Héroes" action Jump("bs_saga_heroes")
                 textbutton "Tienda" action Jump("bs_saga_tienda")
                 textbutton "Inventario" action Jump("bs_saga_inventario")

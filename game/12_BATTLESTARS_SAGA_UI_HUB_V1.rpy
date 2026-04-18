@@ -1788,6 +1788,7 @@ label bs_saga_torre_cielo:
 label bs_saga_preparacion:
     if bool(getattr(store, "bs_saga_prep_intent_duel", False)):
         $ bs_saga_prep_context = "staging"
+        $ bs_saga_prep_intent_duel = False
     elif str(getattr(store, "bs_saga_prep_context", "") or "") not in ("room", "config", "staging"):
         $ bs_saga_prep_context = "room"
     if not (bs_saga_prep_duel_rotation_ids or []):
