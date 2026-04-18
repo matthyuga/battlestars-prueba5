@@ -93,10 +93,10 @@ init python:
     # Gating por tier del héroe (capa mínima sin romper lógica base)
     # ------------------------------------------------------------
     _TIER_TECH_KEYS = {
-        "C": set(["stronger_attack", "defense_strong_block", "direct_attack", "focus_attack", "rest_recovery", "fury_attack"]),
-        "B": set(["extra_attack", "defense_extra", "focus_defense"]),
-        "A": set(["extra_tech", "attack_reducer", "defense_reducer"]),
-        "S": set(["noatk_attack", "defense_reflect"]),
+        "C": set(["stronger_attack", "defense_strong_block", "direct_attack", "focus_attack", "focus_defense", "rest_recovery", "fury_attack"]),
+        "B": set(["extra_attack", "defense_extra", "focus_attack", "focus_defense", "rest_recovery", "fury_attack"]),
+        "A": set(["extra_tech", "attack_reducer", "defense_reducer", "focus_attack", "focus_defense", "rest_recovery", "fury_attack"]),
+        "S": set(["noatk_attack", "defense_reflect", "focus_attack", "focus_defense", "rest_recovery", "fury_attack"]),
     }
 
     def _selector_player_tier():

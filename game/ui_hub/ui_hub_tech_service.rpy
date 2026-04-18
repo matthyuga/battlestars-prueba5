@@ -8,9 +8,9 @@ init -880 python:
         t = str(tier or "C").strip().upper()
         table = {
             "C": ["stronger_attack", "defense_strong_block", "direct_attack", "focus", "defense_boost", "fury_dice"],
-            "B": ["extra_attack", "defense_extra"],
-            "A": ["extra_tech", "attack_reducer", "defense_reducer"],
-            "S": ["noatk_attack", "defense_reflect"],
+            "B": ["extra_attack", "defense_extra", "focus", "defense_boost", "fury_dice"],
+            "A": ["extra_tech", "attack_reducer", "defense_reducer", "focus", "defense_boost", "fury_dice"],
+            "S": ["noatk_attack", "defense_reflect", "focus", "defense_boost", "fury_dice"],
         }
         ids = list(table.get(t, table.get("C", [])))
         out = []
