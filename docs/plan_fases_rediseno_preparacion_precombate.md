@@ -1,7 +1,7 @@
 # Plan de fases — Rediseño de Preparación y Pre-combate (Battlestars Saga)
 
 Fecha de inicio: 2026-04-18
-Estado general: **Fase 2 completada**
+Estado general: **Fase 3 completada**
 
 ---
 
@@ -23,7 +23,7 @@ Sin romper la lógica funcional actual de validación y lanzamiento de combate.
 | 0 | Baseline y contrato de no-regresión | ✅ Completada | Documentar estado actual y límites de cambio |
 | 1 | Sala de preparación (selección + resumen) | ✅ Completada | Reducir sobrecarga visual en pantalla inicial |
 | 2 | Pantalla Configurar héroe (tabs) | ✅ Completada | Separar edición en bloques lógicos |
-| 3 | Pre-combate orientado a validación | ⏳ Pendiente | Checklist y decisiones finales sin edición profunda |
+| 3 | Pre-combate orientado a validación | ✅ Completada | Checklist y decisiones finales sin edición profunda |
 | 4 | Consolidación de flujo y rutas | ⏳ Pendiente | Unificar navegación y eliminar redundancias |
 | 5 | Pulido visual / jerarquía UI | ⏳ Pendiente | Mejor legibilidad, estados y CTA |
 
@@ -121,7 +121,29 @@ Pre-combate actual contiene:
 
 ---
 
-## 6) Registro de avance por fase
+## 6) Fase 3 — Pre-combate orientado a validación (COMPLETADA)
+
+### 6.1 Cambios aplicados
+- Se simplificó el panel izquierdo de `Pre-combate` para mostrar **resumen de entrada**:
+  - héroe/tier/equipo,
+  - modo/rival,
+  - build/config,
+  - pool y loadout equipado.
+- Se retiró de esta vista la edición profunda de roster (elegir/equipo/quitar por fila).
+- Se añadió CTA explícita para volver a la configuración detallada del héroe.
+- Se mantuvo el panel derecho con checklist y opciones finales (modo, rival, build e iniciar).
+
+### 6.2 Criterio de salida Fase 3
+✅ Pre-combate enfocado en validación final + decisiones de entrada, sin mezclar edición profunda de selección.
+
+### 6.3 Próximo paso (Fase 4)
+- Consolidar rutas y limpiar redundancias entre `config`, `staging` y `verify`.
+- Ajustar copy/acciones finales para minimizar pasos duplicados.
+
+---
+
+## 7) Registro de avance por fase
 - 2026-04-18 — **Fase 0 completada** (baseline + contrato de no-regresión).
 - 2026-04-18 — **Fase 1 completada** (sala resumida + edición detallada diferida a Fase 2).
 - 2026-04-18 — **Fase 2 completada** (pantalla Configurar héroe con tabs + navegación de contexto).
+- 2026-04-18 — **Fase 3 completada** (pre-combate centrado en validación y sin edición profunda de roster).

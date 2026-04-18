@@ -337,36 +337,21 @@ screen bs_saga_duel_staging_screen():
                 padding (10, 10)
                 vbox:
                     spacing 8
-                    text "Roster para duelo (selección rápida)" size 22 color "#EAF6FF"
-                    text ("Héroe activo: " + (_hero if _hero else "sin seleccionar")) size 15 color "#CFE6FA"
+                    text "Resumen de entrada" size 22 color "#EAF6FF"
+                    if _hero:
+                        text ("Héroe: " + _hero + " · Tier " + _tier) size 16 color "#CFE6FA"
+                    else:
+                        text "Héroe: sin seleccionar" size 16 color "#FF9F9F"
                     text ("Equipo: " + _party_txt) size 14 color "#9FC4E2"
-                    viewport:
-                        draggable True
-                        mousewheel True
-                        scrollbars "vertical"
-                        ymaximum 390
-                        vbox:
-                            spacing 6
-                            if _rows:
-                                for row in _rows:
-                                    $ _hid = str(row.get("hero_id", ""))
-                                    $ _state = str(row.get("state", "bloqueado"))
-                                    $ _is_av = bool(row.get("available", False))
-                                    frame:
-                                        xfill True
-                                        background Solid("#173048")
-                                        padding (8, 6)
-                                        hbox:
-                                            spacing 8
-                                            text (str(row.get("name", _hid) or _hid) + " (" + str(row.get("tier", "C")) + ")") size 17 color "#D0E9FF" xminimum 320
-                                            text ("Disponible" if _state == "disponible" else ("Para probar" if _state == "para_probar" else "Bloqueado")) size 15 color ("#8BD6A7" if _state == "disponible" else ("#FFD166" if _state == "para_probar" else "#FF9F9F")) xminimum 120
-                                            if _is_av:
-                                                textbutton ("Activo" if _hero == _hid else "Elegir"):
-                                                    action [Function(bs_saga_set_prep_hero, _hid), Jump("bs_saga_preparacion")]
-                                                textbutton ("Quitar" if _hid in _party else "Equipo"):
-                                                    action [Function(bs_saga_toggle_prep_party_hero, _hid), Jump("bs_saga_preparacion")]
-                            else:
-                                text "No hay roster cargado." size 18 color "#9FB9D1"
+                    text ("Modo: " + _mode + " · Rival: " + ("manual" if _enemy_mode == "manual" else "aleatorio")) size 14 color "#9FC4E2"
+                    text ("Build: " + _build + " · Config: " + _cfg.upper()) size 14 color "#9FC4E2"
+                    text ("Pool duelo: " + str(_pool) + " · Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"
+                    null height 12
+                    text "Esta vista está orientada a validación final previa al combate." size 14 color "#9FC4E2"
+                    text "Para cambiar héroe/equipo o editar en detalle, vuelve a configuración." size 14 color "#9FC4E2"
+                    null height 8
+                    textbutton "Volver a configuración de héroe":
+                        action [SetVariable("bs_saga_prep_context", "config"), Jump("bs_saga_preparacion")]
 
             frame:
                 xfill True
