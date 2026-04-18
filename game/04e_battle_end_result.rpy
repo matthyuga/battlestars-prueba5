@@ -157,10 +157,13 @@ label battle_end:
         $ S.battle_active = False
         jump story_phaseC_postbattle
 
-    # --- Retorno al menú principal ---
+    # --- Retorno al lobby (fase 3 UX v2) ---
     $ S.battle_active = False
-    $ renpy.full_restart()
-    return
+    if renpy.has_label("bs_saga_lobby"):
+        jump bs_saga_lobby
+    else:
+        $ renpy.full_restart()
+        return
 
 
 # ===========================================================

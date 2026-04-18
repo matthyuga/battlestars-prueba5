@@ -223,3 +223,18 @@ Cambios de fase:
 
 ### Criterio de salida Fase 2
 ✅ Asignación de puntos escalable para pools altos con menor fricción de clics.
+
+---
+
+## 13) Fase 3 (Iteración UX v2) — Salida post-combate al lobby (COMPLETADA)
+
+Fecha: 2026-04-18
+
+Cambios de fase:
+
+- El cierre de `battle_end` deja de reiniciar siempre al menú principal.
+- Nuevo comportamiento: tras resumen de recompensas, se retorna al `bs_saga_lobby` cuando está disponible.
+- Se conserva fallback defensivo a `renpy.full_restart()` si el label no existe.
+
+### Criterio de salida Fase 3
+✅ Fin de duelo con continuidad de sesión para encadenar combates y validar persistencia desde lobby.
