@@ -99,6 +99,7 @@ default bs_saga_prep_selected_enemy_hero = ""
 default bs_saga_prep_selected_build = "balanceado"
 default bs_saga_prep_selected_config = "cfg1"
 default bs_saga_prep_hp_reward_multiplier = 1
+default bs_saga_prep_tech_step = 25
 default bs_saga_prep_selected_party_ids = []
 default bs_saga_prep_filter_owned_only = False
 default bs_saga_prep_flag_item_id = ""

@@ -154,6 +154,7 @@ screen bs_saga_hero_config_screen():
     $ _tier_point_alloc = [tid for tid in _tier_allowed if bs_saga_is_point_alloc_tech(tid)]
     $ _tier_special = [tid for tid in _tier_allowed if tid not in _tier_point_alloc]
     $ _tp_map = dict(_tech_prof.get("tech_points", {}) or {}) if _hero else {}
+    $ _tech_step = bs_saga_clamp_prep_tech_step(getattr(store, "bs_saga_prep_tech_step", 25))
     $ _pool_total_cfg = int(_tech_prof.get("pool_total", 0) or 0) if _hero else 0
     $ _spent_cfg = int(_tech_prof.get("pool_spent_off", 0) or 0) + int(_tech_prof.get("pool_spent_def", 0) or 0) if _hero else 0
     $ _pool_left_cfg = max(0, _pool_total_cfg - _spent_cfg)
@@ -226,6 +227,16 @@ screen bs_saga_hero_config_screen():
                             hbox:
                                 spacing 6
                                 textbutton "Téc. Preconfig" action [Function(bs_saga_hero_tech_mode_set, _hero, "preconfig", _cfg, _build), Jump("bs_saga_preparacion")]
+                            text ("Paso asignación: +" + str(_tech_step) + " / -" + str(_tech_step)) size 14 color "#9FC4E2"
+                            hbox:
+                                spacing 4
+                                textbutton "25" action [Function(bs_saga_set_prep_tech_step, 25), Jump("bs_saga_preparacion")]
+                                textbutton "50" action [Function(bs_saga_set_prep_tech_step, 50), Jump("bs_saga_preparacion")]
+                                textbutton "100" action [Function(bs_saga_set_prep_tech_step, 100), Jump("bs_saga_preparacion")]
+                                textbutton "150" action [Function(bs_saga_set_prep_tech_step, 150), Jump("bs_saga_preparacion")]
+                                textbutton "200" action [Function(bs_saga_set_prep_tech_step, 200), Jump("bs_saga_preparacion")]
+                                textbutton "500" action [Function(bs_saga_set_prep_tech_step, 500), Jump("bs_saga_preparacion")]
+                                textbutton "1000" action [Function(bs_saga_set_prep_tech_step, 1000), Jump("bs_saga_preparacion")]
                             text ("Pool técnico cfg/build: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre: " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
                             if _tier_point_alloc:
                                 text "Técnicas con puntos (ofensivas/defensivas)" size 15 color "#D0E9FF"
@@ -234,10 +245,10 @@ screen bs_saga_hero_config_screen():
                                     hbox:
                                         spacing 6
                                         text (bs_saga_tech_display_name(_tid) + " [" + str(_pts) + "]") substitute False size 14 color "#CFE6FA" xminimum 320
-                                        textbutton "+25":
-                                            action [Function(bs_saga_hero_tech_points_add, _hero, _tid, +25, _cfg, _build), Jump("bs_saga_preparacion")]
-                                        textbutton "-25":
-                                            action [Function(bs_saga_hero_tech_points_add, _hero, _tid, -25, _cfg, _build), Jump("bs_saga_preparacion")]
+                                        textbutton ("+" + str(_tech_step)):
+                                            action [Function(bs_saga_hero_tech_points_add, _hero, _tid, +_tech_step, _cfg, _build), Jump("bs_saga_preparacion")]
+                                        textbutton ("-" + str(_tech_step)):
+                                            action [Function(bs_saga_hero_tech_points_add, _hero, _tid, -_tech_step, _cfg, _build), Jump("bs_saga_preparacion")]
                             else:
                                 text "Sin técnicas ofensivas/defensivas asignables para este tier." size 14 color "#9FB9D1"
                             if _tier_special:

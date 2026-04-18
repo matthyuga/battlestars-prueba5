@@ -207,3 +207,19 @@ Cambios de fase:
 
 ### Criterio de salida Fase 1
 ✅ Flujo técnico sin selector de modo ambiguo; preparación opera de forma única en `preconfig`.
+
+---
+
+## 12) Fase 2 (Iteración UX v2) — Step configurable de asignación (COMPLETADA)
+
+Fecha: 2026-04-18
+
+Cambios de fase:
+
+- Se agrega estado `bs_saga_prep_tech_step` para controlar el paso activo de asignación.
+- Se incorporan helpers `bs_saga_clamp_prep_tech_step` y `bs_saga_set_prep_tech_step`.
+- En tab de técnicas se añade mini-panel de pasos: `25, 50, 100, 150, 200, 500, 1000`.
+- Botones de asignación por técnica pasan de fijo `±25` a `±step` seleccionado.
+
+### Criterio de salida Fase 2
+✅ Asignación de puntos escalable para pools altos con menor fricción de clics.

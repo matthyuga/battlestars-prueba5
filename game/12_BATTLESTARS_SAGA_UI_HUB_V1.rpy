@@ -370,6 +370,29 @@ init -880 python:
         S.bs_saga_prep_hp_reward_multiplier = int(m)
         return int(m)
 
+    def bs_saga_clamp_prep_tech_step(value):
+        allowed = (25, 50, 100, 150, 200, 500, 1000)
+        try:
+            raw = int(value or 25)
+        except:
+            raw = 25
+        if raw in allowed:
+            return int(raw)
+        # fallback al valor permitido más cercano.
+        best = 25
+        best_diff = abs(raw - best)
+        for x in allowed:
+            d = abs(raw - int(x))
+            if d < best_diff:
+                best = int(x)
+                best_diff = d
+        return int(best)
+
+    def bs_saga_set_prep_tech_step(value):
+        step = bs_saga_clamp_prep_tech_step(value)
+        S.bs_saga_prep_tech_step = int(step)
+        return int(step)
+
     # Fase 4 de split:
     # - bs_saga_account_bucket_qty
     # - bs_saga_account_bucket_add
