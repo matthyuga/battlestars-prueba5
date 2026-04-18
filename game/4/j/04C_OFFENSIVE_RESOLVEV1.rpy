@@ -245,9 +245,19 @@ label battle_offensive_resolve_enemy:
                 if bool(getattr(S, "noatk_success", False)):
                     S.enemy_skip_attack = True
 
-                if alloc and callable(fn_apply_key):
+                merged_apply = {}
+                for tk, amt in (alloc or {}).items():
+                    ai = max(0, int(amt or 0))
+                    if tk and ai > 0:
+                        merged_apply[tk] = int(merged_apply.get(tk, 0) or 0) + ai
+                for tk, amt in (alloc_direct or {}).items():
+                    ai = max(0, int(amt or 0))
+                    if tk and ai > 0:
+                        merged_apply[tk] = int(merged_apply.get(tk, 0) or 0) + ai
+
+                if merged_apply and callable(fn_apply_key):
                     src = getattr(S, "current_actor_unit_key", None)
-                    for tk, amt in alloc.items():
+                    for tk, amt in merged_apply.items():
                         if int(amt or 0) > 0:
                             fn_apply_key(tk, int(amt), source_key=src, reason="combat")
                 elif target_key and callable(fn_apply_key):
