@@ -177,3 +177,18 @@ Pre-combate actual contiene:
 
 ### 9.2 Criterio de salida Fase 5
 ✅ Flujo final más legible y directo, con validación y acción principal en una sola pantalla.
+
+---
+
+## 10) Fase 0 (Iteración UX v2) — Alineación aprobada
+
+Fecha: 2026-04-18
+
+Alineación cerrada con aprobación de producto para iniciar implementación:
+
+1. **Modo técnico único en UI:** ocultar opción `Virgen` y operar solo en `Preconfig`.
+2. **Paso configurable de asignación de puntos:** `25, 50, 100, 150, 200, 500, 1000`.
+3. **Salida post-combate:** volver al lobby (no reiniciar al menú principal).
+
+### Gate de avance
+✅ **Fase 0 aprobada**. Lista para iniciar Fase 1 de implementación.
