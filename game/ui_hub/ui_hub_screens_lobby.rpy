@@ -63,7 +63,7 @@ screen bs_saga_lobby_screen():
             spacing 10
             text "Panel Jugar" size 28 color "#E9F5FF"
 
-            textbutton "⚔ Duelo libre" action Jump("bs_saga_duelo_libre")
+            textbutton "⚔ Duelo libre" action Return("nav:duelo_libre")
 
             textbutton ("▼ Torneo" if bs_saga_tournament_panel_open else "▶ Torneo"):
                 action ToggleVariable("bs_saga_tournament_panel_open")
@@ -75,11 +75,11 @@ screen bs_saga_lobby_screen():
                     background Solid("#22384D")
                     vbox:
                         spacing 8
-                        textbutton "Tier C" action Jump("bs_saga_torneo_tier_c")
-                        textbutton "Tier B (no disponible)" action Jump("bs_saga_torneo_tier_b_locked")
-                        textbutton "Tier A (no disponible)" action Jump("bs_saga_torneo_tier_a_locked")
+                        textbutton "Tier C" action Return("nav:torneo_tier_c")
+                        textbutton "Tier B (no disponible)" action Return("nav:torneo_tier_b_locked")
+                        textbutton "Tier A (no disponible)" action Return("nav:torneo_tier_a_locked")
 
-            textbutton "🗼 Torre del cielo (preview)" action Jump("bs_saga_torre_cielo")
+            textbutton "🗼 Torre del cielo (preview)" action Return("nav:torre_cielo")
 
     frame:
         xalign 0.5
@@ -97,14 +97,14 @@ screen bs_saga_lobby_screen():
                 text ("Última transacción: " + _last_msg) size 15 color "#CDE7FF"
             hbox:
                 spacing 10
-                textbutton "Perfil" action Jump("bs_saga_perfil")
+                textbutton "Perfil" action Return("nav:perfil")
                 textbutton "Preparación":
-                    action [SetVariable("bs_saga_prep_intent_duel", False), SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
-                textbutton "Héroes" action Jump("bs_saga_heroes")
-                textbutton "Tienda" action Jump("bs_saga_tienda")
-                textbutton "Inventario" action Jump("bs_saga_inventario")
-                textbutton "Catálogo de itens" action Jump("bs_saga_catalogo_items")
-                textbutton "Catálogo de técnicas" action Jump("bs_saga_catalogo_tecnicas")
+                    action [SetVariable("bs_saga_prep_intent_duel", False), SetVariable("bs_saga_prep_context", "room"), Return("nav:preparacion")]
+                textbutton "Héroes" action Return("nav:heroes")
+                textbutton "Tienda" action Return("nav:tienda")
+                textbutton "Inventario" action Return("nav:inventario")
+                textbutton "Catálogo de itens" action Return("nav:catalogo_items")
+                textbutton "Catálogo de técnicas" action Return("nav:catalogo_tecnicas")
 
 screen bs_saga_section_shell(title="Sección", subtitle="Panel", back_action=NullAction()):
     tag menu
@@ -391,7 +391,7 @@ screen bs_saga_catalog_screen():
                                                 text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 120
                                                 text "[_m]" size 16 color "#D0E9FF" xminimum 220
                                                 textbutton "Comprar x1":
-                                                    action [Function(bs_saga_buy_item, it, 1), Jump("bs_saga_catalogo_items")]
+                                                    action Function(bs_saga_ui_call, bs_saga_buy_item, it, 1)
                                 else:
                                     text "Sin itens cargados todavía para este grupo." size 18 color "#9FB9D1"
 
@@ -421,7 +421,7 @@ screen bs_saga_inventory_screen():
             text "Territorio: Inventario" size 22 color "#D7EEFF" yalign 0.7
             text ("Oro: " + str(_gold)) size 20 color "#F7D774" yalign 0.7
             null width 120
-            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+            textbutton "Volver al lobby" action Return("nav:lobby")
 
     frame:
         xalign 0.5
@@ -621,7 +621,7 @@ screen bs_saga_tech_catalog_screen():
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
             text "Territorio: Catálogo de técnicas" size 22 color "#D7EEFF" yalign 0.7
             null width 70
-            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+            textbutton "Volver al lobby" action Return("nav:lobby")
 
     frame:
         xalign 0.5
@@ -732,7 +732,7 @@ screen bs_saga_tower_screen():
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
             text "Territorio: Torre del cielo" size 22 color "#D7EEFF" yalign 0.7
             null width 40
-            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+            textbutton "Volver al lobby" action Return("nav:lobby")
 
     frame:
         xalign 0.5

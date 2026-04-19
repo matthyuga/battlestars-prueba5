@@ -2073,8 +2073,34 @@ label bs_saga_intro_splash:
     jump bs_saga_lobby
 
 label bs_saga_lobby:
-    call screen bs_saga_lobby_screen
-    return
+    $ _lobby_nav = renpy.call_screen("bs_saga_lobby_screen")
+    if _lobby_nav in ("to_duelo_libre", "nav:duelo_libre"):
+        jump bs_saga_duelo_libre
+    if _lobby_nav in ("to_torneo_tier_c", "nav:torneo_tier_c"):
+        jump bs_saga_torneo_tier_c
+    if _lobby_nav in ("to_torneo_tier_b_locked", "nav:torneo_tier_b_locked"):
+        jump bs_saga_torneo_tier_b_locked
+    if _lobby_nav in ("to_torneo_tier_a_locked", "nav:torneo_tier_a_locked"):
+        jump bs_saga_torneo_tier_a_locked
+    if _lobby_nav in ("to_torre_cielo", "nav:torre_cielo"):
+        jump bs_saga_torre_cielo
+    if _lobby_nav in ("to_perfil", "nav:perfil"):
+        jump bs_saga_perfil
+    if _lobby_nav in ("to_preparacion", "nav:preparacion"):
+        jump bs_saga_preparacion
+    if _lobby_nav in ("to_heroes", "nav:heroes"):
+        jump bs_saga_heroes
+    if _lobby_nav in ("to_tienda", "nav:tienda"):
+        jump bs_saga_tienda
+    if _lobby_nav in ("to_inventario", "nav:inventario"):
+        jump bs_saga_inventario
+    if _lobby_nav in ("to_catalogo_items", "nav:catalogo_items"):
+        jump bs_saga_catalogo_items
+    if _lobby_nav in ("to_catalogo_tecnicas", "nav:catalogo_tecnicas"):
+        jump bs_saga_catalogo_tecnicas
+    if isinstance(_lobby_nav, str) and _lobby_nav.startswith("nav:"):
+        jump bs_saga_lobby
+    jump bs_saga_lobby
 
 # ---------- rutas panel jugar ----------
 
@@ -2127,8 +2153,10 @@ label bs_saga_torre_cielo_locked:
     jump bs_saga_lobby
 
 label bs_saga_torre_cielo:
-    call screen bs_saga_tower_screen
-    return
+    $ _tower_nav = renpy.call_screen("bs_saga_tower_screen")
+    if _tower_nav in ("to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_torre_cielo
 
 # ---------- rutas panel gestión ----------
 
