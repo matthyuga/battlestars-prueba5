@@ -2135,27 +2135,26 @@ label bs_saga_preparacion:
         if bs_saga_prep_selected_hero:
             $ bs_saga_prep_selected_party_ids = [str(bs_saga_prep_selected_hero)]
 
-    while True:
-        $ _prep_ctx = str(getattr(store, "bs_saga_prep_context", "room") or "room").strip().lower()
-        if _prep_ctx == "staging":
-            $ _prep_nav = renpy.call_screen("bs_saga_duel_staging_screen")
-        elif _prep_ctx == "config":
-            $ _prep_nav = renpy.call_screen("bs_saga_hero_config_screen")
-        else:
-            $ _prep_nav = renpy.call_screen("bs_saga_preparation_room_screen")
+    $ _prep_ctx = str(getattr(store, "bs_saga_prep_context", "room") or "room").strip().lower()
+    if _prep_ctx == "staging":
+        $ _prep_nav = renpy.call_screen("bs_saga_duel_staging_screen")
+    elif _prep_ctx == "config":
+        $ _prep_nav = renpy.call_screen("bs_saga_hero_config_screen")
+    else:
+        $ _prep_nav = renpy.call_screen("bs_saga_preparation_room_screen")
 
-        if _prep_nav == "to_staging":
-            $ bs_saga_prep_context = "staging"
-            continue
-        if _prep_nav == "to_config":
-            $ bs_saga_prep_context = "config"
-            continue
-        if _prep_nav == "to_room":
-            $ bs_saga_prep_context = "room"
-            continue
-        if _prep_nav == "to_lobby":
-            jump bs_saga_lobby
-        return
+    if _prep_nav == "to_staging":
+        $ bs_saga_prep_context = "staging"
+        jump bs_saga_preparacion
+    if _prep_nav == "to_config":
+        $ bs_saga_prep_context = "config"
+        jump bs_saga_preparacion
+    if _prep_nav == "to_room":
+        $ bs_saga_prep_context = "room"
+        jump bs_saga_preparacion
+    if _prep_nav == "to_lobby":
+        jump bs_saga_lobby
+    return
 
 label bs_saga_perfil:
     call screen bs_saga_profile_screen
