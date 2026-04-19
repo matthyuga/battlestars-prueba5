@@ -657,6 +657,14 @@ init -875 python:
         cfg["repetition_count"] = max(1, _sim_to_int(cfg.get("repetition_count", 1), 1))
         cfg["multi_factor_enabled"] = bool(cfg.get("multi_factor_enabled", True))
         cfg["hp_reward_multiplier"] = _sim_hp_reward_multiplier(cfg.get("hp_reward_multiplier", 1))
+        cfg["reward_condition_exp_mult"] = max(0.25, min(3.0, float(cfg.get("reward_condition_exp_mult", 1.0) or 1.0)))
+        cfg["reward_condition_oro_mult"] = max(0.25, min(3.0, float(cfg.get("reward_condition_oro_mult", 1.0) or 1.0)))
+        cfg["reward_condition_probability_mult"] = max(0.25, min(2.0, float(cfg.get("reward_condition_probability_mult", 1.0) or 1.0)))
+        cfg["base_exp_real"] = max(1.0, float(cfg.get("base_exp_real", 35) or 35))
+        cfg["base_oro_real"] = max(1.0, float(cfg.get("base_oro_real", 15) or 15))
+        cfg["step_exp_real"] = max(0.1, float(cfg.get("step_exp_real", 3.5) or 3.5))
+        cfg["step_oro_real"] = max(0.1, float(cfg.get("step_oro_real", 2.0) or 2.0))
+        cfg["reward_condition_tags"] = list(cfg.get("reward_condition_tags", []) or [])
         out["config"] = cfg
 
         # actors no vacío
@@ -813,15 +821,20 @@ init -875 python:
         avg = s / float(n)
         return int(round(avg - float(reg_actor)))
 
-    def _sim_base_rewards_from_stars(stars_total, preset):
+    def _sim_base_rewards_from_stars(stars_total, preset, config=None):
         st = _sim_clamp(stars_total, 0, 30)
         p = str(preset or "medium_v2").strip().lower()
+        cfg = config if isinstance(config, dict) else {}
 
         # Preset principal acordado: grindeo medio (v2)
         if p == "medium_v2":
+            base_exp = max(1.0, float(cfg.get("base_exp_real", 35) or 35))
+            base_oro = max(1.0, float(cfg.get("base_oro_real", 15) or 15))
+            step_exp = max(0.1, float(cfg.get("step_exp_real", 3.5) or 3.5))
+            step_oro = max(0.1, float(cfg.get("step_oro_real", 2.0) or 2.0))
             return {
-                "exp": int(round(35 + (3.5 * st))),
-                "oro": int(round(15 + (2.0 * st))),
+                "exp": int(round(base_exp + (step_exp * st))),
+                "oro": int(round(base_oro + (step_oro * st))),
             }
 
         # Fallback compat con fórmula histórica del panel (base 100/60)
@@ -903,7 +916,7 @@ init -875 python:
         risk = compute_risk_multipliers(delta_register)
         result_mult = _sim_result_multipliers_for_actor(a, winner_team)
         perf = compute_performance_multipliers(stars_total, cfg.get("preset", "medium_v2"))
-        base = _sim_base_rewards_from_stars(stars_total, cfg.get("preset", "medium_v2"))
+        base = _sim_base_rewards_from_stars(stars_total, cfg.get("preset", "medium_v2"), cfg)
 
         team_sizes = {
             "allies": max(1, _sim_to_int(cfg.get("_allies_count", 1), 1)),
@@ -911,6 +924,9 @@ init -875 python:
         }
         multi_factor = compute_multi_factor(team_sizes, cfg.get("multi_factor_enabled", True))
         hp_reward_mult = _sim_hp_reward_multiplier(cfg.get("hp_reward_multiplier", 1))
+        cond_exp_mult = max(0.25, min(3.0, float(cfg.get("reward_condition_exp_mult", 1.0) or 1.0)))
+        cond_oro_mult = max(0.25, min(3.0, float(cfg.get("reward_condition_oro_mult", 1.0) or 1.0)))
+        cond_prob_mult = max(0.25, min(2.0, float(cfg.get("reward_condition_probability_mult", 1.0) or 1.0)))
 
         repetition_count = max(1, _sim_to_int(cfg.get("repetition_count", 1), 1))
         if repetition_count <= 1:
@@ -934,7 +950,8 @@ init -875 python:
                 float(perf["performance_exp"]) *
                 float(anti) *
                 float(multi_factor) *
-                float(hp_reward_mult)
+                float(hp_reward_mult) *
+                float(cond_exp_mult)
             )
             oro_raw = (
                 float(base["oro"]) *
@@ -943,7 +960,8 @@ init -875 python:
                 float(perf["performance_oro"]) *
                 float(anti) *
                 float(multi_factor) *
-                float(hp_reward_mult)
+                float(hp_reward_mult) *
+                float(cond_oro_mult)
             )
             exp_gain = max(0, int(round(exp_raw)))
             oro_gain = max(0, int(round(oro_raw)))
@@ -972,6 +990,9 @@ init -875 python:
                 "antiabuso": anti,
                 "multi_factor": float(multi_factor),
                 "hp_reward_multiplier": int(hp_reward_mult),
+                "reward_condition_exp_mult": float(cond_exp_mult),
+                "reward_condition_oro_mult": float(cond_oro_mult),
+                "reward_condition_probability_mult": float(cond_prob_mult),
             },
             "base": {
                 "exp": int(base["exp"]),
@@ -1275,6 +1296,14 @@ init -875 python:
                 "repetition_count": max(1, _sim_to_int(_sim_get_from_sources(sources, ("repetition_count",), 1), 1)),
                 "multi_factor_enabled": bool(_sim_get_from_sources(sources, ("multi_factor_enabled",), True)),
                 "hp_reward_multiplier": _sim_hp_reward_multiplier(_sim_get_from_sources(sources, ("hp_reward_multiplier",), 1)),
+                "reward_condition_exp_mult": float(_sim_get_from_sources(sources, ("reward_condition_exp_mult",), 1.0) or 1.0),
+                "reward_condition_oro_mult": float(_sim_get_from_sources(sources, ("reward_condition_oro_mult",), 1.0) or 1.0),
+                "reward_condition_probability_mult": float(_sim_get_from_sources(sources, ("reward_condition_probability_mult",), 1.0) or 1.0),
+                "reward_condition_tags": list(_sim_get_from_sources(sources, ("reward_condition_tags",), []) or []),
+                "base_exp_real": float(_sim_get_from_sources(sources, ("base_exp_real",), 35) or 35),
+                "base_oro_real": float(_sim_get_from_sources(sources, ("base_oro_real",), 15) or 15),
+                "step_exp_real": float(_sim_get_from_sources(sources, ("step_exp_real",), 3.5) or 3.5),
+                "step_oro_real": float(_sim_get_from_sources(sources, ("step_oro_real",), 2.0) or 2.0),
                 "idempotency_registry": _sim_get_from_sources(sources, ("idempotency_registry",), {}),
             },
         }

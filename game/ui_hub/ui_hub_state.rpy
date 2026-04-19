@@ -99,6 +99,17 @@ default bs_saga_prep_selected_enemy_hero = ""
 default bs_saga_prep_selected_build = "balanceado"
 default bs_saga_prep_selected_config = "cfg1"
 default bs_saga_prep_hp_reward_multiplier = 1
+default bs_saga_prep_reward_conditions = {
+    "use_concentrar": False,
+    "no_direct_attack": False,
+    "no_stance_swap": False,
+    "low_damage_taken": False,
+    "daily_mission": False
+}
+default bs_saga_reward_base_exp_real = 35
+default bs_saga_reward_base_oro_real = 15
+default bs_saga_reward_step_exp = 3.5
+default bs_saga_reward_step_oro = 2.0
 default bs_saga_prep_tech_step = 25
 default bs_saga_prep_selected_party_ids = []
 default bs_saga_prep_filter_owned_only = False

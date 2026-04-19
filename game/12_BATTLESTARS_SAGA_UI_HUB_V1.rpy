@@ -370,6 +370,114 @@ init -880 python:
         S.bs_saga_prep_hp_reward_multiplier = int(m)
         return int(m)
 
+    def bs_saga_reward_conditions_defaults():
+        return {
+            "use_concentrar": False,
+            "no_direct_attack": False,
+            "no_stance_swap": False,
+            "low_damage_taken": False,
+            "daily_mission": False,
+        }
+
+    def bs_saga_get_prep_reward_conditions():
+        raw = getattr(S, "bs_saga_prep_reward_conditions", None)
+        out = bs_saga_reward_conditions_defaults()
+        if isinstance(raw, dict):
+            for k in out.keys():
+                out[k] = bool(raw.get(k, out[k]))
+        S.bs_saga_prep_reward_conditions = dict(out)
+        return dict(out)
+
+    def bs_saga_set_prep_reward_condition(key, enabled):
+        kk = str(key or "").strip().lower()
+        out = bs_saga_get_prep_reward_conditions()
+        if kk not in out:
+            return False
+        out[kk] = bool(enabled)
+        S.bs_saga_prep_reward_conditions = dict(out)
+        return True
+
+    def bs_saga_toggle_prep_reward_condition(key):
+        kk = str(key or "").strip().lower()
+        out = bs_saga_get_prep_reward_conditions()
+        if kk not in out:
+            return False
+        out[kk] = not bool(out[kk])
+        S.bs_saga_prep_reward_conditions = dict(out)
+        return True
+
+    def bs_saga_adjust_reward_base_param(field, delta):
+        ff = str(field or "").strip().lower()
+        try:
+            dd = float(delta or 0)
+        except:
+            dd = 0.0
+        if ff == "base_exp":
+            cur = float(getattr(S, "bs_saga_reward_base_exp_real", 35) or 35)
+            cur = max(1.0, min(10000.0, cur + dd))
+            S.bs_saga_reward_base_exp_real = int(round(cur))
+            return int(getattr(S, "bs_saga_reward_base_exp_real", 35) or 35)
+        if ff == "base_oro":
+            cur = float(getattr(S, "bs_saga_reward_base_oro_real", 15) or 15)
+            cur = max(1.0, min(20000.0, cur + dd))
+            S.bs_saga_reward_base_oro_real = int(round(cur))
+            return int(getattr(S, "bs_saga_reward_base_oro_real", 15) or 15)
+        if ff == "step_exp":
+            cur = float(getattr(S, "bs_saga_reward_step_exp", 3.5) or 3.5)
+            cur = max(0.1, min(50.0, cur + dd))
+            S.bs_saga_reward_step_exp = float(round(cur, 2))
+            return float(getattr(S, "bs_saga_reward_step_exp", 3.5) or 3.5)
+        if ff == "step_oro":
+            cur = float(getattr(S, "bs_saga_reward_step_oro", 2.0) or 2.0)
+            cur = max(0.1, min(50.0, cur + dd))
+            S.bs_saga_reward_step_oro = float(round(cur, 2))
+            return float(getattr(S, "bs_saga_reward_step_oro", 2.0) or 2.0)
+        return None
+
+    def bs_saga_build_reward_condition_profile():
+        cc = bs_saga_get_prep_reward_conditions()
+        exp_mult = 1.0
+        oro_mult = 1.0
+        prob_mult = 1.0
+        tags = []
+
+        if bool(cc.get("use_concentrar", False)):
+            exp_mult *= 1.12
+            oro_mult *= 1.08
+            tags.append("use_concentrar")
+        if bool(cc.get("no_direct_attack", False)):
+            exp_mult *= 1.18
+            oro_mult *= 1.15
+            tags.append("no_direct_attack")
+        if bool(cc.get("no_stance_swap", False)):
+            exp_mult *= 1.10
+            oro_mult *= 1.10
+            tags.append("no_stance_swap")
+        if bool(cc.get("low_damage_taken", False)):
+            exp_mult *= 1.14
+            oro_mult *= 1.12
+            tags.append("low_damage_taken")
+        if bool(cc.get("daily_mission", False)):
+            exp_mult *= 1.25
+            oro_mult *= 1.30
+            prob_mult *= 1.15
+            tags.append("daily_mission")
+
+        exp_mult = max(0.50, min(3.00, float(exp_mult)))
+        oro_mult = max(0.50, min(3.00, float(oro_mult)))
+        prob_mult = max(0.50, min(2.00, float(prob_mult)))
+        return {
+            "conditions": dict(cc),
+            "exp_mult": float(round(exp_mult, 4)),
+            "oro_mult": float(round(oro_mult, 4)),
+            "probability_mult": float(round(prob_mult, 4)),
+            "tags": list(tags),
+            "base_exp_real": int(getattr(S, "bs_saga_reward_base_exp_real", 35) or 35),
+            "base_oro_real": int(getattr(S, "bs_saga_reward_base_oro_real", 15) or 15),
+            "step_exp": float(getattr(S, "bs_saga_reward_step_exp", 3.5) or 3.5),
+            "step_oro": float(getattr(S, "bs_saga_reward_step_oro", 2.0) or 2.0),
+        }
+
     def bs_saga_clamp_prep_tech_step(value):
         allowed = (25, 50, 100, 150, 200, 500, 1000)
         try:
@@ -1480,6 +1588,17 @@ init -880 python:
         hp_reward_mult = bs_saga_clamp_hp_reward_multiplier(getattr(S, "bs_saga_prep_hp_reward_multiplier", 1))
         S.bs_saga_prep_hp_reward_multiplier = int(hp_reward_mult)
         S.story_pilot_hp_reward_multiplier = int(hp_reward_mult)
+        reward_profile = bs_saga_build_reward_condition_profile()
+        S.story_pilot_reward_condition_profile = dict(reward_profile)
+        S.story_pilot_reward_conditions = dict(reward_profile.get("conditions", {}))
+        S.story_pilot_reward_condition_tags = list(reward_profile.get("tags", []))
+        S.story_pilot_reward_exp_mult = float(reward_profile.get("exp_mult", 1.0) or 1.0)
+        S.story_pilot_reward_oro_mult = float(reward_profile.get("oro_mult", 1.0) or 1.0)
+        S.story_pilot_reward_probability_mult = float(reward_profile.get("probability_mult", 1.0) or 1.0)
+        S.story_pilot_reward_base_exp_real = int(reward_profile.get("base_exp_real", 35) or 35)
+        S.story_pilot_reward_base_oro_real = int(reward_profile.get("base_oro_real", 15) or 15)
+        S.story_pilot_reward_step_exp = float(reward_profile.get("step_exp", 3.5) or 3.5)
+        S.story_pilot_reward_step_oro = float(reward_profile.get("step_oro", 2.0) or 2.0)
         S.battle_prepared_config_id = prep_cfg
         S.battle_prepared_build_id = prep_build
         S.battle_prepared_player_loadouts = {}
