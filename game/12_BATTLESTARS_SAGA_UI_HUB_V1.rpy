@@ -41,6 +41,40 @@ init -880 python:
             fn(*args, **kwargs)
         return None
 
+    def bs_saga_nav_matches(nav_value, *codes):
+        val = str(nav_value or "").strip().lower()
+        return val in tuple(str(c or "").strip().lower() for c in (codes or ()))
+
+    def bs_saga_lobby_nav_target(nav_value):
+        nav = str(nav_value or "").strip().lower()
+        nav_map = {
+            "to_duelo_libre": "bs_saga_duelo_libre",
+            "nav:duelo_libre": "bs_saga_duelo_libre",
+            "to_torneo_tier_c": "bs_saga_torneo_tier_c",
+            "nav:torneo_tier_c": "bs_saga_torneo_tier_c",
+            "to_torneo_tier_b_locked": "bs_saga_torneo_tier_b_locked",
+            "nav:torneo_tier_b_locked": "bs_saga_torneo_tier_b_locked",
+            "to_torneo_tier_a_locked": "bs_saga_torneo_tier_a_locked",
+            "nav:torneo_tier_a_locked": "bs_saga_torneo_tier_a_locked",
+            "to_torre_cielo": "bs_saga_torre_cielo",
+            "nav:torre_cielo": "bs_saga_torre_cielo",
+            "to_perfil": "bs_saga_perfil",
+            "nav:perfil": "bs_saga_perfil",
+            "to_preparacion": "bs_saga_preparacion",
+            "nav:preparacion": "bs_saga_preparacion",
+            "to_heroes": "bs_saga_heroes",
+            "nav:heroes": "bs_saga_heroes",
+            "to_tienda": "bs_saga_tienda",
+            "nav:tienda": "bs_saga_tienda",
+            "to_inventario": "bs_saga_inventario",
+            "nav:inventario": "bs_saga_inventario",
+            "to_catalogo_items": "bs_saga_catalogo_items",
+            "nav:catalogo_items": "bs_saga_catalogo_items",
+            "to_catalogo_tecnicas": "bs_saga_catalogo_tecnicas",
+            "nav:catalogo_tecnicas": "bs_saga_catalogo_tecnicas",
+        }
+        return nav_map.get(nav, "")
+
     # Fase 4 de split:
     # - bs_saga_account
     # - bs_saga_gold
@@ -2074,30 +2108,9 @@ label bs_saga_intro_splash:
 
 label bs_saga_lobby:
     $ _lobby_nav = renpy.call_screen("bs_saga_lobby_screen")
-    if _lobby_nav in ("to_duelo_libre", "nav:duelo_libre"):
-        jump bs_saga_duelo_libre
-    if _lobby_nav in ("to_torneo_tier_c", "nav:torneo_tier_c"):
-        jump bs_saga_torneo_tier_c
-    if _lobby_nav in ("to_torneo_tier_b_locked", "nav:torneo_tier_b_locked"):
-        jump bs_saga_torneo_tier_b_locked
-    if _lobby_nav in ("to_torneo_tier_a_locked", "nav:torneo_tier_a_locked"):
-        jump bs_saga_torneo_tier_a_locked
-    if _lobby_nav in ("to_torre_cielo", "nav:torre_cielo"):
-        jump bs_saga_torre_cielo
-    if _lobby_nav in ("to_perfil", "nav:perfil"):
-        jump bs_saga_perfil
-    if _lobby_nav in ("to_preparacion", "nav:preparacion"):
-        jump bs_saga_preparacion
-    if _lobby_nav in ("to_heroes", "nav:heroes"):
-        jump bs_saga_heroes
-    if _lobby_nav in ("to_tienda", "nav:tienda"):
-        jump bs_saga_tienda
-    if _lobby_nav in ("to_inventario", "nav:inventario"):
-        jump bs_saga_inventario
-    if _lobby_nav in ("to_catalogo_items", "nav:catalogo_items"):
-        jump bs_saga_catalogo_items
-    if _lobby_nav in ("to_catalogo_tecnicas", "nav:catalogo_tecnicas"):
-        jump bs_saga_catalogo_tecnicas
+    $ _lobby_target = bs_saga_lobby_nav_target(_lobby_nav)
+    if _lobby_target:
+        jump expression _lobby_target
     if isinstance(_lobby_nav, str) and _lobby_nav.startswith("nav:"):
         jump bs_saga_lobby
     jump bs_saga_lobby
@@ -2154,7 +2167,7 @@ label bs_saga_torre_cielo_locked:
 
 label bs_saga_torre_cielo:
     $ _tower_nav = renpy.call_screen("bs_saga_tower_screen")
-    if _tower_nav in ("to_lobby", "nav:lobby"):
+    if bs_saga_nav_matches(_tower_nav, "to_lobby", "nav:lobby"):
         jump bs_saga_lobby
     jump bs_saga_torre_cielo
 
@@ -2199,36 +2212,36 @@ label bs_saga_preparacion:
 
 label bs_saga_perfil:
     $ _perfil_nav = renpy.call_screen("bs_saga_profile_screen")
-    if _perfil_nav in ("to_lobby", "nav:lobby"):
+    if bs_saga_nav_matches(_perfil_nav, "to_lobby", "nav:lobby"):
         jump bs_saga_lobby
     jump bs_saga_perfil
 
 label bs_saga_heroes:
     $ _heroes_nav = renpy.call_screen("bs_saga_heroes_screen")
-    if _heroes_nav in ("to_lobby", "nav:lobby"):
+    if bs_saga_nav_matches(_heroes_nav, "to_lobby", "nav:lobby"):
         jump bs_saga_lobby
     jump bs_saga_heroes
 
 label bs_saga_tienda:
     $ _tienda_nav = renpy.call_screen("bs_saga_catalog_screen")
-    if _tienda_nav in ("to_lobby", "nav:lobby"):
+    if bs_saga_nav_matches(_tienda_nav, "to_lobby", "nav:lobby"):
         jump bs_saga_lobby
     jump bs_saga_tienda
 
 label bs_saga_inventario:
     $ _inventario_nav = renpy.call_screen("bs_saga_inventory_screen")
-    if _inventario_nav in ("to_lobby", "nav:lobby"):
+    if bs_saga_nav_matches(_inventario_nav, "to_lobby", "nav:lobby"):
         jump bs_saga_lobby
     jump bs_saga_inventario
 
 label bs_saga_catalogo_items:
     $ _catalogo_items_nav = renpy.call_screen("bs_saga_catalog_screen")
-    if _catalogo_items_nav in ("to_lobby", "nav:lobby"):
+    if bs_saga_nav_matches(_catalogo_items_nav, "to_lobby", "nav:lobby"):
         jump bs_saga_lobby
     jump bs_saga_catalogo_items
 
 label bs_saga_catalogo_tecnicas:
     $ _catalogo_tecnicas_nav = renpy.call_screen("bs_saga_tech_catalog_screen")
-    if _catalogo_tecnicas_nav in ("to_lobby", "nav:lobby"):
+    if bs_saga_nav_matches(_catalogo_tecnicas_nav, "to_lobby", "nav:lobby"):
         jump bs_saga_lobby
     jump bs_saga_catalogo_tecnicas
