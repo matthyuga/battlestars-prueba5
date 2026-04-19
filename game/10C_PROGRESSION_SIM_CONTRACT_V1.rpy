@@ -1384,6 +1384,8 @@ init -875 python:
         applied = []
         total_exp = 0
         total_oro = 0
+        player_exp_total = 0
+        player_oro_total = 0
 
         # Wallet runtime para ALPHA/DELTA (persistencia de sesión).
         wallet = getattr(S, "sim_actor_runtime_wallet_v1", None)
@@ -1414,6 +1416,8 @@ init -875 python:
                 # Store runtime principal (jugador).
                 S.player_exp = max(0, _sim_to_int(getattr(S, "player_exp", 0), 0) + exp_gain)
                 S.player_oro = max(0, _sim_to_int(getattr(S, "player_oro", 0), 0) + oro_gain)
+                player_exp_total += int(exp_gain)
+                player_oro_total += int(oro_gain)
 
                 # Bridge opcional con panel RPG.
                 st = getattr(S, "rpg_panel_state_v1", None)
@@ -1444,13 +1448,52 @@ init -875 python:
         S.sim_actor_runtime_wallet_v1 = wallet
         wallet_persist = sim_persist_actor_wallets()
 
+        # Bridge post-combate -> cuenta/lobby (oro/exp visibles en UI Hub).
+        account_bridge = {
+            "attempted": False,
+            "applied": False,
+            "skipped_duplicate": False,
+            "exp_gain": int(player_exp_total),
+            "gold_gain": int(player_oro_total),
+            "key": "",
+            "error": "",
+        }
+        if player_exp_total > 0 or player_oro_total > 0:
+            account_bridge["attempted"] = True
+            bridge_registry = getattr(S, "sim_account_reward_bridge_registry_v1", None)
+            if not isinstance(bridge_registry, dict):
+                bridge_registry = {}
+            source = str(req.get("source", "battle_end") or "battle_end")
+            sim_id = str(res.get("simulation_id", req.get("battle_id", "sim_unknown")) or "sim_unknown")
+            bridge_key = source + "::" + sim_id
+            account_bridge["key"] = bridge_key
+
+            if bool(bridge_registry.get(bridge_key, False)):
+                account_bridge["skipped_duplicate"] = True
+            else:
+                fn_gain_account = getattr(S, "bs_saga_gain_account_rewards", None)
+                if callable(fn_gain_account):
+                    try:
+                        rr_acc = fn_gain_account(player_exp_total, player_oro_total, source="battle_end_reward_bridge")
+                        account_bridge["applied"] = bool(rr_acc.get("ok", False)) if isinstance(rr_acc, dict) else True
+                        if account_bridge["applied"]:
+                            bridge_registry[bridge_key] = True
+                            S.sim_account_reward_bridge_registry_v1 = bridge_registry
+                    except Exception as ex:
+                        account_bridge["error"] = "account_bridge_exception: %s" % ex
+                else:
+                    account_bridge["error"] = "bs_saga_gain_account_rewards no disponible en store."
+
         report = {
             "ok": True,
             "applied_count": len(applied),
             "total_exp": total_exp,
             "total_oro": total_oro,
+            "player_total_exp": int(player_exp_total),
+            "player_total_oro": int(player_oro_total),
             "items": applied,
             "wallet_persist": wallet_persist,
+            "account_bridge": account_bridge,
         }
         S.sim_battle_end_last_apply_v1 = report
         return report
