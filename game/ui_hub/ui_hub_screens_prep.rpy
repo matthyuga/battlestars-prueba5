@@ -424,53 +424,53 @@ screen bs_saga_duel_staging_screen():
                         text "Modo de juego" size 16 color "#D0E9FF"
                         hbox:
                             spacing 6
-                            textbutton "1v1" action [Function(bs_saga_set_prep_mode, "1v1"), Jump("bs_saga_preparacion")]
-                            textbutton "2v2" action [Function(bs_saga_set_prep_mode, "2v2"), Jump("bs_saga_preparacion")]
+                            textbutton "1v1" action Function(bs_saga_set_prep_mode, "1v1")
+                            textbutton "2v2" action Function(bs_saga_set_prep_mode, "2v2")
 
                         text "Condición HP / Reward" size 16 color "#D0E9FF"
                         text ("Multiplicador activo: x" + str(_hp_reward_mult) + " (mín x1 · máx x5)") size 14 color "#9FC4E2"
                         hbox:
                             spacing 6
-                            textbutton "x1" action [Function(bs_saga_set_prep_hp_reward_multiplier, 1), Jump("bs_saga_preparacion")]
-                            textbutton "x2" action [Function(bs_saga_set_prep_hp_reward_multiplier, 2), Jump("bs_saga_preparacion")]
-                            textbutton "x3" action [Function(bs_saga_set_prep_hp_reward_multiplier, 3), Jump("bs_saga_preparacion")]
-                            textbutton "x4" action [Function(bs_saga_set_prep_hp_reward_multiplier, 4), Jump("bs_saga_preparacion")]
-                            textbutton "x5" action [Function(bs_saga_set_prep_hp_reward_multiplier, 5), Jump("bs_saga_preparacion")]
+                            textbutton "x1" action Function(bs_saga_set_prep_hp_reward_multiplier, 1)
+                            textbutton "x2" action Function(bs_saga_set_prep_hp_reward_multiplier, 2)
+                            textbutton "x3" action Function(bs_saga_set_prep_hp_reward_multiplier, 3)
+                            textbutton "x4" action Function(bs_saga_set_prep_hp_reward_multiplier, 4)
+                            textbutton "x5" action Function(bs_saga_set_prep_hp_reward_multiplier, 5)
 
                         text "Condiciones de recompensa (misiones de batalla)" size 16 color "#D0E9FF"
                         text ("Multiplicadores actuales -> EXP x" + str(_r_exp_mult) + " · Oro x" + str(_r_oro_mult) + " · Prob x" + str(_r_prob_mult)) size 13 color "#9FC4E2"
                         hbox:
                             spacing 6
                             textbutton ("Concentrar: " + ("ON" if bool(_rc.get("use_concentrar", False)) else "OFF")):
-                                action [Function(bs_saga_toggle_prep_reward_condition, "use_concentrar"), Jump("bs_saga_preparacion")]
+                                action Function(bs_saga_toggle_prep_reward_condition, "use_concentrar")
                             textbutton ("Sin ataque directo: " + ("ON" if bool(_rc.get("no_direct_attack", False)) else "OFF")):
-                                action [Function(bs_saga_toggle_prep_reward_condition, "no_direct_attack"), Jump("bs_saga_preparacion")]
+                                action Function(bs_saga_toggle_prep_reward_condition, "no_direct_attack")
                         hbox:
                             spacing 6
                             textbutton ("Sin swap Atq/Def: " + ("ON" if bool(_rc.get("no_stance_swap", False)) else "OFF")):
-                                action [Function(bs_saga_toggle_prep_reward_condition, "no_stance_swap"), Jump("bs_saga_preparacion")]
+                                action Function(bs_saga_toggle_prep_reward_condition, "no_stance_swap")
                             textbutton ("Recibir poco daño: " + ("ON" if bool(_rc.get("low_damage_taken", False)) else "OFF")):
-                                action [Function(bs_saga_toggle_prep_reward_condition, "low_damage_taken"), Jump("bs_saga_preparacion")]
+                                action Function(bs_saga_toggle_prep_reward_condition, "low_damage_taken")
                         hbox:
                             spacing 6
                             textbutton ("Misión diaria: " + ("ON" if bool(_rc.get("daily_mission", False)) else "OFF")):
-                                action [Function(bs_saga_toggle_prep_reward_condition, "daily_mission"), Jump("bs_saga_preparacion")]
+                                action Function(bs_saga_toggle_prep_reward_condition, "daily_mission")
 
                         text "Base real de recompensa (para emulación/economía)" size 16 color "#D0E9FF"
                         text ("Base EXP " + str(_r_base_exp) + " · Step EXP " + str(_r_step_exp)) size 13 color "#9FC4E2"
                         hbox:
                             spacing 6
-                            textbutton "EXP base -5" action [Function(bs_saga_adjust_reward_base_param, "base_exp", -5), Jump("bs_saga_preparacion")]
-                            textbutton "EXP base +5" action [Function(bs_saga_adjust_reward_base_param, "base_exp", 5), Jump("bs_saga_preparacion")]
-                            textbutton "Step EXP -0.5" action [Function(bs_saga_adjust_reward_base_param, "step_exp", -0.5), Jump("bs_saga_preparacion")]
-                            textbutton "Step EXP +0.5" action [Function(bs_saga_adjust_reward_base_param, "step_exp", 0.5), Jump("bs_saga_preparacion")]
+                            textbutton "EXP base -5" action Function(bs_saga_adjust_reward_base_param, "base_exp", -5)
+                            textbutton "EXP base +5" action Function(bs_saga_adjust_reward_base_param, "base_exp", 5)
+                            textbutton "Step EXP -0.5" action Function(bs_saga_adjust_reward_base_param, "step_exp", -0.5)
+                            textbutton "Step EXP +0.5" action Function(bs_saga_adjust_reward_base_param, "step_exp", 0.5)
                         text ("Base Oro " + str(_r_base_oro) + " · Step Oro " + str(_r_step_oro)) size 13 color "#9FC4E2"
                         hbox:
                             spacing 6
-                            textbutton "Oro base -5" action [Function(bs_saga_adjust_reward_base_param, "base_oro", -5), Jump("bs_saga_preparacion")]
-                            textbutton "Oro base +5" action [Function(bs_saga_adjust_reward_base_param, "base_oro", 5), Jump("bs_saga_preparacion")]
-                            textbutton "Step Oro -0.5" action [Function(bs_saga_adjust_reward_base_param, "step_oro", -0.5), Jump("bs_saga_preparacion")]
-                            textbutton "Step Oro +0.5" action [Function(bs_saga_adjust_reward_base_param, "step_oro", 0.5), Jump("bs_saga_preparacion")]
+                            textbutton "Oro base -5" action Function(bs_saga_adjust_reward_base_param, "base_oro", -5)
+                            textbutton "Oro base +5" action Function(bs_saga_adjust_reward_base_param, "base_oro", 5)
+                            textbutton "Step Oro -0.5" action Function(bs_saga_adjust_reward_base_param, "step_oro", -0.5)
+                            textbutton "Step Oro +0.5" action Function(bs_saga_adjust_reward_base_param, "step_oro", 0.5)
 
                         text "Rival de duelo" size 16 color "#D0E9FF"
                         hbox:
@@ -489,14 +489,14 @@ screen bs_saga_duel_staging_screen():
                                     for row in _rows:
                                         $ _eh = str(row.get("hero_id", ""))
                                         textbutton _eh:
-                                            action [Function(bs_saga_set_prep_enemy, _eh), Jump("bs_saga_preparacion")]
+                                            action Function(bs_saga_set_prep_enemy, _eh)
 
                         text "Build duelo" size 16 color "#D0E9FF"
                         hbox:
                             spacing 6
-                            textbutton "Balanceado" action [Function(bs_saga_set_prep_build, "balanceado"), Jump("bs_saga_preparacion")]
-                            textbutton "Ofensivo" action [Function(bs_saga_set_prep_build, "ofensivo"), Jump("bs_saga_preparacion")]
-                            textbutton "Defensivo" action [Function(bs_saga_set_prep_build, "defensivo"), Jump("bs_saga_preparacion")]
+                            textbutton "Balanceado" action Function(bs_saga_set_prep_build, "balanceado")
+                            textbutton "Ofensivo" action Function(bs_saga_set_prep_build, "ofensivo")
+                            textbutton "Defensivo" action Function(bs_saga_set_prep_build, "defensivo")
 
                         text ("Config: " + _cfg.upper() + " · Tier: " + _tier + " · Pool duelo: " + str(_pool)) size 14 color "#9FC4E2"
                         text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
@@ -511,7 +511,7 @@ screen bs_saga_duel_staging_screen():
                                 for row in _cons[:3]:
                                     $ _cid = str(row.get("item_id", ""))
                                     textbutton (_cid + " x" + str(row.get("qty", 0))):
-                                        action [Function(bs_saga_set_prep_flag, "consumable", _cid), Jump("bs_saga_preparacion")]
+                                        action Function(bs_saga_set_prep_flag, "consumable", _cid)
                         if _items:
                             text "Equipables" size 14 color "#CFE6FA"
                             hbox:
@@ -519,10 +519,10 @@ screen bs_saga_duel_staging_screen():
                                 for row in _items[:3]:
                                     $ _iid = str(row.get("item_id", ""))
                                     textbutton (_iid + " x" + str(row.get("qty", 0))):
-                                        action [Function(bs_saga_set_prep_flag, "item", _iid), Jump("bs_saga_preparacion")]
+                                        action Function(bs_saga_set_prep_flag, "item", _iid)
                         if _flag_item or _flag_cons:
                             textbutton "Limpiar flags":
-                                action [Function(bs_saga_set_prep_flag, "item", ""), Function(bs_saga_set_prep_flag, "consumable", ""), Jump("bs_saga_preparacion")]
+                                action [Function(bs_saga_set_prep_flag, "item", ""), Function(bs_saga_set_prep_flag, "consumable", "")]
                         null height 6
 
                         textbutton ("Iniciar duelo" if _block_n <= 0 else "Iniciar duelo (bloqueado por validación)"):
