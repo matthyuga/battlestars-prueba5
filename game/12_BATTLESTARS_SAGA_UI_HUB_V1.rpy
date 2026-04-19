@@ -32,6 +32,49 @@ init -880 python:
         raw = re.sub(r"_+", "_", raw)
         return raw.strip("_") or "unknown"
 
+    def bs_saga_ui_call(fn, *args, **kwargs):
+        """
+        Wrapper de acciones UI:
+        ejecuta lógica y fuerza retorno None para no cerrar call_screen.
+        """
+        if callable(fn):
+            fn(*args, **kwargs)
+        return None
+
+    def bs_saga_nav_matches(nav_value, *codes):
+        val = str(nav_value or "").strip().lower()
+        return val in tuple(str(c or "").strip().lower() for c in (codes or ()))
+
+    def bs_saga_lobby_nav_target(nav_value):
+        nav = str(nav_value or "").strip().lower()
+        nav_map = {
+            "to_duelo_libre": "bs_saga_duelo_libre",
+            "nav:duelo_libre": "bs_saga_duelo_libre",
+            "to_torneo_tier_c": "bs_saga_torneo_tier_c",
+            "nav:torneo_tier_c": "bs_saga_torneo_tier_c",
+            "to_torneo_tier_b_locked": "bs_saga_torneo_tier_b_locked",
+            "nav:torneo_tier_b_locked": "bs_saga_torneo_tier_b_locked",
+            "to_torneo_tier_a_locked": "bs_saga_torneo_tier_a_locked",
+            "nav:torneo_tier_a_locked": "bs_saga_torneo_tier_a_locked",
+            "to_torre_cielo": "bs_saga_torre_cielo",
+            "nav:torre_cielo": "bs_saga_torre_cielo",
+            "to_perfil": "bs_saga_perfil",
+            "nav:perfil": "bs_saga_perfil",
+            "to_preparacion": "bs_saga_preparacion",
+            "nav:preparacion": "bs_saga_preparacion",
+            "to_heroes": "bs_saga_heroes",
+            "nav:heroes": "bs_saga_heroes",
+            "to_tienda": "bs_saga_tienda",
+            "nav:tienda": "bs_saga_tienda",
+            "to_inventario": "bs_saga_inventario",
+            "nav:inventario": "bs_saga_inventario",
+            "to_catalogo_items": "bs_saga_catalogo_items",
+            "nav:catalogo_items": "bs_saga_catalogo_items",
+            "to_catalogo_tecnicas": "bs_saga_catalogo_tecnicas",
+            "nav:catalogo_tecnicas": "bs_saga_catalogo_tecnicas",
+        }
+        return nav_map.get(nav, "")
+
     # Fase 4 de split:
     # - bs_saga_account
     # - bs_saga_gold
@@ -369,6 +412,114 @@ init -880 python:
         m = bs_saga_clamp_hp_reward_multiplier(value)
         S.bs_saga_prep_hp_reward_multiplier = int(m)
         return int(m)
+
+    def bs_saga_reward_conditions_defaults():
+        return {
+            "use_concentrar": False,
+            "no_direct_attack": False,
+            "no_stance_swap": False,
+            "low_damage_taken": False,
+            "daily_mission": False,
+        }
+
+    def bs_saga_get_prep_reward_conditions():
+        raw = getattr(S, "bs_saga_prep_reward_conditions", None)
+        out = bs_saga_reward_conditions_defaults()
+        if isinstance(raw, dict):
+            for k in out.keys():
+                out[k] = bool(raw.get(k, out[k]))
+        S.bs_saga_prep_reward_conditions = dict(out)
+        return dict(out)
+
+    def bs_saga_set_prep_reward_condition(key, enabled):
+        kk = str(key or "").strip().lower()
+        out = bs_saga_get_prep_reward_conditions()
+        if kk not in out:
+            return False
+        out[kk] = bool(enabled)
+        S.bs_saga_prep_reward_conditions = dict(out)
+        return True
+
+    def bs_saga_toggle_prep_reward_condition(key):
+        kk = str(key or "").strip().lower()
+        out = bs_saga_get_prep_reward_conditions()
+        if kk not in out:
+            return False
+        out[kk] = not bool(out[kk])
+        S.bs_saga_prep_reward_conditions = dict(out)
+        return True
+
+    def bs_saga_adjust_reward_base_param(field, delta):
+        ff = str(field or "").strip().lower()
+        try:
+            dd = float(delta or 0)
+        except:
+            dd = 0.0
+        if ff == "base_exp":
+            cur = float(getattr(S, "bs_saga_reward_base_exp_real", 35) or 35)
+            cur = max(1.0, min(10000.0, cur + dd))
+            S.bs_saga_reward_base_exp_real = int(round(cur))
+            return int(getattr(S, "bs_saga_reward_base_exp_real", 35) or 35)
+        if ff == "base_oro":
+            cur = float(getattr(S, "bs_saga_reward_base_oro_real", 15) or 15)
+            cur = max(1.0, min(20000.0, cur + dd))
+            S.bs_saga_reward_base_oro_real = int(round(cur))
+            return int(getattr(S, "bs_saga_reward_base_oro_real", 15) or 15)
+        if ff == "step_exp":
+            cur = float(getattr(S, "bs_saga_reward_step_exp", 3.5) or 3.5)
+            cur = max(0.1, min(50.0, cur + dd))
+            S.bs_saga_reward_step_exp = float(round(cur, 2))
+            return float(getattr(S, "bs_saga_reward_step_exp", 3.5) or 3.5)
+        if ff == "step_oro":
+            cur = float(getattr(S, "bs_saga_reward_step_oro", 2.0) or 2.0)
+            cur = max(0.1, min(50.0, cur + dd))
+            S.bs_saga_reward_step_oro = float(round(cur, 2))
+            return float(getattr(S, "bs_saga_reward_step_oro", 2.0) or 2.0)
+        return None
+
+    def bs_saga_build_reward_condition_profile():
+        cc = bs_saga_get_prep_reward_conditions()
+        exp_mult = 1.0
+        oro_mult = 1.0
+        prob_mult = 1.0
+        tags = []
+
+        if bool(cc.get("use_concentrar", False)):
+            exp_mult *= 1.12
+            oro_mult *= 1.08
+            tags.append("use_concentrar")
+        if bool(cc.get("no_direct_attack", False)):
+            exp_mult *= 1.18
+            oro_mult *= 1.15
+            tags.append("no_direct_attack")
+        if bool(cc.get("no_stance_swap", False)):
+            exp_mult *= 1.10
+            oro_mult *= 1.10
+            tags.append("no_stance_swap")
+        if bool(cc.get("low_damage_taken", False)):
+            exp_mult *= 1.14
+            oro_mult *= 1.12
+            tags.append("low_damage_taken")
+        if bool(cc.get("daily_mission", False)):
+            exp_mult *= 1.25
+            oro_mult *= 1.30
+            prob_mult *= 1.15
+            tags.append("daily_mission")
+
+        exp_mult = max(0.50, min(3.00, float(exp_mult)))
+        oro_mult = max(0.50, min(3.00, float(oro_mult)))
+        prob_mult = max(0.50, min(2.00, float(prob_mult)))
+        return {
+            "conditions": dict(cc),
+            "exp_mult": float(round(exp_mult, 4)),
+            "oro_mult": float(round(oro_mult, 4)),
+            "probability_mult": float(round(prob_mult, 4)),
+            "tags": list(tags),
+            "base_exp_real": int(getattr(S, "bs_saga_reward_base_exp_real", 35) or 35),
+            "base_oro_real": int(getattr(S, "bs_saga_reward_base_oro_real", 15) or 15),
+            "step_exp": float(getattr(S, "bs_saga_reward_step_exp", 3.5) or 3.5),
+            "step_oro": float(getattr(S, "bs_saga_reward_step_oro", 2.0) or 2.0),
+        }
 
     def bs_saga_clamp_prep_tech_step(value):
         allowed = (25, 50, 100, 150, 200, 500, 1000)
@@ -1480,6 +1631,17 @@ init -880 python:
         hp_reward_mult = bs_saga_clamp_hp_reward_multiplier(getattr(S, "bs_saga_prep_hp_reward_multiplier", 1))
         S.bs_saga_prep_hp_reward_multiplier = int(hp_reward_mult)
         S.story_pilot_hp_reward_multiplier = int(hp_reward_mult)
+        reward_profile = bs_saga_build_reward_condition_profile()
+        S.story_pilot_reward_condition_profile = dict(reward_profile)
+        S.story_pilot_reward_conditions = dict(reward_profile.get("conditions", {}))
+        S.story_pilot_reward_condition_tags = list(reward_profile.get("tags", []))
+        S.story_pilot_reward_exp_mult = float(reward_profile.get("exp_mult", 1.0) or 1.0)
+        S.story_pilot_reward_oro_mult = float(reward_profile.get("oro_mult", 1.0) or 1.0)
+        S.story_pilot_reward_probability_mult = float(reward_profile.get("probability_mult", 1.0) or 1.0)
+        S.story_pilot_reward_base_exp_real = int(reward_profile.get("base_exp_real", 35) or 35)
+        S.story_pilot_reward_base_oro_real = int(reward_profile.get("base_oro_real", 15) or 15)
+        S.story_pilot_reward_step_exp = float(reward_profile.get("step_exp", 3.5) or 3.5)
+        S.story_pilot_reward_step_oro = float(reward_profile.get("step_oro", 2.0) or 2.0)
         S.battle_prepared_config_id = prep_cfg
         S.battle_prepared_build_id = prep_build
         S.battle_prepared_player_loadouts = {}
@@ -1499,8 +1661,13 @@ init -880 python:
             tier = bs_saga_hero_tier(pid, "C")
             prof = bs_saga_tier_core_profile(tier)
             tune = bs_saga_tier_combat_tuning_profile(tier)
+            base_hp = int(prof.get("hp", 1000) or 1000)
+            # Regla de condición HP:
+            # - x5 mantiene el HP base del tier (comportamiento legacy),
+            # - x1 representa 20% del HP base (ej: 5000 -> 1000).
+            hp_scaled = max(1, int(round((float(base_hp) / 5.0) * float(hp_reward_mult))))
             S.bs_runtime_character_overrides[str(pid)] = {
-                "HP": int(prof.get("hp", 1000) or 1000),
+                "HP": int(hp_scaled),
                 "Reiatsu": int(prof.get("ep", 1000) or 1000),
                 "Energy": int(prof.get("ec", 1000) or 1000),
                 "coating_durability": int(prof.get("durability", 0) or 0),
@@ -1940,8 +2107,13 @@ label bs_saga_intro_splash:
     jump bs_saga_lobby
 
 label bs_saga_lobby:
-    call screen bs_saga_lobby_screen
-    return
+    $ _lobby_nav = renpy.call_screen("bs_saga_lobby_screen")
+    $ _lobby_target = bs_saga_lobby_nav_target(_lobby_nav)
+    if _lobby_target:
+        jump expression _lobby_target
+    if isinstance(_lobby_nav, str) and _lobby_nav.startswith("nav:"):
+        jump bs_saga_lobby
+    jump bs_saga_lobby
 
 # ---------- rutas panel jugar ----------
 
@@ -1994,8 +2166,10 @@ label bs_saga_torre_cielo_locked:
     jump bs_saga_lobby
 
 label bs_saga_torre_cielo:
-    call screen bs_saga_tower_screen
-    return
+    $ _tower_nav = renpy.call_screen("bs_saga_tower_screen")
+    if bs_saga_nav_matches(_tower_nav, "to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_torre_cielo
 
 # ---------- rutas panel gestión ----------
 
@@ -2010,35 +2184,64 @@ label bs_saga_preparacion:
     if not (bs_saga_prep_selected_party_ids or []):
         if bs_saga_prep_selected_hero:
             $ bs_saga_prep_selected_party_ids = [str(bs_saga_prep_selected_hero)]
+
     $ _prep_ctx = str(getattr(store, "bs_saga_prep_context", "room") or "room").strip().lower()
     if _prep_ctx == "staging":
-        call screen bs_saga_duel_staging_screen
+        $ _prep_nav = renpy.call_screen("bs_saga_duel_staging_screen")
     elif _prep_ctx == "config":
-        call screen bs_saga_hero_config_screen
+        $ _prep_nav = renpy.call_screen("bs_saga_hero_config_screen")
     else:
-        call screen bs_saga_preparation_room_screen
-    return
+        $ _prep_nav = renpy.call_screen("bs_saga_preparation_room_screen")
+
+    if _prep_nav in ("to_staging", "nav:staging"):
+        $ bs_saga_prep_context = "staging"
+        jump bs_saga_preparacion
+    if _prep_nav in ("to_config", "nav:config"):
+        $ bs_saga_prep_context = "config"
+        jump bs_saga_preparacion
+    if _prep_nav in ("to_room", "nav:room"):
+        $ bs_saga_prep_context = "room"
+        jump bs_saga_preparacion
+    if _prep_nav in ("to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    if _prep_nav in ("nav:launch_duel",):
+        jump bs_saga_launch_prepared_duel
+    if isinstance(_prep_nav, str) and _prep_nav.startswith("nav:"):
+        jump bs_saga_preparacion
+    jump bs_saga_preparacion
 
 label bs_saga_perfil:
-    call screen bs_saga_profile_screen
-    return
+    $ _perfil_nav = renpy.call_screen("bs_saga_profile_screen")
+    if bs_saga_nav_matches(_perfil_nav, "to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_perfil
 
 label bs_saga_heroes:
-    call screen bs_saga_heroes_screen
-    return
+    $ _heroes_nav = renpy.call_screen("bs_saga_heroes_screen")
+    if bs_saga_nav_matches(_heroes_nav, "to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_heroes
 
 label bs_saga_tienda:
-    call screen bs_saga_catalog_screen
-    return
+    $ _tienda_nav = renpy.call_screen("bs_saga_catalog_screen")
+    if bs_saga_nav_matches(_tienda_nav, "to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_tienda
 
 label bs_saga_inventario:
-    call screen bs_saga_inventory_screen
-    return
+    $ _inventario_nav = renpy.call_screen("bs_saga_inventory_screen")
+    if bs_saga_nav_matches(_inventario_nav, "to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_inventario
 
 label bs_saga_catalogo_items:
-    call screen bs_saga_catalog_screen
-    return
+    $ _catalogo_items_nav = renpy.call_screen("bs_saga_catalog_screen")
+    if bs_saga_nav_matches(_catalogo_items_nav, "to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_catalogo_items
 
 label bs_saga_catalogo_tecnicas:
-    call screen bs_saga_tech_catalog_screen
-    return
+    $ _catalogo_tecnicas_nav = renpy.call_screen("bs_saga_tech_catalog_screen")
+    if bs_saga_nav_matches(_catalogo_tecnicas_nav, "to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_catalogo_tecnicas
