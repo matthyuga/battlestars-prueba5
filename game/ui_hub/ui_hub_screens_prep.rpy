@@ -373,7 +373,7 @@ screen bs_saga_duel_staging_screen():
                     text ("Modo: " + _mode + " · Rival: " + ("manual" if _enemy_mode == "manual" else "aleatorio")) size 14 color "#9FC4E2"
                     text ("Build: " + _build + " · Config: " + _cfg.upper()) size 14 color "#9FC4E2"
                     text ("Pool duelo: " + str(_pool) + " · Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"
-                    text ("Condición HP seleccionada: x" + str(_hp_reward_mult) + " · Escala recompensa EXP/Oro: x" + str(_hp_reward_mult)) size 14 color "#9FC4E2"
+                    text ("Condición HP seleccionada: x" + str(_hp_reward_mult) + " · Escala HP de combate y recompensa EXP/Oro.") size 14 color "#9FC4E2"
                     null height 12
                     text "Esta vista está orientada a validación final previa al combate." size 14 color "#9FC4E2"
                     text "Para cambiar héroe/equipo o editar en detalle, vuelve a configuración." size 14 color "#9FC4E2"

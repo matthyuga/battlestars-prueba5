@@ -1499,8 +1499,13 @@ init -880 python:
             tier = bs_saga_hero_tier(pid, "C")
             prof = bs_saga_tier_core_profile(tier)
             tune = bs_saga_tier_combat_tuning_profile(tier)
+            base_hp = int(prof.get("hp", 1000) or 1000)
+            # Regla de condición HP:
+            # - x5 mantiene el HP base del tier (comportamiento legacy),
+            # - x1 representa 20% del HP base (ej: 5000 -> 1000).
+            hp_scaled = max(1, int(round((float(base_hp) / 5.0) * float(hp_reward_mult))))
             S.bs_runtime_character_overrides[str(pid)] = {
-                "HP": int(prof.get("hp", 1000) or 1000),
+                "HP": int(hp_scaled),
                 "Reiatsu": int(prof.get("ep", 1000) or 1000),
                 "Energy": int(prof.get("ec", 1000) or 1000),
                 "coating_durability": int(prof.get("durability", 0) or 0),
