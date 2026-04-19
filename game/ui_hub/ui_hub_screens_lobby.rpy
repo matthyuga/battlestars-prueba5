@@ -534,33 +534,33 @@ screen bs_saga_profile_screen():
                             text "DEV Admin (QA rápido)" size 16 color "#FFD166"
                             hbox:
                                 spacing 6
-                                textbutton "+50k oro" action Function(bs_saga_dev_set_account_state, _gold + 50000, None, None, None)
-                                textbutton "Lv 99" action Function(bs_saga_dev_set_account_state, None, 99, None, None)
-                                textbutton "EXP 0" action Function(bs_saga_dev_set_account_state, None, None, 0, None)
+                                textbutton "+50k oro" action [Function(bs_saga_dev_set_account_state, _gold + 50000, None, None, None), Jump("bs_saga_perfil")]
+                                textbutton "Lv 99" action [Function(bs_saga_dev_set_account_state, None, 99, None, None), Jump("bs_saga_perfil")]
+                                textbutton "EXP 0" action [Function(bs_saga_dev_set_account_state, None, None, 0, None), Jump("bs_saga_perfil")]
                             text ("Tool semi-random · base EXP " + str(_exp_base) + " · base Oro " + str(_gold_base) + " · var " + str(_var_pct) + "% · runs " + str(_runs)) size 13 color "#F6E6A9"
                             hbox:
                                 spacing 6
-                                textbutton "EXP -10" action Function(bs_saga_dev_set_gain_profile, _exp_base - 10, None, None, None)
-                                textbutton "EXP +10" action Function(bs_saga_dev_set_gain_profile, _exp_base + 10, None, None, None)
-                                textbutton "Oro -10" action Function(bs_saga_dev_set_gain_profile, None, _gold_base - 10, None, None)
-                                textbutton "Oro +10" action Function(bs_saga_dev_set_gain_profile, None, _gold_base + 10, None, None)
+                                textbutton "EXP -10" action [Function(bs_saga_dev_set_gain_profile, _exp_base - 10, None, None, None), Jump("bs_saga_perfil")]
+                                textbutton "EXP +10" action [Function(bs_saga_dev_set_gain_profile, _exp_base + 10, None, None, None), Jump("bs_saga_perfil")]
+                                textbutton "Oro -10" action [Function(bs_saga_dev_set_gain_profile, None, _gold_base - 10, None, None), Jump("bs_saga_perfil")]
+                                textbutton "Oro +10" action [Function(bs_saga_dev_set_gain_profile, None, _gold_base + 10, None, None), Jump("bs_saga_perfil")]
                             hbox:
                                 spacing 6
-                                textbutton "Var -5%" action Function(bs_saga_dev_set_gain_profile, None, None, _var_pct - 5, None)
-                                textbutton "Var +5%" action Function(bs_saga_dev_set_gain_profile, None, None, _var_pct + 5, None)
-                                textbutton "Runs x1" action Function(bs_saga_dev_set_gain_profile, None, None, None, 1)
-                                textbutton "Runs x5" action Function(bs_saga_dev_set_gain_profile, None, None, None, 5)
-                                textbutton "Runs x20" action Function(bs_saga_dev_set_gain_profile, None, None, None, 20)
+                                textbutton "Var -5%" action [Function(bs_saga_dev_set_gain_profile, None, None, _var_pct - 5, None), Jump("bs_saga_perfil")]
+                                textbutton "Var +5%" action [Function(bs_saga_dev_set_gain_profile, None, None, _var_pct + 5, None), Jump("bs_saga_perfil")]
+                                textbutton "Runs x1" action [Function(bs_saga_dev_set_gain_profile, None, None, None, 1), Jump("bs_saga_perfil")]
+                                textbutton "Runs x5" action [Function(bs_saga_dev_set_gain_profile, None, None, None, 5), Jump("bs_saga_perfil")]
+                                textbutton "Runs x20" action [Function(bs_saga_dev_set_gain_profile, None, None, None, 20), Jump("bs_saga_perfil")]
                             hbox:
                                 spacing 6
-                                textbutton "Ganar ahora" action Function(bs_saga_dev_apply_semirandom_gain, _runs)
-                                textbutton "Estimación 1k EXP / 5k oro" action Function(bs_saga_set_message, "Estimado: " + str(_est.get("duels_needed", 0)) + " duelo(s). EXP: " + str(_est.get("duels_for_exp", 0)) + " · Oro: " + str(_est.get("duels_for_gold", 0)))
+                                textbutton "Ganar ahora" action [Function(bs_saga_dev_apply_semirandom_gain, _runs), Jump("bs_saga_perfil")]
+                                textbutton "Estimación 1k EXP / 5k oro" action [Function(bs_saga_set_message, "Estimado: " + str(_est.get("duels_needed", 0)) + " duelo(s). EXP: " + str(_est.get("duels_for_exp", 0)) + " · Oro: " + str(_est.get("duels_for_gold", 0))), Jump("bs_saga_perfil")]
                             hbox:
                                 spacing 6
                                 textbutton ("Infinite Gold: " + ("ON" if bool(getattr(store, "bs_saga_dev_infinite_gold", False)) else "OFF")):
-                                    action Function(bs_saga_dev_toggle_infinite_gold, None)
+                                    action [Function(bs_saga_dev_toggle_infinite_gold, None), Jump("bs_saga_perfil")]
                                 textbutton ("Low-spec combate: " + ("ON" if bool(getattr(store, "bs_saga_dev_low_spec_mode", False)) else "OFF")):
-                                    action Function(bs_saga_dev_apply_low_spec_mode, not bool(getattr(store, "bs_saga_dev_low_spec_mode", False)))
+                                    action [Function(bs_saga_dev_apply_low_spec_mode, not bool(getattr(store, "bs_saga_dev_low_spec_mode", False))), Jump("bs_saga_perfil")]
                         null height 4
                         text "Progreso de tier (nivel + héroes por tier)" size 16 color "#9FC4E2"
                         for row in _tier_rows:
