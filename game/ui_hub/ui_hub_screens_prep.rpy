@@ -42,7 +42,7 @@ screen bs_saga_preparation_room_screen():
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
             text "Sala de preparación" size 22 color "#D7EEFF" yalign 0.7
             null width 90
-            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+            textbutton "Volver al lobby" action Return("nav:lobby")
 
     frame:
         xalign 0.5
@@ -64,9 +64,9 @@ screen bs_saga_preparation_room_screen():
                     text ("Héroes listados: " + str(len(_rows))) size 14 color "#9FC4E2"
                     text ("Rotación actual (5): " + (_rotation_preview if _rotation_preview else "sin generar")) size 14 color "#9FC4E2"
                     textbutton ("Filtro adquiridos: " + ("ON" if _owned_only else "OFF")):
-                        action [ToggleVariable("bs_saga_prep_filter_owned_only"), Jump("bs_saga_preparacion")]
+                        action ToggleVariable("bs_saga_prep_filter_owned_only")
                     textbutton "Aleatorizar rotación":
-                        action [Function(bs_saga_refresh_duel_rotation_heroes, 5), Jump("bs_saga_preparacion")]
+                        action Function(bs_saga_ui_call, bs_saga_refresh_duel_rotation_heroes, 5)
                     viewport:
                         draggable True
                         mousewheel True
@@ -93,10 +93,10 @@ screen bs_saga_preparation_room_screen():
                                                 text "Activo" size 16 color "#F7D774"
                                             elif _is_av:
                                                 textbutton "Elegir":
-                                                    action [Function(bs_saga_set_prep_hero, _hid), Jump("bs_saga_preparacion")]
+                                                    action Function(bs_saga_ui_call, bs_saga_set_prep_hero, _hid)
                                             if _is_av:
                                                 textbutton ("Quitar" if _hid in _party else "Equipo"):
-                                                    action [Function(bs_saga_toggle_prep_party_hero, _hid), Jump("bs_saga_preparacion")]
+                                                    action Function(bs_saga_ui_call, bs_saga_toggle_prep_party_hero, _hid)
                             else:
                                 text "No hay roster cargado." size 18 color "#9FB9D1"
             frame:
@@ -126,11 +126,23 @@ screen bs_saga_preparation_room_screen():
                             null height 6
                             text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
                             textbutton "Configurar héroe":
-                                action [SetVariable("bs_saga_prep_context", "config"), Jump("bs_saga_preparacion")]
+                                action Return("nav:config")
                             textbutton "Ir a pre-combate":
-                                action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
+                                action Return("nav:staging")
                         else:
                             text "Selecciona un héroe para ver el resumen y continuar." size 14 color "#9FB9D1"
+
+    frame:
+        xalign 0.5
+        yalign 0.96
+        xsize 1120
+        ypadding 8
+        background Solid("#13273A")
+        hbox:
+            xfill True
+            textbutton "Ir a sala de pre-combate":
+                xalign 1.0
+                action Return("nav:staging")
 
 screen bs_saga_hero_config_screen():
     tag menu
@@ -177,7 +189,7 @@ screen bs_saga_hero_config_screen():
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
             text "Configurar héroe" size 22 color "#D7EEFF" yalign 0.7
             null width 140
-            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+            textbutton "Volver al lobby" action Return("nav:lobby")
 
     frame:
         xalign 0.5
@@ -226,17 +238,17 @@ screen bs_saga_hero_config_screen():
                             text "Técnicas y pool técnico" size 21 color "#EAF6FF"
                             hbox:
                                 spacing 6
-                                textbutton "Téc. Preconfig" action [Function(bs_saga_hero_tech_mode_set, _hero, "preconfig", _cfg, _build), Jump("bs_saga_preparacion")]
+                                textbutton "Téc. Preconfig" action Function(bs_saga_ui_call, bs_saga_hero_tech_mode_set, _hero, "preconfig", _cfg, _build)
                             text ("Paso asignación: +" + str(_tech_step) + " / -" + str(_tech_step)) size 14 color "#9FC4E2"
                             hbox:
                                 spacing 4
-                                textbutton "25" action [Function(bs_saga_set_prep_tech_step, 25), Jump("bs_saga_preparacion")]
-                                textbutton "50" action [Function(bs_saga_set_prep_tech_step, 50), Jump("bs_saga_preparacion")]
-                                textbutton "100" action [Function(bs_saga_set_prep_tech_step, 100), Jump("bs_saga_preparacion")]
-                                textbutton "150" action [Function(bs_saga_set_prep_tech_step, 150), Jump("bs_saga_preparacion")]
-                                textbutton "200" action [Function(bs_saga_set_prep_tech_step, 200), Jump("bs_saga_preparacion")]
-                                textbutton "500" action [Function(bs_saga_set_prep_tech_step, 500), Jump("bs_saga_preparacion")]
-                                textbutton "1000" action [Function(bs_saga_set_prep_tech_step, 1000), Jump("bs_saga_preparacion")]
+                                textbutton "25" action Function(bs_saga_ui_call, bs_saga_set_prep_tech_step, 25)
+                                textbutton "50" action Function(bs_saga_ui_call, bs_saga_set_prep_tech_step, 50)
+                                textbutton "100" action Function(bs_saga_ui_call, bs_saga_set_prep_tech_step, 100)
+                                textbutton "150" action Function(bs_saga_ui_call, bs_saga_set_prep_tech_step, 150)
+                                textbutton "200" action Function(bs_saga_ui_call, bs_saga_set_prep_tech_step, 200)
+                                textbutton "500" action Function(bs_saga_ui_call, bs_saga_set_prep_tech_step, 500)
+                                textbutton "1000" action Function(bs_saga_ui_call, bs_saga_set_prep_tech_step, 1000)
                             text ("Pool técnico cfg/build: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre: " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
                             if _tier_point_alloc:
                                 text "Técnicas con puntos (ofensivas/defensivas)" size 15 color "#D0E9FF"
@@ -246,9 +258,9 @@ screen bs_saga_hero_config_screen():
                                         spacing 6
                                         text (bs_saga_tech_display_name(_tid) + " [" + str(_pts) + "]") substitute False size 14 color "#CFE6FA" xminimum 320
                                         textbutton ("+" + str(_tech_step)):
-                                            action [Function(bs_saga_hero_tech_points_add, _hero, _tid, +_tech_step, _cfg, _build), Jump("bs_saga_preparacion")]
+                                            action Function(bs_saga_ui_call, bs_saga_hero_tech_points_add, _hero, _tid, +_tech_step, _cfg, _build)
                                         textbutton ("-" + str(_tech_step)):
-                                            action [Function(bs_saga_hero_tech_points_add, _hero, _tid, -_tech_step, _cfg, _build), Jump("bs_saga_preparacion")]
+                                            action Function(bs_saga_ui_call, bs_saga_hero_tech_points_add, _hero, _tid, -_tech_step, _cfg, _build)
                             else:
                                 text "Sin técnicas ofensivas/defensivas asignables para este tier." size 14 color "#9FB9D1"
                             if _tier_special:
@@ -265,13 +277,13 @@ screen bs_saga_hero_config_screen():
                                     text ("Slot " + str(i + 1) + ": " + (_slot_item if _slot_item else "vacío")) size 14 color "#CFE6FA" xminimum 300
                                     if _slot_item:
                                         textbutton "Desequipar":
-                                            action [Function(bs_saga_unequip_item_from_hero, _hero, i, _cfg, _build), Jump("bs_saga_preparacion")]
+                                            action Function(bs_saga_ui_call, bs_saga_unequip_item_from_hero, _hero, i, _cfg, _build)
                             text "Equipar desde inventario de cuenta" size 15 color "#D0E9FF"
                             if _equipables:
                                 for row in _equipables[:8]:
                                     $ _iid = str(row.get("item_id", ""))
                                     textbutton (_iid + " x" + str(row.get("qty", 0))):
-                                        action [Function(bs_saga_equip_item_to_hero, _hero, _iid, None, _cfg, _build), Jump("bs_saga_preparacion")]
+                                        action Function(bs_saga_ui_call, bs_saga_equip_item_to_hero, _hero, _iid, None, _cfg, _build)
                             else:
                                 text "No hay equipables en inventario de cuenta." size 14 color "#9FB9D1"
                         elif _tab == "build":
@@ -279,26 +291,26 @@ screen bs_saga_hero_config_screen():
                             text ("Build actual: " + _build) size 15 color "#9FC4E2"
                             hbox:
                                 spacing 8
-                                textbutton "Balanceado" action [Function(bs_saga_set_prep_build, "balanceado"), Jump("bs_saga_preparacion")]
-                                textbutton "Ofensivo" action [Function(bs_saga_set_prep_build, "ofensivo"), Jump("bs_saga_preparacion")]
-                                textbutton "Defensivo" action [Function(bs_saga_set_prep_build, "defensivo"), Jump("bs_saga_preparacion")]
+                                textbutton "Balanceado" action Function(bs_saga_ui_call, bs_saga_set_prep_build, "balanceado")
+                                textbutton "Ofensivo" action Function(bs_saga_ui_call, bs_saga_set_prep_build, "ofensivo")
+                                textbutton "Defensivo" action Function(bs_saga_ui_call, bs_saga_set_prep_build, "defensivo")
                         else:
                             text "Configuraciones (CFG)" size 21 color "#EAF6FF"
                             text ("CFG activa: " + _cfg.upper()) size 15 color "#9FC4E2"
                             hbox:
                                 spacing 8
-                                textbutton "CFG1" action [Function(bs_saga_set_prep_config, "cfg1"), Jump("bs_saga_preparacion")]
-                                textbutton "CFG2" action [Function(bs_saga_set_prep_config, "cfg2"), Jump("bs_saga_preparacion")]
-                                textbutton "CFG3" action [Function(bs_saga_set_prep_config, "cfg3"), Jump("bs_saga_preparacion")]
+                                textbutton "CFG1" action Function(bs_saga_ui_call, bs_saga_set_prep_config, "cfg1")
+                                textbutton "CFG2" action Function(bs_saga_ui_call, bs_saga_set_prep_config, "cfg2")
+                                textbutton "CFG3" action Function(bs_saga_ui_call, bs_saga_set_prep_config, "cfg3")
                             text ("Pool técnico usado/libre: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
                             text ("Loadout: " + str(_loadout_count) + "/6 slots equipados") size 14 color "#9FC4E2"
 
             hbox:
                 spacing 10
                 textbutton "Volver a sala":
-                    action [SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
+                    action Return("nav:room")
                 textbutton "Continuar a pre-combate":
-                    action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
+                    action Return("nav:staging")
 
 screen bs_saga_duel_staging_screen():
     tag menu
@@ -326,6 +338,15 @@ screen bs_saga_duel_staging_screen():
     $ _items = bs_saga_prep_inventory_candidates("equipables")
     $ _flag_cons = str(bs_saga_prep_flag_consumable_id or "")
     $ _flag_item = str(bs_saga_prep_flag_item_id or "")
+    $ _rc = bs_saga_get_prep_reward_conditions()
+    $ _reward_prof = bs_saga_build_reward_condition_profile()
+    $ _r_exp_mult = float(_reward_prof.get("exp_mult", 1.0) or 1.0)
+    $ _r_oro_mult = float(_reward_prof.get("oro_mult", 1.0) or 1.0)
+    $ _r_prob_mult = float(_reward_prof.get("probability_mult", 1.0) or 1.0)
+    $ _r_base_exp = int(getattr(store, "bs_saga_reward_base_exp_real", 35) or 35)
+    $ _r_base_oro = int(getattr(store, "bs_saga_reward_base_oro_real", 15) or 15)
+    $ _r_step_exp = float(getattr(store, "bs_saga_reward_step_exp", 3.5) or 3.5)
+    $ _r_step_oro = float(getattr(store, "bs_saga_reward_step_oro", 2.0) or 2.0)
     $ _status = "listo" if _block_n <= 0 and _warn_n <= 0 else ("warnings" if _block_n <= 0 else "bloqueado")
 
     add Solid("#0E1A28")
@@ -346,7 +367,7 @@ screen bs_saga_duel_staging_screen():
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
             text "Pre-combate (duelo)" size 22 color "#D7EEFF" yalign 0.7
             null width 90
-            textbutton "Volver al lobby" action Jump("bs_saga_lobby")
+            textbutton "Volver al lobby" action Return("nav:lobby")
 
     frame:
         xalign 0.5
@@ -373,13 +394,15 @@ screen bs_saga_duel_staging_screen():
                     text ("Modo: " + _mode + " · Rival: " + ("manual" if _enemy_mode == "manual" else "aleatorio")) size 14 color "#9FC4E2"
                     text ("Build: " + _build + " · Config: " + _cfg.upper()) size 14 color "#9FC4E2"
                     text ("Pool duelo: " + str(_pool) + " · Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"
-                    text ("Condición HP seleccionada: x" + str(_hp_reward_mult) + " · Escala recompensa EXP/Oro: x" + str(_hp_reward_mult)) size 14 color "#9FC4E2"
+                    text ("Condición HP seleccionada: x" + str(_hp_reward_mult) + " · Escala HP de combate y recompensa EXP/Oro.") size 14 color "#9FC4E2"
+                    textbutton "Configurar héroe":
+                        action Return("nav:config")
                     null height 12
                     text "Esta vista está orientada a validación final previa al combate." size 14 color "#9FC4E2"
-                    text "Para cambiar héroe/equipo o editar en detalle, vuelve a configuración." size 14 color "#9FC4E2"
+                    text "Puedes volver a configuración de héroe o regresar a preparación." size 14 color "#9FC4E2"
                     null height 8
-                    textbutton "Volver a configuración de héroe":
-                        action [SetVariable("bs_saga_prep_context", "config"), Jump("bs_saga_preparacion")]
+                    textbutton "Preparación":
+                        action Return("nav:room")
 
             frame:
                 xfill True
@@ -415,18 +438,53 @@ screen bs_saga_duel_staging_screen():
                         text "Modo de juego" size 16 color "#D0E9FF"
                         hbox:
                             spacing 6
-                            textbutton "1v1" action [Function(bs_saga_set_prep_mode, "1v1"), Jump("bs_saga_preparacion")]
-                            textbutton "2v2" action [Function(bs_saga_set_prep_mode, "2v2"), Jump("bs_saga_preparacion")]
+                            textbutton "1v1" action Function(bs_saga_ui_call, bs_saga_set_prep_mode, "1v1")
+                            textbutton "2v2" action Function(bs_saga_ui_call, bs_saga_set_prep_mode, "2v2")
 
                         text "Condición HP / Reward" size 16 color "#D0E9FF"
                         text ("Multiplicador activo: x" + str(_hp_reward_mult) + " (mín x1 · máx x5)") size 14 color "#9FC4E2"
                         hbox:
                             spacing 6
-                            textbutton "x1" action [Function(bs_saga_set_prep_hp_reward_multiplier, 1), Jump("bs_saga_preparacion")]
-                            textbutton "x2" action [Function(bs_saga_set_prep_hp_reward_multiplier, 2), Jump("bs_saga_preparacion")]
-                            textbutton "x3" action [Function(bs_saga_set_prep_hp_reward_multiplier, 3), Jump("bs_saga_preparacion")]
-                            textbutton "x4" action [Function(bs_saga_set_prep_hp_reward_multiplier, 4), Jump("bs_saga_preparacion")]
-                            textbutton "x5" action [Function(bs_saga_set_prep_hp_reward_multiplier, 5), Jump("bs_saga_preparacion")]
+                            textbutton "x1" action Function(bs_saga_ui_call, bs_saga_set_prep_hp_reward_multiplier, 1)
+                            textbutton "x2" action Function(bs_saga_ui_call, bs_saga_set_prep_hp_reward_multiplier, 2)
+                            textbutton "x3" action Function(bs_saga_ui_call, bs_saga_set_prep_hp_reward_multiplier, 3)
+                            textbutton "x4" action Function(bs_saga_ui_call, bs_saga_set_prep_hp_reward_multiplier, 4)
+                            textbutton "x5" action Function(bs_saga_ui_call, bs_saga_set_prep_hp_reward_multiplier, 5)
+
+                        text "Condiciones de recompensa (misiones de batalla)" size 16 color "#D0E9FF"
+                        text ("Multiplicadores actuales -> EXP x" + str(_r_exp_mult) + " · Oro x" + str(_r_oro_mult) + " · Prob x" + str(_r_prob_mult)) size 13 color "#9FC4E2"
+                        hbox:
+                            spacing 6
+                            textbutton ("Concentrar: " + ("ON" if bool(_rc.get("use_concentrar", False)) else "OFF")):
+                                action Function(bs_saga_ui_call, bs_saga_toggle_prep_reward_condition, "use_concentrar")
+                            textbutton ("Sin ataque directo: " + ("ON" if bool(_rc.get("no_direct_attack", False)) else "OFF")):
+                                action Function(bs_saga_ui_call, bs_saga_toggle_prep_reward_condition, "no_direct_attack")
+                        hbox:
+                            spacing 6
+                            textbutton ("Sin swap Atq/Def: " + ("ON" if bool(_rc.get("no_stance_swap", False)) else "OFF")):
+                                action Function(bs_saga_ui_call, bs_saga_toggle_prep_reward_condition, "no_stance_swap")
+                            textbutton ("Recibir poco daño: " + ("ON" if bool(_rc.get("low_damage_taken", False)) else "OFF")):
+                                action Function(bs_saga_ui_call, bs_saga_toggle_prep_reward_condition, "low_damage_taken")
+                        hbox:
+                            spacing 6
+                            textbutton ("Misión diaria: " + ("ON" if bool(_rc.get("daily_mission", False)) else "OFF")):
+                                action Function(bs_saga_ui_call, bs_saga_toggle_prep_reward_condition, "daily_mission")
+
+                        text "Base real de recompensa (para emulación/economía)" size 16 color "#D0E9FF"
+                        text ("Base EXP " + str(_r_base_exp) + " · Step EXP " + str(_r_step_exp)) size 13 color "#9FC4E2"
+                        hbox:
+                            spacing 6
+                            textbutton "EXP base -5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_exp", -5)
+                            textbutton "EXP base +5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_exp", 5)
+                            textbutton "Step EXP -0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_exp", -0.5)
+                            textbutton "Step EXP +0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_exp", 0.5)
+                        text ("Base Oro " + str(_r_base_oro) + " · Step Oro " + str(_r_step_oro)) size 13 color "#9FC4E2"
+                        hbox:
+                            spacing 6
+                            textbutton "Oro base -5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_oro", -5)
+                            textbutton "Oro base +5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_oro", 5)
+                            textbutton "Step Oro -0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_oro", -0.5)
+                            textbutton "Step Oro +0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_oro", 0.5)
 
                         text "Rival de duelo" size 16 color "#D0E9FF"
                         hbox:
@@ -445,14 +503,14 @@ screen bs_saga_duel_staging_screen():
                                     for row in _rows:
                                         $ _eh = str(row.get("hero_id", ""))
                                         textbutton _eh:
-                                            action [Function(bs_saga_set_prep_enemy, _eh), Jump("bs_saga_preparacion")]
+                                            action Function(bs_saga_ui_call, bs_saga_set_prep_enemy, _eh)
 
                         text "Build duelo" size 16 color "#D0E9FF"
                         hbox:
                             spacing 6
-                            textbutton "Balanceado" action [Function(bs_saga_set_prep_build, "balanceado"), Jump("bs_saga_preparacion")]
-                            textbutton "Ofensivo" action [Function(bs_saga_set_prep_build, "ofensivo"), Jump("bs_saga_preparacion")]
-                            textbutton "Defensivo" action [Function(bs_saga_set_prep_build, "defensivo"), Jump("bs_saga_preparacion")]
+                            textbutton "Balanceado" action Function(bs_saga_ui_call, bs_saga_set_prep_build, "balanceado")
+                            textbutton "Ofensivo" action Function(bs_saga_ui_call, bs_saga_set_prep_build, "ofensivo")
+                            textbutton "Defensivo" action Function(bs_saga_ui_call, bs_saga_set_prep_build, "defensivo")
 
                         text ("Config: " + _cfg.upper() + " · Tier: " + _tier + " · Pool duelo: " + str(_pool)) size 14 color "#9FC4E2"
                         text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
@@ -467,7 +525,7 @@ screen bs_saga_duel_staging_screen():
                                 for row in _cons[:3]:
                                     $ _cid = str(row.get("item_id", ""))
                                     textbutton (_cid + " x" + str(row.get("qty", 0))):
-                                        action [Function(bs_saga_set_prep_flag, "consumable", _cid), Jump("bs_saga_preparacion")]
+                                        action Function(bs_saga_ui_call, bs_saga_set_prep_flag, "consumable", _cid)
                         if _items:
                             text "Equipables" size 14 color "#CFE6FA"
                             hbox:
@@ -475,16 +533,16 @@ screen bs_saga_duel_staging_screen():
                                 for row in _items[:3]:
                                     $ _iid = str(row.get("item_id", ""))
                                     textbutton (_iid + " x" + str(row.get("qty", 0))):
-                                        action [Function(bs_saga_set_prep_flag, "item", _iid), Jump("bs_saga_preparacion")]
+                                        action Function(bs_saga_ui_call, bs_saga_set_prep_flag, "item", _iid)
                         if _flag_item or _flag_cons:
                             textbutton "Limpiar flags":
-                                action [Function(bs_saga_set_prep_flag, "item", ""), Function(bs_saga_set_prep_flag, "consumable", ""), Jump("bs_saga_preparacion")]
+                                action [Function(bs_saga_ui_call, bs_saga_set_prep_flag, "item", ""), Function(bs_saga_ui_call, bs_saga_set_prep_flag, "consumable", "")]
                         null height 6
 
                         textbutton ("Iniciar duelo" if _block_n <= 0 else "Iniciar duelo (bloqueado por validación)"):
-                            action Jump("bs_saga_launch_prepared_duel")
+                            action Return("nav:launch_duel")
                         textbutton "Volver a sala de preparación":
-                            action [SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
+                            action Return("nav:room")
 
 screen bs_saga_preparation_verify_screen():
     tag menu
@@ -518,7 +576,7 @@ screen bs_saga_preparation_verify_screen():
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
             text "Verificar preparación" size 22 color "#D7EEFF" yalign 0.7
             null width 140
-            textbutton "Volver" action Jump("bs_saga_preparacion")
+            textbutton "Volver" action Return("nav:room")
 
     frame:
         xalign 0.5
@@ -547,7 +605,7 @@ screen bs_saga_preparation_verify_screen():
                     text ("Slots equipados: " + ", ".join([s for s in _hero_slots if str(s)]) if _hero_slots else "Slots equipados: ninguno") size 14 color "#9FC4E2"
                     text "Esta pantalla se conserva por compatibilidad. El flujo principal inicia duelo desde Pre-combate." size 13 color "#9FC4E2"
                     textbutton "Iniciar duelo":
-                        action Jump("bs_saga_launch_prepared_duel")
+                        action Return("nav:launch_duel")
             frame:
                 xfill True
                 yfill True
@@ -561,7 +619,7 @@ screen bs_saga_preparation_verify_screen():
                         for row in _cons[:8]:
                             $ _cid = str(row.get("item_id", ""))
                             textbutton (_cid + " x" + str(row.get("qty", 0))):
-                                action [Function(bs_saga_set_prep_flag, "consumable", _cid), Jump("bs_saga_preparation_verify")]
+                                action Function(bs_saga_ui_call, bs_saga_set_prep_flag, "consumable", _cid)
                     else:
                         text "Sin consumibles en inventario." size 14 color "#9FB9D1"
                     null height 6
@@ -570,7 +628,7 @@ screen bs_saga_preparation_verify_screen():
                         for row in _items[:8]:
                             $ _iid = str(row.get("item_id", ""))
                             textbutton (_iid + " x" + str(row.get("qty", 0))):
-                                action [Function(bs_saga_set_prep_flag, "item", _iid), Jump("bs_saga_preparation_verify")]
+                                action Function(bs_saga_ui_call, bs_saga_set_prep_flag, "item", _iid)
                     else:
                         text "Sin equipables en inventario." size 14 color "#9FB9D1"
 
