@@ -62,6 +62,14 @@ label battle_end:
             "preset": str(getattr(S, "story_pilot_reward_preset", "medium_v2") or "medium_v2"),
             "multi_factor_enabled": bool(getattr(S, "story_pilot_multi_factor_enabled", True)),
             "hp_reward_multiplier": int(getattr(S, "story_pilot_hp_reward_multiplier", 1) or 1),
+            "reward_condition_exp_mult": float(getattr(S, "story_pilot_reward_exp_mult", 1.0) or 1.0),
+            "reward_condition_oro_mult": float(getattr(S, "story_pilot_reward_oro_mult", 1.0) or 1.0),
+            "reward_condition_probability_mult": float(getattr(S, "story_pilot_reward_probability_mult", 1.0) or 1.0),
+            "reward_condition_tags": list(getattr(S, "story_pilot_reward_condition_tags", []) or []),
+            "base_exp_real": int(getattr(S, "story_pilot_reward_base_exp_real", 35) or 35),
+            "base_oro_real": int(getattr(S, "story_pilot_reward_base_oro_real", 15) or 15),
+            "step_exp_real": float(getattr(S, "story_pilot_reward_step_exp", 3.5) or 3.5),
+            "step_oro_real": float(getattr(S, "story_pilot_reward_step_oro", 2.0) or 2.0),
             "idempotency_registry": getattr(S, "sim_idempotency_registry_v1", {}),
         }
 
