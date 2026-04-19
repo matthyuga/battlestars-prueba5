@@ -2141,11 +2141,11 @@ label bs_saga_preparacion:
         call screen bs_saga_hero_config_screen
     else:
         call screen bs_saga_preparation_room_screen
-    return
+    jump bs_saga_lobby
 
 label bs_saga_perfil:
     call screen bs_saga_profile_screen
-    return
+    jump bs_saga_lobby
 
 label bs_saga_heroes:
     call screen bs_saga_heroes_screen

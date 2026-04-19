@@ -64,9 +64,9 @@ screen bs_saga_preparation_room_screen():
                     text ("Héroes listados: " + str(len(_rows))) size 14 color "#9FC4E2"
                     text ("Rotación actual (5): " + (_rotation_preview if _rotation_preview else "sin generar")) size 14 color "#9FC4E2"
                     textbutton ("Filtro adquiridos: " + ("ON" if _owned_only else "OFF")):
-                        action [ToggleVariable("bs_saga_prep_filter_owned_only"), Jump("bs_saga_preparacion")]
+                        action ToggleVariable("bs_saga_prep_filter_owned_only")
                     textbutton "Aleatorizar rotación":
-                        action [Function(bs_saga_refresh_duel_rotation_heroes, 5), Jump("bs_saga_preparacion")]
+                        action Function(bs_saga_refresh_duel_rotation_heroes, 5)
                     viewport:
                         draggable True
                         mousewheel True
@@ -93,10 +93,10 @@ screen bs_saga_preparation_room_screen():
                                                 text "Activo" size 16 color "#F7D774"
                                             elif _is_av:
                                                 textbutton "Elegir":
-                                                    action [Function(bs_saga_set_prep_hero, _hid), Jump("bs_saga_preparacion")]
+                                                    action Function(bs_saga_set_prep_hero, _hid)
                                             if _is_av:
                                                 textbutton ("Quitar" if _hid in _party else "Equipo"):
-                                                    action [Function(bs_saga_toggle_prep_party_hero, _hid), Jump("bs_saga_preparacion")]
+                                                    action Function(bs_saga_toggle_prep_party_hero, _hid)
                             else:
                                 text "No hay roster cargado." size 18 color "#9FB9D1"
             frame:
@@ -131,6 +131,18 @@ screen bs_saga_preparation_room_screen():
                                 action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
                         else:
                             text "Selecciona un héroe para ver el resumen y continuar." size 14 color "#9FB9D1"
+
+    frame:
+        xalign 0.5
+        yalign 0.96
+        xsize 1120
+        ypadding 8
+        background Solid("#13273A")
+        hbox:
+            xfill True
+            textbutton "Ir a sala de pre-combate":
+                xalign 1.0
+                action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
 
 screen bs_saga_hero_config_screen():
     tag menu
