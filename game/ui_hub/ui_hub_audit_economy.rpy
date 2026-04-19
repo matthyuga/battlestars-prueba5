@@ -146,10 +146,14 @@ init -880 python:
                 S.bs_saga_dev_gain_runs = max(1, min(500, int(runs)))
             except:
                 pass
+        cur_exp = max(1, int(getattr(S, "bs_saga_dev_gain_exp_base", 90) or 90))
+        cur_gold = max(1, int(getattr(S, "bs_saga_dev_gain_gold_base", 150) or 150))
+        if cur_gold <= cur_exp:
+            S.bs_saga_dev_gain_gold_base = int(math.ceil(float(cur_exp) * 1.15))
         return {
             "ok": True,
-            "exp_base": int(getattr(S, "bs_saga_dev_gain_exp_base", 120) or 120),
-            "gold_base": int(getattr(S, "bs_saga_dev_gain_gold_base", 90) or 90),
+            "exp_base": int(getattr(S, "bs_saga_dev_gain_exp_base", 90) or 90),
+            "gold_base": int(getattr(S, "bs_saga_dev_gain_gold_base", 150) or 150),
             "variance_pct": int(getattr(S, "bs_saga_dev_gain_variance_pct", 35) or 35),
             "runs": int(getattr(S, "bs_saga_dev_gain_runs", 1) or 1),
         }
@@ -157,8 +161,8 @@ init -880 python:
     def bs_saga_dev_apply_semirandom_gain(runs=None):
         if not bs_saga_dev_can_edit_account():
             return {"ok": False, "error": "admin_disabled"}
-        base_exp = max(1, int(getattr(S, "bs_saga_dev_gain_exp_base", 120) or 120))
-        base_gold = max(1, int(getattr(S, "bs_saga_dev_gain_gold_base", 90) or 90))
+        base_exp = max(1, int(getattr(S, "bs_saga_dev_gain_exp_base", 90) or 90))
+        base_gold = max(1, int(getattr(S, "bs_saga_dev_gain_gold_base", 150) or 150))
         var_pct = max(0, min(95, int(getattr(S, "bs_saga_dev_gain_variance_pct", 35) or 35)))
         rr = int(getattr(S, "bs_saga_dev_gain_runs", 1) or 1) if runs is None else int(runs or 1)
         rr = max(1, min(500, rr))
@@ -168,8 +172,14 @@ init -880 python:
         for _ in range(rr):
             exp_roll = 1.0 + random.uniform(-variance, variance)
             gold_roll = 1.0 + random.uniform(-variance, variance)
-            exp_sum += max(0, int(round(float(base_exp) * exp_roll)))
-            gold_sum += max(0, int(round(float(base_gold) * gold_roll)))
+            exp_gain_i = max(0, int(round(float(base_exp) * exp_roll)))
+            gold_gain_i = max(0, int(round(float(base_gold) * gold_roll)))
+            # Regla económica: el oro por duelo debe ser siempre mayor que la EXP del mismo duelo.
+            min_gold_for_exp = int(math.ceil(float(exp_gain_i) * 1.15))
+            if gold_gain_i <= exp_gain_i:
+                gold_gain_i = min_gold_for_exp
+            exp_sum += int(exp_gain_i)
+            gold_sum += int(gold_gain_i)
         report = bs_saga_gain_account_rewards(exp_sum, gold_sum, source="dev_semirandom_gain")
         bs_saga_set_message(
             "Ganancia semi-random: +{} EXP, +{} oro en {} duelo(s).".format(exp_sum, gold_sum, rr)
@@ -179,8 +189,10 @@ init -880 python:
         return report
 
     def bs_saga_estimate_duels_to_targets(target_exp=1000, target_gold=5000):
-        base_exp = max(1, int(getattr(S, "bs_saga_dev_gain_exp_base", 120) or 120))
-        base_gold = max(1, int(getattr(S, "bs_saga_dev_gain_gold_base", 90) or 90))
+        base_exp = max(1, int(getattr(S, "bs_saga_dev_gain_exp_base", 90) or 90))
+        base_gold = max(1, int(getattr(S, "bs_saga_dev_gain_gold_base", 150) or 150))
+        if base_gold <= base_exp:
+            base_gold = int(math.ceil(float(base_exp) * 1.15))
         try:
             need_exp = max(0, int(target_exp or 0))
         except:

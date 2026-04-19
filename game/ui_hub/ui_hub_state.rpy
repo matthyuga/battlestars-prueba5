@@ -114,8 +114,8 @@ default bs_saga_dev_admin_enabled = True
 default bs_saga_dev_infinite_gold = False
 default bs_saga_dev_low_spec_mode = False
 default bs_saga_matchmaking_tier_preference = "C"
-default bs_saga_dev_gain_exp_base = 120
-default bs_saga_dev_gain_gold_base = 90
+default bs_saga_dev_gain_exp_base = 90
+default bs_saga_dev_gain_gold_base = 150
 default bs_saga_dev_gain_variance_pct = 35
 default bs_saga_dev_gain_runs = 1
 

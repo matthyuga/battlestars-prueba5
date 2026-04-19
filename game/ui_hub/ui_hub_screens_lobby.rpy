@@ -471,8 +471,8 @@ screen bs_saga_profile_screen():
     $ _top_total = bs_saga_top_heroes(3, False)
     $ _top_24 = bs_saga_top_heroes(3, True)
     $ _tier_rows = bs_saga_tier_progress_rows()
-    $ _exp_base = int(getattr(store, "bs_saga_dev_gain_exp_base", 120) or 120)
-    $ _gold_base = int(getattr(store, "bs_saga_dev_gain_gold_base", 90) or 90)
+    $ _exp_base = int(getattr(store, "bs_saga_dev_gain_exp_base", 90) or 90)
+    $ _gold_base = int(getattr(store, "bs_saga_dev_gain_gold_base", 150) or 150)
     $ _var_pct = int(getattr(store, "bs_saga_dev_gain_variance_pct", 35) or 35)
     $ _runs = int(getattr(store, "bs_saga_dev_gain_runs", 1) or 1)
     $ _est = bs_saga_estimate_duels_to_targets(1000, 5000) if bool(getattr(store, "bs_saga_dev_admin_enabled", False)) else {"duels_needed": 0}

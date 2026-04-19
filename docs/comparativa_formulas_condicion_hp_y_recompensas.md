@@ -117,8 +117,9 @@ Supuestos para comparar solo el efecto HP:
 
 1. **Mantener HP lineal en combate** (`x5 = HP*5`) porque es claro para UX.
 2. Migrar rewards al esquema propuesto #3 para evitar inflación y seguir premiando riesgo.
-3. Aplicar por modo (`duel_free`, `tournament`, `tower`) con cap/floor diferentes.
-4. Registrar auditoría por `match_id/reward_event_id` para evitar doble pago.
+3. Regla económica adicional: en duelos, el **oro ganado debe ser mayor que la EXP ganada** (piso sugerido `oro >= exp * 1.15` por combate).
+4. Aplicar por modo (`duel_free`, `tournament`, `tower`) con cap/floor diferentes.
+5. Registrar auditoría por `match_id/reward_event_id` para evitar doble pago.
 
 ---
 
