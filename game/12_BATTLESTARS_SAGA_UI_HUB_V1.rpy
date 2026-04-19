@@ -2154,11 +2154,13 @@ label bs_saga_preparacion:
         jump bs_saga_preparacion
     if _prep_nav == "to_lobby":
         jump bs_saga_lobby
-    return
+    jump bs_saga_preparacion
 
 label bs_saga_perfil:
-    call screen bs_saga_profile_screen
-    return
+    $ _perfil_nav = renpy.call_screen("bs_saga_profile_screen")
+    if _perfil_nav == "to_lobby":
+        jump bs_saga_lobby
+    jump bs_saga_perfil
 
 label bs_saga_heroes:
     call screen bs_saga_heroes_screen
