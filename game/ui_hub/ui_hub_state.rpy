@@ -26,22 +26,22 @@ default bs_saga_account_state = {
     "gems": 0
 }
 default bs_saga_tier_hero_requirements = {
-    "C": 20,
-    "B": 15,
-    "A": 10,
-    "S": 5,
-    "SS": 4,
-    "SSS": 3,
-    "IV": 1
+    "C": 9,
+    "B": 13,
+    "A": 17,
+    "S": 13,
+    "SS": 9,
+    "SSS": 6,
+    "IV": 3
 }
 default bs_saga_tier_level_requirements = {
-    "C": 1,
-    "B": 5,
-    "A": 10,
-    "S": 15,
-    "SS": 20,
-    "SSS": 25,
-    "IV": 30
+    "C": 10,
+    "B": 20,
+    "A": 30,
+    "S": 50,
+    "SS": 60,
+    "SSS": 70,
+    "IV": 80
 }
 default bs_saga_tier_duel_pool = {
     "C": 1000,
@@ -99,6 +99,17 @@ default bs_saga_prep_selected_enemy_hero = ""
 default bs_saga_prep_selected_build = "balanceado"
 default bs_saga_prep_selected_config = "cfg1"
 default bs_saga_prep_hp_reward_multiplier = 1
+default bs_saga_prep_reward_conditions = {
+    "use_concentrar": False,
+    "no_direct_attack": False,
+    "no_stance_swap": False,
+    "low_damage_taken": False,
+    "daily_mission": False
+}
+default bs_saga_reward_base_exp_real = 35
+default bs_saga_reward_base_oro_real = 15
+default bs_saga_reward_step_exp = 3.5
+default bs_saga_reward_step_oro = 2.0
 default bs_saga_prep_tech_step = 25
 default bs_saga_prep_selected_party_ids = []
 default bs_saga_prep_filter_owned_only = False
@@ -113,6 +124,11 @@ default bs_saga_hero_tech_builds = {}
 default bs_saga_dev_admin_enabled = True
 default bs_saga_dev_infinite_gold = False
 default bs_saga_dev_low_spec_mode = False
+default bs_saga_matchmaking_tier_preference = "C"
+default bs_saga_dev_gain_exp_base = 90
+default bs_saga_dev_gain_gold_base = 150
+default bs_saga_dev_gain_variance_pct = 35
+default bs_saga_dev_gain_runs = 1
 
 init -899 python:
     def bs_saga_ui_hub_state_split_status_v1():
