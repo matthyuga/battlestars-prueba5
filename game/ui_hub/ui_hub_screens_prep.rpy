@@ -619,7 +619,7 @@ screen bs_saga_preparation_verify_screen():
                         for row in _cons[:8]:
                             $ _cid = str(row.get("item_id", ""))
                             textbutton (_cid + " x" + str(row.get("qty", 0))):
-                                action [Function(bs_saga_set_prep_flag, "consumable", _cid), Jump("bs_saga_preparation_verify")]
+                                action Function(bs_saga_set_prep_flag, "consumable", _cid)
                     else:
                         text "Sin consumibles en inventario." size 14 color "#9FB9D1"
                     null height 6
@@ -628,7 +628,7 @@ screen bs_saga_preparation_verify_screen():
                         for row in _items[:8]:
                             $ _iid = str(row.get("item_id", ""))
                             textbutton (_iid + " x" + str(row.get("qty", 0))):
-                                action [Function(bs_saga_set_prep_flag, "item", _iid), Jump("bs_saga_preparation_verify")]
+                                action Function(bs_saga_set_prep_flag, "item", _iid)
                     else:
                         text "Sin equipables en inventario." size 14 color "#9FB9D1"
 
