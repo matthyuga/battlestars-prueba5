@@ -238,17 +238,17 @@ screen bs_saga_hero_config_screen():
                             text "Técnicas y pool técnico" size 21 color "#EAF6FF"
                             hbox:
                                 spacing 6
-                                textbutton "Téc. Preconfig" action [Function(bs_saga_hero_tech_mode_set, _hero, "preconfig", _cfg, _build), Jump("bs_saga_preparacion")]
+                                textbutton "Téc. Preconfig" action Function(bs_saga_hero_tech_mode_set, _hero, "preconfig", _cfg, _build)
                             text ("Paso asignación: +" + str(_tech_step) + " / -" + str(_tech_step)) size 14 color "#9FC4E2"
                             hbox:
                                 spacing 4
-                                textbutton "25" action [Function(bs_saga_set_prep_tech_step, 25), Jump("bs_saga_preparacion")]
-                                textbutton "50" action [Function(bs_saga_set_prep_tech_step, 50), Jump("bs_saga_preparacion")]
-                                textbutton "100" action [Function(bs_saga_set_prep_tech_step, 100), Jump("bs_saga_preparacion")]
-                                textbutton "150" action [Function(bs_saga_set_prep_tech_step, 150), Jump("bs_saga_preparacion")]
-                                textbutton "200" action [Function(bs_saga_set_prep_tech_step, 200), Jump("bs_saga_preparacion")]
-                                textbutton "500" action [Function(bs_saga_set_prep_tech_step, 500), Jump("bs_saga_preparacion")]
-                                textbutton "1000" action [Function(bs_saga_set_prep_tech_step, 1000), Jump("bs_saga_preparacion")]
+                                textbutton "25" action Function(bs_saga_set_prep_tech_step, 25)
+                                textbutton "50" action Function(bs_saga_set_prep_tech_step, 50)
+                                textbutton "100" action Function(bs_saga_set_prep_tech_step, 100)
+                                textbutton "150" action Function(bs_saga_set_prep_tech_step, 150)
+                                textbutton "200" action Function(bs_saga_set_prep_tech_step, 200)
+                                textbutton "500" action Function(bs_saga_set_prep_tech_step, 500)
+                                textbutton "1000" action Function(bs_saga_set_prep_tech_step, 1000)
                             text ("Pool técnico cfg/build: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre: " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
                             if _tier_point_alloc:
                                 text "Técnicas con puntos (ofensivas/defensivas)" size 15 color "#D0E9FF"
@@ -258,9 +258,9 @@ screen bs_saga_hero_config_screen():
                                         spacing 6
                                         text (bs_saga_tech_display_name(_tid) + " [" + str(_pts) + "]") substitute False size 14 color "#CFE6FA" xminimum 320
                                         textbutton ("+" + str(_tech_step)):
-                                            action [Function(bs_saga_hero_tech_points_add, _hero, _tid, +_tech_step, _cfg, _build), Jump("bs_saga_preparacion")]
+                                            action Function(bs_saga_hero_tech_points_add, _hero, _tid, +_tech_step, _cfg, _build)
                                         textbutton ("-" + str(_tech_step)):
-                                            action [Function(bs_saga_hero_tech_points_add, _hero, _tid, -_tech_step, _cfg, _build), Jump("bs_saga_preparacion")]
+                                            action Function(bs_saga_hero_tech_points_add, _hero, _tid, -_tech_step, _cfg, _build)
                             else:
                                 text "Sin técnicas ofensivas/defensivas asignables para este tier." size 14 color "#9FB9D1"
                             if _tier_special:
@@ -277,13 +277,13 @@ screen bs_saga_hero_config_screen():
                                     text ("Slot " + str(i + 1) + ": " + (_slot_item if _slot_item else "vacío")) size 14 color "#CFE6FA" xminimum 300
                                     if _slot_item:
                                         textbutton "Desequipar":
-                                            action [Function(bs_saga_unequip_item_from_hero, _hero, i, _cfg, _build), Jump("bs_saga_preparacion")]
+                                            action Function(bs_saga_unequip_item_from_hero, _hero, i, _cfg, _build)
                             text "Equipar desde inventario de cuenta" size 15 color "#D0E9FF"
                             if _equipables:
                                 for row in _equipables[:8]:
                                     $ _iid = str(row.get("item_id", ""))
                                     textbutton (_iid + " x" + str(row.get("qty", 0))):
-                                        action [Function(bs_saga_equip_item_to_hero, _hero, _iid, None, _cfg, _build), Jump("bs_saga_preparacion")]
+                                        action Function(bs_saga_equip_item_to_hero, _hero, _iid, None, _cfg, _build)
                             else:
                                 text "No hay equipables en inventario de cuenta." size 14 color "#9FB9D1"
                         elif _tab == "build":
@@ -291,17 +291,17 @@ screen bs_saga_hero_config_screen():
                             text ("Build actual: " + _build) size 15 color "#9FC4E2"
                             hbox:
                                 spacing 8
-                                textbutton "Balanceado" action [Function(bs_saga_set_prep_build, "balanceado"), Jump("bs_saga_preparacion")]
-                                textbutton "Ofensivo" action [Function(bs_saga_set_prep_build, "ofensivo"), Jump("bs_saga_preparacion")]
-                                textbutton "Defensivo" action [Function(bs_saga_set_prep_build, "defensivo"), Jump("bs_saga_preparacion")]
+                                textbutton "Balanceado" action Function(bs_saga_set_prep_build, "balanceado")
+                                textbutton "Ofensivo" action Function(bs_saga_set_prep_build, "ofensivo")
+                                textbutton "Defensivo" action Function(bs_saga_set_prep_build, "defensivo")
                         else:
                             text "Configuraciones (CFG)" size 21 color "#EAF6FF"
                             text ("CFG activa: " + _cfg.upper()) size 15 color "#9FC4E2"
                             hbox:
                                 spacing 8
-                                textbutton "CFG1" action [Function(bs_saga_set_prep_config, "cfg1"), Jump("bs_saga_preparacion")]
-                                textbutton "CFG2" action [Function(bs_saga_set_prep_config, "cfg2"), Jump("bs_saga_preparacion")]
-                                textbutton "CFG3" action [Function(bs_saga_set_prep_config, "cfg3"), Jump("bs_saga_preparacion")]
+                                textbutton "CFG1" action Function(bs_saga_set_prep_config, "cfg1")
+                                textbutton "CFG2" action Function(bs_saga_set_prep_config, "cfg2")
+                                textbutton "CFG3" action Function(bs_saga_set_prep_config, "cfg3")
                             text ("Pool técnico usado/libre: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
                             text ("Loadout: " + str(_loadout_count) + "/6 slots equipados") size 14 color "#9FC4E2"
 
