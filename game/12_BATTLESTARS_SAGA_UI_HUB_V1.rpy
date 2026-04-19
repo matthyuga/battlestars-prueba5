@@ -2143,22 +2143,24 @@ label bs_saga_preparacion:
     else:
         $ _prep_nav = renpy.call_screen("bs_saga_preparation_room_screen")
 
-    if _prep_nav == "to_staging":
+    if _prep_nav in ("to_staging", "nav:staging"):
         $ bs_saga_prep_context = "staging"
         jump bs_saga_preparacion
-    if _prep_nav == "to_config":
+    if _prep_nav in ("to_config", "nav:config"):
         $ bs_saga_prep_context = "config"
         jump bs_saga_preparacion
-    if _prep_nav == "to_room":
+    if _prep_nav in ("to_room", "nav:room"):
         $ bs_saga_prep_context = "room"
         jump bs_saga_preparacion
-    if _prep_nav == "to_lobby":
+    if _prep_nav in ("to_lobby", "nav:lobby"):
         jump bs_saga_lobby
+    if isinstance(_prep_nav, str) and _prep_nav.startswith("nav:"):
+        jump bs_saga_preparacion
     jump bs_saga_preparacion
 
 label bs_saga_perfil:
     $ _perfil_nav = renpy.call_screen("bs_saga_profile_screen")
-    if _perfil_nav == "to_lobby":
+    if _perfil_nav in ("to_lobby", "nav:lobby"):
         jump bs_saga_lobby
     jump bs_saga_perfil
 
