@@ -2176,21 +2176,31 @@ label bs_saga_perfil:
     jump bs_saga_perfil
 
 label bs_saga_heroes:
-    call screen bs_saga_heroes_screen
-    return
+    $ _heroes_nav = renpy.call_screen("bs_saga_heroes_screen")
+    if _heroes_nav in ("to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_heroes
 
 label bs_saga_tienda:
-    call screen bs_saga_catalog_screen
-    return
+    $ _tienda_nav = renpy.call_screen("bs_saga_catalog_screen")
+    if _tienda_nav in ("to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_tienda
 
 label bs_saga_inventario:
-    call screen bs_saga_inventory_screen
-    return
+    $ _inventario_nav = renpy.call_screen("bs_saga_inventory_screen")
+    if _inventario_nav in ("to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_inventario
 
 label bs_saga_catalogo_items:
-    call screen bs_saga_catalog_screen
-    return
+    $ _catalogo_items_nav = renpy.call_screen("bs_saga_catalog_screen")
+    if _catalogo_items_nav in ("to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_catalogo_items
 
 label bs_saga_catalogo_tecnicas:
-    call screen bs_saga_tech_catalog_screen
-    return
+    $ _catalogo_tecnicas_nav = renpy.call_screen("bs_saga_tech_catalog_screen")
+    if _catalogo_tecnicas_nav in ("to_lobby", "nav:lobby"):
+        jump bs_saga_lobby
+    jump bs_saga_catalogo_tecnicas
