@@ -126,9 +126,9 @@ screen bs_saga_preparation_room_screen():
                             null height 6
                             text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
                             textbutton "Configurar héroe":
-                                action [SetVariable("bs_saga_prep_context", "config"), Jump("bs_saga_preparacion")]
+                                action Return("to_config")
                             textbutton "Ir a pre-combate":
-                                action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
+                                action Return("to_staging")
                         else:
                             text "Selecciona un héroe para ver el resumen y continuar." size 14 color "#9FB9D1"
 
@@ -142,7 +142,7 @@ screen bs_saga_preparation_room_screen():
             xfill True
             textbutton "Ir a sala de pre-combate":
                 xalign 1.0
-                action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
+                action Return("to_staging")
 
 screen bs_saga_hero_config_screen():
     tag menu
@@ -308,9 +308,9 @@ screen bs_saga_hero_config_screen():
             hbox:
                 spacing 10
                 textbutton "Volver a sala":
-                    action [SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
+                    action Return("to_room")
                 textbutton "Continuar a pre-combate":
-                    action [SetVariable("bs_saga_prep_context", "staging"), Jump("bs_saga_preparacion")]
+                    action Return("to_staging")
 
 screen bs_saga_duel_staging_screen():
     tag menu
@@ -396,13 +396,13 @@ screen bs_saga_duel_staging_screen():
                     text ("Pool duelo: " + str(_pool) + " · Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"
                     text ("Condición HP seleccionada: x" + str(_hp_reward_mult) + " · Escala HP de combate y recompensa EXP/Oro.") size 14 color "#9FC4E2"
                     textbutton "Configurar héroe":
-                        action [SetVariable("bs_saga_prep_context", "config"), Jump("bs_saga_preparacion")]
+                        action Return("to_config")
                     null height 12
                     text "Esta vista está orientada a validación final previa al combate." size 14 color "#9FC4E2"
                     text "Puedes volver a configuración de héroe o regresar a preparación." size 14 color "#9FC4E2"
                     null height 8
                     textbutton "Preparación":
-                        action [SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
+                        action Return("to_room")
 
             frame:
                 xfill True
@@ -542,7 +542,7 @@ screen bs_saga_duel_staging_screen():
                         textbutton ("Iniciar duelo" if _block_n <= 0 else "Iniciar duelo (bloqueado por validación)"):
                             action Jump("bs_saga_launch_prepared_duel")
                         textbutton "Volver a sala de preparación":
-                            action [SetVariable("bs_saga_prep_context", "room"), Jump("bs_saga_preparacion")]
+                            action Return("to_room")
 
 screen bs_saga_preparation_verify_screen():
     tag menu
@@ -576,7 +576,7 @@ screen bs_saga_preparation_verify_screen():
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
             text "Verificar preparación" size 22 color "#D7EEFF" yalign 0.7
             null width 140
-            textbutton "Volver" action Jump("bs_saga_preparacion")
+            textbutton "Volver" action Return("to_room")
 
     frame:
         xalign 0.5
