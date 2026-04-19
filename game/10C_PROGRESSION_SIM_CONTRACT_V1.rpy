@@ -657,6 +657,14 @@ init -875 python:
         cfg["repetition_count"] = max(1, _sim_to_int(cfg.get("repetition_count", 1), 1))
         cfg["multi_factor_enabled"] = bool(cfg.get("multi_factor_enabled", True))
         cfg["hp_reward_multiplier"] = _sim_hp_reward_multiplier(cfg.get("hp_reward_multiplier", 1))
+        cfg["reward_condition_exp_mult"] = max(0.25, min(3.0, float(cfg.get("reward_condition_exp_mult", 1.0) or 1.0)))
+        cfg["reward_condition_oro_mult"] = max(0.25, min(3.0, float(cfg.get("reward_condition_oro_mult", 1.0) or 1.0)))
+        cfg["reward_condition_probability_mult"] = max(0.25, min(2.0, float(cfg.get("reward_condition_probability_mult", 1.0) or 1.0)))
+        cfg["base_exp_real"] = max(1.0, float(cfg.get("base_exp_real", 35) or 35))
+        cfg["base_oro_real"] = max(1.0, float(cfg.get("base_oro_real", 15) or 15))
+        cfg["step_exp_real"] = max(0.1, float(cfg.get("step_exp_real", 3.5) or 3.5))
+        cfg["step_oro_real"] = max(0.1, float(cfg.get("step_oro_real", 2.0) or 2.0))
+        cfg["reward_condition_tags"] = list(cfg.get("reward_condition_tags", []) or [])
         out["config"] = cfg
 
         # actors no vacío
@@ -813,15 +821,20 @@ init -875 python:
         avg = s / float(n)
         return int(round(avg - float(reg_actor)))
 
-    def _sim_base_rewards_from_stars(stars_total, preset):
+    def _sim_base_rewards_from_stars(stars_total, preset, config=None):
         st = _sim_clamp(stars_total, 0, 30)
         p = str(preset or "medium_v2").strip().lower()
+        cfg = config if isinstance(config, dict) else {}
 
         # Preset principal acordado: grindeo medio (v2)
         if p == "medium_v2":
+            base_exp = max(1.0, float(cfg.get("base_exp_real", 35) or 35))
+            base_oro = max(1.0, float(cfg.get("base_oro_real", 15) or 15))
+            step_exp = max(0.1, float(cfg.get("step_exp_real", 3.5) or 3.5))
+            step_oro = max(0.1, float(cfg.get("step_oro_real", 2.0) or 2.0))
             return {
-                "exp": int(round(35 + (3.5 * st))),
-                "oro": int(round(15 + (2.0 * st))),
+                "exp": int(round(base_exp + (step_exp * st))),
+                "oro": int(round(base_oro + (step_oro * st))),
             }
 
         # Fallback compat con fórmula histórica del panel (base 100/60)
@@ -903,7 +916,7 @@ init -875 python:
         risk = compute_risk_multipliers(delta_register)
         result_mult = _sim_result_multipliers_for_actor(a, winner_team)
         perf = compute_performance_multipliers(stars_total, cfg.get("preset", "medium_v2"))
-        base = _sim_base_rewards_from_stars(stars_total, cfg.get("preset", "medium_v2"))
+        base = _sim_base_rewards_from_stars(stars_total, cfg.get("preset", "medium_v2"), cfg)
 
         team_sizes = {
             "allies": max(1, _sim_to_int(cfg.get("_allies_count", 1), 1)),
@@ -911,6 +924,9 @@ init -875 python:
         }
         multi_factor = compute_multi_factor(team_sizes, cfg.get("multi_factor_enabled", True))
         hp_reward_mult = _sim_hp_reward_multiplier(cfg.get("hp_reward_multiplier", 1))
+        cond_exp_mult = max(0.25, min(3.0, float(cfg.get("reward_condition_exp_mult", 1.0) or 1.0)))
+        cond_oro_mult = max(0.25, min(3.0, float(cfg.get("reward_condition_oro_mult", 1.0) or 1.0)))
+        cond_prob_mult = max(0.25, min(2.0, float(cfg.get("reward_condition_probability_mult", 1.0) or 1.0)))
 
         repetition_count = max(1, _sim_to_int(cfg.get("repetition_count", 1), 1))
         if repetition_count <= 1:
@@ -934,7 +950,8 @@ init -875 python:
                 float(perf["performance_exp"]) *
                 float(anti) *
                 float(multi_factor) *
-                float(hp_reward_mult)
+                float(hp_reward_mult) *
+                float(cond_exp_mult)
             )
             oro_raw = (
                 float(base["oro"]) *
@@ -943,7 +960,8 @@ init -875 python:
                 float(perf["performance_oro"]) *
                 float(anti) *
                 float(multi_factor) *
-                float(hp_reward_mult)
+                float(hp_reward_mult) *
+                float(cond_oro_mult)
             )
             exp_gain = max(0, int(round(exp_raw)))
             oro_gain = max(0, int(round(oro_raw)))
@@ -972,6 +990,9 @@ init -875 python:
                 "antiabuso": anti,
                 "multi_factor": float(multi_factor),
                 "hp_reward_multiplier": int(hp_reward_mult),
+                "reward_condition_exp_mult": float(cond_exp_mult),
+                "reward_condition_oro_mult": float(cond_oro_mult),
+                "reward_condition_probability_mult": float(cond_prob_mult),
             },
             "base": {
                 "exp": int(base["exp"]),
@@ -1275,6 +1296,14 @@ init -875 python:
                 "repetition_count": max(1, _sim_to_int(_sim_get_from_sources(sources, ("repetition_count",), 1), 1)),
                 "multi_factor_enabled": bool(_sim_get_from_sources(sources, ("multi_factor_enabled",), True)),
                 "hp_reward_multiplier": _sim_hp_reward_multiplier(_sim_get_from_sources(sources, ("hp_reward_multiplier",), 1)),
+                "reward_condition_exp_mult": float(_sim_get_from_sources(sources, ("reward_condition_exp_mult",), 1.0) or 1.0),
+                "reward_condition_oro_mult": float(_sim_get_from_sources(sources, ("reward_condition_oro_mult",), 1.0) or 1.0),
+                "reward_condition_probability_mult": float(_sim_get_from_sources(sources, ("reward_condition_probability_mult",), 1.0) or 1.0),
+                "reward_condition_tags": list(_sim_get_from_sources(sources, ("reward_condition_tags",), []) or []),
+                "base_exp_real": float(_sim_get_from_sources(sources, ("base_exp_real",), 35) or 35),
+                "base_oro_real": float(_sim_get_from_sources(sources, ("base_oro_real",), 15) or 15),
+                "step_exp_real": float(_sim_get_from_sources(sources, ("step_exp_real",), 3.5) or 3.5),
+                "step_oro_real": float(_sim_get_from_sources(sources, ("step_oro_real",), 2.0) or 2.0),
                 "idempotency_registry": _sim_get_from_sources(sources, ("idempotency_registry",), {}),
             },
         }
@@ -1384,6 +1413,8 @@ init -875 python:
         applied = []
         total_exp = 0
         total_oro = 0
+        player_exp_total = 0
+        player_oro_total = 0
 
         # Wallet runtime para ALPHA/DELTA (persistencia de sesión).
         wallet = getattr(S, "sim_actor_runtime_wallet_v1", None)
@@ -1414,6 +1445,8 @@ init -875 python:
                 # Store runtime principal (jugador).
                 S.player_exp = max(0, _sim_to_int(getattr(S, "player_exp", 0), 0) + exp_gain)
                 S.player_oro = max(0, _sim_to_int(getattr(S, "player_oro", 0), 0) + oro_gain)
+                player_exp_total += int(exp_gain)
+                player_oro_total += int(oro_gain)
 
                 # Bridge opcional con panel RPG.
                 st = getattr(S, "rpg_panel_state_v1", None)
@@ -1444,13 +1477,52 @@ init -875 python:
         S.sim_actor_runtime_wallet_v1 = wallet
         wallet_persist = sim_persist_actor_wallets()
 
+        # Bridge post-combate -> cuenta/lobby (oro/exp visibles en UI Hub).
+        account_bridge = {
+            "attempted": False,
+            "applied": False,
+            "skipped_duplicate": False,
+            "exp_gain": int(player_exp_total),
+            "gold_gain": int(player_oro_total),
+            "key": "",
+            "error": "",
+        }
+        if player_exp_total > 0 or player_oro_total > 0:
+            account_bridge["attempted"] = True
+            bridge_registry = getattr(S, "sim_account_reward_bridge_registry_v1", None)
+            if not isinstance(bridge_registry, dict):
+                bridge_registry = {}
+            source = str(req.get("source", "battle_end") or "battle_end")
+            sim_id = str(res.get("simulation_id", req.get("battle_id", "sim_unknown")) or "sim_unknown")
+            bridge_key = source + "::" + sim_id
+            account_bridge["key"] = bridge_key
+
+            if bool(bridge_registry.get(bridge_key, False)):
+                account_bridge["skipped_duplicate"] = True
+            else:
+                fn_gain_account = getattr(S, "bs_saga_gain_account_rewards", None)
+                if callable(fn_gain_account):
+                    try:
+                        rr_acc = fn_gain_account(player_exp_total, player_oro_total, source="battle_end_reward_bridge")
+                        account_bridge["applied"] = bool(rr_acc.get("ok", False)) if isinstance(rr_acc, dict) else True
+                        if account_bridge["applied"]:
+                            bridge_registry[bridge_key] = True
+                            S.sim_account_reward_bridge_registry_v1 = bridge_registry
+                    except Exception as ex:
+                        account_bridge["error"] = "account_bridge_exception: %s" % ex
+                else:
+                    account_bridge["error"] = "bs_saga_gain_account_rewards no disponible en store."
+
         report = {
             "ok": True,
             "applied_count": len(applied),
             "total_exp": total_exp,
             "total_oro": total_oro,
+            "player_total_exp": int(player_exp_total),
+            "player_total_oro": int(player_oro_total),
             "items": applied,
             "wallet_persist": wallet_persist,
+            "account_bridge": account_bridge,
         }
         S.sim_battle_end_last_apply_v1 = report
         return report
