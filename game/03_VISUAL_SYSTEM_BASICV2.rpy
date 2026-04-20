@@ -42,6 +42,7 @@ init -980 python:
 # -----------------------------------------------------------
 init -978 python:
     import renpy.store as S
+    import time
 
     debug_log("✅ Visual System Basic v2.2.1 cargado.")
 
@@ -61,6 +62,8 @@ init -978 python:
         S.ui_show_target_assignment_details = False
     if not hasattr(S, "ui_show_queue_2v2_details"):
         S.ui_show_queue_2v2_details = False
+    if not hasattr(S, "ui_show_battle_finish_panel"):
+        S.ui_show_battle_finish_panel = False
 
     # Fase 8: persistencia de toggles por sesión (runtime store)
     if not hasattr(S, "battle_log_ui_session_prefs") or not isinstance(getattr(S, "battle_log_ui_session_prefs", None), dict):
@@ -69,6 +72,7 @@ init -978 python:
             "ui_show_offensive_operation_details": bool(getattr(S, "ui_show_offensive_operation_details", False)),
             "ui_show_target_assignment_details": bool(getattr(S, "ui_show_target_assignment_details", False)),
             "ui_show_queue_2v2_details": bool(getattr(S, "ui_show_queue_2v2_details", False)),
+            "ui_show_battle_finish_panel": bool(getattr(S, "ui_show_battle_finish_panel", False)),
         }
 
     MAX_LOG_LINES = 250
@@ -305,6 +309,101 @@ init -978 python:
             "#C0FFC0"
         )
 
+    def _bs_dev_force_team_ko(side):
+        side_s = str(side or "enemy").strip().lower()
+        if side_s not in ("player", "enemy"):
+            side_s = "enemy"
+
+        affected = []
+        fn_alive = getattr(S, "bs_get_alive_unit_keys", None)
+        fn_apply = getattr(S, "bs_apply_damage_to_unit_key", None)
+        fn_set_hp = getattr(S, "bs_set_hp", None)
+
+        if callable(fn_alive) and callable(fn_apply):
+            keys = list(fn_alive(side_s) or [])
+            src_key_fn = getattr(S, "bs_current_actor_key", None)
+            src_key = str(src_key_fn() if callable(src_key_fn) else "")
+            for key in keys:
+                rr = fn_apply(key, 10 ** 9, source_key=src_key)
+                affected.append({
+                    "key": str(key),
+                    "ok": bool(isinstance(rr, dict) and rr.get("ok", False)),
+                })
+        elif callable(fn_set_hp):
+            fn_set_hp(side_s, 0)
+            affected.append({"key": "%s:active" % side_s, "ok": True})
+        else:
+            if side_s == "player":
+                S.player_hp = 0
+            else:
+                S.enemy_hp = 0
+            affected.append({"key": "%s_legacy" % side_s, "ok": True})
+
+        if side_s == "player":
+            S.player_hp = 0
+        else:
+            S.enemy_hp = 0
+        return affected
+
+    def bs_dev_finish_combat(mode="victory"):
+        """
+        Herramienta dev-only:
+        finaliza combate forzando resultado y redirige al cierre canónico `battle_end`.
+        mode: victory | defeat | draw
+        Guardrails:
+          - requiere config.developer
+          - requiere flag runtime bs_saga_dev_admin_enabled=true
+        """
+        if not bool(getattr(config, "developer", False)):
+            return {"ok": False, "reason": "developer_mode_required"}
+
+        if not bool(getattr(S, "bs_saga_dev_admin_enabled", False)):
+            return {"ok": False, "reason": "dev_admin_flag_required"}
+
+        mm = str(mode or "victory").strip().lower()
+        if mm not in ("victory", "defeat", "draw"):
+            mm = "victory"
+
+        affected = []
+        try:
+            if mm == "victory":
+                affected.extend(_bs_dev_force_team_ko("enemy"))
+            elif mm == "defeat":
+                affected.extend(_bs_dev_force_team_ko("player"))
+            else:
+                affected.extend(_bs_dev_force_team_ko("enemy"))
+                affected.extend(_bs_dev_force_team_ko("player"))
+        except Exception as ex:
+            return {"ok": False, "reason": "finish_combat_exception", "error": str(ex), "mode": mm}
+
+        S.story_pilot_debug_last_finish_combat = {
+            "ts": int(time.time()),
+            "action": "dev_finish_combat",
+            "mode": str(mm),
+            "affected": list(affected),
+        }
+
+        fn_log = getattr(S, "battle_log_add", None)
+        if callable(fn_log):
+            fn_log("{color=#80DEEA}[DEV] Finalizar combate (%s) → cierre battle_end.{/color}" % str(mm))
+
+        renpy.jump("battle_end")
+        return {"ok": True, "reason": "jump_battle_end", "mode": mm}
+
+    def bs_dev_instant_victory():
+        """
+        Herramienta dev-only:
+        fuerza KO del equipo enemigo y redirige al cierre canónico `battle_end`.
+        Guardrails:
+          - requiere config.developer
+          - requiere flag runtime bs_saga_dev_admin_enabled=true
+        """
+        return bs_dev_finish_combat("victory")
+
+    def bs_dev_clear_finish_combat_audit():
+        S.story_pilot_debug_last_finish_combat = {}
+        return {"ok": True}
+
     # Export opcional a store (por si otros módulos lo buscan ahí)
     S.save_battle_log_position_xy = save_battle_log_position_xy
     S.get_battle_log_position = get_battle_log_position
@@ -313,6 +412,9 @@ init -978 python:
     S.battle_log_add_debug = battle_log_add_debug
     S.battle_log_phase = battle_log_phase
     S.battle_log_result = battle_log_result
+    S.bs_dev_finish_combat = bs_dev_finish_combat
+    S.bs_dev_instant_victory = bs_dev_instant_victory
+    S.bs_dev_clear_finish_combat_audit = bs_dev_clear_finish_combat_audit
     S._drag_pos_safe = _drag_pos_safe
 
 
@@ -332,6 +434,9 @@ screen battle_log_screen():
     key "g" action ToggleVariable("ui_show_target_assignment_details")
     key "q" action ToggleVariable("ui_show_queue_2v2_details")
     key "b" action ToggleVariable("ui_show_battle_debug_log")
+    key "ctrl_K_v" action Function(bs_dev_instant_victory)
+    key "ctrl_K_x" action If(config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
+    key "ctrl_x" action If(config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
 
     $ start_pos = get_battle_log_position()
 
@@ -377,6 +482,18 @@ screen battle_log_screen():
                         text_color "#B39DDB"
                         background "#0000"
 
+                if config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)):
+                    textbutton "[[Ctrl+X]] ⚡ Panel finalizar combate":
+                        action ToggleVariable("ui_show_battle_finish_panel")
+                        text_size 13
+                        text_color "#80DEEA"
+                        background "#0000"
+                    textbutton "[[Ctrl+K+V]] ⚡ Victoria instantánea (dev)":
+                        action Function(bs_dev_instant_victory)
+                        text_size 13
+                        text_color "#80DEEA"
+                        background "#0000"
+
                 null height 6
 
                 viewport:
@@ -411,6 +528,48 @@ screen battle_log_screen():
                                                 text row["name"] size 20 xalign 0.5 outlines [(2, "#000", 0, 0)]
                                 else:
                                     text row["text"] size 20 color row.get("color", "#DDDDDD") xalign 0.0
+
+    if config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)) and ui_show_battle_finish_panel:
+        use battle_dev_finish_panel()
+
+
+screen battle_dev_finish_panel():
+    zorder 650
+    modal False
+
+    key "ctrl_K_x" action SetVariable("ui_show_battle_finish_panel", False)
+    key "ctrl_x" action SetVariable("ui_show_battle_finish_panel", False)
+    key "K_ESCAPE" action SetVariable("ui_show_battle_finish_panel", False)
+
+    frame:
+        xalign 0.5
+        yalign 0.02
+        xmaximum 860
+        background "#000C"
+        padding (16, 12)
+
+        vbox:
+            spacing 8
+            text "⚙ Panel dev · Finalizar combate" size 24 color "#FFD700" bold True xalign 0.5
+            text "Selecciona resultado forzado (ruta canónica: battle_end)." size 15 color "#CFE8FF" xalign 0.5
+
+            $ _last = getattr(store, "story_pilot_debug_last_finish_combat", {})
+            if isinstance(_last, dict) and _last:
+                text "Último cierre: mode=[_last.get('mode', 'n/a')] | ts=[_last.get('ts', 0)] | affected=[len(_last.get('affected', []) or [])]" size 14 color "#9FC4E2" xalign 0.5
+
+            hbox:
+                spacing 10
+                xalign 0.5
+                textbutton "🏆 Victoria":
+                    action Function(bs_dev_finish_combat, "victory")
+                textbutton "☠ Derrota":
+                    action Function(bs_dev_finish_combat, "defeat")
+                textbutton "🤝 Empate":
+                    action Function(bs_dev_finish_combat, "draw")
+                textbutton "🧹 Limpiar estado":
+                    action Function(bs_dev_clear_finish_combat_audit)
+                textbutton "✖ Cerrar":
+                    action SetVariable("ui_show_battle_finish_panel", False)
 
 
 # -----------------------------------------------------------

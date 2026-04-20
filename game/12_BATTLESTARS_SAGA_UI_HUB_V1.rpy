@@ -1621,6 +1621,19 @@ init -880 python:
             S.battle_enemy_ids = [enemy_id]
         S.battle_player_id = str((S.battle_player_ids or [my_hero])[0] or my_hero)
         S.battle_enemy_id = str((S.battle_enemy_ids or [enemy_id])[0] or enemy_id)
+        # Battle identity única por duelo para evitar colisiones de idempotencia
+        # entre cierres de combate consecutivos.
+        duel_seq = int(getattr(S, "bs_saga_runtime_duel_seq", 0) or 0) + 1
+        S.bs_saga_runtime_duel_seq = int(duel_seq)
+        duel_ts = int(bs_saga_now_ts() or 0)
+        duel_nonce = int(renpy.random.randint(1000, 9999))
+        S.story_pilot_battle_id = "duel::%s::%s::%s::%s::n%s" % (
+            str(duel_ts),
+            str(duel_seq),
+            str(S.battle_player_id or "player"),
+            str(S.battle_enemy_id or "enemy"),
+            str(duel_nonce),
+        )
 
         prep_cfg = str(getattr(S, "bs_saga_prep_selected_config", "cfg1") or "cfg1")
         if prep_cfg not in bs_saga_prep_config_keys():
