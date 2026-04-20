@@ -306,10 +306,47 @@ init -978 python:
             "#C0FFC0"
         )
 
-    def bs_dev_instant_victory():
+    def _bs_dev_force_team_ko(side):
+        side_s = str(side or "enemy").strip().lower()
+        if side_s not in ("player", "enemy"):
+            side_s = "enemy"
+
+        affected = []
+        fn_alive = getattr(S, "bs_get_alive_unit_keys", None)
+        fn_apply = getattr(S, "bs_apply_damage_to_unit_key", None)
+        fn_set_hp = getattr(S, "bs_set_hp", None)
+
+        if callable(fn_alive) and callable(fn_apply):
+            keys = list(fn_alive(side_s) or [])
+            src_key_fn = getattr(S, "bs_current_actor_key", None)
+            src_key = str(src_key_fn() if callable(src_key_fn) else "")
+            for key in keys:
+                rr = fn_apply(key, 10 ** 9, source_key=src_key)
+                affected.append({
+                    "key": str(key),
+                    "ok": bool(isinstance(rr, dict) and rr.get("ok", False)),
+                })
+        elif callable(fn_set_hp):
+            fn_set_hp(side_s, 0)
+            affected.append({"key": "%s:active" % side_s, "ok": True})
+        else:
+            if side_s == "player":
+                S.player_hp = 0
+            else:
+                S.enemy_hp = 0
+            affected.append({"key": "%s_legacy" % side_s, "ok": True})
+
+        if side_s == "player":
+            S.player_hp = 0
+        else:
+            S.enemy_hp = 0
+        return affected
+
+    def bs_dev_finish_combat(mode="victory"):
         """
         Herramienta dev-only:
-        fuerza KO del equipo enemigo y redirige al cierre canónico `battle_end`.
+        finaliza combate forzando resultado y redirige al cierre canónico `battle_end`.
+        mode: victory | defeat | draw
         Guardrails:
           - requiere config.developer
           - requiere flag runtime bs_saga_dev_admin_enabled=true
@@ -320,42 +357,45 @@ init -978 python:
         if not bool(getattr(S, "bs_saga_dev_admin_enabled", False)):
             return {"ok": False, "reason": "dev_admin_flag_required"}
 
+        mm = str(mode or "victory").strip().lower()
+        if mm not in ("victory", "defeat", "draw"):
+            mm = "victory"
+
         affected = []
-        fn_alive = getattr(S, "bs_get_alive_unit_keys", None)
-        fn_apply = getattr(S, "bs_apply_damage_to_unit_key", None)
-        fn_set_hp = getattr(S, "bs_set_hp", None)
-
         try:
-            if callable(fn_alive) and callable(fn_apply):
-                enemy_keys = list(fn_alive("enemy") or [])
-                for key in enemy_keys:
-                    rr = fn_apply(key, 10 ** 9, source_key=getattr(S, "bs_current_actor_key", lambda: "")())
-                    affected.append({
-                        "key": str(key),
-                        "ok": bool(isinstance(rr, dict) and rr.get("ok", False)),
-                    })
-            elif callable(fn_set_hp):
-                fn_set_hp("enemy", 0)
-                affected.append({"key": "enemy:active", "ok": True})
+            if mm == "victory":
+                affected.extend(_bs_dev_force_team_ko("enemy"))
+            elif mm == "defeat":
+                affected.extend(_bs_dev_force_team_ko("player"))
             else:
-                S.enemy_hp = 0
-                affected.append({"key": "enemy_legacy", "ok": True})
+                affected.extend(_bs_dev_force_team_ko("enemy"))
+                affected.extend(_bs_dev_force_team_ko("player"))
         except Exception as ex:
-            return {"ok": False, "reason": "instant_victory_exception", "error": str(ex)}
+            return {"ok": False, "reason": "finish_combat_exception", "error": str(ex), "mode": mm}
 
-        S.enemy_hp = 0
-        S.story_pilot_debug_last_force_victory = {
+        S.story_pilot_debug_last_finish_combat = {
             "ts": int(time.time()),
-            "action": "dev_instant_victory",
+            "action": "dev_finish_combat",
+            "mode": str(mm),
             "affected": list(affected),
         }
 
         fn_log = getattr(S, "battle_log_add", None)
         if callable(fn_log):
-            fn_log("{color=#80DEEA}[DEV] Victoria instantánea activada → cierre battle_end.{/color}")
+            fn_log("{color=#80DEEA}[DEV] Finalizar combate (%s) → cierre battle_end.{/color}" % str(mm))
 
         renpy.jump("battle_end")
-        return {"ok": True, "reason": "jump_battle_end"}
+        return {"ok": True, "reason": "jump_battle_end", "mode": mm}
+
+    def bs_dev_instant_victory():
+        """
+        Herramienta dev-only:
+        fuerza KO del equipo enemigo y redirige al cierre canónico `battle_end`.
+        Guardrails:
+          - requiere config.developer
+          - requiere flag runtime bs_saga_dev_admin_enabled=true
+        """
+        return bs_dev_finish_combat("victory")
 
     # Export opcional a store (por si otros módulos lo buscan ahí)
     S.save_battle_log_position_xy = save_battle_log_position_xy
@@ -365,6 +405,7 @@ init -978 python:
     S.battle_log_add_debug = battle_log_add_debug
     S.battle_log_phase = battle_log_phase
     S.battle_log_result = battle_log_result
+    S.bs_dev_finish_combat = bs_dev_finish_combat
     S.bs_dev_instant_victory = bs_dev_instant_victory
     S._drag_pos_safe = _drag_pos_safe
 
@@ -386,6 +427,8 @@ screen battle_log_screen():
     key "q" action ToggleVariable("ui_show_queue_2v2_details")
     key "b" action ToggleVariable("ui_show_battle_debug_log")
     key "ctrl_K_v" action Function(bs_dev_instant_victory)
+    key "ctrl_K_x" action Function(bs_dev_finish_combat, "victory")
+    key "ctrl_x" action Function(bs_dev_finish_combat, "victory")
 
     $ start_pos = get_battle_log_position()
 
@@ -432,6 +475,11 @@ screen battle_log_screen():
                         background "#0000"
 
                 if config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)):
+                    textbutton "[[Ctrl+K+X]] ⚡ Finalizar combate (victoria dev)":
+                        action Function(bs_dev_finish_combat, "victory")
+                        text_size 13
+                        text_color "#80DEEA"
+                        background "#0000"
                     textbutton "[[Ctrl+K+V]] ⚡ Victoria instantánea (dev)":
                         action Function(bs_dev_instant_victory)
                         text_size 13
