@@ -56,6 +56,7 @@ label battle_end:
             "source": "battle_end",
             "result": str(getattr(S, "story_pilot_last_result", "draw") or "draw"),
             "battle_id": str(getattr(S, "story_pilot_battle_id", "battle_runtime") or "battle_runtime"),
+            "turn_index": int(getattr(S, "battle_turn_index", 0) or 0),
             "player_hp": int(getattr(S, "player_hp", 0) or 0),
             "enemy_hp": int(getattr(S, "enemy_hp", 0) or 0),
             "repetition_count": int(getattr(S, "story_pilot_repetition_count", 1) or 1),
@@ -160,6 +161,37 @@ label battle_end:
     if renpy.has_label("battle_clear_visual_fx"):
         $ battle_clear_visual_fx()
     $ battle_clear_turn_summary()
+    python:
+        # Cierre defensivo de screens runtime de combate para evitar
+        # "fugas" visuales al volver al lobby.
+        _runtime_battle_screens = [
+            "battle_log_screen",
+            "ai_difficulty_hud",
+            "technique_selector",
+            "battle_command_menu",
+            "battle_maneuver_choice",
+            "battle_popup_turn",
+            "battle_popup_turn_legacy_visual",
+            "debug_battle_identity",
+            "dice_roll_result",
+            "dice_roll_result_multi",
+            "sim_battle_end_reward_summary_v1",
+        ]
+        for _scr in _runtime_battle_screens:
+            try:
+                if renpy.has_screen(_scr) and renpy.get_screen(_scr):
+                    renpy.hide_screen(_scr)
+            except:
+                pass
+        try:
+            S.ui_show_battle_finish_panel = False
+            S.incoming_damage = 0
+            S.incoming_damage_target_key = ""
+            S.incoming_damage_source_key = ""
+            S.incoming_damage_sources = []
+            S.show_maneuver_choice = True
+        except:
+            pass
 
     if getattr(S, "story_mode_active", False) and renpy.has_label("story_phaseC_postbattle"):
         $ S.battle_active = False
@@ -196,6 +228,47 @@ screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
     default _ap_count = _ap.get("applied_count", 0)
     default _ap_exp = _ap.get("total_exp", 0)
     default _ap_oro = _ap.get("total_oro", 0)
+    default _show_tech = False
+    default _show_all_rows = False
+
+    python:
+        _reward_rows = []
+        _all_rows = []
+        for _rr in _rows:
+            if not isinstance(_rr, dict):
+                continue
+            _ff = _rr.get("final", {}) if isinstance(_rr.get("final", {}), dict) else {}
+            _exp = int(_ff.get("exp_gain", 0) or 0)
+            _oro = int(_ff.get("oro_gain", 0) or 0)
+            _eligible = bool(_rr.get("eligible", False))
+            _all_rows.append(_rr)
+            if _eligible and (_exp > 0 or _oro > 0):
+                _reward_rows.append(_rr)
+
+        _visible_rows = list(_all_rows if _show_all_rows else _reward_rows)
+        _main_row = _reward_rows[0] if len(_reward_rows) > 0 else None
+        _main_final = _main_row.get("final", {}) if isinstance(_main_row, dict) and isinstance(_main_row.get("final", {}), dict) else {}
+        _main_base = _main_row.get("base", {}) if isinstance(_main_row, dict) and isinstance(_main_row.get("base", {}), dict) else {}
+        _main_mult = _main_row.get("multipliers", {}) if isinstance(_main_row, dict) and isinstance(_main_row.get("multipliers", {}), dict) else {}
+        _main_actor = str(_main_row.get("actor_id", "player") or "player") if isinstance(_main_row, dict) else "player"
+        _main_exp = int(_main_final.get("exp_gain", _ap_exp) or _ap_exp)
+        _main_oro = int(_main_final.get("oro_gain", _ap_oro) or _ap_oro)
+        _main_stars = int(_main_row.get("stars_total", 0) or 0) if isinstance(_main_row, dict) else 0
+        _main_delta = int(_main_row.get("delta_register", 0) or 0) if isinstance(_main_row, dict) else 0
+        _main_base_exp = int(_main_base.get("exp", 0) or 0)
+        _main_base_oro = int(_main_base.get("oro", 0) or 0)
+        _main_m_risk_exp = float(_main_mult.get("risk_exp", 1.0) or 1.0)
+        _main_m_result_exp = float(_main_mult.get("result_exp", 1.0) or 1.0)
+        _main_m_perf_exp = float(_main_mult.get("performance_exp", 1.0) or 1.0)
+        _main_m_risk_oro = float(_main_mult.get("risk_oro", 1.0) or 1.0)
+        _main_m_result_oro = float(_main_mult.get("result_oro", 1.0) or 1.0)
+        _main_m_perf_oro = float(_main_mult.get("performance_oro", 1.0) or 1.0)
+        _main_m_anti = float(_main_mult.get("antiabuso", 1.0) or 1.0)
+        _main_m_multi = float(_main_mult.get("multi_factor", 1.0) or 1.0)
+        _main_m_hp = int(_main_mult.get("hp_reward_multiplier", 1) or 1)
+        _main_m_cond_exp = float(_main_mult.get("reward_condition_exp_mult", 1.0) or 1.0)
+        _main_m_cond_oro = float(_main_mult.get("reward_condition_oro_mult", 1.0) or 1.0)
+        _main_m_cond_prob = float(_main_mult.get("reward_condition_probability_mult", 1.0) or 1.0)
 
     add Solid("#000000AA")
 
@@ -226,44 +299,86 @@ screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
                     hover_background "#39A4FFFF"
                     action Return(True)
 
-            text "sim_id=[_sim_id]  |  mode=[_sim_mode]  |  winner=[_sim_winner]" size 20 color "#CFE8FF"
-            text "Aplicación: ok=[_ap_ok]  |  count=[_ap_count]  |  EXP=[_ap_exp]  |  Oro=[_ap_oro]" size 20 color "#A6FFCC"
-            text "Audit: warnings=[_warnings_count]  |  errors=[_errors_count]" size 18 color "#FFD27A"
+            text "sim_id=[_sim_id]  |  mode=[_sim_mode]  |  winner=[_sim_winner]" size 18 color "#CFE8FF"
 
-            frame:
+            hbox:
+                spacing 12
                 xfill True
                 yfill True
-                padding (12, 10)
 
-                viewport:
-                    draggable True
-                    mousewheel True
-                    scrollbars "vertical"
+                frame:
+                    xsize 700
+                    yfill True
+                    padding (12, 10)
+                    background Solid("#10263A")
+                    viewport:
+                        draggable True
+                        mousewheel True
+                        scrollbars "vertical"
+                        vbox:
+                            spacing 10
+                            text "Recompensa obtenida" size 28 color "#FFFFFF"
+                            text "Actor: [_main_actor]" size 18 color "#CFE8FF"
+                            text "EXP +[_main_exp]  |  Oro +[_main_oro]" size 34 color "#A6FFCC"
+                            text "Aplicación: ok=[_ap_ok]  |  count=[_ap_count]  |  EXP=[_ap_exp]  |  Oro=[_ap_oro]" size 17 color "#A6FFCC"
+                            text "Resumen cálculo: Base -> Multiplicadores -> Resultado final" size 15 color "#9FC4E2"
 
-                    vbox:
-                        spacing 8
+                            if _main_row:
+                                text "Parámetros de rendimiento" size 22 color "#D0E9FF"
+                                text "Base: EXP [_main_base_exp] | Oro [_main_base_oro] | Stars [_main_stars] | ΔRegister [_main_delta]" size 16 color "#9FC4E2"
+                                text "EXP: risk x[_main_m_risk_exp] | result x[_main_m_result_exp] | perf x[_main_m_perf_exp]" size 15 color "#9FC4E2"
+                                text "Oro: risk x[_main_m_risk_oro] | result x[_main_m_result_oro] | perf x[_main_m_perf_oro]" size 15 color "#9FC4E2"
+                                text "Globales: anti x[_main_m_anti] | multi x[_main_m_multi] | hp x[_main_m_hp]" size 15 color "#9FC4E2"
+                                text "Condiciones: exp x[_main_m_cond_exp] | oro x[_main_m_cond_oro] | prob x[_main_m_cond_prob]" size 15 color "#9FC4E2"
+                                text "Fórmula EXP: base_exp * risk_exp * result_exp * performance_exp * antiabuso * multi_factor * hp_reward_multiplier * reward_condition_exp_mult" size 13 color "#8CB8DB"
+                                text "Fórmula Oro: base_oro * risk_oro * result_oro * performance_oro * antiabuso * multi_factor * hp_reward_multiplier * reward_condition_oro_mult" size 13 color "#8CB8DB"
+                            elif _ap_count > 0 or _ap_exp > 0 or _ap_oro > 0:
+                                text "Parámetros no disponibles en fila principal; se muestra agregado de aplicación." size 15 color "#FFD27A"
+                            else:
+                                text "No hay recompensas aplicadas para mostrar." size 17 color "#FFAAAA"
 
-                        for rr in _rows:
-                            $ _ff = rr.get("final", {}) if isinstance(rr.get("final", {}), dict) else {}
-                            $ _actor = rr.get("actor_id", "unknown")
-                            $ _out = rr.get("outcome", "unknown")
-                            $ _exp = _ff.get("exp_gain", 0)
-                            $ _oro = _ff.get("oro_gain", 0)
-                            $ _eligible = rr.get("eligible", False)
-                            text "[_actor] | outcome=[_out] | eligible=[_eligible] | EXP +[_exp] | Oro +[_oro]" size 20 color "#FFFFFF"
+                frame:
+                    xfill True
+                    yfill True
+                    padding (12, 10)
+                    background Solid("#0E2030")
+                    viewport:
+                        draggable True
+                        mousewheel True
+                        scrollbars "vertical"
+                        vbox:
+                            spacing 9
+                            text "Panel técnico / QA" size 22 color "#D0E9FF"
+                            text "Audit: warnings=[_warnings_count]  |  errors=[_errors_count]" size 16 color "#FFD27A"
+                            hbox:
+                                spacing 8
+                                textbutton ("Detalle técnico: " + ("ON" if _show_tech else "OFF")):
+                                    action SetScreenVariable("_show_tech", not _show_tech)
+                                textbutton ("Mostrar todos los actores: " + ("ON" if _show_all_rows else "OFF")):
+                                    action SetScreenVariable("_show_all_rows", not _show_all_rows)
 
-                        if len(_rows) == 0:
-                            text "Sin filas de resultado para mostrar." size 20 color "#FFAAAA"
+                            if len(_visible_rows) == 0:
+                                text "Sin filas visibles (activa 'Mostrar todos los actores' para inspección completa)." size 15 color "#FFAAAA"
 
-                        if len(_warnings) > 0:
-                            text "Warnings:" size 20 color "#FFD27A"
-                            for w in _warnings:
-                                text " - [w]" size 18 color "#FFD27A"
+                            if _show_tech:
+                                for rr in _visible_rows:
+                                    $ _ff = rr.get("final", {}) if isinstance(rr.get("final", {}), dict) else {}
+                                    $ _actor = rr.get("actor_id", "unknown")
+                                    $ _out = rr.get("outcome", "unknown")
+                                    $ _exp = _ff.get("exp_gain", 0)
+                                    $ _oro = _ff.get("oro_gain", 0)
+                                    $ _eligible = rr.get("eligible", False)
+                                    text "[_actor] | outcome=[_out] | eligible=[_eligible] | EXP +[_exp] | Oro +[_oro]" size 16 color "#FFFFFF"
 
-                        if len(_errors) > 0:
-                            text "Errores:" size 20 color "#FF8A8A"
-                            for e in _errors:
-                                text " - [e]" size 18 color "#FF8A8A"
+                            if len(_warnings) > 0:
+                                text "Warnings:" size 17 color "#FFD27A"
+                                for w in _warnings:
+                                    text " - [w]" size 15 color "#FFD27A"
+
+                            if len(_errors) > 0:
+                                text "Errores:" size 17 color "#FF8A8A"
+                                for e in _errors:
+                                    text " - [e]" size 15 color "#FF8A8A"
 
 # ===========================================================
 # 🔹 FUNCIÓN LOG RESULT – Resultado y popup de daño (sin flash rojo)

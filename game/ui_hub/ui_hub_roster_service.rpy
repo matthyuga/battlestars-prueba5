@@ -40,6 +40,7 @@ init -880 python:
         if len(rot) < 5:
             bs_saga_refresh_rotation_heroes(5)
             rot = getattr(S, "bs_saga_rotation_hero_ids", [])
+        fn_rot_ok = getattr(S, "bs_saga_rotation_allows_hero_id", None)
         rows = []
         for r in bs_saga_db_rows():
             if not isinstance(r, dict):
@@ -47,8 +48,10 @@ init -880 python:
             hid = bs_saga_hero_id(r)
             name = str(r.get("name", hid) or hid)
             tier = str(r.get("tier", "C") or "C").upper()
-            in_rotation = hid.lower() in [str(x).lower() for x in (rot or [])]
             is_owned = bs_saga_hero_is_owned(hid)
+            in_rotation = hid.lower() in [str(x).lower() for x in (rot or [])]
+            if not is_owned and callable(fn_rot_ok):
+                in_rotation = bool(in_rotation and fn_rot_ok(hid, include_owned=True))
             state = "disponible" if is_owned else ("para_probar" if in_rotation else "bloqueado")
             rows.append({
                 "hero_id": hid,
@@ -130,11 +133,14 @@ init -880 python:
         if not isinstance(rot, list) or not rot:
             rot = bs_saga_refresh_duel_rotation_heroes(min(5, len(ready)))
         rot_lc = {str(x).lower() for x in (rot or [])}
+        fn_rot_ok = getattr(S, "bs_saga_rotation_allows_hero_id", None)
 
         out = []
         for cid in ready:
             is_owned = bs_saga_hero_is_owned(cid)
             in_rotation = cid.lower() in rot_lc
+            if not is_owned and callable(fn_rot_ok):
+                in_rotation = bool(in_rotation and fn_rot_ok(cid, include_owned=True))
             state = "disponible" if is_owned else ("para_probar" if in_rotation else "bloqueado")
             row = bs_saga_hero_row(cid)
             if isinstance(row, dict):
@@ -156,8 +162,12 @@ init -880 python:
 
     def bs_saga_refresh_duel_rotation_heroes(count=4):
         pool = [str(x) for x in (bs_saga_combat_ready_ids() or [])]
+        fn_rot_ok = getattr(S, "bs_saga_rotation_allows_hero_id", None)
         unique = []
         for hid in pool:
+            if callable(fn_rot_ok) and (not bs_saga_hero_is_owned(hid)):
+                if not bool(fn_rot_ok(hid, include_owned=True)):
+                    continue
             if hid not in unique:
                 unique.append(hid)
         if not unique:
