@@ -161,6 +161,23 @@ label battle_end:
     if renpy.has_label("battle_clear_visual_fx"):
         $ battle_clear_visual_fx()
     $ battle_clear_turn_summary()
+    python:
+        # Cierre defensivo de screens runtime de combate para evitar
+        # "fugas" visuales al volver al lobby.
+        _runtime_battle_screens = [
+            "battle_log_screen",
+            "ai_difficulty_hud",
+            "technique_selector",
+            "battle_command_menu",
+            "debug_battle_identity",
+            "sim_battle_end_reward_summary_v1",
+        ]
+        for _scr in _runtime_battle_screens:
+            try:
+                if renpy.has_screen(_scr) and renpy.get_screen(_scr):
+                    renpy.hide_screen(_scr)
+            except:
+                pass
 
     if getattr(S, "story_mode_active", False) and renpy.has_label("story_phaseC_postbattle"):
         $ S.battle_active = False
