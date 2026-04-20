@@ -400,6 +400,10 @@ init -978 python:
         """
         return bs_dev_finish_combat("victory")
 
+    def bs_dev_clear_finish_combat_audit():
+        S.story_pilot_debug_last_finish_combat = {}
+        return {"ok": True}
+
     # Export opcional a store (por si otros módulos lo buscan ahí)
     S.save_battle_log_position_xy = save_battle_log_position_xy
     S.get_battle_log_position = get_battle_log_position
@@ -410,6 +414,7 @@ init -978 python:
     S.battle_log_result = battle_log_result
     S.bs_dev_finish_combat = bs_dev_finish_combat
     S.bs_dev_instant_victory = bs_dev_instant_victory
+    S.bs_dev_clear_finish_combat_audit = bs_dev_clear_finish_combat_audit
     S._drag_pos_safe = _drag_pos_safe
 
 
@@ -430,8 +435,8 @@ screen battle_log_screen():
     key "q" action ToggleVariable("ui_show_queue_2v2_details")
     key "b" action ToggleVariable("ui_show_battle_debug_log")
     key "ctrl_K_v" action Function(bs_dev_instant_victory)
-    key "ctrl_K_x" action ToggleVariable("ui_show_battle_finish_panel")
-    key "ctrl_x" action ToggleVariable("ui_show_battle_finish_panel")
+    key "ctrl_K_x" action If(config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
+    key "ctrl_x" action If(config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
 
     $ start_pos = get_battle_log_position()
 
@@ -534,6 +539,7 @@ screen battle_dev_finish_panel():
 
     key "ctrl_K_x" action SetVariable("ui_show_battle_finish_panel", False)
     key "ctrl_x" action SetVariable("ui_show_battle_finish_panel", False)
+    key "K_ESCAPE" action SetVariable("ui_show_battle_finish_panel", False)
 
     frame:
         xalign 0.5
@@ -547,6 +553,10 @@ screen battle_dev_finish_panel():
             text "⚙ Panel dev · Finalizar combate" size 24 color "#FFD700" bold True xalign 0.5
             text "Selecciona resultado forzado (ruta canónica: battle_end)." size 15 color "#CFE8FF" xalign 0.5
 
+            $ _last = getattr(store, "story_pilot_debug_last_finish_combat", {})
+            if isinstance(_last, dict) and _last:
+                text "Último cierre: mode=[_last.get('mode', 'n/a')] | ts=[_last.get('ts', 0)] | affected=[len(_last.get('affected', []) or [])]" size 14 color "#9FC4E2" xalign 0.5
+
             hbox:
                 spacing 10
                 xalign 0.5
@@ -556,6 +566,8 @@ screen battle_dev_finish_panel():
                     action Function(bs_dev_finish_combat, "defeat")
                 textbutton "🤝 Empate":
                     action Function(bs_dev_finish_combat, "draw")
+                textbutton "🧹 Limpiar estado":
+                    action Function(bs_dev_clear_finish_combat_audit)
                 textbutton "✖ Cerrar":
                     action SetVariable("ui_show_battle_finish_panel", False)
 
