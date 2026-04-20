@@ -11,10 +11,16 @@ screen bs_saga_preparation_room_screen():
     $ _cfg = str(bs_saga_prep_selected_config or "cfg1")
     $ _party = [str(x) for x in (bs_saga_prep_selected_party_ids or []) if str(x)]
     $ _party_txt = ", ".join(_party) if _party else "sin equipo"
+    $ _j1 = str(_party[0] if len(_party) > 0 else (_hero if _hero else ""))
+    $ _j2 = str(_party[1] if len(_party) > 1 else "")
     $ _owned_only = bool(bs_saga_prep_filter_owned_only)
     $ _slots = bs_saga_hero_loadout_slots(_hero, _cfg, _build) if _hero else []
     $ _hero_tier = bs_saga_hero_tier(_hero, "C") if _hero else ""
     $ _pool_tier = bs_saga_prep_pool_tier_for_hero(_hero) if _hero else "C"
+    $ _rotation_tier = bs_saga_rotation_tier_current() if _hero else "C"
+    $ _pool_gate = bs_saga_pool_gate_status_for_hero(_hero) if _hero else {"pool_locked_by_collection": False}
+    $ _pool_locked = bool(_pool_gate.get("pool_locked_by_collection", False)) if _hero else False
+    $ _gate_smoke = bs_saga_tier_gate_smoke_report(_hero) if _hero else {"checks": [], "ok": True}
     $ _tier_pool = bs_saga_tier_pool_total(_pool_tier) if _hero else 0
     $ _tier_stats = bs_saga_tier_core_profile(_pool_tier) if _hero else {"hp":0,"ep":0,"ec":0,"durability":0,"cover":0}
     $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
@@ -48,7 +54,7 @@ screen bs_saga_preparation_room_screen():
         xalign 0.5
         yalign 0.56
         xsize 1120
-        ysize 500
+        ysize 560
         padding (16, 16)
         background Solid("#13273A")
         hbox:
@@ -90,12 +96,12 @@ screen bs_saga_preparation_room_screen():
                                             text (_name + " (" + str(row.get("tier", "C")) + ")") size 17 color "#D0E9FF" xminimum 300
                                             text _tag size 16 color ("#8BD6A7" if _state == "disponible" else ("#FFD166" if _state == "para_probar" else "#FF9F9F")) xminimum 120
                                             if _hero == _hid:
-                                                text "Activo" size 16 color "#F7D774"
+                                                text "J1 activo" size 16 color "#F7D774"
                                             elif _is_av:
-                                                textbutton "Elegir":
+                                                textbutton "Asignar J1":
                                                     action Function(bs_saga_ui_call, bs_saga_set_prep_hero, _hid)
-                                            if _is_av:
-                                                textbutton ("Quitar" if _hid in _party else "Equipo"):
+                                            if _is_av and _mode == "2v2" and _hid != _hero:
+                                                textbutton ("Quitar J2" if _hid == _j2 else "Asignar J2"):
                                                     action Function(bs_saga_ui_call, bs_saga_toggle_prep_party_hero, _hid)
                             else:
                                 text "No hay roster cargado." size 18 color "#9FB9D1"
@@ -108,21 +114,41 @@ screen bs_saga_preparation_room_screen():
                     draggable True
                     mousewheel True
                     scrollbars "vertical"
-                    ymaximum 468
+                    ymaximum 528
                     vbox:
                         spacing 8
                         text "Configuración de entrada" size 22 color "#EAF6FF"
-                        text ("Héroe activo: " + (_hero if _hero else "sin seleccionar")) size 16 color "#CFE6FA"
-                        text ("Equipo seleccionado: " + _party_txt) size 14 color "#9FC4E2"
+                        text ("Jugador 1 (activo): " + (_hero if _hero else "sin seleccionar")) size 16 color "#CFE6FA"
+                        text ("Alineación del duelo: " + _party_txt) size 14 color "#9FC4E2"
+                        if _mode == "2v2":
+                            text ("Casillas · J1: " + (_j1 if _j1 else "—") + " · J2: " + (_j2 if _j2 else "—")) size 14 color "#A9CAE6"
+                            frame:
+                                xfill True
+                                background Solid("#173048")
+                                padding (8, 6)
+                                vbox:
+                                    spacing 6
+                                    text ("Jugador 1: " + (_j1 if _j1 else "vacío")) size 14 color "#D0E9FF"
+                                    text ("Jugador 2: " + (_j2 if _j2 else "vacío")) size 14 color "#D0E9FF"
+                                    hbox:
+                                        spacing 6
+                                        textbutton "Promover J2 → J1":
+                                            action Function(bs_saga_ui_call, bs_saga_promote_prep_j2_to_j1)
+                                        textbutton "Quitar J2":
+                                            action Function(bs_saga_ui_call, bs_saga_clear_prep_j2_slot)
                         text ("Config activa: " + _cfg.upper()) size 14 color "#9FC4E2"
                         text ("Build activa: " + _build) size 14 color "#9FC4E2"
                         if _hero:
-                            text ("Tier héroe: " + _hero_tier + " · Tier cuenta/pool: " + _pool_tier + " · Pool duelo: " + str(_tier_pool)) size 14 color "#9FC4E2"
+                            text ("Tier héroe: " + _hero_tier + " · Tier rotación (nivel): " + _rotation_tier + " · Tier cuenta/pool: " + _pool_tier + " · Pool duelo: " + str(_tier_pool)) size 14 color "#9FC4E2"
+                            if _pool_locked:
+                                text ("⚠ Pool bloqueado por colección: puedes usar rotación de tier " + _rotation_tier + ", pero el pool sigue en tier cuenta " + _pool_tier + ".") size 13 color "#FFD166"
                             text ("HP " + str(_tier_stats.get("hp", 0)) + " · EP " + str(_tier_stats.get("ep", 0)) + " · EC " + str(_tier_stats.get("ec", 0))) size 14 color "#9FC4E2"
                             text ("Durabilidad " + str(_tier_stats.get("durability", 0)) + " · Cubre " + str(_tier_stats.get("cover", 0))) size 14 color "#9FC4E2"
                             text ("Modo técnico: " + str(_tech_prof.get("mode", "virgen")) + " · Pool técnico " + str(_pool_total_cfg)) size 14 color "#9FC4E2"
                             text ("Pool técnico usado/libre: " + str(_spent_cfg) + "/" + str(_pool_total_cfg) + " · Libre " + str(_pool_left_cfg)) size 14 color "#9FC4E2"
                             text ("Loadout: " + str(_loadout_count) + "/6 slots equipados") size 14 color "#9FC4E2"
+                            if bool(getattr(store, "bs_saga_dev_admin_enabled", False)):
+                                text ("QA gates: " + ("OK" if bool(_gate_smoke.get("ok", False)) else "WARN")) size 13 color ("#8BD6A7" if bool(_gate_smoke.get("ok", False)) else "#FFD166")
                             null height 6
                             text ("Resumen: modo " + _mode + " | enemigo " + _enemy_mode + " | build " + _build) size 15 color "#9FC4E2"
                             textbutton "Configurar héroe":
@@ -155,8 +181,15 @@ screen bs_saga_hero_config_screen():
     $ _equipables = bs_saga_prep_inventory_candidates("equipables")
     $ _slots = bs_saga_hero_loadout_slots(_hero, _cfg, _build) if _hero else []
     $ _loadout_count = len([x for x in _slots if str(x or "").strip()]) if _hero else 0
+    $ _party = [str(x) for x in (bs_saga_prep_selected_party_ids or []) if str(x)]
+    $ _j1 = str(_party[0] if len(_party) > 0 else (_hero if _hero else ""))
+    $ _j2 = str(_party[1] if len(_party) > 1 else "")
     $ _hero_tier = bs_saga_hero_tier(_hero, "C") if _hero else "C"
     $ _pool_tier = bs_saga_prep_pool_tier_for_hero(_hero) if _hero else "C"
+    $ _rotation_tier = bs_saga_rotation_tier_current() if _hero else "C"
+    $ _pool_gate = bs_saga_pool_gate_status_for_hero(_hero) if _hero else {"pool_locked_by_collection": False}
+    $ _pool_locked = bool(_pool_gate.get("pool_locked_by_collection", False)) if _hero else False
+    $ _gate_smoke = bs_saga_tier_gate_smoke_report(_hero) if _hero else {"checks": [], "ok": True}
     $ _tier_pool = bs_saga_tier_pool_total(_pool_tier) if _hero else 0
     $ _tier_stats = bs_saga_tier_core_profile(_hero_tier) if _hero else {"hp":0,"ep":0,"ec":0,"durability":0,"cover":0}
     $ _tier_tuning = bs_saga_tier_combat_tuning_profile(_hero_tier) if _hero else {"hp_factor":0.0,"rest_hp_pct":0.0,"rest_ep_pct":0.0,"rest_ec_pct":0.0,"rest_ec_scales":0}
@@ -200,7 +233,19 @@ screen bs_saga_hero_config_screen():
         background Solid("#13273A")
         vbox:
             spacing 10
-            text ("Héroe activo: " + (_hero if _hero else "sin seleccionar") + " · Tier héroe " + _hero_tier + " · Pool tier cuenta " + _pool_tier + " (" + str(_tier_pool) + ")") size 18 color "#CFE6FA"
+            text ("Jugador 1: " + (_hero if _hero else "sin seleccionar") + " · Tier héroe " + _hero_tier + " · Tier rotación " + _rotation_tier + " · Pool tier cuenta " + _pool_tier + " (" + str(_tier_pool) + ")") size 18 color "#CFE6FA"
+            if _mode == "2v2":
+                text ("Casillas · J1: " + (_j1 if _j1 else "—") + " · J2: " + (_j2 if _j2 else "—")) size 14 color "#A9CAE6"
+                hbox:
+                    spacing 6
+                    textbutton "Promover J2 → J1":
+                        action Function(bs_saga_ui_call, bs_saga_promote_prep_j2_to_j1)
+                    textbutton "Quitar J2":
+                        action Function(bs_saga_ui_call, bs_saga_clear_prep_j2_slot)
+            if _hero and _pool_locked:
+                text ("⚠ Pool bloqueado por colección mínima del tier. Rotación desbloqueada por nivel, pool aún en " + _pool_tier + ".") size 14 color "#FFD166"
+            if _hero and bool(getattr(store, "bs_saga_dev_admin_enabled", False)):
+                text ("QA gates: " + ("OK" if bool(_gate_smoke.get("ok", False)) else "WARN")) size 13 color ("#8BD6A7" if bool(_gate_smoke.get("ok", False)) else "#FFD166")
             hbox:
                 spacing 6
                 textbutton "Resumen" action SetVariable("bs_saga_prep_config_tab", "resumen")
@@ -323,6 +368,8 @@ screen bs_saga_duel_staging_screen():
     $ _cfg = str(bs_saga_prep_selected_config or "cfg1")
     $ _party = [str(x) for x in (bs_saga_prep_selected_party_ids or []) if str(x)]
     $ _party_txt = ", ".join(_party) if _party else "sin equipo"
+    $ _j1 = str(_party[0] if len(_party) > 0 else (_hero if _hero else ""))
+    $ _j2 = str(_party[1] if len(_party) > 1 else "")
     $ _tier = bs_saga_hero_tier(_hero, "C") if _hero else "C"
     $ _pool = bs_saga_tier_pool_total(_tier) if _hero else 0
     $ _hp_reward_mult = bs_saga_clamp_hp_reward_multiplier(getattr(store, "bs_saga_prep_hp_reward_multiplier", 1))
@@ -390,7 +437,10 @@ screen bs_saga_duel_staging_screen():
                         text ("Héroe: " + _hero + " · Tier " + _tier) size 16 color "#CFE6FA"
                     else:
                         text "Héroe: sin seleccionar" size 16 color "#FF9F9F"
-                    text ("Equipo: " + _party_txt) size 14 color "#9FC4E2"
+                    text ("Alineación: " + _party_txt) size 14 color "#9FC4E2"
+                    if _mode == "2v2":
+                        text ("Casillas · J1: " + (_j1 if _j1 else "—") + " · J2: " + (_j2 if _j2 else "—")) size 14 color "#A9CAE6"
+                        text ("Estado slots: " + ("completo" if _j1 and _j2 else "incompleto")) size 13 color ("#8BD6A7" if _j1 and _j2 else "#FFD166")
                     text ("Modo: " + _mode + " · Rival: " + ("manual" if _enemy_mode == "manual" else "aleatorio")) size 14 color "#9FC4E2"
                     text ("Build: " + _build + " · Config: " + _cfg.upper()) size 14 color "#9FC4E2"
                     text ("Pool duelo: " + str(_pool) + " · Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"
@@ -476,6 +526,8 @@ screen bs_saga_duel_staging_screen():
                             spacing 6
                             textbutton "EXP base -5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_exp", -5)
                             textbutton "EXP base +5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_exp", 5)
+                        hbox:
+                            spacing 6
                             textbutton "Step EXP -0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_exp", -0.5)
                             textbutton "Step EXP +0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_exp", 0.5)
                         text ("Base Oro " + str(_r_base_oro) + " · Step Oro " + str(_r_step_oro)) size 13 color "#9FC4E2"
@@ -483,6 +535,8 @@ screen bs_saga_duel_staging_screen():
                             spacing 6
                             textbutton "Oro base -5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_oro", -5)
                             textbutton "Oro base +5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_oro", 5)
+                        hbox:
+                            spacing 6
                             textbutton "Step Oro -0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_oro", -0.5)
                             textbutton "Step Oro +0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_oro", 0.5)
 
