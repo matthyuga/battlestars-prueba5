@@ -435,8 +435,6 @@ screen battle_log_screen():
     key "q" action ToggleVariable("ui_show_queue_2v2_details")
     key "b" action ToggleVariable("ui_show_battle_debug_log")
     key "ctrl_K_v" action Function(bs_dev_instant_victory)
-    key "ctrl_K_x" action If(config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
-    key "ctrl_x" action If(config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
 
     $ start_pos = get_battle_log_position()
 
@@ -528,10 +526,6 @@ screen battle_log_screen():
                                                 text row["name"] size 20 xalign 0.5 outlines [(2, "#000", 0, 0)]
                                 else:
                                     text row["text"] size 20 color row.get("color", "#DDDDDD") xalign 0.0
-
-    if config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)) and ui_show_battle_finish_panel:
-        use battle_dev_finish_panel()
-
 
 screen battle_dev_finish_panel():
     zorder 650
@@ -630,6 +624,11 @@ init python:
 screen battle_keymap_layer():
     key "ctrl_K_k" action Function(toggle_battle_log)
     key "ctrl_K_c" action Function(battle_log_clear)
+    key "ctrl_K_x" action If(config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
+    key "ctrl_x" action If(config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
+
+    if config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)) and ui_show_battle_finish_panel:
+        use battle_dev_finish_panel()
 
 init python:
     if "battle_keymap_layer" not in config.overlay_screens:
