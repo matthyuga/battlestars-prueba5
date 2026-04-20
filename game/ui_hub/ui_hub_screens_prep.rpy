@@ -48,7 +48,7 @@ screen bs_saga_preparation_room_screen():
         xalign 0.5
         yalign 0.56
         xsize 1120
-        ysize 500
+        ysize 560
         padding (16, 16)
         background Solid("#13273A")
         hbox:
@@ -108,7 +108,7 @@ screen bs_saga_preparation_room_screen():
                     draggable True
                     mousewheel True
                     scrollbars "vertical"
-                    ymaximum 468
+                    ymaximum 528
                     vbox:
                         spacing 8
                         text "Configuración de entrada" size 22 color "#EAF6FF"
@@ -476,6 +476,8 @@ screen bs_saga_duel_staging_screen():
                             spacing 6
                             textbutton "EXP base -5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_exp", -5)
                             textbutton "EXP base +5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_exp", 5)
+                        hbox:
+                            spacing 6
                             textbutton "Step EXP -0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_exp", -0.5)
                             textbutton "Step EXP +0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_exp", 0.5)
                         text ("Base Oro " + str(_r_base_oro) + " · Step Oro " + str(_r_step_oro)) size 13 color "#9FC4E2"
@@ -483,6 +485,8 @@ screen bs_saga_duel_staging_screen():
                             spacing 6
                             textbutton "Oro base -5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_oro", -5)
                             textbutton "Oro base +5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_oro", 5)
+                        hbox:
+                            spacing 6
                             textbutton "Step Oro -0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_oro", -0.5)
                             textbutton "Step Oro +0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_oro", 0.5)
 
