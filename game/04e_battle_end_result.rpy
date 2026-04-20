@@ -56,6 +56,7 @@ label battle_end:
             "source": "battle_end",
             "result": str(getattr(S, "story_pilot_last_result", "draw") or "draw"),
             "battle_id": str(getattr(S, "story_pilot_battle_id", "battle_runtime") or "battle_runtime"),
+            "turn_index": int(getattr(S, "battle_turn_index", 0) or 0),
             "player_hp": int(getattr(S, "player_hp", 0) or 0),
             "enemy_hp": int(getattr(S, "enemy_hp", 0) or 0),
             "repetition_count": int(getattr(S, "story_pilot_repetition_count", 1) or 1),
