@@ -713,6 +713,43 @@ init -880 python:
             t = str(bs_saga_refresh_rotation_tier(reason="rotation_tier_eval") or "").strip().upper()
         return t if t else "C"
 
+    def bs_saga_rotation_allows_hero_id(hero_id, include_owned=True):
+        """
+        Fase 2:
+        - Rotación por nivel permite probar héroes hasta rotation_tier_current.
+        - Héroes propios quedan disponibles aunque superen ese tope.
+        """
+        hid = str(hero_id or "").strip()
+        if not hid:
+            return False
+        if include_owned and bs_saga_hero_is_owned(hid):
+            return True
+        hero_tier = bs_saga_hero_tier(hid, "C")
+        rot_tier = bs_saga_rotation_tier_current()
+        rank_fn = getattr(S, "bs_saga_tier_rank_value", None)
+        if not callable(rank_fn):
+            return True
+        return int(rank_fn(hero_tier)) <= int(rank_fn(rot_tier))
+
+    def bs_saga_pool_gate_status_for_hero(hero_id):
+        hid = str(hero_id or "").strip()
+        hero_tier = bs_saga_hero_tier(hid, "C")
+        account_tier = bs_saga_account_tier_current()
+        rotation_tier = bs_saga_rotation_tier_current()
+        pool_tier = bs_saga_prep_pool_tier_for_hero(hid)
+        rank_fn = getattr(S, "bs_saga_tier_rank_value", None)
+        if callable(rank_fn):
+            locked = bool(int(rank_fn(hero_tier)) > int(rank_fn(account_tier)))
+        else:
+            locked = bool(str(hero_tier) != str(pool_tier))
+        return {
+            "hero_tier": str(hero_tier or "C"),
+            "rotation_tier": str(rotation_tier or "C"),
+            "account_tier": str(account_tier or "C"),
+            "pool_tier": str(pool_tier or "C"),
+            "pool_locked_by_collection": bool(locked),
+        }
+
     def bs_saga_prep_pool_tier_for_hero(hero_id):
         hid = str(hero_id or "").strip()
         hero_tier = bs_saga_hero_tier(hid, "C")
@@ -1365,7 +1402,9 @@ init -880 python:
                 continue
             hid = bs_saga_hero_id(r)
             if hid:
-                rows.append(str(hid))
+                hs = str(hid)
+                if bs_saga_rotation_allows_hero_id(hs, include_owned=True):
+                    rows.append(hs)
         unique = []
         for hid in rows:
             if hid not in unique:
