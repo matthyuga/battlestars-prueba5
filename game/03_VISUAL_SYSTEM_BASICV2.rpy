@@ -62,6 +62,8 @@ init -978 python:
         S.ui_show_target_assignment_details = False
     if not hasattr(S, "ui_show_queue_2v2_details"):
         S.ui_show_queue_2v2_details = False
+    if not hasattr(S, "ui_show_battle_finish_panel"):
+        S.ui_show_battle_finish_panel = False
 
     # Fase 8: persistencia de toggles por sesión (runtime store)
     if not hasattr(S, "battle_log_ui_session_prefs") or not isinstance(getattr(S, "battle_log_ui_session_prefs", None), dict):
@@ -70,6 +72,7 @@ init -978 python:
             "ui_show_offensive_operation_details": bool(getattr(S, "ui_show_offensive_operation_details", False)),
             "ui_show_target_assignment_details": bool(getattr(S, "ui_show_target_assignment_details", False)),
             "ui_show_queue_2v2_details": bool(getattr(S, "ui_show_queue_2v2_details", False)),
+            "ui_show_battle_finish_panel": bool(getattr(S, "ui_show_battle_finish_panel", False)),
         }
 
     MAX_LOG_LINES = 250
@@ -427,8 +430,8 @@ screen battle_log_screen():
     key "q" action ToggleVariable("ui_show_queue_2v2_details")
     key "b" action ToggleVariable("ui_show_battle_debug_log")
     key "ctrl_K_v" action Function(bs_dev_instant_victory)
-    key "ctrl_K_x" action Function(bs_dev_finish_combat, "victory")
-    key "ctrl_x" action Function(bs_dev_finish_combat, "victory")
+    key "ctrl_K_x" action ToggleVariable("ui_show_battle_finish_panel")
+    key "ctrl_x" action ToggleVariable("ui_show_battle_finish_panel")
 
     $ start_pos = get_battle_log_position()
 
@@ -475,8 +478,8 @@ screen battle_log_screen():
                         background "#0000"
 
                 if config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)):
-                    textbutton "[[Ctrl+K+X]] ⚡ Finalizar combate (victoria dev)":
-                        action Function(bs_dev_finish_combat, "victory")
+                    textbutton "[[Ctrl+X]] ⚡ Panel finalizar combate":
+                        action ToggleVariable("ui_show_battle_finish_panel")
                         text_size 13
                         text_color "#80DEEA"
                         background "#0000"
@@ -520,6 +523,41 @@ screen battle_log_screen():
                                                 text row["name"] size 20 xalign 0.5 outlines [(2, "#000", 0, 0)]
                                 else:
                                     text row["text"] size 20 color row.get("color", "#DDDDDD") xalign 0.0
+
+    if config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)) and ui_show_battle_finish_panel:
+        use battle_dev_finish_panel()
+
+
+screen battle_dev_finish_panel():
+    zorder 650
+    modal False
+
+    key "ctrl_K_x" action SetVariable("ui_show_battle_finish_panel", False)
+    key "ctrl_x" action SetVariable("ui_show_battle_finish_panel", False)
+
+    frame:
+        xalign 0.5
+        yalign 0.02
+        xmaximum 860
+        background "#000C"
+        padding (16, 12)
+
+        vbox:
+            spacing 8
+            text "⚙ Panel dev · Finalizar combate" size 24 color "#FFD700" bold True xalign 0.5
+            text "Selecciona resultado forzado (ruta canónica: battle_end)." size 15 color "#CFE8FF" xalign 0.5
+
+            hbox:
+                spacing 10
+                xalign 0.5
+                textbutton "🏆 Victoria":
+                    action Function(bs_dev_finish_combat, "victory")
+                textbutton "☠ Derrota":
+                    action Function(bs_dev_finish_combat, "defeat")
+                textbutton "🤝 Empate":
+                    action Function(bs_dev_finish_combat, "draw")
+                textbutton "✖ Cerrar":
+                    action SetVariable("ui_show_battle_finish_panel", False)
 
 
 # -----------------------------------------------------------
