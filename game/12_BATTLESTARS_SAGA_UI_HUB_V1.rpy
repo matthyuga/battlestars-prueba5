@@ -166,6 +166,30 @@ init -880 python:
                 count += 1
         return count
 
+    def _bs_saga_tier_order_desc():
+        return ["IV", "SSS", "SS", "S", "A", "B", "C"]
+
+    def _bs_saga_tier_order_asc():
+        return ["C", "B", "A", "S", "SS", "SSS", "IV"]
+
+    def bs_saga_eval_rotation_tier_by_level(level_override=None):
+        """
+        Tier de rotación (Fase 1):
+        - SOLO por nivel de cuenta.
+        - No exige colección mínima de héroes.
+        """
+        acc = bs_saga_account()
+        try:
+            lvl = int(level_override if level_override is not None else acc.get("level", 1) or 1)
+        except:
+            lvl = 1
+        req_l = getattr(S, "bs_saga_tier_level_requirements", {}) or {}
+        for t in _bs_saga_tier_order_desc():
+            level_req = int(req_l.get(t, 1) or 1)
+            if lvl >= level_req:
+                return t
+        return "C"
+
     def bs_saga_eval_account_tier():
         acc = bs_saga_account()
         try:
@@ -174,8 +198,7 @@ init -880 python:
             lvl = 1
         req_h = getattr(S, "bs_saga_tier_hero_requirements", {}) or {}
         req_l = getattr(S, "bs_saga_tier_level_requirements", {}) or {}
-        order = ["IV", "SSS", "SS", "S", "A", "B", "C"]
-        for t in order:
+        for t in _bs_saga_tier_order_desc():
             heroes_req = int(req_h.get(t, 999999) or 999999)
             level_req = int(req_l.get(t, 1) or 1)
             if lvl < level_req:
@@ -183,6 +206,23 @@ init -880 python:
             if bs_saga_owned_heroes_count_by_tier(t) >= heroes_req:
                 return t
         return ""
+
+    def bs_saga_refresh_rotation_tier(reason="runtime"):
+        acc = bs_saga_account()
+        prev = str(acc.get("rotation_tier", "") or "").upper().strip()
+        now = str(bs_saga_eval_rotation_tier_by_level() or "").upper().strip()
+        if not now:
+            now = "C"
+        if prev == now:
+            return now
+        acc["rotation_tier"] = now
+        bs_saga_audit_push("rotation_tier_update", {
+            "reason": str(reason or "runtime"),
+            "rotation_tier_before": prev,
+            "rotation_tier_after": now,
+            "level": int(acc.get("level", 1) or 1),
+        })
+        return now
 
     def bs_saga_refresh_account_tier(reason="runtime"):
         acc = bs_saga_account()
@@ -202,12 +242,14 @@ init -880 python:
     def bs_saga_tier_progress_rows():
         req_h = getattr(S, "bs_saga_tier_hero_requirements", {}) or {}
         req_l = getattr(S, "bs_saga_tier_level_requirements", {}) or {}
-        order = ["C", "B", "A", "S", "SS", "SSS", "IV"]
+        order = _bs_saga_tier_order_asc()
         acc = bs_saga_account()
         try:
             lvl = int(acc.get("level", 1) or 1)
         except:
             lvl = 1
+        rotation_tier = str(bs_saga_refresh_rotation_tier(reason="tier_progress_rows") or "C").upper()
+        account_tier = str(bs_saga_refresh_account_tier(reason="tier_progress_rows") or "C").upper()
         out = []
         for t in order:
             need_h = int(req_h.get(t, 999999) or 999999)
@@ -220,6 +262,9 @@ init -880 python:
                 "have_heroes": have_h,
                 "need_level": need_l,
                 "ok": ok,
+                "rotation_tier_current": rotation_tier,
+                "account_tier_current": account_tier,
+                "rotation_unlocked_by_level": bool(lvl >= need_l),
             })
         return out
 
@@ -659,6 +704,13 @@ init -880 python:
         t = str(acc.get("tier", "") or "").strip().upper()
         if not t:
             t = str(bs_saga_refresh_account_tier(reason="prep_pool_eval") or "").strip().upper()
+        return t if t else "C"
+
+    def bs_saga_rotation_tier_current():
+        acc = getattr(S, "bs_saga_account_state", {}) or {}
+        t = str(acc.get("rotation_tier", "") or "").strip().upper()
+        if not t:
+            t = str(bs_saga_refresh_rotation_tier(reason="rotation_tier_eval") or "").strip().upper()
         return t if t else "C"
 
     def bs_saga_prep_pool_tier_for_hero(hero_id):
