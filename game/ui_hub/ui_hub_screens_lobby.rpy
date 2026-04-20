@@ -461,13 +461,16 @@ screen bs_saga_profile_screen():
     tag menu
     $ _acc = bs_saga_account()
     $ _tier_current = bs_saga_refresh_account_tier(reason="profile_screen")
+    $ _rotation_tier_current = bs_saga_refresh_rotation_tier(reason="profile_screen")
     $ _gold = int(_acc.get("gold", 0) or 0)
     $ _lvl = int(_acc.get("level", 1) or 1)
     $ _exp = int(_acc.get("exp", 0) or 0)
     $ _next = int(_acc.get("exp_to_next", 100) or 100)
     $ _exp_ratio = bs_saga_exp_progress()
     $ _tier = str(_tier_current or "")
+    $ _rotation_tier = str(_rotation_tier_current or "C")
     $ _tier_txt = (_tier if _tier else "Sin tier")
+    $ _rotation_tier_txt = (_rotation_tier if _rotation_tier else "C")
     $ _top_total = bs_saga_top_heroes(3, False)
     $ _top_24 = bs_saga_top_heroes(3, True)
     $ _tier_rows = bs_saga_tier_progress_rows()
@@ -519,7 +522,10 @@ screen bs_saga_profile_screen():
                     vbox:
                         spacing 8
                         text "Resumen de cuenta" size 28 color "#EAF6FF"
-                        text ("Tier: " + _tier_txt) size 18 color "#D0E9FF"
+                        text ("Tier cuenta/pool: " + _tier_txt) size 18 color "#D0E9FF"
+                        text ("Tier rotación (por nivel): " + _rotation_tier_txt) size 16 color "#A9CAE6"
+                        if _tier_txt != _rotation_tier_txt:
+                            text ("⚠ Desfase esperado: ya desbloqueaste rotación tier " + _rotation_tier_txt + " por nivel, pero el pool sigue en tier " + _tier_txt + " hasta completar héroes mínimos.") size 13 color "#FFD166"
                         text ("Nivel: " + str(_lvl)) size 18 color "#D0E9FF"
                         text ("EXP: " + str(_exp) + "/" + str(_next)) size 18 color "#D0E9FF"
                         bar:
@@ -569,7 +575,8 @@ screen bs_saga_profile_screen():
                             $ _nh = int(row.get("need_heroes", 0) or 0)
                             $ _nl = int(row.get("need_level", 0) or 0)
                             $ _ok = bool(row.get("ok", False))
-                            text ("• " + _tt + ": Lv " + str(_lvl) + "/" + str(_nl) + " · Héroes " + str(_hv) + "/" + str(_nh)) size 14 color ("#8BD6A7" if _ok else "#9FC4E2")
+                            $ _rot_unlock = bool(row.get("rotation_unlocked_by_level", False))
+                            text ("• " + _tt + ": Lv " + str(_lvl) + "/" + str(_nl) + " · Héroes " + str(_hv) + "/" + str(_nh) + " · Rotación " + ("✅" if _rot_unlock else "⛔") + " · Pool " + ("✅" if _ok else "⛔")) size 14 color ("#8BD6A7" if _ok else ("#A9CAE6" if _rot_unlock else "#9FC4E2"))
             frame:
                 xfill True
                 yfill True

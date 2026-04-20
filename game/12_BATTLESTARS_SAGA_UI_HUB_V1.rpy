@@ -166,6 +166,30 @@ init -880 python:
                 count += 1
         return count
 
+    def _bs_saga_tier_order_desc():
+        return ["IV", "SSS", "SS", "S", "A", "B", "C"]
+
+    def _bs_saga_tier_order_asc():
+        return ["C", "B", "A", "S", "SS", "SSS", "IV"]
+
+    def bs_saga_eval_rotation_tier_by_level(level_override=None):
+        """
+        Tier de rotación (Fase 1):
+        - SOLO por nivel de cuenta.
+        - No exige colección mínima de héroes.
+        """
+        acc = bs_saga_account()
+        try:
+            lvl = int(level_override if level_override is not None else acc.get("level", 1) or 1)
+        except:
+            lvl = 1
+        req_l = getattr(S, "bs_saga_tier_level_requirements", {}) or {}
+        for t in _bs_saga_tier_order_desc():
+            level_req = int(req_l.get(t, 1) or 1)
+            if lvl >= level_req:
+                return t
+        return "C"
+
     def bs_saga_eval_account_tier():
         acc = bs_saga_account()
         try:
@@ -174,8 +198,7 @@ init -880 python:
             lvl = 1
         req_h = getattr(S, "bs_saga_tier_hero_requirements", {}) or {}
         req_l = getattr(S, "bs_saga_tier_level_requirements", {}) or {}
-        order = ["IV", "SSS", "SS", "S", "A", "B", "C"]
-        for t in order:
+        for t in _bs_saga_tier_order_desc():
             heroes_req = int(req_h.get(t, 999999) or 999999)
             level_req = int(req_l.get(t, 1) or 1)
             if lvl < level_req:
@@ -183,6 +206,23 @@ init -880 python:
             if bs_saga_owned_heroes_count_by_tier(t) >= heroes_req:
                 return t
         return ""
+
+    def bs_saga_refresh_rotation_tier(reason="runtime"):
+        acc = bs_saga_account()
+        prev = str(acc.get("rotation_tier", "") or "").upper().strip()
+        now = str(bs_saga_eval_rotation_tier_by_level() or "").upper().strip()
+        if not now:
+            now = "C"
+        if prev == now:
+            return now
+        acc["rotation_tier"] = now
+        bs_saga_audit_push("rotation_tier_update", {
+            "reason": str(reason or "runtime"),
+            "rotation_tier_before": prev,
+            "rotation_tier_after": now,
+            "level": int(acc.get("level", 1) or 1),
+        })
+        return now
 
     def bs_saga_refresh_account_tier(reason="runtime"):
         acc = bs_saga_account()
@@ -202,12 +242,14 @@ init -880 python:
     def bs_saga_tier_progress_rows():
         req_h = getattr(S, "bs_saga_tier_hero_requirements", {}) or {}
         req_l = getattr(S, "bs_saga_tier_level_requirements", {}) or {}
-        order = ["C", "B", "A", "S", "SS", "SSS", "IV"]
+        order = _bs_saga_tier_order_asc()
         acc = bs_saga_account()
         try:
             lvl = int(acc.get("level", 1) or 1)
         except:
             lvl = 1
+        rotation_tier = str(bs_saga_refresh_rotation_tier(reason="tier_progress_rows") or "C").upper()
+        account_tier = str(bs_saga_refresh_account_tier(reason="tier_progress_rows") or "C").upper()
         out = []
         for t in order:
             need_h = int(req_h.get(t, 999999) or 999999)
@@ -220,6 +262,9 @@ init -880 python:
                 "have_heroes": have_h,
                 "need_level": need_l,
                 "ok": ok,
+                "rotation_tier_current": rotation_tier,
+                "account_tier_current": account_tier,
+                "rotation_unlocked_by_level": bool(lvl >= need_l),
             })
         return out
 
@@ -660,6 +705,96 @@ init -880 python:
         if not t:
             t = str(bs_saga_refresh_account_tier(reason="prep_pool_eval") or "").strip().upper()
         return t if t else "C"
+
+    def bs_saga_rotation_tier_current():
+        acc = getattr(S, "bs_saga_account_state", {}) or {}
+        t = str(acc.get("rotation_tier", "") or "").strip().upper()
+        if not t:
+            t = str(bs_saga_refresh_rotation_tier(reason="rotation_tier_eval") or "").strip().upper()
+        return t if t else "C"
+
+    def bs_saga_rotation_allows_hero_id(hero_id, include_owned=True):
+        """
+        Fase 2:
+        - Rotación por nivel permite probar héroes hasta rotation_tier_current.
+        - Héroes propios quedan disponibles aunque superen ese tope.
+        """
+        hid = str(hero_id or "").strip()
+        if not hid:
+            return False
+        if include_owned and bs_saga_hero_is_owned(hid):
+            return True
+        hero_tier = bs_saga_hero_tier(hid, "C")
+        rot_tier = bs_saga_rotation_tier_current()
+        rank_fn = getattr(S, "bs_saga_tier_rank_value", None)
+        if not callable(rank_fn):
+            return True
+        return int(rank_fn(hero_tier)) <= int(rank_fn(rot_tier))
+
+    def bs_saga_pool_gate_status_for_hero(hero_id):
+        hid = str(hero_id or "").strip()
+        hero_tier = bs_saga_hero_tier(hid, "C")
+        account_tier = bs_saga_account_tier_current()
+        rotation_tier = bs_saga_rotation_tier_current()
+        pool_tier = bs_saga_prep_pool_tier_for_hero(hid)
+        rank_fn = getattr(S, "bs_saga_tier_rank_value", None)
+        if callable(rank_fn):
+            locked = bool(int(rank_fn(hero_tier)) > int(rank_fn(account_tier)))
+        else:
+            locked = bool(str(hero_tier) != str(pool_tier))
+        return {
+            "hero_tier": str(hero_tier or "C"),
+            "rotation_tier": str(rotation_tier or "C"),
+            "account_tier": str(account_tier or "C"),
+            "pool_tier": str(pool_tier or "C"),
+            "pool_locked_by_collection": bool(locked),
+        }
+
+    def bs_saga_tier_gate_smoke_report(hero_id=None):
+        """
+        Fase 5 (QA runtime): reporte rápido de consistencia de gates.
+        """
+        hid = str(hero_id or "").strip()
+        account_tier = bs_saga_account_tier_current()
+        rotation_tier = bs_saga_rotation_tier_current()
+        rank_fn = getattr(S, "bs_saga_tier_rank_value", None)
+        hero_tier = bs_saga_hero_tier(hid, "C") if hid else "C"
+        gate = bs_saga_pool_gate_status_for_hero(hid) if hid else {
+            "pool_tier": account_tier,
+            "pool_locked_by_collection": False,
+        }
+
+        checks = []
+        if callable(rank_fn):
+            checks.append({
+                "id": "rotation_ge_account",
+                "ok": bool(int(rank_fn(rotation_tier)) >= int(rank_fn(account_tier))),
+                "detail": "rotation_tier >= account_tier",
+            })
+            checks.append({
+                "id": "pool_lte_account",
+                "ok": bool(int(rank_fn(str(gate.get("pool_tier", "C")))) <= int(rank_fn(account_tier))),
+                "detail": "pool_tier <= account_tier",
+            })
+            if hid:
+                checks.append({
+                    "id": "hero_pool_lock_consistency",
+                    "ok": bool((int(rank_fn(hero_tier)) > int(rank_fn(account_tier))) == bool(gate.get("pool_locked_by_collection", False))),
+                    "detail": "hero_tier>account_tier <=> pool_locked_by_collection",
+                })
+        else:
+            checks.append({"id": "rank_fn_available", "ok": False, "detail": "bs_saga_tier_rank_value missing"})
+
+        return {
+            "hero_id": hid,
+            "hero_tier": hero_tier,
+            "rotation_tier": rotation_tier,
+            "account_tier": account_tier,
+            "pool_tier": str(gate.get("pool_tier", "C") or "C"),
+            "pool_locked_by_collection": bool(gate.get("pool_locked_by_collection", False)),
+            "checks": checks,
+            "ok": bool(all([bool(c.get("ok", False)) for c in checks])) if checks else False,
+        }
 
     def bs_saga_prep_pool_tier_for_hero(hero_id):
         hid = str(hero_id or "").strip()
@@ -1313,7 +1448,9 @@ init -880 python:
                 continue
             hid = bs_saga_hero_id(r)
             if hid:
-                rows.append(str(hid))
+                hs = str(hid)
+                if bs_saga_rotation_allows_hero_id(hs, include_owned=True):
+                    rows.append(hs)
         unique = []
         for hid in rows:
             if hid not in unique:
@@ -1349,7 +1486,7 @@ init -880 python:
                 cfg = str(inv.get("active_config", "cfg1") or "cfg1")
                 if cfg in bs_saga_prep_config_keys():
                     S.bs_saga_prep_selected_config = cfg
-            bs_saga_set_message("Preparación: héroe activo = {}.".format(str(row.get("name", hid))))
+            bs_saga_set_message("Preparación: Jugador 1 = {}.".format(str(row.get("name", hid))))
             return True
         bs_saga_set_message("Héroe no encontrado para preparación.")
         return False
@@ -1380,17 +1517,17 @@ init -880 python:
             party = [x for x in party if x != hid]
             if str(getattr(S, "bs_saga_prep_selected_hero", "") or "") == hid:
                 S.bs_saga_prep_selected_hero = str(party[0] if party else "")
-            bs_saga_set_message("Equipo: removido {}.".format(hid))
+            bs_saga_set_message("Alineación: removido {}.".format(hid))
         else:
             mode = str(getattr(S, "bs_saga_prep_selected_mode", "1v1") or "1v1")
             max_party = 2 if mode == "2v2" else 1
             if len(party) >= max_party:
-                bs_saga_set_message("Equipo lleno para modo {} (máx {}).".format(mode, max_party))
+                bs_saga_set_message("Alineación llena para modo {} (máx {}).".format(mode, max_party))
                 return False
             party.append(hid)
             if not str(getattr(S, "bs_saga_prep_selected_hero", "") or ""):
                 S.bs_saga_prep_selected_hero = hid
-            bs_saga_set_message("Equipo: agregado {}.".format(hid))
+            bs_saga_set_message("Alineación: agregado {}.".format(hid))
         S.bs_saga_prep_selected_party_ids = party
         return True
 
@@ -1483,7 +1620,7 @@ init -880 python:
             "id": "hero_selected",
             "ok": bool(hero),
             "severity": "block",
-            "label": "Héroe activo seleccionado",
+            "label": "Jugador 1 seleccionado",
             "detail": hero or "Falta seleccionar héroe."
         })
 
@@ -1621,6 +1758,19 @@ init -880 python:
             S.battle_enemy_ids = [enemy_id]
         S.battle_player_id = str((S.battle_player_ids or [my_hero])[0] or my_hero)
         S.battle_enemy_id = str((S.battle_enemy_ids or [enemy_id])[0] or enemy_id)
+        # Battle identity única por duelo para evitar colisiones de idempotencia
+        # entre cierres de combate consecutivos.
+        duel_seq = int(getattr(S, "bs_saga_runtime_duel_seq", 0) or 0) + 1
+        S.bs_saga_runtime_duel_seq = int(duel_seq)
+        duel_ts = int(bs_saga_now_ts() or 0)
+        duel_nonce = int(renpy.random.randint(1000, 9999))
+        S.story_pilot_battle_id = "duel::%s::%s::%s::%s::n%s" % (
+            str(duel_ts),
+            str(duel_seq),
+            str(S.battle_player_id or "player"),
+            str(S.battle_enemy_id or "enemy"),
+            str(duel_nonce),
+        )
 
         prep_cfg = str(getattr(S, "bs_saga_prep_selected_config", "cfg1") or "cfg1")
         if prep_cfg not in bs_saga_prep_config_keys():
