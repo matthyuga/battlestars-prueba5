@@ -548,8 +548,14 @@ screen battle_dev_finish_panel():
             text "Selecciona resultado forzado (ruta canónica: battle_end)." size 15 color "#CFE8FF" xalign 0.5
 
             $ _last = getattr(store, "story_pilot_debug_last_finish_combat", {})
+            $ _last_mode = "n/a"
+            $ _last_ts = 0
+            $ _last_affected_n = 0
             if isinstance(_last, dict) and _last:
-                text "Último cierre: mode=[_last.get('mode', 'n/a')] | ts=[_last.get('ts', 0)] | affected=[len(_last.get('affected', []) or [])]" size 14 color "#9FC4E2" xalign 0.5
+                $ _last_mode = str(_last.get("mode", "n/a") or "n/a")
+                $ _last_ts = int(_last.get("ts", 0) or 0)
+                $ _last_affected_n = len(list(_last.get("affected", []) or []))
+                text "Último cierre: mode=[_last_mode] | ts=[_last_ts] | affected=[_last_affected_n]" size 14 color "#9FC4E2" xalign 0.5
 
             hbox:
                 spacing 10
