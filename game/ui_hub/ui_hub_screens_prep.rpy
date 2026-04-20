@@ -96,10 +96,10 @@ screen bs_saga_preparation_room_screen():
                                             if _hero == _hid:
                                                 text "Activo" size 16 color "#F7D774"
                                             elif _is_av:
-                                                textbutton "Elegir":
+                                                textbutton "Asignar J1":
                                                     action Function(bs_saga_ui_call, bs_saga_set_prep_hero, _hid)
                                             if _is_av:
-                                                textbutton ("Quitar" if _hid in _party else "Equipo"):
+                                                textbutton ("Quitar alineación" if _hid in _party else ("Asignar J2" if _mode == "2v2" else "Alineación")):
                                                     action Function(bs_saga_ui_call, bs_saga_toggle_prep_party_hero, _hid)
                             else:
                                 text "No hay roster cargado." size 18 color "#9FB9D1"
@@ -116,8 +116,8 @@ screen bs_saga_preparation_room_screen():
                     vbox:
                         spacing 8
                         text "Configuración de entrada" size 22 color "#EAF6FF"
-                        text ("Héroe activo: " + (_hero if _hero else "sin seleccionar")) size 16 color "#CFE6FA"
-                        text ("Equipo seleccionado: " + _party_txt) size 14 color "#9FC4E2"
+                        text ("Jugador 1 (activo): " + (_hero if _hero else "sin seleccionar")) size 16 color "#CFE6FA"
+                        text ("Alineación del duelo: " + _party_txt) size 14 color "#9FC4E2"
                         text ("Config activa: " + _cfg.upper()) size 14 color "#9FC4E2"
                         text ("Build activa: " + _build) size 14 color "#9FC4E2"
                         if _hero:
@@ -212,7 +212,7 @@ screen bs_saga_hero_config_screen():
         background Solid("#13273A")
         vbox:
             spacing 10
-            text ("Héroe activo: " + (_hero if _hero else "sin seleccionar") + " · Tier héroe " + _hero_tier + " · Tier rotación " + _rotation_tier + " · Pool tier cuenta " + _pool_tier + " (" + str(_tier_pool) + ")") size 18 color "#CFE6FA"
+            text ("Jugador 1: " + (_hero if _hero else "sin seleccionar") + " · Tier héroe " + _hero_tier + " · Tier rotación " + _rotation_tier + " · Pool tier cuenta " + _pool_tier + " (" + str(_tier_pool) + ")") size 18 color "#CFE6FA"
             if _hero and _pool_locked:
                 text ("⚠ Pool bloqueado por colección mínima del tier. Rotación desbloqueada por nivel, pool aún en " + _pool_tier + ".") size 14 color "#FFD166"
             if _hero and bool(getattr(store, "bs_saga_dev_admin_enabled", False)):
@@ -406,7 +406,7 @@ screen bs_saga_duel_staging_screen():
                         text ("Héroe: " + _hero + " · Tier " + _tier) size 16 color "#CFE6FA"
                     else:
                         text "Héroe: sin seleccionar" size 16 color "#FF9F9F"
-                    text ("Equipo: " + _party_txt) size 14 color "#9FC4E2"
+                    text ("Alineación: " + _party_txt) size 14 color "#9FC4E2"
                     text ("Modo: " + _mode + " · Rival: " + ("manual" if _enemy_mode == "manual" else "aleatorio")) size 14 color "#9FC4E2"
                     text ("Build: " + _build + " · Config: " + _cfg.upper()) size 14 color "#9FC4E2"
                     text ("Pool duelo: " + str(_pool) + " · Loadout equipado: " + str(_loadout_count) + "/6") size 14 color "#9FC4E2"

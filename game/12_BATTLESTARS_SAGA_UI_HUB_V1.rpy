@@ -1486,7 +1486,7 @@ init -880 python:
                 cfg = str(inv.get("active_config", "cfg1") or "cfg1")
                 if cfg in bs_saga_prep_config_keys():
                     S.bs_saga_prep_selected_config = cfg
-            bs_saga_set_message("Preparación: héroe activo = {}.".format(str(row.get("name", hid))))
+            bs_saga_set_message("Preparación: Jugador 1 = {}.".format(str(row.get("name", hid))))
             return True
         bs_saga_set_message("Héroe no encontrado para preparación.")
         return False
@@ -1517,17 +1517,17 @@ init -880 python:
             party = [x for x in party if x != hid]
             if str(getattr(S, "bs_saga_prep_selected_hero", "") or "") == hid:
                 S.bs_saga_prep_selected_hero = str(party[0] if party else "")
-            bs_saga_set_message("Equipo: removido {}.".format(hid))
+            bs_saga_set_message("Alineación: removido {}.".format(hid))
         else:
             mode = str(getattr(S, "bs_saga_prep_selected_mode", "1v1") or "1v1")
             max_party = 2 if mode == "2v2" else 1
             if len(party) >= max_party:
-                bs_saga_set_message("Equipo lleno para modo {} (máx {}).".format(mode, max_party))
+                bs_saga_set_message("Alineación llena para modo {} (máx {}).".format(mode, max_party))
                 return False
             party.append(hid)
             if not str(getattr(S, "bs_saga_prep_selected_hero", "") or ""):
                 S.bs_saga_prep_selected_hero = hid
-            bs_saga_set_message("Equipo: agregado {}.".format(hid))
+            bs_saga_set_message("Alineación: agregado {}.".format(hid))
         S.bs_saga_prep_selected_party_ids = party
         return True
 
@@ -1620,7 +1620,7 @@ init -880 python:
             "id": "hero_selected",
             "ok": bool(hero),
             "severity": "block",
-            "label": "Héroe activo seleccionado",
+            "label": "Jugador 1 seleccionado",
             "detail": hero or "Falta seleccionar héroe."
         })
 
