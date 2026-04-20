@@ -15,6 +15,9 @@ screen bs_saga_preparation_room_screen():
     $ _slots = bs_saga_hero_loadout_slots(_hero, _cfg, _build) if _hero else []
     $ _hero_tier = bs_saga_hero_tier(_hero, "C") if _hero else ""
     $ _pool_tier = bs_saga_prep_pool_tier_for_hero(_hero) if _hero else "C"
+    $ _rotation_tier = bs_saga_rotation_tier_current() if _hero else "C"
+    $ _pool_gate = bs_saga_pool_gate_status_for_hero(_hero) if _hero else {"pool_locked_by_collection": False}
+    $ _pool_locked = bool(_pool_gate.get("pool_locked_by_collection", False)) if _hero else False
     $ _tier_pool = bs_saga_tier_pool_total(_pool_tier) if _hero else 0
     $ _tier_stats = bs_saga_tier_core_profile(_pool_tier) if _hero else {"hp":0,"ep":0,"ec":0,"durability":0,"cover":0}
     $ _tech_prof = bs_saga_hero_tech_profile_get(_hero, _cfg, _build) if _hero else {}
@@ -48,7 +51,7 @@ screen bs_saga_preparation_room_screen():
         xalign 0.5
         yalign 0.56
         xsize 1120
-        ysize 500
+        ysize 560
         padding (16, 16)
         background Solid("#13273A")
         hbox:
@@ -108,7 +111,7 @@ screen bs_saga_preparation_room_screen():
                     draggable True
                     mousewheel True
                     scrollbars "vertical"
-                    ymaximum 468
+                    ymaximum 528
                     vbox:
                         spacing 8
                         text "Configuración de entrada" size 22 color "#EAF6FF"
@@ -117,7 +120,9 @@ screen bs_saga_preparation_room_screen():
                         text ("Config activa: " + _cfg.upper()) size 14 color "#9FC4E2"
                         text ("Build activa: " + _build) size 14 color "#9FC4E2"
                         if _hero:
-                            text ("Tier héroe: " + _hero_tier + " · Tier cuenta/pool: " + _pool_tier + " · Pool duelo: " + str(_tier_pool)) size 14 color "#9FC4E2"
+                            text ("Tier héroe: " + _hero_tier + " · Tier rotación (nivel): " + _rotation_tier + " · Tier cuenta/pool: " + _pool_tier + " · Pool duelo: " + str(_tier_pool)) size 14 color "#9FC4E2"
+                            if _pool_locked:
+                                text ("⚠ Pool bloqueado por colección: puedes usar rotación de tier " + _rotation_tier + ", pero el pool sigue en tier cuenta " + _pool_tier + ".") size 13 color "#FFD166"
                             text ("HP " + str(_tier_stats.get("hp", 0)) + " · EP " + str(_tier_stats.get("ep", 0)) + " · EC " + str(_tier_stats.get("ec", 0))) size 14 color "#9FC4E2"
                             text ("Durabilidad " + str(_tier_stats.get("durability", 0)) + " · Cubre " + str(_tier_stats.get("cover", 0))) size 14 color "#9FC4E2"
                             text ("Modo técnico: " + str(_tech_prof.get("mode", "virgen")) + " · Pool técnico " + str(_pool_total_cfg)) size 14 color "#9FC4E2"
@@ -157,6 +162,9 @@ screen bs_saga_hero_config_screen():
     $ _loadout_count = len([x for x in _slots if str(x or "").strip()]) if _hero else 0
     $ _hero_tier = bs_saga_hero_tier(_hero, "C") if _hero else "C"
     $ _pool_tier = bs_saga_prep_pool_tier_for_hero(_hero) if _hero else "C"
+    $ _rotation_tier = bs_saga_rotation_tier_current() if _hero else "C"
+    $ _pool_gate = bs_saga_pool_gate_status_for_hero(_hero) if _hero else {"pool_locked_by_collection": False}
+    $ _pool_locked = bool(_pool_gate.get("pool_locked_by_collection", False)) if _hero else False
     $ _tier_pool = bs_saga_tier_pool_total(_pool_tier) if _hero else 0
     $ _tier_stats = bs_saga_tier_core_profile(_hero_tier) if _hero else {"hp":0,"ep":0,"ec":0,"durability":0,"cover":0}
     $ _tier_tuning = bs_saga_tier_combat_tuning_profile(_hero_tier) if _hero else {"hp_factor":0.0,"rest_hp_pct":0.0,"rest_ep_pct":0.0,"rest_ec_pct":0.0,"rest_ec_scales":0}
@@ -200,7 +208,9 @@ screen bs_saga_hero_config_screen():
         background Solid("#13273A")
         vbox:
             spacing 10
-            text ("Héroe activo: " + (_hero if _hero else "sin seleccionar") + " · Tier héroe " + _hero_tier + " · Pool tier cuenta " + _pool_tier + " (" + str(_tier_pool) + ")") size 18 color "#CFE6FA"
+            text ("Héroe activo: " + (_hero if _hero else "sin seleccionar") + " · Tier héroe " + _hero_tier + " · Tier rotación " + _rotation_tier + " · Pool tier cuenta " + _pool_tier + " (" + str(_tier_pool) + ")") size 18 color "#CFE6FA"
+            if _hero and _pool_locked:
+                text ("⚠ Pool bloqueado por colección mínima del tier. Rotación desbloqueada por nivel, pool aún en " + _pool_tier + ".") size 14 color "#FFD166"
             hbox:
                 spacing 6
                 textbutton "Resumen" action SetVariable("bs_saga_prep_config_tab", "resumen")
@@ -476,6 +486,8 @@ screen bs_saga_duel_staging_screen():
                             spacing 6
                             textbutton "EXP base -5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_exp", -5)
                             textbutton "EXP base +5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_exp", 5)
+                        hbox:
+                            spacing 6
                             textbutton "Step EXP -0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_exp", -0.5)
                             textbutton "Step EXP +0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_exp", 0.5)
                         text ("Base Oro " + str(_r_base_oro) + " · Step Oro " + str(_r_step_oro)) size 13 color "#9FC4E2"
@@ -483,6 +495,8 @@ screen bs_saga_duel_staging_screen():
                             spacing 6
                             textbutton "Oro base -5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_oro", -5)
                             textbutton "Oro base +5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "base_oro", 5)
+                        hbox:
+                            spacing 6
                             textbutton "Step Oro -0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_oro", -0.5)
                             textbutton "Step Oro +0.5" action Function(bs_saga_ui_call, bs_saga_adjust_reward_base_param, "step_oro", 0.5)
 

@@ -22,6 +22,7 @@ default bs_saga_account_state = {
     "exp": 0,
     "exp_to_next": 100,
     "tier": "",
+    "rotation_tier": "",
     "gold": 5000,
     "gems": 0
 }
