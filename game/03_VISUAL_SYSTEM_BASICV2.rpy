@@ -383,6 +383,31 @@ init -978 python:
             "affected": list(affected),
         }
 
+        # Limpieza defensiva para evitar pantallas/estado huérfanos
+        # cuando se fuerza cierre en mitad de una animación o resolución.
+        try:
+            S.ui_show_battle_finish_panel = False
+            S.show_maneuver_choice = True
+            S.incoming_damage = 0
+            S.incoming_damage_target_key = ""
+            S.incoming_damage_source_key = ""
+            S.incoming_damage_sources = []
+        except:
+            pass
+
+        for _scr in (
+            "battle_maneuver_choice",
+            "battle_popup_turn",
+            "battle_popup_turn_legacy_visual",
+            "dice_roll_result",
+            "dice_roll_result_multi",
+        ):
+            try:
+                if renpy.has_screen(_scr) and renpy.get_screen(_scr):
+                    renpy.hide_screen(_scr)
+            except:
+                pass
+
         fn_log = getattr(S, "battle_log_add", None)
         if callable(fn_log):
             fn_log("{color=#80DEEA}[DEV] Finalizar combate (%s) → cierre battle_end.{/color}" % str(mm))
@@ -628,12 +653,13 @@ init python:
         return "dice_success_icon", "dice_fail_icon"
 
 screen battle_keymap_layer():
-    key "ctrl_K_k" action Function(toggle_battle_log)
-    key "ctrl_K_c" action Function(battle_log_clear)
-    key "ctrl_K_x" action If(config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
-    key "ctrl_x" action If(config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
+    $ _in_battle = bool(getattr(store, "battle_active", False))
+    key "ctrl_K_k" action If(_in_battle, Function(toggle_battle_log), NullAction())
+    key "ctrl_K_c" action If(_in_battle, Function(battle_log_clear), NullAction())
+    key "ctrl_K_x" action If(_in_battle and config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
+    key "ctrl_x" action If(_in_battle and config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)), ToggleVariable("ui_show_battle_finish_panel"), NullAction())
 
-    if config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)) and ui_show_battle_finish_panel:
+    if _in_battle and config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)) and ui_show_battle_finish_panel:
         use battle_dev_finish_panel()
 
 init python:

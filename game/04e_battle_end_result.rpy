@@ -169,7 +169,12 @@ label battle_end:
             "ai_difficulty_hud",
             "technique_selector",
             "battle_command_menu",
+            "battle_maneuver_choice",
+            "battle_popup_turn",
+            "battle_popup_turn_legacy_visual",
             "debug_battle_identity",
+            "dice_roll_result",
+            "dice_roll_result_multi",
             "sim_battle_end_reward_summary_v1",
         ]
         for _scr in _runtime_battle_screens:
@@ -178,6 +183,15 @@ label battle_end:
                     renpy.hide_screen(_scr)
             except:
                 pass
+        try:
+            S.ui_show_battle_finish_panel = False
+            S.incoming_damage = 0
+            S.incoming_damage_target_key = ""
+            S.incoming_damage_source_key = ""
+            S.incoming_damage_sources = []
+            S.show_maneuver_choice = True
+        except:
+            pass
 
     if getattr(S, "story_mode_active", False) and renpy.has_label("story_phaseC_postbattle"):
         $ S.battle_active = False
