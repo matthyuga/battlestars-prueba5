@@ -224,6 +224,20 @@ screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
         _main_oro = int(_main_final.get("oro_gain", _ap_oro) or _ap_oro)
         _main_stars = int(_main_row.get("stars_total", 0) or 0) if isinstance(_main_row, dict) else 0
         _main_delta = int(_main_row.get("delta_register", 0) or 0) if isinstance(_main_row, dict) else 0
+        _main_base_exp = int(_main_base.get("exp", 0) or 0)
+        _main_base_oro = int(_main_base.get("oro", 0) or 0)
+        _main_m_risk_exp = float(_main_mult.get("risk_exp", 1.0) or 1.0)
+        _main_m_result_exp = float(_main_mult.get("result_exp", 1.0) or 1.0)
+        _main_m_perf_exp = float(_main_mult.get("performance_exp", 1.0) or 1.0)
+        _main_m_risk_oro = float(_main_mult.get("risk_oro", 1.0) or 1.0)
+        _main_m_result_oro = float(_main_mult.get("result_oro", 1.0) or 1.0)
+        _main_m_perf_oro = float(_main_mult.get("performance_oro", 1.0) or 1.0)
+        _main_m_anti = float(_main_mult.get("antiabuso", 1.0) or 1.0)
+        _main_m_multi = float(_main_mult.get("multi_factor", 1.0) or 1.0)
+        _main_m_hp = int(_main_mult.get("hp_reward_multiplier", 1) or 1)
+        _main_m_cond_exp = float(_main_mult.get("reward_condition_exp_mult", 1.0) or 1.0)
+        _main_m_cond_oro = float(_main_mult.get("reward_condition_oro_mult", 1.0) or 1.0)
+        _main_m_cond_prob = float(_main_mult.get("reward_condition_probability_mult", 1.0) or 1.0)
 
     add Solid("#000000AA")
 
@@ -280,11 +294,11 @@ screen sim_battle_end_reward_summary_v1(sim_result=None, apply_report=None):
 
                             if _main_row:
                                 text "Parámetros de rendimiento" size 22 color "#D0E9FF"
-                                text "Base: EXP [_main_base.get('exp', 0)] | Oro [_main_base.get('oro', 0)] | Stars [_main_stars] | ΔRegister [_main_delta]" size 16 color "#9FC4E2"
-                                text "EXP: risk x[_main_mult.get('risk_exp', 1.0)] | result x[_main_mult.get('result_exp', 1.0)] | perf x[_main_mult.get('performance_exp', 1.0)]" size 15 color "#9FC4E2"
-                                text "Oro: risk x[_main_mult.get('risk_oro', 1.0)] | result x[_main_mult.get('result_oro', 1.0)] | perf x[_main_mult.get('performance_oro', 1.0)]" size 15 color "#9FC4E2"
-                                text "Globales: anti x[_main_mult.get('antiabuso', 1.0)] | multi x[_main_mult.get('multi_factor', 1.0)] | hp x[_main_mult.get('hp_reward_multiplier', 1)]" size 15 color "#9FC4E2"
-                                text "Condiciones: exp x[_main_mult.get('reward_condition_exp_mult', 1.0)] | oro x[_main_mult.get('reward_condition_oro_mult', 1.0)] | prob x[_main_mult.get('reward_condition_probability_mult', 1.0)]" size 15 color "#9FC4E2"
+                                text "Base: EXP [_main_base_exp] | Oro [_main_base_oro] | Stars [_main_stars] | ΔRegister [_main_delta]" size 16 color "#9FC4E2"
+                                text "EXP: risk x[_main_m_risk_exp] | result x[_main_m_result_exp] | perf x[_main_m_perf_exp]" size 15 color "#9FC4E2"
+                                text "Oro: risk x[_main_m_risk_oro] | result x[_main_m_result_oro] | perf x[_main_m_perf_oro]" size 15 color "#9FC4E2"
+                                text "Globales: anti x[_main_m_anti] | multi x[_main_m_multi] | hp x[_main_m_hp]" size 15 color "#9FC4E2"
+                                text "Condiciones: exp x[_main_m_cond_exp] | oro x[_main_m_cond_oro] | prob x[_main_m_cond_prob]" size 15 color "#9FC4E2"
                                 text "Fórmula EXP: base_exp * risk_exp * result_exp * performance_exp * antiabuso * multi_factor * hp_reward_multiplier * reward_condition_exp_mult" size 13 color "#8CB8DB"
                                 text "Fórmula Oro: base_oro * risk_oro * result_oro * performance_oro * antiabuso * multi_factor * hp_reward_multiplier * reward_condition_oro_mult" size 13 color "#8CB8DB"
                             elif _ap_count > 0 or _ap_exp > 0 or _ap_oro > 0:
