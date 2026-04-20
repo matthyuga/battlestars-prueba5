@@ -42,6 +42,7 @@ init -980 python:
 # -----------------------------------------------------------
 init -978 python:
     import renpy.store as S
+    import time
 
     debug_log("✅ Visual System Basic v2.2.1 cargado.")
 
@@ -305,6 +306,57 @@ init -978 python:
             "#C0FFC0"
         )
 
+    def bs_dev_instant_victory():
+        """
+        Herramienta dev-only:
+        fuerza KO del equipo enemigo y redirige al cierre canónico `battle_end`.
+        Guardrails:
+          - requiere config.developer
+          - requiere flag runtime bs_saga_dev_admin_enabled=true
+        """
+        if not bool(getattr(config, "developer", False)):
+            return {"ok": False, "reason": "developer_mode_required"}
+
+        if not bool(getattr(S, "bs_saga_dev_admin_enabled", False)):
+            return {"ok": False, "reason": "dev_admin_flag_required"}
+
+        affected = []
+        fn_alive = getattr(S, "bs_get_alive_unit_keys", None)
+        fn_apply = getattr(S, "bs_apply_damage_to_unit_key", None)
+        fn_set_hp = getattr(S, "bs_set_hp", None)
+
+        try:
+            if callable(fn_alive) and callable(fn_apply):
+                enemy_keys = list(fn_alive("enemy") or [])
+                for key in enemy_keys:
+                    rr = fn_apply(key, 10 ** 9, source_key=getattr(S, "bs_current_actor_key", lambda: "")())
+                    affected.append({
+                        "key": str(key),
+                        "ok": bool(isinstance(rr, dict) and rr.get("ok", False)),
+                    })
+            elif callable(fn_set_hp):
+                fn_set_hp("enemy", 0)
+                affected.append({"key": "enemy:active", "ok": True})
+            else:
+                S.enemy_hp = 0
+                affected.append({"key": "enemy_legacy", "ok": True})
+        except Exception as ex:
+            return {"ok": False, "reason": "instant_victory_exception", "error": str(ex)}
+
+        S.enemy_hp = 0
+        S.story_pilot_debug_last_force_victory = {
+            "ts": int(time.time()),
+            "action": "dev_instant_victory",
+            "affected": list(affected),
+        }
+
+        fn_log = getattr(S, "battle_log_add", None)
+        if callable(fn_log):
+            fn_log("{color=#80DEEA}[DEV] Victoria instantánea activada → cierre battle_end.{/color}")
+
+        renpy.jump("battle_end")
+        return {"ok": True, "reason": "jump_battle_end"}
+
     # Export opcional a store (por si otros módulos lo buscan ahí)
     S.save_battle_log_position_xy = save_battle_log_position_xy
     S.get_battle_log_position = get_battle_log_position
@@ -313,6 +365,7 @@ init -978 python:
     S.battle_log_add_debug = battle_log_add_debug
     S.battle_log_phase = battle_log_phase
     S.battle_log_result = battle_log_result
+    S.bs_dev_instant_victory = bs_dev_instant_victory
     S._drag_pos_safe = _drag_pos_safe
 
 
@@ -332,6 +385,7 @@ screen battle_log_screen():
     key "g" action ToggleVariable("ui_show_target_assignment_details")
     key "q" action ToggleVariable("ui_show_queue_2v2_details")
     key "b" action ToggleVariable("ui_show_battle_debug_log")
+    key "ctrl_K_v" action Function(bs_dev_instant_victory)
 
     $ start_pos = get_battle_log_position()
 
@@ -375,6 +429,13 @@ screen battle_log_screen():
                         action ToggleVariable("ui_show_queue_2v2_details")
                         text_size 13
                         text_color "#B39DDB"
+                        background "#0000"
+
+                if config.developer and bool(getattr(store, "bs_saga_dev_admin_enabled", False)):
+                    textbutton "[[Ctrl+K+V]] ⚡ Victoria instantánea (dev)":
+                        action Function(bs_dev_instant_victory)
+                        text_size 13
+                        text_color "#80DEEA"
                         background "#0000"
 
                 null height 6
