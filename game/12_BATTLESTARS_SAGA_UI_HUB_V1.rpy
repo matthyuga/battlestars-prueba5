@@ -2047,6 +2047,17 @@ init -880 python:
                         {"name": "Daga maldita", "rarity": "epic", "tier_req": "A", "meta": "30% a daño directo (3 usos)"},
                         {"name": "Daga envenenada", "rarity": "epic", "tier_req": "A", "meta": "30% directo a HP (3 usos)"},
                     ],
+                    "sellos": [
+                        {"name": "Sello negro", "rarity": "rare", "tier_req": "B", "meta": "Sacrifica 50% HP (base) y el enemigo pierde 30% HP (base)", "price_gold": 260},
+                        {"name": "Sello blanco", "rarity": "special", "tier_req": "A", "meta": "No gasta recursos por 1 turno", "price_gold": 280},
+                        {"name": "Sello rojo", "rarity": "special", "tier_req": "A", "meta": "No gasta recursos la maniobra de contraataque", "price_gold": 280},
+                        {"name": "Sello rosa", "rarity": "special", "tier_req": "A", "meta": "Permite bajar una tirada de dados de éxito para ataque negador", "price_gold": 320},
+                        {"name": "Sello marrón", "rarity": "special", "tier_req": "A", "meta": "Permite bajar una tirada de dados de éxito para ataque directo", "price_gold": 320},
+                        {"name": "Sello naranja", "rarity": "epic", "tier_req": "S", "meta": "El enemigo no puede usar concentrar por 2 turnos", "price_gold": 360},
+                        {"name": "Sello violeta", "rarity": "epic", "tier_req": "S", "meta": "Te permite usar dados de recuperación", "price_gold": 340},
+                        {"name": "Sello amarillo", "rarity": "epic", "tier_req": "S", "meta": "Anula efecto de daño directo", "price_gold": 360},
+                        {"name": "Sello celeste", "rarity": "epic", "tier_req": "S", "meta": "Anula efecto de negación de ataque", "price_gold": 360},
+                    ],
                 }
             },
             "permanentes": {
@@ -2103,7 +2114,7 @@ init -880 python:
         cat = schema.get(cat_key, {})
         groups = cat.get("groups", {}) if isinstance(cat.get("groups", {}), dict) else {}
         preferred = {
-            "consumibles": ["pociones", "amuletos"],
+            "consumibles": ["pociones", "amuletos", "sellos"],
             "permanentes": ["anillos", "pulseras", "pendientes", "collares", "diademas", "cinturones", "tobilleras", "tatuajes"],
             "materiales": ["basicos", "ascenso"],
         }
