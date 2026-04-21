@@ -314,6 +314,9 @@ screen bs_saga_catalog_screen():
     $ _total_price = int(_sel_price) * int(_qty)
     $ _inf_gold = bool(getattr(store, "bs_saga_dev_infinite_gold", False))
     $ _can_buy = bool(_items) and (_inf_gold or (int(_gold) >= int(_total_price)))
+    $ _has_active_filters = (_filter_rarity != "all") or (_filter_tier != "all") or (_search_norm != "")
+    $ _last_msg_lc = _last_msg.lower() if _last_msg else ""
+    $ _last_msg_color = "#8BD6A7" if ("compraste" in _last_msg_lc or "ok" in _last_msg_lc or "éxito" in _last_msg_lc) else ("#FF9A9A" if ("insuficiente" in _last_msg_lc or "inválida" in _last_msg_lc or "error" in _last_msg_lc) else "#BFDDF5")
 
     add Solid("#0E1A28")
 
@@ -392,6 +395,15 @@ screen bs_saga_catalog_screen():
                     ypadding 5
                     background Solid("#1A3349")
                     input value ScreenVariableInputValue("_search_query") length 32 allow " abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789_-áéíóúÁÉÍÓÚ" size 16 color "#D6EEFF"
+                if _has_active_filters:
+                    textbutton "Limpiar filtros":
+                        action [
+                            SetScreenVariable("_filter_rarity", "all"),
+                            SetScreenVariable("_filter_tier", "all"),
+                            SetScreenVariable("_search_query", ""),
+                            SetScreenVariable("_selected_idx", 0),
+                            SetScreenVariable("_qty", 1),
+                        ]
 
             hbox:
                 spacing 14
@@ -486,8 +498,15 @@ screen bs_saga_catalog_screen():
                                                     text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 110
                                                     text "[_m]" size 15 color "#D0E9FF" xminimum 190
                                 else:
-                                    text "Sin itens cargados todavía para este grupo." size 18 color "#9FB9D1"
+                                    if _has_active_filters:
+                                        text "No hay resultados para los filtros actuales." size 18 color "#FFB3B3"
+                                    else:
+                                        text "Sin itens cargados todavía para este grupo." size 18 color "#9FB9D1"
                         text ("Total en lista: " + str(len(_items)) + " ítem(s)") size 15 color "#8FB6D6"
+                        if _has_active_filters:
+                            $ _r_txt = ("Todas" if _filter_rarity == "all" else _filter_rarity.upper())
+                            $ _t_txt = ("Todos" if _filter_tier == "all" else _filter_tier)
+                            text ("Filtros activos · Rareza: " + _r_txt + " · Tier: " + _t_txt + " · Buscar: " + (_search_query if _search_query else "—")) size 14 color "#9ED9FF"
 
                 # Panel derecho: detalle + compra
                 frame:
@@ -527,16 +546,17 @@ screen bs_saga_catalog_screen():
                                 text "Compra disponible" size 15 color "#8BD6A7"
                             else:
                                 text "Oro insuficiente para esta cantidad" size 15 color "#FF9A9A"
-                        textbutton "Comprar":
+                        textbutton ("Comprar x" + str(_qty)):
                             action Function(bs_saga_ui_call, bs_saga_buy_item, _selected_item, _qty) if _items else NullAction()
                             sensitive _can_buy
+                        text ("Costo total: " + str(_total_price)) size 15 color "#D6EEFF"
                         if _last_msg:
                             frame:
                                 xfill True
                                 xpadding 8
                                 ypadding 8
                                 background Solid("#173048")
-                                text "[_last_msg]" size 14 color "#BFDDF5"
+                                text "[_last_msg]" size 14 color _last_msg_color
 
 screen bs_saga_inventory_screen():
     tag menu
