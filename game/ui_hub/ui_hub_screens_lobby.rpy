@@ -278,6 +278,8 @@ screen bs_saga_heroes_screen():
 
 screen bs_saga_catalog_screen():
     tag menu
+    default _selected_idx = 0
+    default _qty = 1
     $ _cat = str(bs_saga_catalog_category or "consumibles")
     $ _groups = bs_saga_catalog_groups(_cat)
     $ _grp = str(bs_saga_catalog_group or "")
@@ -289,72 +291,107 @@ screen bs_saga_catalog_screen():
     $ _cats = bs_saga_catalog_category_keys()
     $ _cat_label = bs_saga_labelize(_cat)
     $ _gold = bs_saga_gold()
+    if _selected_idx < 0 or _selected_idx >= len(_items):
+        $ _selected_idx = 0
+    $ _selected_item = _items[_selected_idx] if _items else {}
+    $ _sel_name = str(_selected_item.get("name", "Sin selección") or "Sin selección")
+    $ _sel_rarity = str(_selected_item.get("rarity", "-") or "-")
+    $ _sel_tier = str(_selected_item.get("tier_req", "-") or "-")
+    $ _sel_meta = str(_selected_item.get("meta", "Selecciona un ítem del listado central.") or "Selecciona un ítem del listado central.")
+    $ _sel_price = bs_saga_item_price(_selected_item) if _selected_item else 0
+    $ _total_price = int(_sel_price) * int(_qty)
 
     add Solid("#0E1A28")
 
+    # Header (Fase 0: estructura principal)
     frame:
         xalign 0.5
-        yalign 0.08
+        yalign 0.07
         xsize 1128
-        ysize 78
+        ysize 86
         background Solid("#66C8FF")
 
     frame:
         xalign 0.5
-        yalign 0.08
+        yalign 0.07
         xsize 1116
-        ypadding 10
+        ypadding 12
         background Solid("#2C4963")
         hbox:
             spacing 16
             text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
-            text "Territorio: Catálogo de itens" size 22 color "#D7EEFF" yalign 0.7
-            null width 90
+            text "Territorio · Tienda / Catálogo de itens" size 20 color "#D7EEFF" yalign 0.7
+            null width 30
+            text ("Oro disponible: " + str(_gold)) size 20 color "#F7D774" yalign 0.7
+            null width 60
             textbutton "Volver al lobby" action Return("nav:lobby")
 
+    # Contenedor principal por módulos (Fase 0)
     frame:
         xalign 0.5
         yalign 0.56
         xsize 1120
-        ysize 500
+        ysize 560
         padding (16, 16)
         background Solid("#13273A")
         vbox:
             spacing 10
-            text "Catálogo de itens" size 34 color "#EAF6FF"
+            text "Catálogo de itens" size 32 color "#EAF6FF"
 
+            # Barra superior de categorías + filtros (estructura, sin lógica completa aún)
             hbox:
                 spacing 8
                 for ck in _cats:
                     $ lbl = "Consumibles" if ck == "consumibles" else ("Permanentes" if ck == "permanentes" else "Materiales")
                     textbutton "[lbl]":
                         action Function(bs_saga_catalog_set_category, ck)
-                null width 16
-                text ("Oro disponible: " + str(_gold)) size 18 color "#F7D774"
+                null width 20
+                frame:
+                    xpadding 10
+                    ypadding 5
+                    background Solid("#1A3349")
+                    text "Rareza ▼" size 17 color "#9ED9FF"
+                frame:
+                    xpadding 10
+                    ypadding 5
+                    background Solid("#1A3349")
+                    text "Tier ▼" size 17 color "#9ED9FF"
+                frame:
+                    xsize 230
+                    xpadding 10
+                    ypadding 5
+                    background Solid("#1A3349")
+                    text "Buscar itens..." size 17 color "#9FB9D1"
 
             hbox:
                 spacing 14
 
+                # Panel lateral: subcategorías (grupos)
                 frame:
-                    xsize 260
+                    xsize 210
                     yfill True
                     padding (10, 10)
                     background Solid("#1F3348")
                     vbox:
                         spacing 8
-                        text "Grupos" size 22 color "#DDEEFF"
+                        text "Categorías" size 24 color "#DDEEFF"
                         viewport:
                             draggable True
                             mousewheel True
                             scrollbars "vertical"
-                            ymaximum 360
+                            ymaximum 420
                             vbox:
                                 spacing 6
                                 for g in _groups:
                                     $ _g_label = bs_saga_labelize(g)
                                     textbutton "[_g_label]":
-                                        action Function(bs_saga_catalog_set_group, g)
+                                        action [
+                                            Function(bs_saga_catalog_set_group, g),
+                                            SetScreenVariable("_selected_idx", 0),
+                                            SetScreenVariable("_qty", 1),
+                                        ]
 
+                # Panel central: listado de ítems
                 frame:
                     xfill True
                     yfill True
@@ -367,11 +404,11 @@ screen bs_saga_catalog_screen():
                             draggable True
                             mousewheel True
                             scrollbars "vertical"
-                            ymaximum 360
+                            ymaximum 420
                             vbox:
                                 spacing 6
                                 if _items:
-                                    for it in _items:
+                                    for idx, it in enumerate(_items):
                                         $ _n = str(it.get("name", "?") or "?")
                                         $ _r = str(it.get("rarity", "-") or "-")
                                         $ _t = str(it.get("tier_req", "-") or "-")
@@ -381,19 +418,59 @@ screen bs_saga_catalog_screen():
                                         $ _p = bs_saga_item_price(it)
                                         frame:
                                             xfill True
-                                            background Solid("#173048")
+                                            background Solid("#334A64") if idx == _selected_idx else Solid("#173048")
                                             padding (8, 6)
-                                            hbox:
-                                                spacing 8
-                                                text "• [_n]" size 17 color "#D0E9FF" xminimum 290
-                                                text "Rareza: [_r_show]" size 16 color "#A9CAE6" xminimum 150
-                                                text "Tier: [_t_show]" size 16 color "#A9CAE6" xminimum 120
-                                                text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 120
-                                                text "[_m]" size 16 color "#D0E9FF" xminimum 220
-                                                textbutton "Comprar x1":
-                                                    action Function(bs_saga_ui_call, bs_saga_buy_item, it, 1)
+                                            textbutton "":
+                                                xfill True
+                                                action [
+                                                    SetScreenVariable("_selected_idx", idx),
+                                                    SetScreenVariable("_qty", 1),
+                                                ]
+                                                hbox:
+                                                    spacing 8
+                                                    text "• [_n]" size 17 color "#D0E9FF" xminimum 240
+                                                    text "Rareza: [_r_show]" size 16 color "#A9CAE6" xminimum 130
+                                                    text "Tier: [_t_show]" size 16 color "#A9CAE6" xminimum 100
+                                                    text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 110
+                                                    text "[_m]" size 15 color "#D0E9FF" xminimum 190
                                 else:
                                     text "Sin itens cargados todavía para este grupo." size 18 color "#9FB9D1"
+
+                # Panel derecho: detalle + compra
+                frame:
+                    xsize 300
+                    yfill True
+                    padding (12, 12)
+                    background Solid("#1A2C42")
+                    vbox:
+                        spacing 10
+                        text "Detalle del ítem" size 22 color "#EAF6FF"
+                        frame:
+                            xfill True
+                            ypadding 8
+                            xpadding 8
+                            background Solid("#173048")
+                            text "[_sel_name]" size 24 color "#D6EEFF"
+                        text ("Rareza: " + ("-" if _sel_rarity in ("", "-") else _sel_rarity)) size 17 color "#BFDCF4"
+                        text ("Tier: " + ("-" if _sel_tier in ("", "-") else _sel_tier)) size 17 color "#BFDCF4"
+                        text ("Precio unitario: " + str(_sel_price)) size 18 color "#F7D774"
+                        frame:
+                            xfill True
+                            ypadding 8
+                            xpadding 8
+                            background Solid("#173048")
+                            text "[_sel_meta]" size 16 color "#D0E9FF"
+                        text "Cantidad" size 18 color "#9ED9FF"
+                        hbox:
+                            spacing 8
+                            textbutton "-":
+                                action SetScreenVariable("_qty", max(1, int(_qty) - 1))
+                            text "[_qty]" size 20 color "#EAF6FF" yalign 0.5
+                            textbutton "+":
+                                action SetScreenVariable("_qty", min(99, int(_qty) + 1))
+                        text ("Total: " + str(_total_price)) size 18 color "#F7D774"
+                        textbutton "Comprar":
+                            action Function(bs_saga_ui_call, bs_saga_buy_item, _selected_item, _qty) if _items else NullAction()
 
 screen bs_saga_inventory_screen():
     tag menu
