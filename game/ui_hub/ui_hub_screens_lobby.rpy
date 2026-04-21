@@ -480,9 +480,10 @@ screen bs_saga_catalog_screen():
                                         $ _r_show = "-" if _r in ("", "-") else _r
                                         $ _t_show = "-" if _t in ("", "-") else _t
                                         $ _p = bs_saga_item_price(it)
+                                        $ _row_bg = "#334A64" if idx == _selected_idx else "#173048"
                                         frame:
                                             xfill True
-                                            background Solid("#334A64") if idx == _selected_idx else Solid("#173048")
+                                            background Solid(_row_bg)
                                             padding (8, 6)
                                             textbutton "":
                                                 xfill True
