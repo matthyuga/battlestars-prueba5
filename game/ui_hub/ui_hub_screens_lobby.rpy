@@ -291,6 +291,7 @@ screen bs_saga_catalog_screen():
     $ _cats = bs_saga_catalog_category_keys()
     $ _cat_label = bs_saga_labelize(_cat)
     $ _gold = bs_saga_gold()
+    $ _last_msg = str(bs_saga_last_tx_message or "")
     if _selected_idx < 0 or _selected_idx >= len(_items):
         $ _selected_idx = 0
     $ _selected_item = _items[_selected_idx] if _items else {}
@@ -300,6 +301,8 @@ screen bs_saga_catalog_screen():
     $ _sel_meta = str(_selected_item.get("meta", "Selecciona un ítem del listado central.") or "Selecciona un ítem del listado central.")
     $ _sel_price = bs_saga_item_price(_selected_item) if _selected_item else 0
     $ _total_price = int(_sel_price) * int(_qty)
+    $ _inf_gold = bool(getattr(store, "bs_saga_dev_infinite_gold", False))
+    $ _can_buy = bool(_items) and (_inf_gold or (int(_gold) >= int(_total_price)))
 
     add Solid("#0E1A28")
 
@@ -441,6 +444,7 @@ screen bs_saga_catalog_screen():
                                                     text "[_m]" size 15 color "#D0E9FF" xminimum 190
                                 else:
                                     text "Sin itens cargados todavía para este grupo." size 18 color "#9FB9D1"
+                        text ("Total en lista: " + str(len(_items)) + " ítem(s)") size 15 color "#8FB6D6"
 
                 # Panel derecho: detalle + compra
                 frame:
@@ -475,8 +479,21 @@ screen bs_saga_catalog_screen():
                             textbutton "+":
                                 action SetScreenVariable("_qty", min(99, int(_qty) + 1))
                         text ("Total: " + str(_total_price)) size 18 color "#F7D774"
+                        if _items:
+                            if _can_buy:
+                                text "Compra disponible" size 15 color "#8BD6A7"
+                            else:
+                                text "Oro insuficiente para esta cantidad" size 15 color "#FF9A9A"
                         textbutton "Comprar":
                             action Function(bs_saga_ui_call, bs_saga_buy_item, _selected_item, _qty) if _items else NullAction()
+                            sensitive _can_buy
+                        if _last_msg:
+                            frame:
+                                xfill True
+                                xpadding 8
+                                ypadding 8
+                                background Solid("#173048")
+                                text "[_last_msg]" size 14 color "#BFDDF5"
 
 screen bs_saga_inventory_screen():
     tag menu
