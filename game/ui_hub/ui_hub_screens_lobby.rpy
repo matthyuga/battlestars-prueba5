@@ -280,6 +280,9 @@ screen bs_saga_catalog_screen():
     tag menu
     default _selected_idx = 0
     default _qty = 1
+    default _filter_rarity = "all"
+    default _filter_tier = "all"
+    default _search_query = ""
     $ _cat = str(bs_saga_catalog_category or "consumibles")
     $ _groups = bs_saga_catalog_groups(_cat)
     $ _grp = str(bs_saga_catalog_group or "")
@@ -287,7 +290,15 @@ screen bs_saga_catalog_screen():
         $ _grp = _groups[0] if _groups else ""
         $ bs_saga_catalog_group = _grp
     $ _grp_label = _grp.capitalize() if _grp else "—"
-    $ _items = bs_saga_catalog_items(_cat, _grp)
+    $ _items_all = bs_saga_catalog_items(_cat, _grp)
+    $ _rarity_opts = ["all"] + sorted(list(set([str(i.get("rarity", "") or "").strip().lower() for i in _items_all if str(i.get("rarity", "") or "").strip()])))
+    $ _tier_opts = ["all"] + sorted(list(set([str(i.get("tier_req", "") or "").strip().upper() for i in _items_all if str(i.get("tier_req", "") or "").strip()])))
+    if _filter_rarity not in _rarity_opts:
+        $ _filter_rarity = "all"
+    if _filter_tier not in _tier_opts:
+        $ _filter_tier = "all"
+    $ _search_norm = str(_search_query or "").strip().lower()
+    $ _items = [i for i in _items_all if ((_filter_rarity == "all") or (str(i.get("rarity", "") or "").strip().lower() == _filter_rarity)) and ((_filter_tier == "all") or (str(i.get("tier_req", "") or "").strip().upper() == _filter_tier)) and ((_search_norm == "") or (_search_norm in str(i.get("name", "") or "").lower()) or (_search_norm in str(i.get("meta", "") or "").lower()))]
     $ _cats = bs_saga_catalog_category_keys()
     $ _cat_label = bs_saga_labelize(_cat)
     $ _gold = bs_saga_gold()
@@ -351,25 +362,36 @@ screen bs_saga_catalog_screen():
                             Function(bs_saga_catalog_set_category, ck),
                             SetScreenVariable("_selected_idx", 0),
                             SetScreenVariable("_qty", 1),
+                            SetScreenVariable("_filter_rarity", "all"),
+                            SetScreenVariable("_filter_tier", "all"),
+                            SetScreenVariable("_search_query", ""),
                         ]
                         selected (ck == _cat)
                 null width 20
                 frame:
-                    xpadding 10
+                    xpadding 8
                     ypadding 5
                     background Solid("#1A3349")
-                    text "Rareza ▼" size 17 color "#9ED9FF"
+                    hbox:
+                        spacing 4
+                        text "Rareza:" size 16 color "#9ED9FF"
+                        textbutton ("Todas" if _filter_rarity == "all" else _filter_rarity.upper()):
+                            action SetScreenVariable("_filter_rarity", "all")
                 frame:
-                    xpadding 10
+                    xpadding 8
                     ypadding 5
                     background Solid("#1A3349")
-                    text "Tier ▼" size 17 color "#9ED9FF"
+                    hbox:
+                        spacing 4
+                        text "Tier:" size 16 color "#9ED9FF"
+                        textbutton ("Todos" if _filter_tier == "all" else _filter_tier):
+                            action SetScreenVariable("_filter_tier", "all")
                 frame:
                     xsize 230
                     xpadding 10
                     ypadding 5
                     background Solid("#1A3349")
-                    text "Buscar itens..." size 17 color "#9FB9D1"
+                    input value ScreenVariableInputValue("_search_query") length 32 allow " abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789_-áéíóúÁÉÍÓÚ" size 16 color "#D6EEFF"
 
             hbox:
                 spacing 14
@@ -397,8 +419,29 @@ screen bs_saga_catalog_screen():
                                             Function(bs_saga_catalog_set_group, g),
                                             SetScreenVariable("_selected_idx", 0),
                                             SetScreenVariable("_qty", 1),
+                                            SetScreenVariable("_filter_rarity", "all"),
+                                            SetScreenVariable("_filter_tier", "all"),
+                                            SetScreenVariable("_search_query", ""),
                                         ]
                                         selected (g == _grp)
+                        if _rarity_opts and len(_rarity_opts) > 1:
+                            text "Rareza" size 16 color "#9ED9FF"
+                            hbox:
+                                spacing 4
+                                for r in _rarity_opts:
+                                    $ _r_lbl = "Todas" if r == "all" else r.upper()
+                                    textbutton "[_r_lbl]":
+                                        action SetScreenVariable("_filter_rarity", r)
+                                        selected (r == _filter_rarity)
+                        if _tier_opts and len(_tier_opts) > 1:
+                            text "Tier" size 16 color "#9ED9FF"
+                            hbox:
+                                spacing 4
+                                for t in _tier_opts:
+                                    $ _t_lbl = "Todos" if t == "all" else t
+                                    textbutton "[_t_lbl]":
+                                        action SetScreenVariable("_filter_tier", t)
+                                        selected (t == _filter_tier)
 
                 # Panel central: listado de ítems
                 frame:

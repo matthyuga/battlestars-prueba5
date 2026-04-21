@@ -2133,7 +2133,23 @@ init -880 python:
         groups = cat.get("groups", {}) if isinstance(cat.get("groups", {}), dict) else {}
         items = groups.get(str(group or ""), [])
         if isinstance(items, list):
-            return items
+            out = []
+            for raw in items:
+                if not isinstance(raw, dict):
+                    continue
+                row = dict(raw)
+                row["name"] = str(row.get("name", "Ítem sin nombre") or "Ítem sin nombre")
+                row["rarity"] = str(row.get("rarity", "") or "").strip().lower()
+                row["tier_req"] = str(row.get("tier_req", "") or "").strip().upper()
+                row["meta"] = str(row.get("meta", "") or "")
+                try:
+                    p = int(row.get("price_gold", 0) or 0)
+                except:
+                    p = 0
+                if p > 0:
+                    row["price_gold"] = p
+                out.append(row)
+            return out
         return []
 
     def bs_saga_labelize(v):
