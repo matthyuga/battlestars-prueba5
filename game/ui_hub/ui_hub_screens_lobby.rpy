@@ -630,6 +630,7 @@ screen bs_saga_inventory_screen():
     }
     $ _bucket_keys = ["all", "consumables", "equipables", "materials", "key_items"]
     $ _rarity_opts = ["all", "common", "rare", "special", "epic", "legendary", "mythic", "infernal"]
+    $ _rarity_rank_map = {"infernal": 0, "mythic": 1, "legendary": 2, "epic": 3, "special": 4, "rare": 5, "common": 6, "": 7}
     $ _schema = bs_saga_item_schema()
     $ _catalog_index = {}
     $ _recent_rank = {}
@@ -677,6 +678,7 @@ screen bs_saga_inventory_screen():
             _x["meta"] = str(_m.get("meta", "") or "")
             _x["rarity"] = str(_m.get("rarity", "") or "").strip().lower()
             _x["tier_req"] = str(_m.get("tier_req", "") or "").strip().upper()
+            _x["rarity_rank"] = int(_rarity_rank_map.get(_x["rarity"], 7))
             _x["recent_rank"] = int(_recent_rank.get(_iid, 0) or 0)
             _rows_filtered.append(_x)
         if _view_mode == "recent":
@@ -686,8 +688,7 @@ screen bs_saga_inventory_screen():
         if _sort_mode == "qty_desc":
             _rows_filtered.sort(key=lambda x: (-int(x.get("qty", 0) or 0), str(x.get("name", "") or "")))
         elif _sort_mode == "rarity":
-            _rar_order = {"infernal":0, "mythic":1, "legendary":2, "epic":3, "special":4, "rare":5, "common":6, "":7}
-            _rows_filtered.sort(key=lambda x: (_rar_order.get(str(x.get("rarity", "") or ""), 7), str(x.get("name", "") or "")))
+            _rows_filtered.sort(key=lambda x: (int(x.get("rarity_rank", 7) or 7), str(x.get("name", "") or "")))
         elif _view_mode == "recent":
             _rows_filtered.sort(key=lambda x: (-int(x.get("recent_rank", 0) or 0), str(x.get("name", "") or "")))
         else:
@@ -775,25 +776,30 @@ screen bs_saga_inventory_screen():
                 vbox:
                     spacing 8
                     text "Inventario de cuenta" size 28 color "#EAF6FF"
-                    hbox:
-                        spacing 6
-                        textbutton "Todos":
-                            action [SetScreenVariable("_view_mode", "all"), SetScreenVariable("_selected_idx", 0)]
-                            selected (_view_mode == "all")
-                        textbutton "Recientes":
-                            action [SetScreenVariable("_view_mode", "recent"), SetScreenVariable("_selected_idx", 0)]
-                            selected (_view_mode == "recent")
-                        textbutton ("Rareza: " + ("Todas" if _rarity_filter == "all" else _rarity_filter.upper())):
-                            action ToggleScreenVariable("_show_rarity_menu", True, False)
-                        textbutton "Nombre ↑":
-                            action SetScreenVariable("_sort_mode", "name_asc")
-                            selected (_sort_mode == "name_asc")
-                        textbutton "Qty ↓":
-                            action SetScreenVariable("_sort_mode", "qty_desc")
-                            selected (_sort_mode == "qty_desc")
-                        textbutton "Rareza":
-                            action SetScreenVariable("_sort_mode", "rarity")
-                            selected (_sort_mode == "rarity")
+                    vbox:
+                        spacing 4
+                        hbox:
+                            spacing 6
+                            textbutton "Todos":
+                                action [SetScreenVariable("_view_mode", "all"), SetScreenVariable("_selected_idx", 0)]
+                                selected (_view_mode == "all")
+                            textbutton "Recientes":
+                                action [SetScreenVariable("_view_mode", "recent"), SetScreenVariable("_selected_idx", 0)]
+                                selected (_view_mode == "recent")
+                            textbutton ("Rareza: " + ("Todas" if _rarity_filter == "all" else _rarity_filter.upper())):
+                                action ToggleScreenVariable("_show_rarity_menu", True, False)
+                        hbox:
+                            spacing 6
+                            text "Orden:" size 14 color "#9FC4E2" yalign 0.5
+                            textbutton "Nombre ↑":
+                                action SetScreenVariable("_sort_mode", "name_asc")
+                                selected (_sort_mode == "name_asc")
+                            textbutton "Cantidad ↓":
+                                action SetScreenVariable("_sort_mode", "qty_desc")
+                                selected (_sort_mode == "qty_desc")
+                            textbutton "Rareza":
+                                action SetScreenVariable("_sort_mode", "rarity")
+                                selected (_sort_mode == "rarity")
                     text ("Total visibles: " + str(len(_rows_filtered))) size 14 color "#9FC4E2"
                     if _show_rarity_menu:
                         frame:
@@ -846,7 +852,7 @@ screen bs_saga_inventory_screen():
                                                 spacing 10
                                                 frame:
                                                     xsize 7
-                                                    yfill True
+                                                    ysize 78
                                                     background Solid(_accent)
                                                 vbox:
                                                     spacing 2
@@ -861,8 +867,8 @@ screen bs_saga_inventory_screen():
                                                     if _meta_short:
                                                         text _meta_short size 13 color "#A9CAE6"
                                                 frame:
-                                                    xalign 1.0
-                                                    yalign 0.5
+                                                    xminimum 70
+                                                    yminimum 64
                                                     xpadding 10
                                                     ypadding 8
                                                     background Solid("#0E2438")

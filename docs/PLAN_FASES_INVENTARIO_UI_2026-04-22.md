@@ -38,4 +38,5 @@ Implementado:
 ## Fase 5 — QA visual/funcional (completada)
 - Se verificó la presencia de los nuevos controles y estados en `bs_saga_inventory_screen`.
 - Se validó limpieza del patch (`git diff --check`).
+- Se corrigió error runtime en orden por rareza (`NameError: _rar_order`) y se estabilizó el sizing visual de cards largas (amuletos).
 - Queda pendiente QA manual in-engine para validar look final en runtime Ren'Py con contenido real.
