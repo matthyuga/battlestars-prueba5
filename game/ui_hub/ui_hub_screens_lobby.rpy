@@ -392,30 +392,6 @@ screen bs_saga_catalog_screen():
                                     ToggleScreenVariable("_show_rarity_menu", True, False),
                                     SetScreenVariable("_show_tier_menu", False),
                                 ]
-                    if _show_rarity_menu:
-                        frame:
-                            zorder 200
-                            xpos 0
-                            ypos 42
-                            xpadding 2
-                            ypadding 2
-                            background Solid("#0B1D2ECC")
-                            frame:
-                                xpadding 8
-                                ypadding 8
-                                background Solid("#1A3349F2")
-                                vbox:
-                                    spacing 4
-                                    text "Rareza" size 15 color "#9ED9FF"
-                                    for r in _rarity_opts:
-                                        $ _r_lbl = "Todas" if r == "all" else r.upper()
-                                        textbutton "[_r_lbl]":
-                                            action [
-                                                SetScreenVariable("_filter_rarity", r),
-                                                SetScreenVariable("_selected_idx", 0),
-                                                SetScreenVariable("_qty", 1),
-                                                SetScreenVariable("_show_rarity_menu", False),
-                                            ]
                 fixed:
                     xsize 120
                     ysize 40
@@ -433,30 +409,6 @@ screen bs_saga_catalog_screen():
                                     ToggleScreenVariable("_show_tier_menu", True, False),
                                     SetScreenVariable("_show_rarity_menu", False),
                                 ]
-                    if _show_tier_menu:
-                        frame:
-                            zorder 200
-                            xpos 0
-                            ypos 42
-                            xpadding 2
-                            ypadding 2
-                            background Solid("#0B1D2ECC")
-                            frame:
-                                xpadding 8
-                                ypadding 8
-                                background Solid("#1A3349F2")
-                                vbox:
-                                    spacing 4
-                                    text "Tier" size 15 color "#9ED9FF"
-                                    for t in _tier_opts:
-                                        $ _t_lbl = "Todos" if t == "all" else t
-                                        textbutton "[_t_lbl]":
-                                            action [
-                                                SetScreenVariable("_filter_tier", t),
-                                                SetScreenVariable("_selected_idx", 0),
-                                                SetScreenVariable("_qty", 1),
-                                                SetScreenVariable("_show_tier_menu", False),
-                                            ]
                 frame:
                     xsize 230
                     xpadding 10
@@ -474,6 +426,57 @@ screen bs_saga_catalog_screen():
                             SetScreenVariable("_show_rarity_menu", False),
                             SetScreenVariable("_show_tier_menu", False),
                         ]
+
+            # Popups flotantes (dibujados después para quedar al frente sin mover layout)
+            fixed:
+                xfill True
+                ysize 0
+                if _show_rarity_menu:
+                    frame:
+                        xpos 470
+                        ypos 40
+                        xpadding 2
+                        ypadding 2
+                        background Solid("#0B1D2ECC")
+                        frame:
+                            xpadding 8
+                            ypadding 8
+                            background Solid("#1A3349F2")
+                            vbox:
+                                spacing 4
+                                text "Rareza" size 15 color "#9ED9FF"
+                                for r in _rarity_opts:
+                                    $ _r_lbl = "Todas" if r == "all" else r.upper()
+                                    textbutton "[_r_lbl]":
+                                        action [
+                                            SetScreenVariable("_filter_rarity", r),
+                                            SetScreenVariable("_selected_idx", 0),
+                                            SetScreenVariable("_qty", 1),
+                                            SetScreenVariable("_show_rarity_menu", False),
+                                        ]
+                if _show_tier_menu:
+                    frame:
+                        xpos 610
+                        ypos 40
+                        xpadding 2
+                        ypadding 2
+                        background Solid("#0B1D2ECC")
+                        frame:
+                            xpadding 8
+                            ypadding 8
+                            background Solid("#1A3349F2")
+                            vbox:
+                                spacing 4
+                                text "Tier" size 15 color "#9ED9FF"
+                                for t in _tier_opts:
+                                    $ _t_lbl = "Todos" if t == "all" else t
+                                    textbutton "[_t_lbl]":
+                                        action [
+                                            SetScreenVariable("_filter_tier", t),
+                                            SetScreenVariable("_selected_idx", 0),
+                                            SetScreenVariable("_qty", 1),
+                                            SetScreenVariable("_show_tier_menu", False),
+                                        ]
 
             hbox:
                 spacing 8
