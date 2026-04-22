@@ -410,7 +410,7 @@ screen bs_saga_catalog_screen():
 
                 # Panel lateral: subcategorías (grupos)
                 frame:
-                    xsize 160
+                    xsize 150
                     yfill True
                     padding (10, 10)
                     background Solid("#1F3348")
@@ -457,7 +457,7 @@ screen bs_saga_catalog_screen():
 
                 # Panel central: listado de ítems
                 frame:
-                    xfill True
+                    xsize 520
                     yfill True
                     padding (12, 12)
                     background Solid("#102438")
@@ -510,7 +510,7 @@ screen bs_saga_catalog_screen():
 
                 # Panel derecho: detalle + compra
                 frame:
-                    xsize 220
+                    xsize 250
                     yfill True
                     padding (12, 12)
                     background Solid("#1A2C42")
