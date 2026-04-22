@@ -323,32 +323,31 @@ screen bs_saga_catalog_screen():
 
     # Header (Fase 0: estructura principal)
     frame:
-        xalign 0.46
+        xalign 0.5
         yalign 0.07
-        xsize 1050
-        ysize 86
+        xsize 990
+        ysize 82
         background Solid("#66C8FF")
 
     frame:
-        xalign 0.46
+        xalign 0.5
         yalign 0.07
-        xsize 1038
+        xsize 978
         ypadding 12
         background Solid("#2C4963")
         hbox:
-            spacing 16
-            text "BATTLESTARS SAGA" size 40 color "#5FC6FF"
-            text "Territorio · Tienda / Catálogo de itens" size 20 color "#D7EEFF" yalign 0.7
-            null width 30
-            text ("Oro disponible: " + str(_gold)) size 20 color "#F7D774" yalign 0.7
-            null width 60
-            textbutton "Volver al lobby" action Return("nav:lobby")
+            spacing 10
+            text "BATTLESTARS SAGA" size 30 color "#5FC6FF"
+            text "Territorio · Catálogo de itens" size 18 color "#D7EEFF" yalign 0.7
+            text ("Oro: " + str(_gold)) size 18 color "#F7D774" yalign 0.7
+            null width 20
+            textbutton "Volver" action Return("nav:lobby")
 
     # Contenedor principal por módulos (Fase 0)
     frame:
-        xalign 0.46
+        xalign 0.5
         yalign 0.56
-        xsize 1040
+        xsize 980
         ysize 560
         padding (16, 16)
         background Solid("#13273A")
@@ -407,11 +406,11 @@ screen bs_saga_catalog_screen():
                         ]
 
             hbox:
-                spacing 14
+                spacing 8
 
                 # Panel lateral: subcategorías (grupos)
                 frame:
-                    xsize 180
+                    xsize 160
                     yfill True
                     padding (10, 10)
                     background Solid("#1F3348")
@@ -495,8 +494,8 @@ screen bs_saga_catalog_screen():
                                                 ]
                                                 hbox:
                                                     spacing 8
-                                                    text "• [_n]" size 17 color "#D0E9FF" xminimum 280
-                                                    text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 95
+                                                    text "• [_n]" size 17 color "#D0E9FF" xminimum 220
+                                                    text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 80
                                                     text "[_m_short]" size 15 color "#A9CAE6" xminimum 120
                                 else:
                                     if _has_active_filters:
@@ -511,7 +510,7 @@ screen bs_saga_catalog_screen():
 
                 # Panel derecho: detalle + compra
                 frame:
-                    xsize 260
+                    xsize 220
                     yfill True
                     padding (12, 12)
                     background Solid("#1A2C42")
