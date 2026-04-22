@@ -317,6 +317,9 @@ screen bs_saga_catalog_screen():
     $ _inf_gold = bool(getattr(store, "bs_saga_dev_infinite_gold", False))
     $ _can_buy = bool(_items) and (_inf_gold or (int(_gold) >= int(_total_price)))
     $ _buy_action = Function(bs_saga_ui_call, bs_saga_buy_item, _selected_item, _qty) if _items else NullAction()
+    $ _main_left = int((config.screen_width * 0.5) - (980 * 0.5))
+    $ _main_top = int((config.screen_height * 0.56) - (560 * 0.56))
+    $ _popup_y = _main_top + 86
     $ _has_active_filters = (_filter_rarity != "all") or (_filter_tier != "all") or (_search_norm != "")
     $ _last_msg_lc = _last_msg.lower() if _last_msg else ""
     $ _last_msg_color = "#8BD6A7" if ("compraste" in _last_msg_lc or "ok" in _last_msg_lc or "éxito" in _last_msg_lc) else ("#FF9A9A" if ("insuficiente" in _last_msg_lc or "inválida" in _last_msg_lc or "error" in _last_msg_lc) else "#BFDDF5")
@@ -426,57 +429,6 @@ screen bs_saga_catalog_screen():
                             SetScreenVariable("_show_rarity_menu", False),
                             SetScreenVariable("_show_tier_menu", False),
                         ]
-
-            # Popups flotantes (dibujados después para quedar al frente sin mover layout)
-            fixed:
-                xfill True
-                ysize 0
-                if _show_rarity_menu:
-                    frame:
-                        xpos 470
-                        ypos 40
-                        xpadding 2
-                        ypadding 2
-                        background Solid("#0B1D2ECC")
-                        frame:
-                            xpadding 8
-                            ypadding 8
-                            background Solid("#1A3349F2")
-                            vbox:
-                                spacing 4
-                                text "Rareza" size 15 color "#9ED9FF"
-                                for r in _rarity_opts:
-                                    $ _r_lbl = "Todas" if r == "all" else r.upper()
-                                    textbutton "[_r_lbl]":
-                                        action [
-                                            SetScreenVariable("_filter_rarity", r),
-                                            SetScreenVariable("_selected_idx", 0),
-                                            SetScreenVariable("_qty", 1),
-                                            SetScreenVariable("_show_rarity_menu", False),
-                                        ]
-                if _show_tier_menu:
-                    frame:
-                        xpos 610
-                        ypos 40
-                        xpadding 2
-                        ypadding 2
-                        background Solid("#0B1D2ECC")
-                        frame:
-                            xpadding 8
-                            ypadding 8
-                            background Solid("#1A3349F2")
-                            vbox:
-                                spacing 4
-                                text "Tier" size 15 color "#9ED9FF"
-                                for t in _tier_opts:
-                                    $ _t_lbl = "Todos" if t == "all" else t
-                                    textbutton "[_t_lbl]":
-                                        action [
-                                            SetScreenVariable("_filter_tier", t),
-                                            SetScreenVariable("_selected_idx", 0),
-                                            SetScreenVariable("_qty", 1),
-                                            SetScreenVariable("_show_tier_menu", False),
-                                        ]
 
             hbox:
                 spacing 8
@@ -613,6 +565,54 @@ screen bs_saga_catalog_screen():
                                 ypadding 8
                                 background Solid("#173048")
                                 text "[_last_msg]" size 14 color _last_msg_color
+
+    # Popups flotantes (dibujados al final del screen, por encima de paneles)
+    if _show_rarity_menu:
+        frame:
+            xpos (_main_left + 470)
+            ypos _popup_y
+            xpadding 2
+            ypadding 2
+            background Solid("#0B1D2ECC")
+            frame:
+                xpadding 8
+                ypadding 8
+                background Solid("#1A3349F2")
+                vbox:
+                    spacing 4
+                    text "Rareza" size 15 color "#9ED9FF"
+                    for r in _rarity_opts:
+                        $ _r_lbl = "Todas" if r == "all" else r.upper()
+                        textbutton "[_r_lbl]":
+                            action [
+                                SetScreenVariable("_filter_rarity", r),
+                                SetScreenVariable("_selected_idx", 0),
+                                SetScreenVariable("_qty", 1),
+                                SetScreenVariable("_show_rarity_menu", False),
+                            ]
+    if _show_tier_menu:
+        frame:
+            xpos (_main_left + 610)
+            ypos _popup_y
+            xpadding 2
+            ypadding 2
+            background Solid("#0B1D2ECC")
+            frame:
+                xpadding 8
+                ypadding 8
+                background Solid("#1A3349F2")
+                vbox:
+                    spacing 4
+                    text "Tier" size 15 color "#9ED9FF"
+                    for t in _tier_opts:
+                        $ _t_lbl = "Todos" if t == "all" else t
+                        textbutton "[_t_lbl]":
+                            action [
+                                SetScreenVariable("_filter_tier", t),
+                                SetScreenVariable("_selected_idx", 0),
+                                SetScreenVariable("_qty", 1),
+                                SetScreenVariable("_show_tier_menu", False),
+                            ]
 
 screen bs_saga_inventory_screen():
     tag menu
