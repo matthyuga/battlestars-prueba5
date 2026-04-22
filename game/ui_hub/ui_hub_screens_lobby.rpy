@@ -314,6 +314,7 @@ screen bs_saga_catalog_screen():
     $ _total_price = int(_sel_price) * int(_qty)
     $ _inf_gold = bool(getattr(store, "bs_saga_dev_infinite_gold", False))
     $ _can_buy = bool(_items) and (_inf_gold or (int(_gold) >= int(_total_price)))
+    $ _buy_action = Function(bs_saga_ui_call, bs_saga_buy_item, _selected_item, _qty) if _items else NullAction()
     $ _has_active_filters = (_filter_rarity != "all") or (_filter_tier != "all") or (_search_norm != "")
     $ _last_msg_lc = _last_msg.lower() if _last_msg else ""
     $ _last_msg_color = "#8BD6A7" if ("compraste" in _last_msg_lc or "ok" in _last_msg_lc or "éxito" in _last_msg_lc) else ("#FF9A9A" if ("insuficiente" in _last_msg_lc or "inválida" in _last_msg_lc or "error" in _last_msg_lc) else "#BFDDF5")
@@ -548,7 +549,7 @@ screen bs_saga_catalog_screen():
                             else:
                                 text "Oro insuficiente para esta cantidad" size 15 color "#FF9A9A"
                         textbutton ("Comprar x" + str(_qty)):
-                            action Function(bs_saga_ui_call, bs_saga_buy_item, _selected_item, _qty) if _items else NullAction()
+                            action _buy_action
                             sensitive _can_buy
                         text ("Costo total: " + str(_total_price)) size 15 color "#D6EEFF"
                         if _last_msg:
