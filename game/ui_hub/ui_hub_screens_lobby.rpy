@@ -293,8 +293,8 @@ screen bs_saga_catalog_screen():
         $ bs_saga_catalog_group = _grp
     $ _grp_label = _grp.capitalize() if _grp else "—"
     $ _items_all = bs_saga_catalog_items(_cat, _grp)
-    $ _rarity_opts = ["all"] + sorted(list(set([str(i.get("rarity", "") or "").strip().lower() for i in _items_all if str(i.get("rarity", "") or "").strip()])))
-    $ _tier_opts = ["all"] + sorted(list(set([str(i.get("tier_req", "") or "").strip().upper() for i in _items_all if str(i.get("tier_req", "") or "").strip()])))
+    $ _rarity_opts = ["all", "common", "rare", "special", "epic", "legendary", "mythic", "infernal"]
+    $ _tier_opts = ["all", "C", "B", "A", "S", "SS", "SSS", "IV"]
     if _filter_rarity not in _rarity_opts:
         $ _filter_rarity = "all"
     if _filter_tier not in _tier_opts:
@@ -573,11 +573,11 @@ screen bs_saga_catalog_screen():
             ypos _popup_y
             xpadding 2
             ypadding 2
-            background Solid("#0B1D2ECC")
+            background Solid("#0B1D2E88")
             frame:
                 xpadding 8
                 ypadding 8
-                background Solid("#1A3349F2")
+                background Solid("#1A3349B8")
                 vbox:
                     spacing 4
                     text "Rareza" size 15 color "#9ED9FF"
@@ -596,11 +596,11 @@ screen bs_saga_catalog_screen():
             ypos _popup_y
             xpadding 2
             ypadding 2
-            background Solid("#0B1D2ECC")
+            background Solid("#0B1D2E88")
             frame:
                 xpadding 8
                 ypadding 8
-                background Solid("#1A3349F2")
+                background Solid("#1A3349B8")
                 vbox:
                     spacing 4
                     text "Tier" size 15 color "#9ED9FF"
