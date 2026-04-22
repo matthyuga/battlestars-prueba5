@@ -485,7 +485,7 @@ screen bs_saga_catalog_screen():
                                             xfill True
                                             background Solid(_row_bg)
                                             padding (8, 6)
-                                            textbutton "":
+                                            button:
                                                 xfill True
                                                 action [
                                                     SetScreenVariable("_selected_idx", idx),
