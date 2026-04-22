@@ -370,27 +370,83 @@ screen bs_saga_catalog_screen():
                             SetScreenVariable("_filter_rarity", "all"),
                             SetScreenVariable("_filter_tier", "all"),
                             SetScreenVariable("_search_query", ""),
+                            SetScreenVariable("_show_rarity_menu", False),
+                            SetScreenVariable("_show_tier_menu", False),
                         ]
                         selected (ck == _cat)
                 null width 20
-                frame:
-                    xpadding 8
-                    ypadding 5
-                    background Solid("#1A3349")
-                    hbox:
-                        spacing 4
-                        text "Rareza:" size 16 color "#9ED9FF"
-                        textbutton ("Todas" if _filter_rarity == "all" else _filter_rarity.upper()):
-                            action ToggleScreenVariable("_show_rarity_menu", True, False)
-                frame:
-                    xpadding 8
-                    ypadding 5
-                    background Solid("#1A3349")
-                    hbox:
-                        spacing 4
-                        text "Tier:" size 16 color "#9ED9FF"
-                        textbutton ("Todos" if _filter_tier == "all" else _filter_tier):
-                            action ToggleScreenVariable("_show_tier_menu", True, False)
+                fixed:
+                    xsize 130
+                    ysize 40
+                    frame:
+                        xfill True
+                        yfill True
+                        xpadding 8
+                        ypadding 5
+                        background Solid("#1A3349")
+                        hbox:
+                            spacing 4
+                            text "Rareza:" size 16 color "#9ED9FF"
+                            textbutton ("Todas" if _filter_rarity == "all" else _filter_rarity.upper()):
+                                action [
+                                    ToggleScreenVariable("_show_rarity_menu", True, False),
+                                    SetScreenVariable("_show_tier_menu", False),
+                                ]
+                    if _show_rarity_menu:
+                        frame:
+                            xpos 0
+                            ypos 42
+                            xpadding 8
+                            ypadding 8
+                            background Solid("#1A3349")
+                            vbox:
+                                spacing 4
+                                text "Rareza" size 15 color "#9ED9FF"
+                                for r in _rarity_opts:
+                                    $ _r_lbl = "Todas" if r == "all" else r.upper()
+                                    textbutton "[_r_lbl]":
+                                        action [
+                                            SetScreenVariable("_filter_rarity", r),
+                                            SetScreenVariable("_selected_idx", 0),
+                                            SetScreenVariable("_qty", 1),
+                                            SetScreenVariable("_show_rarity_menu", False),
+                                        ]
+                fixed:
+                    xsize 120
+                    ysize 40
+                    frame:
+                        xfill True
+                        yfill True
+                        xpadding 8
+                        ypadding 5
+                        background Solid("#1A3349")
+                        hbox:
+                            spacing 4
+                            text "Tier:" size 16 color "#9ED9FF"
+                            textbutton ("Todos" if _filter_tier == "all" else _filter_tier):
+                                action [
+                                    ToggleScreenVariable("_show_tier_menu", True, False),
+                                    SetScreenVariable("_show_rarity_menu", False),
+                                ]
+                    if _show_tier_menu:
+                        frame:
+                            xpos 0
+                            ypos 42
+                            xpadding 8
+                            ypadding 8
+                            background Solid("#1A3349")
+                            vbox:
+                                spacing 4
+                                text "Tier" size 15 color "#9ED9FF"
+                                for t in _tier_opts:
+                                    $ _t_lbl = "Todos" if t == "all" else t
+                                    textbutton "[_t_lbl]":
+                                        action [
+                                            SetScreenVariable("_filter_tier", t),
+                                            SetScreenVariable("_selected_idx", 0),
+                                            SetScreenVariable("_qty", 1),
+                                            SetScreenVariable("_show_tier_menu", False),
+                                        ]
                 frame:
                     xsize 230
                     xpadding 10
@@ -408,45 +464,6 @@ screen bs_saga_catalog_screen():
                             SetScreenVariable("_show_rarity_menu", False),
                             SetScreenVariable("_show_tier_menu", False),
                         ]
-
-            if _show_rarity_menu or _show_tier_menu:
-                hbox:
-                    xalign 1.0
-                    spacing 8
-                    if _show_rarity_menu:
-                        frame:
-                            xpadding 8
-                            ypadding 8
-                            background Solid("#1A3349")
-                            vbox:
-                                spacing 4
-                                text "Rareza" size 15 color "#9ED9FF"
-                                for r in _rarity_opts:
-                                    $ _r_lbl = "Todas" if r == "all" else r.upper()
-                                    textbutton "[_r_lbl]":
-                                        action [
-                                            SetScreenVariable("_filter_rarity", r),
-                                            SetScreenVariable("_selected_idx", 0),
-                                            SetScreenVariable("_qty", 1),
-                                            SetScreenVariable("_show_rarity_menu", False),
-                                        ]
-                    if _show_tier_menu:
-                        frame:
-                            xpadding 8
-                            ypadding 8
-                            background Solid("#1A3349")
-                            vbox:
-                                spacing 4
-                                text "Tier" size 15 color "#9ED9FF"
-                                for t in _tier_opts:
-                                    $ _t_lbl = "Todos" if t == "all" else t
-                                    textbutton "[_t_lbl]":
-                                        action [
-                                            SetScreenVariable("_filter_tier", t),
-                                            SetScreenVariable("_selected_idx", 0),
-                                            SetScreenVariable("_qty", 1),
-                                            SetScreenVariable("_show_tier_menu", False),
-                                        ]
 
             hbox:
                 spacing 8
@@ -477,6 +494,8 @@ screen bs_saga_catalog_screen():
                                             SetScreenVariable("_filter_rarity", "all"),
                                             SetScreenVariable("_filter_tier", "all"),
                                             SetScreenVariable("_search_query", ""),
+                                            SetScreenVariable("_show_rarity_menu", False),
+                                            SetScreenVariable("_show_tier_menu", False),
                                         ]
                                         selected (g == _grp)
                 # Panel central: listado de ítems
