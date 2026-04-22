@@ -613,8 +613,25 @@ screen bs_saga_catalog_screen():
 
 screen bs_saga_inventory_screen():
     tag menu
+    default _bucket_filter = "all"
+    default _selected_idx = 0
     $ _rows = bs_saga_inventory_rows()
     $ _gold = bs_saga_gold()
+    $ _bucket_labels = {
+        "all": "Todos",
+        "consumables": "Consumibles",
+        "equipables": "Equipo",
+        "materials": "Materiales",
+        "key_items": "Objetos clave",
+    }
+    $ _bucket_keys = ["all", "consumables", "equipables", "materials", "key_items"]
+    $ _rows_filtered = [r for r in _rows if (_bucket_filter == "all") or (str(r.get("bucket", "") or "").strip().lower() == _bucket_filter)]
+    if _selected_idx < 0 or _selected_idx >= len(_rows_filtered):
+        $ _selected_idx = 0
+    $ _selected_row = _rows_filtered[_selected_idx] if _rows_filtered else {}
+    $ _selected_bucket = bs_saga_labelize(_selected_row.get("bucket", ""))
+    $ _selected_item = str(_selected_row.get("item_id", "Sin selección") or "Sin selección")
+    $ _selected_qty = int(_selected_row.get("qty", 0) or 0)
 
     add Solid("#0E1A28")
 
@@ -643,35 +660,96 @@ screen bs_saga_inventory_screen():
         xalign 0.5
         yalign 0.56
         xsize 1120
-        ysize 500
+        ysize 560
         padding (16, 16)
         background Solid("#13273A")
-        vbox:
-            spacing 8
-            text "Inventario de cuenta" size 32 color "#EAF6FF"
-            viewport:
-                draggable True
-                mousewheel True
-                scrollbars "vertical"
-                ymaximum 390
+        hbox:
+            spacing 10
+
+            # Panel izquierdo: categorías/buckets (Fase 1 layout base)
+            frame:
+                xsize 230
+                yfill True
+                padding (10, 10)
+                background Solid("#1A3044")
                 vbox:
-                    spacing 6
-                    if _rows:
-                        for row in _rows:
-                            $ _b = bs_saga_labelize(row.get("bucket", ""))
-                            $ _id = str(row.get("item_id", "?") or "?")
-                            $ _q = int(row.get("qty", 0) or 0)
-                            frame:
-                                xfill True
-                                background Solid("#173048")
-                                padding (8, 6)
-                                hbox:
-                                    spacing 8
-                                    text ("Bucket: " + _b) size 17 color "#A9CAE6" xminimum 180
-                                    text ("Item: " + _id) size 17 color "#D0E9FF" xminimum 520
-                                    text ("Qty: " + str(_q)) size 17 color "#8BD6A7"
-                    else:
-                        text "Inventario vacío todavía." size 18 color "#9FB9D1"
+                    spacing 8
+                    text "Categorías" size 24 color "#DDEEFF"
+                    for k in _bucket_keys:
+                        $ _lbl = str(_bucket_labels.get(k, bs_saga_labelize(k)) or bs_saga_labelize(k))
+                        textbutton "[_lbl]":
+                            action [
+                                SetScreenVariable("_bucket_filter", k),
+                                SetScreenVariable("_selected_idx", 0),
+                            ]
+                            selected (_bucket_filter == k)
+                    null height 10
+                    text ("Filtro: " + str(_bucket_labels.get(_bucket_filter, "Todos"))) size 14 color "#9FC4E2"
+
+            # Panel central: listado de inventario (Fase 1 layout base)
+            frame:
+                xsize 560
+                yfill True
+                padding (10, 10)
+                background Solid("#102438")
+                vbox:
+                    spacing 8
+                    text "Inventario de cuenta" size 28 color "#EAF6FF"
+                    text ("Total visibles: " + str(len(_rows_filtered))) size 14 color "#9FC4E2"
+                    viewport:
+                        draggable True
+                        mousewheel True
+                        scrollbars "vertical"
+                        ymaximum 450
+                        vbox:
+                            spacing 6
+                            if _rows_filtered:
+                                for idx, row in enumerate(_rows_filtered):
+                                    $ _b = bs_saga_labelize(row.get("bucket", ""))
+                                    $ _id = str(row.get("item_id", "?") or "?")
+                                    $ _q = int(row.get("qty", 0) or 0)
+                                    $ _row_bg = "#334A64" if idx == _selected_idx else "#173048"
+                                    frame:
+                                        xfill True
+                                        background Solid(_row_bg)
+                                        padding (8, 7)
+                                        button:
+                                            xfill True
+                                            action SetScreenVariable("_selected_idx", idx)
+                                            hbox:
+                                                spacing 8
+                                                text ("• " + _id) size 17 color "#D0E9FF" xminimum 370
+                                                text ("Bucket: " + _b) size 15 color "#A9CAE6" xminimum 120
+                                                text ("Qty: " + str(_q)) size 16 color "#8BD6A7"
+                            else:
+                                text "No hay ítems para esta categoría." size 18 color "#9FB9D1"
+
+            # Panel derecho: detalle seleccionado (Fase 1 layout base)
+            frame:
+                xsize 280
+                yfill True
+                padding (12, 12)
+                background Solid("#1A2C42")
+                vbox:
+                    spacing 10
+                    text "Detalle del objeto" size 22 color "#EAF6FF"
+                    frame:
+                        xfill True
+                        ypadding 8
+                        xpadding 8
+                        background Solid("#173048")
+                        text "[_selected_item]" size 22 color "#D6EEFF"
+                    text ("Bucket: " + (_selected_bucket if _selected_bucket else "-")) size 17 color "#BFDCF4"
+                    text ("Cantidad en posesión: " + str(_selected_qty)) size 17 color "#8BD6A7"
+                    frame:
+                        xfill True
+                        xpadding 8
+                        ypadding 8
+                        background Solid("#173048")
+                        if _rows_filtered:
+                            text "Vista base Fase 1: en siguientes fases agregamos rareza, descripción larga e iconografía." size 14 color "#AFCFE8"
+                        else:
+                            text "Selecciona una categoría con ítems para ver detalles." size 14 color "#AFCFE8"
 
 screen bs_saga_profile_screen():
     tag menu
