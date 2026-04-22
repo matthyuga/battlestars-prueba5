@@ -323,16 +323,16 @@ screen bs_saga_catalog_screen():
 
     # Header (Fase 0: estructura principal)
     frame:
-        xalign 0.5
+        xalign 0.46
         yalign 0.07
-        xsize 1128
+        xsize 1050
         ysize 86
         background Solid("#66C8FF")
 
     frame:
-        xalign 0.5
+        xalign 0.46
         yalign 0.07
-        xsize 1116
+        xsize 1038
         ypadding 12
         background Solid("#2C4963")
         hbox:
@@ -346,9 +346,9 @@ screen bs_saga_catalog_screen():
 
     # Contenedor principal por módulos (Fase 0)
     frame:
-        xalign 0.5
+        xalign 0.46
         yalign 0.56
-        xsize 1120
+        xsize 1040
         ysize 560
         padding (16, 16)
         background Solid("#13273A")
@@ -411,7 +411,7 @@ screen bs_saga_catalog_screen():
 
                 # Panel lateral: subcategorías (grupos)
                 frame:
-                    xsize 210
+                    xsize 180
                     yfill True
                     padding (10, 10)
                     background Solid("#1F3348")
@@ -478,6 +478,7 @@ screen bs_saga_catalog_screen():
                                         $ _r = str(it.get("rarity", "-") or "-")
                                         $ _t = str(it.get("tier_req", "-") or "-")
                                         $ _m = str(it.get("meta", "") or "")
+                                        $ _m_short = (_m[:46] + "...") if len(_m) > 49 else _m
                                         $ _r_show = "-" if _r in ("", "-") else _r
                                         $ _t_show = "-" if _t in ("", "-") else _t
                                         $ _p = bs_saga_item_price(it)
@@ -494,11 +495,9 @@ screen bs_saga_catalog_screen():
                                                 ]
                                                 hbox:
                                                     spacing 8
-                                                    text "• [_n]" size 17 color "#D0E9FF" xminimum 240
-                                                    text "Rareza: [_r_show]" size 16 color "#A9CAE6" xminimum 130
-                                                    text "Tier: [_t_show]" size 16 color "#A9CAE6" xminimum 100
-                                                    text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 110
-                                                    text "[_m]" size 15 color "#D0E9FF" xminimum 190
+                                                    text "• [_n]" size 17 color "#D0E9FF" xminimum 280
+                                                    text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 95
+                                                    text "[_m_short]" size 15 color "#A9CAE6" xminimum 120
                                 else:
                                     if _has_active_filters:
                                         text "No hay resultados para los filtros actuales." size 18 color "#FFB3B3"
@@ -512,7 +511,7 @@ screen bs_saga_catalog_screen():
 
                 # Panel derecho: detalle + compra
                 frame:
-                    xsize 300
+                    xsize 260
                     yfill True
                     padding (12, 12)
                     background Solid("#1A2C42")
