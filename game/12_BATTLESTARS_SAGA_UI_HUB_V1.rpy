@@ -2024,6 +2024,8 @@ init -880 python:
                         {"name": "Poción de durabilidad roja", "rarity": "", "tier_req": "", "meta": "+50% durabilidad"},
                         {"name": "Poción de durabilidad naranja", "rarity": "", "tier_req": "", "meta": "+35% durabilidad"},
                         {"name": "Poción de durabilidad amarilla", "rarity": "", "tier_req": "", "meta": "+25% durabilidad"},
+                    ],
+                    "stats_torre": [
                         {"name": "Poción de fuerza verde", "rarity": "", "tier_req": "", "meta": "+1 punto fuerza · Solo Torre · dura 1 duelo"},
                         {"name": "Poción de fuerza celeste", "rarity": "", "tier_req": "", "meta": "+2 puntos fuerza · Solo Torre · dura 1 duelo"},
                         {"name": "Poción de fuerza azul", "rarity": "", "tier_req": "", "meta": "+3 puntos fuerza · Solo Torre · dura 1 duelo"},
@@ -2114,7 +2116,7 @@ init -880 python:
         cat = schema.get(cat_key, {})
         groups = cat.get("groups", {}) if isinstance(cat.get("groups", {}), dict) else {}
         preferred = {
-            "consumibles": ["pociones", "amuletos", "sellos"],
+            "consumibles": ["pociones", "stats_torre", "amuletos", "sellos"],
             "permanentes": ["anillos", "pulseras", "pendientes", "collares", "diademas", "cinturones", "tobilleras", "tatuajes"],
             "materiales": ["basicos", "ascenso"],
         }
