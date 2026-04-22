@@ -450,7 +450,7 @@ screen bs_saga_catalog_screen():
                             vbox:
                                 spacing 6
                                 for g in _groups:
-                                    $ _g_label = bs_saga_labelize(g)
+                                    $ _g_label = "Stats (Torre del cielo)" if g == "stats_torre" else bs_saga_labelize(g)
                                     textbutton "[_g_label]":
                                         action [
                                             Function(bs_saga_catalog_set_group, g),
@@ -484,8 +484,6 @@ screen bs_saga_catalog_screen():
                                         $ _n = str(it.get("name", "?") or "?")
                                         $ _r = str(it.get("rarity", "-") or "-")
                                         $ _t = str(it.get("tier_req", "-") or "-")
-                                        $ _m = str(it.get("meta", "") or "")
-                                        $ _m_short = (_m[:46] + "...") if len(_m) > 49 else _m
                                         $ _r_show = "-" if _r in ("", "-") else _r
                                         $ _t_show = "-" if _t in ("", "-") else _t
                                         $ _p = bs_saga_item_price(it)
@@ -502,9 +500,8 @@ screen bs_saga_catalog_screen():
                                                 ]
                                                 hbox:
                                                     spacing 8
-                                                    text "• [_n]" size 17 color "#D0E9FF" xminimum 220
+                                                    text "• [_n]" size 17 color "#D0E9FF" xminimum 320
                                                     text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 80
-                                                    text "[_m_short]" size 15 color "#A9CAE6" xminimum 120
                                 else:
                                     if _has_active_filters:
                                         text "No hay resultados para los filtros actuales." size 18 color "#FFB3B3"

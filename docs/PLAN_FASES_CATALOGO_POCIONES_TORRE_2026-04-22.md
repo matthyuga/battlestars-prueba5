@@ -1,7 +1,7 @@
 # Plan de fases — Catálogo de itens (split Pociones vs Stats Torre)
 
 Fecha: 2026-04-22  
-Estado: **Fase 0 completada · Fase 1 iniciada**
+Estado: **Fase 0, 1, 2 y 3 completadas**
 
 ## Fase 0 — Definición funcional (completada)
 
@@ -21,15 +21,16 @@ Ejecución:
 2. Mantener en `pociones` solo potions de uso general en duelo.
 3. Reflejar el mismo split en el fallback embebido del schema para evitar divergencias cuando no cargue JSON externo.
 
-## Próximas fases
+## Fase 2 — Orden de grupos y etiqueta visible (completada)
+- `stats_torre` se insertó en el orden preferido de `consumibles`.
+- Se aplicó etiqueta visible amigable: `Stats (Torre del cielo)`.
 
-### Fase 2 — Orden de grupos y etiqueta visible
-- Insertar `stats_torre` en el orden preferido de `consumibles`.
-- Ajustar label amigable en panel izquierdo si aplica.
+## Fase 3 — Limpieza del panel central (completada)
+- Se quitó la descripción/meta por fila en el panel central.
+- El panel central conserva nombre + precio.
+- La descripción completa permanece en panel derecho.
 
-### Fase 3 — Limpieza del panel central
-- Quitar descripción/meta de cada fila del listado central.
-- Mantener nombre + precio en centro y descripción completa en panel derecho.
+## Próxima fase
 
-### Fase 4 — QA visual/funcional
+### Fase 4 — QA visual/funcional (pendiente)
 - Verificar navegación por grupos, compra, filtros, búsqueda y no regresión del panel derecho.

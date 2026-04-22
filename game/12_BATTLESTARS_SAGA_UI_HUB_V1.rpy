@@ -2116,7 +2116,7 @@ init -880 python:
         cat = schema.get(cat_key, {})
         groups = cat.get("groups", {}) if isinstance(cat.get("groups", {}), dict) else {}
         preferred = {
-            "consumibles": ["pociones", "amuletos", "sellos"],
+            "consumibles": ["pociones", "stats_torre", "amuletos", "sellos"],
             "permanentes": ["anillos", "pulseras", "pendientes", "collares", "diademas", "cinturones", "tobilleras", "tatuajes"],
             "materiales": ["basicos", "ascenso"],
         }
