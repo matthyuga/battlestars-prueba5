@@ -739,7 +739,7 @@ screen bs_saga_inventory_screen():
 
     frame:
         xalign 0.5
-        yalign 0.64
+        yalign 0.66
         xsize 1120
         ysize 560
         padding (16, 16)
