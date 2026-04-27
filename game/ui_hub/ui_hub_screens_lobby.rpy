@@ -318,7 +318,8 @@ screen bs_saga_catalog_screen():
     $ _can_buy = bool(_items) and (_inf_gold or (int(_gold) >= int(_total_price)))
     $ _buy_action = Function(bs_saga_ui_call, bs_saga_buy_item, _selected_item, _qty) if _items else NullAction()
     $ _main_left = int((config.screen_width * 0.5) - (980 * 0.5))
-    $ _main_top = int((config.screen_height * 0.56) - (560 * 0.56))
+    $ _main_yalign = 0.82
+    $ _main_top = int((config.screen_height - 560) * _main_yalign)
     $ _popup_y = _main_top + 86
     $ _has_active_filters = (_filter_rarity != "all") or (_filter_tier != "all") or (_search_norm != "")
     $ _last_msg_lc = _last_msg.lower() if _last_msg else ""
@@ -351,7 +352,7 @@ screen bs_saga_catalog_screen():
     # Contenedor principal por módulos (Fase 0)
     frame:
         xalign 0.5
-        yalign 0.56
+        yalign _main_yalign
         xsize 980
         ysize 560
         padding (16, 16)

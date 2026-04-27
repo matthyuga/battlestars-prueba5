@@ -243,6 +243,74 @@ screen battle_hp_overlay():
                     bar value StaticValue(max(0, _ehp_fake), max(1, _emax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#00384722" xalign 1.0
 
 
+        # Experimental rebel HUD skin. It is drawn after the compact fallback HUD
+        # so the old runtime state remains untouched while this visual layer evolves.
+        $ _rebel_hud_w = int(config.screen_width)
+        fixed:
+            xpos 0
+            ypos 0
+            xsize _rebel_hud_w
+            ysize 154
+
+            add Solid("#070511FF") xpos 0 ypos 0 xsize 540 ysize 154
+            add Solid("#110505FF") xalign 1.0 ypos 0 xsize 540 ysize 154
+
+            $ _hud_p_name = str(_player_display_name)
+            $ _hud_e_name = str(_enemy_display_name)
+            $ _p_hp_w = max(1, int(292.0 * float(max(0, _php_fake)) / float(max(1, _pmax))))
+            $ _e_hp_w = max(1, int(292.0 * float(max(0, _ehp_fake)) / float(max(1, _emax))))
+            $ _p_dmg_w = max(1, int(292.0 * float(max(0, _php_damage_fake)) / float(max(1, _pmax))))
+            $ _e_dmg_w = max(1, int(292.0 * float(max(0, _ehp_damage_fake)) / float(max(1, _emax))))
+
+            fixed:
+                xpos 6
+                ypos 3
+                xsize 535
+                ysize 150
+
+                add im.Scale("gui/battle/hud_rebel/portraits/portrait_player_jugador_a_rebel.png", 136, 113) xpos 0 ypos 10
+                add im.Scale("gui/battle/hud_rebel/frames/hp_frame_empty_no_numbers.png", 418, 112) xpos 108 ypos 0
+
+                text ("Jugador (%s)" % _hud_p_name) xpos 140 ypos 8 size 17 color "#35D8FF" outlines [(2, "#061019", 0, 0)]
+                text ("%s / %s" % (_php_fake, _pmax)) xpos 244 ypos 31 size 29 color "#F8F8FF" outlines [(3, "#241033", 0, 0)]
+
+                fixed:
+                    xpos 182
+                    ypos 79
+                    xsize 292
+                    ysize 18
+                    if _php_damage_fake > _php_fake and _php_damage_alpha > 0.0:
+                        add im.Scale("gui/battle/hud_rebel/bars/hp_fill_damage_red_player.png", _p_dmg_w, 18) at Transform(alpha=_php_damage_alpha)
+                    add im.Scale("gui/battle/hud_rebel/bars/hp_fill_green_player.png", _p_hp_w, 18)
+
+                text ("EP %s / %s" % (_prei_fake, _pmax_rei)) xpos 150 ypos 112 size 14 color "#57CFFF"
+                text ("EC %s / %s" % (_pene_fake, _pmax_ene)) xpos 345 ypos 112 size 14 color "#FFC24A"
+
+            fixed:
+                xalign 1.0
+                ypos 3
+                xsize 535
+                ysize 150
+
+                add im.Scale("gui/battle/hud_rebel/frames/hp_frame_empty_no_numbers_enemy.png", 418, 112) xpos 8 ypos 0
+                add im.Scale("gui/battle/hud_rebel/portraits/portrait_enemy_hollow_rebel_facing.png", 136, 113) xpos 394 ypos 10
+
+                text ("Enemigo (%s)" % _hud_e_name) xpos 112 ypos 8 size 17 color "#FF7777" outlines [(2, "#190608", 0, 0)]
+                text ("%s / %s" % (_ehp_fake, _emax)) xpos 220 ypos 31 size 29 color "#F8F8FF" outlines [(3, "#331018", 0, 0)]
+
+                fixed:
+                    xpos 60
+                    ypos 79
+                    xsize 292
+                    ysize 18
+                    if _ehp_damage_fake > _ehp_fake and _ehp_damage_alpha > 0.0:
+                        add im.Scale("gui/battle/hud_rebel/bars/hp_fill_damage_red_enemy.png", _e_dmg_w, 18) xalign 1.0 at Transform(alpha=_ehp_damage_alpha)
+                    add im.Scale("gui/battle/hud_rebel/bars/hp_fill_green_enemy.png", _e_hp_w, 18) xalign 1.0
+
+                text ("EP %s / %s" % (_erei_fake, _emax_rei)) xpos 72 ypos 112 size 14 color "#57CFFF"
+                text ("EC %s / %s" % (_eene_fake, _emax_ene)) xpos 272 ypos 112 size 14 color "#FFC24A"
+
+
 screen battle_ui_hotkeys():
     zorder 95
     if bool(getattr(store, "battle_active", False)):

@@ -2390,6 +2390,11 @@ label bs_saga_intro_splash:
     jump bs_saga_lobby
 
 label bs_saga_lobby:
+    $ _clear_damage_overlay = getattr(S, "battle_clear_damage_overlay", None)
+    if callable(_clear_damage_overlay):
+        $ _clear_damage_overlay()
+    else:
+        $ renpy.hide_screen("battle_damage_overlay")
     $ _lobby_nav = renpy.call_screen("bs_saga_lobby_screen")
     $ _lobby_target = bs_saga_lobby_nav_target(_lobby_nav)
     if _lobby_target:

@@ -170,6 +170,7 @@ label battle_end:
             "technique_selector",
             "battle_command_menu",
             "battle_maneuver_choice",
+            "battle_damage_overlay",
             "battle_popup_turn",
             "battle_popup_turn_legacy_visual",
             "debug_battle_identity",
@@ -193,12 +194,28 @@ label battle_end:
         except:
             pass
 
+    $ _clear_damage_overlay = getattr(S, "battle_clear_damage_overlay", None)
+    if callable(_clear_damage_overlay):
+        $ _clear_damage_overlay()
+    else:
+        $ renpy.hide_screen("battle_damage_overlay")
+
     if getattr(S, "story_mode_active", False) and renpy.has_label("story_phaseC_postbattle"):
         $ S.battle_active = False
+        $ _clear_damage_overlay = getattr(S, "battle_clear_damage_overlay", None)
+        if callable(_clear_damage_overlay):
+            $ _clear_damage_overlay()
+        else:
+            $ renpy.hide_screen("battle_damage_overlay")
         jump story_phaseC_postbattle
 
     # --- Retorno al lobby (fase 3 UX v2) ---
     $ S.battle_active = False
+    $ _clear_damage_overlay = getattr(S, "battle_clear_damage_overlay", None)
+    if callable(_clear_damage_overlay):
+        $ _clear_damage_overlay()
+    else:
+        $ renpy.hide_screen("battle_damage_overlay")
     if renpy.has_label("bs_saga_lobby"):
         jump bs_saga_lobby
     else:

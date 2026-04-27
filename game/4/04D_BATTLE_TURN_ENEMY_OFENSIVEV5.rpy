@@ -347,8 +347,16 @@ label battle_enemy_turn_legacy_entry:
         S.enemy_total_damage      = 0
         S.incoming_damage         = 0
         S.incoming_direct_damage  = 0
+        S.enemy_direct_pending_damage = 0
+        S.enemy_direct_base_damage = 0
+        S.pending_direct_damage_for_defense = 0
+        S.defense_received_includes_direct = False
         S.enemy_attack_records    = []
         S.enemy_noatk_success     = False
+
+        fn_set_direct = getattr(S, "bs_set_direct_pending", None)
+        if callable(fn_set_direct):
+            fn_set_direct("player", 0, mirror_legacy=True)
 
         S.turn_enemy_off_rei_before = int(getattr(S, "enemy_reiatsu", 0) or 0)
         S.turn_enemy_off_ene_before = int(getattr(S, "enemy_energy", 0) or 0)
