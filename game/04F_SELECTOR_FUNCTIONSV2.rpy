@@ -291,7 +291,8 @@ init -959 python:
         S.simulated_reiatsu = int(getattr(S, "player_reiatsu", 0) or 0)
         S.simulated_energy  = int(getattr(S, "player_energy", 0) or 0)
 
-        S.actions_available = int(getattr(S, "actions_available_start", 1) or 1)
+        item_spent = max(0, int(getattr(S, "bs_battle_item_actions_spent", 0) or 0))
+        S.actions_available = max(0, int(getattr(S, "actions_available_start", 1) or 1) - item_spent)
 
         mode = getattr(S, "battle_mode", "offensive")
 
@@ -347,7 +348,8 @@ init -959 python:
         sim_ene = int(getattr(S, "player_energy", 0) or 0)
 
         # ✅ arranca desde acciones base del turno
-        sim_act = int(getattr(S, "actions_available_start", 1) or 1)
+        item_spent = max(0, int(getattr(S, "bs_battle_item_actions_spent", 0) or 0))
+        sim_act = max(0, int(getattr(S, "actions_available_start", 1) or 1) - item_spent)
 
         for idx, nm in enumerate(q2):
 
@@ -445,7 +447,8 @@ init -959 python:
         q[:] = []
         _fury_sel_clear()
 
-        S.actions_available = int(getattr(S, "actions_available_start", 1) or 1)
+        item_spent = max(0, int(getattr(S, "bs_battle_item_actions_spent", 0) or 0))
+        S.actions_available = max(0, int(getattr(S, "actions_available_start", 1) or 1) - item_spent)
         S.simulated_reiatsu = int(getattr(S, "player_reiatsu", 0) or 0)
         S.simulated_energy  = int(getattr(S, "player_energy", 0) or 0)
 

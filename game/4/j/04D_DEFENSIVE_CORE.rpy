@@ -265,6 +265,7 @@ label battle_defensive_turn_legacy_entry:
     $ actions_available       = 1 + extra_defensive_actions
     $ extra_defensive_actions = 0
     $ actions_available_start = actions_available
+    $ bs_battle_item_actions_spent = 0
 
     show screen battle_command_menu
     show screen technique_selector

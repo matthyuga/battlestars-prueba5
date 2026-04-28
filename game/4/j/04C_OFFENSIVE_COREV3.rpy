@@ -337,6 +337,7 @@ label battle_offensive_turn_legacy_entry:
     $ total_damage = 0
     $ actions = 1 + getattr(S, "extra_offensive_actions", 0)
     $ actions_available_start = actions
+    $ bs_battle_item_actions_spent = 0
 
     # ⭐ Recursos simulados para selector (si el selector los usa)
     $ simulated_reiatsu = getattr(S, "player_reiatsu", 0)

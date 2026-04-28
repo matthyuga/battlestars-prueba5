@@ -1587,6 +1587,12 @@ init -880 python:
         bs_saga_set_message("Casillas: J2 promovido a J1 ({})".format(j2))
         return True
 
+    def bs_saga_clear_prep_j1_slot():
+        S.bs_saga_prep_selected_hero = ""
+        S.bs_saga_prep_selected_party_ids = []
+        bs_saga_set_message("Casillas: Jugador 1 quitado.")
+        return True
+
     def bs_saga_clear_prep_j2_slot():
         mode = str(getattr(S, "bs_saga_prep_selected_mode", "1v1") or "1v1")
         if mode != "2v2":
@@ -1665,6 +1671,257 @@ init -880 python:
             bs_saga_set_message("Preparación: consumible marcado = {}.".format(iid or "ninguno"))
             return True
         return False
+
+    def bs_saga_item_group_for_id(item_id):
+        iid = str(item_id or "").strip()
+        if not iid:
+            return ""
+        schema = bs_saga_item_schema()
+        for cat, cdata in (schema.items() if isinstance(schema, dict) else []):
+            groups = cdata.get("groups", {}) if isinstance(cdata, dict) else {}
+            for group, rows in (groups.items() if isinstance(groups, dict) else []):
+                for row in (rows or []):
+                    if not isinstance(row, dict):
+                        continue
+                    if bs_saga_item_id(row) == iid:
+                        return str(group or "").strip().lower()
+        low = iid.lower()
+        if "sello" in low:
+            return "sellos"
+        if "amuleto" in low or "espejo" in low or "cilindro" in low or "daga" in low or "espada" in low:
+            return "amuletos"
+        if "pocion" in low or "poci" in low:
+            return "pociones"
+        return ""
+
+    def bs_saga_item_display_name_by_id(item_id):
+        iid = str(item_id or "").strip()
+        if not iid:
+            return ""
+        schema = bs_saga_item_schema()
+        for cat, cdata in (schema.items() if isinstance(schema, dict) else []):
+            groups = cdata.get("groups", {}) if isinstance(cdata, dict) else {}
+            for group, rows in (groups.items() if isinstance(groups, dict) else []):
+                for row in (rows or []):
+                    if isinstance(row, dict) and bs_saga_item_id(row) == iid:
+                        return str(row.get("name", iid) or iid)
+        return iid
+
+    def bs_saga_item_meta_by_id(item_id):
+        iid = str(item_id or "").strip()
+        schema = bs_saga_item_schema()
+        for cat, cdata in (schema.items() if isinstance(schema, dict) else []):
+            groups = cdata.get("groups", {}) if isinstance(cdata, dict) else {}
+            for group, rows in (groups.items() if isinstance(groups, dict) else []):
+                for row in (rows or []):
+                    if isinstance(row, dict) and bs_saga_item_id(row) == iid:
+                        return str(row.get("meta", "") or "")
+        return ""
+
+    def bs_saga_item_kind_for_id(item_id):
+        g = bs_saga_item_group_for_id(item_id)
+        if g == "pociones":
+            return "potions"
+        if g == "amuletos":
+            return "amulet"
+        if g == "sellos":
+            return "seals"
+        return ""
+
+    def bs_saga_get_prep_item_loadout():
+        raw = getattr(S, "bs_saga_prep_item_loadout", None)
+        if not isinstance(raw, dict):
+            raw = {}
+        potions = [str(x or "").strip() for x in (raw.get("potions", []) if isinstance(raw.get("potions", []), list) else []) if str(x or "").strip()]
+        seals = [str(x or "").strip() for x in (raw.get("seals", []) if isinstance(raw.get("seals", []), list) else []) if str(x or "").strip()]
+        amulet = str(raw.get("amulet", "") or "").strip()
+        out = {"potions": potions[:5], "amulet": amulet, "seals": seals[:3]}
+        S.bs_saga_prep_item_loadout = dict(out)
+        return out
+
+    def bs_saga_prep_item_loadout_add(item_id):
+        iid = str(item_id or "").strip()
+        if not iid:
+            return False
+        if bs_saga_account_bucket_qty("consumables", iid) <= 0:
+            bs_saga_set_message("No tienes {} disponible.".format(bs_saga_item_display_name_by_id(iid)))
+            return False
+        kind = bs_saga_item_kind_for_id(iid)
+        loadout = bs_saga_get_prep_item_loadout()
+        if kind == "potions":
+            if len(loadout["potions"]) >= 5:
+                bs_saga_set_message("Loadout lleno: maximo 5 pociones.")
+                return False
+            if loadout["potions"].count(iid) >= bs_saga_account_bucket_qty("consumables", iid):
+                bs_saga_set_message("No tienes mas copias de {} para preparar.".format(bs_saga_item_display_name_by_id(iid)))
+                return False
+            loadout["potions"].append(iid)
+        elif kind == "amulet":
+            loadout["amulet"] = iid
+        elif kind == "seals":
+            if len(loadout["seals"]) >= 3:
+                bs_saga_set_message("Loadout lleno: maximo 3 sellos.")
+                return False
+            if loadout["seals"].count(iid) >= bs_saga_account_bucket_qty("consumables", iid):
+                bs_saga_set_message("No tienes mas copias de {} para preparar.".format(bs_saga_item_display_name_by_id(iid)))
+                return False
+            loadout["seals"].append(iid)
+        else:
+            bs_saga_set_message("Item sin categoria de combate: {}.".format(iid))
+            return False
+        S.bs_saga_prep_item_loadout = loadout
+        bs_saga_set_message("Objeto preparado: {}.".format(bs_saga_item_display_name_by_id(iid)))
+        return True
+
+    def bs_saga_prep_item_loadout_remove(kind, index=0):
+        k = str(kind or "").strip().lower()
+        loadout = bs_saga_get_prep_item_loadout()
+        if k == "potions":
+            try:
+                loadout["potions"].pop(int(index))
+            except:
+                return False
+        elif k == "amulet":
+            loadout["amulet"] = ""
+        elif k == "seals":
+            try:
+                loadout["seals"].pop(int(index))
+            except:
+                return False
+        else:
+            return False
+        S.bs_saga_prep_item_loadout = loadout
+        bs_saga_set_message("Objeto retirado del loadout.")
+        return True
+
+    def bs_saga_battle_prepare_item_runtime():
+        S.bs_battle_item_loadout_runtime = dict(bs_saga_get_prep_item_loadout())
+        S.bs_battle_item_usage = {}
+        S.bs_battle_item_actions_spent = 0
+        S.bs_battle_item_panel_open = False
+        S.bs_battle_item_tab = "potions"
+        return True
+
+    def bs_battle_item_runtime_entries(kind):
+        k = str(kind or "potions").strip().lower()
+        loadout = getattr(S, "bs_battle_item_loadout_runtime", {}) or {}
+        usage = getattr(S, "bs_battle_item_usage", {}) or {}
+        if not isinstance(usage, dict):
+            usage = {}
+            S.bs_battle_item_usage = usage
+        ids = []
+        if k == "potions":
+            ids = list(loadout.get("potions", []) if isinstance(loadout.get("potions", []), list) else [])
+        elif k == "amulet":
+            am = str(loadout.get("amulet", "") or "").strip()
+            ids = [am] if am else []
+        elif k == "seals":
+            ids = list(loadout.get("seals", []) if isinstance(loadout.get("seals", []), list) else [])
+        out = []
+        seen = {}
+        for iid in ids:
+            iid = str(iid or "").strip()
+            if not iid:
+                continue
+            seen[iid] = int(seen.get(iid, 0) or 0) + 1
+        for iid, slots in seen.items():
+            owned = bs_saga_account_bucket_qty("consumables", iid)
+            used = int(usage.get(iid, 0) or 0)
+            available = max(0, min(int(slots), int(owned)) - used)
+            out.append({
+                "item_id": iid,
+                "name": bs_saga_item_display_name_by_id(iid),
+                "meta": bs_saga_item_meta_by_id(iid),
+                "slots": int(slots),
+                "owned": int(owned),
+                "used": int(used),
+                "available": int(available),
+                "kind": k
+            })
+        return out
+
+    def bs_battle_item_heal_pct(item_id):
+        txt = (bs_saga_item_display_name_by_id(item_id) + " " + bs_saga_item_meta_by_id(item_id)).lower()
+        if "hp" not in txt:
+            return 0
+        if "50%" in txt:
+            return 50
+        if "35%" in txt:
+            return 35
+        if "25%" in txt:
+            return 25
+        return 0
+
+    def bs_battle_use_item(item_id):
+        def _blog(msg, color="#D7EEFF"):
+            try:
+                S.battle_log_add(str(msg), str(color))
+            except:
+                try:
+                    bs_saga_set_message(str(msg))
+                except:
+                    pass
+
+        iid = str(item_id or "").strip()
+        if not iid:
+            return False
+        if int(getattr(S, "actions_available", 0) or 0) <= 0:
+            _blog("No quedan acciones para usar objeto.", "#FFAAAA")
+            return False
+        rows = bs_battle_item_runtime_entries("potions")
+        row = None
+        for r in rows:
+            if str(r.get("item_id", "")) == iid:
+                row = r
+                break
+        if not row or int(row.get("available", 0) or 0) <= 0:
+            _blog("Objeto no disponible en este combate.", "#FFAAAA")
+            return False
+        pct = bs_battle_item_heal_pct(iid)
+        if pct <= 0:
+            _blog("{} aun no tiene efecto de combate implementado.".format(bs_saga_item_display_name_by_id(iid)), "#FFD166")
+            return False
+        hp_now = int(getattr(S, "player_hp", 0) or 0)
+        hp_max = max(1, int(getattr(S, "battle_hp_player_max", hp_now or 1) or (hp_now or 1)))
+        if hp_now >= hp_max:
+            _blog("HP ya esta al maximo.", "#FFD166")
+            return False
+        heal = max(1, int(round((hp_max * pct) / 100.0)))
+        hp_after = min(hp_max, hp_now + heal)
+        S.player_hp = int(hp_after)
+        try:
+            fn_hp = getattr(S, "bs_set_hp", None)
+            if callable(fn_hp):
+                fn_hp("player", int(hp_after))
+        except:
+            pass
+        try:
+            S.battle_update_hp_bars(int(S.player_hp), int(getattr(S, "enemy_hp", 0) or 0))
+        except:
+            pass
+        try:
+            S.battle_update_damage_overlay(int(S.player_hp), int(hp_max))
+        except:
+            pass
+        S.bs_battle_item_actions_spent = int(getattr(S, "bs_battle_item_actions_spent", 0) or 0) + 1
+        S.actions_available = max(0, int(getattr(S, "actions_available", 0) or 0) - 1)
+        usage = getattr(S, "bs_battle_item_usage", {}) or {}
+        if not isinstance(usage, dict):
+            usage = {}
+        usage[iid] = int(usage.get(iid, 0) or 0) + 1
+        S.bs_battle_item_usage = usage
+        bs_saga_account_bucket_add("consumables", iid, -1)
+        S.bs_battle_item_panel_open = False
+        _blog("{} usado: +{} HP.".format(bs_saga_item_display_name_by_id(iid), max(0, hp_after - hp_now)), "#A5D6A7")
+        try:
+            rebuild_selector_simulation()
+        except:
+            pass
+        try:
+            renpy.restart_interaction()
+        except:
+            pass
+        return True
 
     def bs_saga_precombat_contract_validate():
         """
@@ -1802,6 +2059,8 @@ init -880 python:
         if not enemy_id:
             bs_saga_set_message("No se pudo resolver rival de combate.")
             return False
+
+        bs_saga_battle_prepare_item_runtime()
 
         # Dual-write obligatorio: id activo + listas para evitar fallbacks legacy inconsistentes.
         S.battle_enemy_id = enemy_id
