@@ -1795,7 +1795,28 @@ init -880 python:
         return True
 
     def bs_saga_battle_prepare_item_runtime():
-        S.bs_battle_item_loadout_runtime = dict(bs_saga_get_prep_item_loadout())
+        loadout = dict(bs_saga_get_prep_item_loadout())
+
+        # Fallback UX: si el usuario no preparó loadout, auto-cargar pociones desde inventario
+        # para que el panel de combate no quede vacío cuando sí posee consumibles tipo poción.
+        if not loadout.get("potions", []):
+            for row in bs_saga_inventory_rows():
+                if str(row.get("bucket", "")) != "consumables":
+                    continue
+                iid = str(row.get("item_id", "") or "").strip()
+                qty = int(row.get("qty", 0) or 0)
+                if not iid or qty <= 0:
+                    continue
+                if bs_saga_item_kind_for_id(iid) != "potions":
+                    continue
+                for _ in range(qty):
+                    if len(loadout["potions"]) >= 5:
+                        break
+                    loadout["potions"].append(iid)
+                if len(loadout["potions"]) >= 5:
+                    break
+
+        S.bs_battle_item_loadout_runtime = loadout
         S.bs_battle_item_usage = {}
         S.bs_battle_item_actions_spent = 0
         S.bs_battle_item_panel_open = False
