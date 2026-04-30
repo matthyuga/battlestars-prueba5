@@ -1821,6 +1821,8 @@ init -880 python:
         S.bs_battle_item_actions_spent = 0
         S.bs_battle_item_panel_open = False
         S.bs_battle_item_tab = "potions"
+        S.bs_battle_cylinder_armed = False
+        S.bs_battle_cylinder_pct = 0.0
         return True
 
     def bs_battle_item_runtime_entries(kind):
@@ -1848,7 +1850,10 @@ init -880 python:
         for iid, slots in seen.items():
             owned = bs_saga_account_bucket_qty("consumables", iid)
             used = int(usage.get(iid, 0) or 0)
-            available = max(0, min(int(slots), int(owned)) - used)
+            if k == "amulet":
+                available = max(0, (3 if int(owned) > 0 else 0) - used)
+            else:
+                available = max(0, min(int(slots), int(owned)) - used)
             out.append({
                 "item_id": iid,
                 "name": bs_saga_item_display_name_by_id(iid),
@@ -1896,7 +1901,8 @@ init -880 python:
         if int(getattr(S, "actions_available", 0) or 0) <= 0:
             _blog("No quedan acciones para usar objeto.", "#FFAAAA")
             return False
-        rows = bs_battle_item_runtime_entries("potions")
+        knd = bs_saga_item_kind_for_id(iid)
+        rows = bs_battle_item_runtime_entries(knd if knd else "potions")
         row = None
         for r in rows:
             if str(r.get("item_id", "")) == iid:
@@ -1905,6 +1911,31 @@ init -880 python:
         if not row or int(row.get("available", 0) or 0) <= 0:
             _blog("Objeto no disponible en este combate.", "#FFAAAA")
             return False
+        if bs_saga_slug(bs_saga_item_display_name_by_id(iid)) == "cilindro_magico":
+            mode = str(getattr(S, "battle_mode", "offensive") or "offensive").strip().lower()
+            if mode != "defensive":
+                _blog("Cilindro mágico solo puede activarse en turno defensivo.", "#FFD166")
+                return False
+            if bool(getattr(S, "bs_battle_cylinder_armed", False)):
+                _blog("Cilindro mágico ya está activo para este turno.", "#FFD166")
+                return False
+            S.bs_battle_cylinder_armed = True
+            S.bs_battle_cylinder_pct = 0.30
+            S.bs_battle_item_actions_spent = int(getattr(S, "bs_battle_item_actions_spent", 0) or 0) + 1
+            S.actions_available = max(0, int(getattr(S, "actions_available", 0) or 0) - 1)
+            usage = getattr(S, "bs_battle_item_usage", {}) or {}
+            if not isinstance(usage, dict):
+                usage = {}
+            usage[iid] = int(usage.get(iid, 0) or 0) + 1
+            S.bs_battle_item_usage = usage
+            S.bs_battle_item_panel_open = False
+            _blog("Cilindro mágico activado: reducirá 30% del daño defendible.", "#A5D6A7")
+            try:
+                renpy.restart_interaction()
+            except:
+                pass
+            return True
+
         eff = bs_battle_item_effect(iid)
         stat = str(eff.get("stat", "") or "")
         pct = int(eff.get("pct", 0) or 0)
@@ -1964,7 +1995,8 @@ init -880 python:
             usage = {}
         usage[iid] = int(usage.get(iid, 0) or 0) + 1
         S.bs_battle_item_usage = usage
-        bs_saga_account_bucket_add("consumables", iid, -1)
+        if knd != "amulet":
+            bs_saga_account_bucket_add("consumables", iid, -1)
         S.bs_battle_item_panel_open = False
         _blog("{} usado: +{} {}.".format(bs_saga_item_display_name_by_id(iid), int(delta), stat.upper()), "#A5D6A7")
         try:

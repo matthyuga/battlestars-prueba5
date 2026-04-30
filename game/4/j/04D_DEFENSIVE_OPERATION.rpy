@@ -71,6 +71,29 @@ label defensive_operation(base_damage, reduc_val, blocks_list, reflected):
                 border
             )
 
+        # Cilindro mágico (solo daño defendible): reduce 30% antes del bloqueo.
+        cyl_armed = bool(getattr(S, "bs_battle_cylinder_armed", False))
+        cyl_pct = float(getattr(S, "bs_battle_cylinder_pct", 0.0) or 0.0)
+        if (not _direct_only) and cyl_armed and cyl_pct > 0.0 and base_eff > 0:
+            _c_before = int(base_eff)
+            base_eff = int(max(0, int(base_eff) * (1.0 - cyl_pct)))
+            operation_add(
+                fmt_white("Cilindro mágico:") + " " +
+                fmt_red(S.battle_fmt_num(_c_before)) +
+                fmt_white(" × 70% = ") +
+                fmt_red(S.battle_fmt_num(base_eff)),
+                border
+            )
+            S.bs_battle_cylinder_armed = False
+            S.bs_battle_cylinder_pct = 0.0
+        elif cyl_armed and (base_eff <= 0 or _direct_only):
+            operation_add(
+                fmt_white("Cilindro mágico no se aplicó:") + " " + fmt_orange("no hubo daño defendible."),
+                border
+            )
+            S.bs_battle_cylinder_armed = False
+            S.bs_battle_cylinder_pct = 0.0
+
         # --------------------------------------------------------
         # (2) DEFENSAS – BLOQUES
         # --------------------------------------------------------
