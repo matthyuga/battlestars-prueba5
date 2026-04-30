@@ -1861,17 +1861,24 @@ init -880 python:
             })
         return out
 
-    def bs_battle_item_heal_pct(item_id):
+    def bs_battle_item_effect(item_id):
         txt = (bs_saga_item_display_name_by_id(item_id) + " " + bs_saga_item_meta_by_id(item_id)).lower()
-        if "hp" not in txt:
-            return 0
+        pct = 0
         if "50%" in txt:
-            return 50
-        if "35%" in txt:
-            return 35
-        if "25%" in txt:
-            return 25
-        return 0
+            pct = 50
+        elif "35%" in txt:
+            pct = 35
+        elif "25%" in txt:
+            pct = 25
+        if pct <= 0:
+            return {"stat": "", "pct": 0}
+        if "hp" in txt:
+            return {"stat": "hp", "pct": pct}
+        if "ep" in txt:
+            return {"stat": "ep", "pct": pct}
+        if "ec" in txt:
+            return {"stat": "ec", "pct": pct}
+        return {"stat": "", "pct": 0}
 
     def bs_battle_use_item(item_id):
         def _blog(msg, color="#D7EEFF"):
@@ -1898,32 +1905,58 @@ init -880 python:
         if not row or int(row.get("available", 0) or 0) <= 0:
             _blog("Objeto no disponible en este combate.", "#FFAAAA")
             return False
-        pct = bs_battle_item_heal_pct(iid)
-        if pct <= 0:
+        eff = bs_battle_item_effect(iid)
+        stat = str(eff.get("stat", "") or "")
+        pct = int(eff.get("pct", 0) or 0)
+        if pct <= 0 or not stat:
             _blog("{} aun no tiene efecto de combate implementado.".format(bs_saga_item_display_name_by_id(iid)), "#FFD166")
             return False
-        hp_now = int(getattr(S, "player_hp", 0) or 0)
-        hp_max = max(1, int(getattr(S, "battle_hp_player_max", hp_now or 1) or (hp_now or 1)))
-        if hp_now >= hp_max:
-            _blog("HP ya esta al maximo.", "#FFD166")
-            return False
-        heal = max(1, int(round((hp_max * pct) / 100.0)))
-        hp_after = min(hp_max, hp_now + heal)
-        S.player_hp = int(hp_after)
-        try:
-            fn_hp = getattr(S, "bs_set_hp", None)
-            if callable(fn_hp):
-                fn_hp("player", int(hp_after))
-        except:
-            pass
-        try:
-            S.battle_update_hp_bars(int(S.player_hp), int(getattr(S, "enemy_hp", 0) or 0))
-        except:
-            pass
-        try:
-            S.battle_update_damage_overlay(int(S.player_hp), int(hp_max))
-        except:
-            pass
+
+        delta = 0
+        if stat == "hp":
+            hp_now = int(getattr(S, "player_hp", 0) or 0)
+            hp_max = max(1, int(getattr(S, "battle_hp_player_max", hp_now or 1) or (hp_now or 1)))
+            if hp_now >= hp_max:
+                _blog("HP ya esta al maximo.", "#FFD166")
+                return False
+            delta = max(1, int(round((hp_max * pct) / 100.0)))
+            hp_after = min(hp_max, hp_now + delta)
+            delta = max(0, hp_after - hp_now)
+            S.player_hp = int(hp_after)
+            try:
+                fn_hp = getattr(S, "bs_set_hp", None)
+                if callable(fn_hp):
+                    fn_hp("player", int(hp_after))
+            except:
+                pass
+            try:
+                S.battle_update_hp_bars(int(S.player_hp), int(getattr(S, "enemy_hp", 0) or 0))
+            except:
+                pass
+            try:
+                S.battle_update_damage_overlay(int(S.player_hp), int(hp_max))
+            except:
+                pass
+        elif stat == "ep":
+            ep_now = int(getattr(S, "player_reiatsu", 0) or 0)
+            ep_max = max(1, int(getattr(S, "player_reiatsu_base", ep_now or 1) or (ep_now or 1)))
+            if ep_now >= ep_max:
+                _blog("EP ya esta al maximo.", "#FFD166")
+                return False
+            delta = max(1, int(round((ep_max * pct) / 100.0)))
+            ep_after = min(ep_max, ep_now + delta)
+            delta = max(0, ep_after - ep_now)
+            S.player_reiatsu = int(ep_after)
+        elif stat == "ec":
+            ec_now = int(getattr(S, "player_energy", 0) or 0)
+            ec_max = max(1, int(getattr(S, "player_energy_base", ec_now or 1) or (ec_now or 1)))
+            if ec_now >= ec_max:
+                _blog("EC ya esta al maximo.", "#FFD166")
+                return False
+            delta = max(1, int(round((ec_max * pct) / 100.0)))
+            ec_after = min(ec_max, ec_now + delta)
+            delta = max(0, ec_after - ec_now)
+            S.player_energy = int(ec_after)
         S.bs_battle_item_actions_spent = int(getattr(S, "bs_battle_item_actions_spent", 0) or 0) + 1
         S.actions_available = max(0, int(getattr(S, "actions_available", 0) or 0) - 1)
         usage = getattr(S, "bs_battle_item_usage", {}) or {}
@@ -1933,7 +1966,7 @@ init -880 python:
         S.bs_battle_item_usage = usage
         bs_saga_account_bucket_add("consumables", iid, -1)
         S.bs_battle_item_panel_open = False
-        _blog("{} usado: +{} HP.".format(bs_saga_item_display_name_by_id(iid), max(0, hp_after - hp_now)), "#A5D6A7")
+        _blog("{} usado: +{} {}.".format(bs_saga_item_display_name_by_id(iid), int(delta), stat.upper()), "#A5D6A7")
         try:
             rebuild_selector_simulation()
         except:
