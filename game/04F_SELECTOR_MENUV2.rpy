@@ -508,18 +508,36 @@ screen battle_item_use_panel():
                 spacing 8
                 textbutton "Pociones":
                     selected (_tab == "potions")
+                    background Solid("#00000000")
+                    hover_background Solid("#2A4666")
+                    selected_background Solid("#30567E")
                     text_color "#9EA6B0"
                     text_hover_color "#FFFFFF"
                     text_selected_color "#EAF6FF"
                     action SetVariable("bs_battle_item_tab", "potions")
+                textbutton "Pociones2":
+                    selected (_tab == "potions")
+                    background Solid("#1B2E44")
+                    hover_background Solid("#315A84")
+                    selected_background Solid("#3B6A9B")
+                    text_color "#BED8F0"
+                    text_hover_color "#FFFFFF"
+                    text_selected_color "#FFFFFF"
+                    action SetVariable("bs_battle_item_tab", "potions")
                 textbutton "Amuleto":
                     selected (_tab == "amulet")
+                    background Solid("#00000000")
+                    hover_background Solid("#2A4666")
+                    selected_background Solid("#30567E")
                     text_color "#9EA6B0"
                     text_hover_color "#FFFFFF"
                     text_selected_color "#EAF6FF"
                     action SetVariable("bs_battle_item_tab", "amulet")
                 textbutton "Sellos":
                     selected (_tab == "seals")
+                    background Solid("#00000000")
+                    hover_background Solid("#2A4666")
+                    selected_background Solid("#30567E")
                     text_color "#9EA6B0"
                     text_hover_color "#FFFFFF"
                     text_selected_color "#EAF6FF"
