@@ -10,6 +10,20 @@ init -967 python:
 
     _overlay_current = None
 
+    def battle_clear_damage_overlay():
+        """
+        Apaga el overlay de dano de forma explicita.
+        Se usa al cerrar combate para evitar que el halo rojo llegue al lobby.
+        """
+        global _overlay_current
+
+        try:
+            renpy.hide_screen("battle_damage_overlay")
+        except:
+            pass
+
+        _overlay_current = None
+
     def battle_update_damage_overlay(player_hp, player_hp_max=None):
         """
         Lógica automática de overlays según porcentaje de HP.

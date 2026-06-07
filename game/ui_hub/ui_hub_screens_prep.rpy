@@ -1,6 +1,69 @@
 # ui_hub_screens_prep.rpy
 # Fase 3 de split: pantallas de preparación/pre-combate.
 
+screen bs_saga_prep_quick_hero_picker(slot="j1"):
+    modal True
+    zorder 200
+    $ _slot = str(slot or "j1").strip().lower()
+    $ _available_only = bool(bs_saga_prep_quick_picker_available_only)
+    $ _all_rows = bs_saga_preparation_rows_filtered()
+    $ _rows = [r for r in _all_rows if bool(r.get("available", False))] if _available_only else _all_rows
+
+    add Solid("#07111CCC")
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 720
+        ysize 520
+        padding (14, 14)
+        background Solid("#13273A")
+        vbox:
+            spacing 10
+            hbox:
+                xfill True
+                text ("Asignar heroe " + ("J2" if _slot == "j2" else "J1")) size 24 color "#EAF6FF"
+                textbutton "Cerrar":
+                    xalign 1.0
+                    action SetVariable("bs_saga_prep_quick_picker_slot", "")
+            hbox:
+                spacing 10
+                textbutton ("Solo disponibles: " + ("ON" if _available_only else "OFF")):
+                    action ToggleVariable("bs_saga_prep_quick_picker_available_only")
+                text ("Mostrando " + str(len(_rows)) + " / " + str(len(_all_rows))) size 14 color "#9FC4E2" yalign 0.5
+            text "Disponibles: rotacion actual o heroes adquiridos." size 14 color "#9FC4E2"
+            viewport:
+                draggable True
+                mousewheel True
+                scrollbars "vertical"
+                ymaximum 430
+                vbox:
+                    spacing 6
+                    for row in _rows:
+                        $ _hid = str(row.get("hero_id", ""))
+                        $ _name = str(row.get("name", _hid) or _hid)
+                        $ _is_av = bool(row.get("available", False))
+                        $ _state = str(row.get("state", "bloqueado"))
+                        $ _tag = "Disponible" if _state == "disponible" else ("Para probar" if _state == "para_probar" else "Bloqueado")
+                        frame:
+                            xfill True
+                            background Solid("#173048")
+                            padding (8, 6)
+                            hbox:
+                                spacing 8
+                                text (_name + " (" + str(row.get("tier", "C")) + ")") size 17 color "#D0E9FF" xminimum 330
+                                text _tag size 15 color ("#8BD6A7" if _state == "disponible" else ("#FFD166" if _state == "para_probar" else "#FF9F9F")) xminimum 120
+                                if _is_av:
+                                    if _slot == "j2":
+                                        textbutton "Asignar J2":
+                                            action [Function(bs_saga_ui_call, bs_saga_toggle_prep_party_hero, _hid), SetVariable("bs_saga_prep_quick_picker_slot", "")]
+                                    else:
+                                        textbutton "Asignar J1":
+                                            action [Function(bs_saga_ui_call, bs_saga_set_prep_hero, _hid), SetVariable("bs_saga_prep_quick_picker_slot", "")]
+                                else:
+                                    text "No disponible" size 15 color "#FF9F9F"
+                    if not _rows:
+                        text "No hay heroes disponibles con este filtro." size 16 color "#9FB9D1"
+
 screen bs_saga_preparation_room_screen():
     tag menu
     $ _rows = bs_saga_preparation_rows_filtered()
@@ -27,6 +90,10 @@ screen bs_saga_preparation_room_screen():
     $ _pool_total_cfg = int(_tech_prof.get("pool_total", 0) or 0) if _hero else 0
     $ _spent_cfg = int(_tech_prof.get("pool_spent_off", 0) or 0) + int(_tech_prof.get("pool_spent_def", 0) or 0) if _hero else 0
     $ _pool_left_cfg = max(0, _pool_total_cfg - _spent_cfg)
+    $ _contract = bs_saga_precombat_contract_validate()
+    $ _block_n = len((_contract or {}).get("blocking", []) or [])
+    $ _warn_n = len((_contract or {}).get("warnings", []) or [])
+    $ _status = "listo" if _block_n <= 0 and _warn_n <= 0 else ("warnings" if _block_n <= 0 else "bloqueado")
     $ _loadout_count = len([x for x in _slots if str(x or "").strip()]) if _hero else 0
     $ _rotation_preview = ", ".join([str(x) for x in (bs_saga_prep_duel_rotation_ids or [])[:5]])
 
@@ -357,6 +424,21 @@ screen bs_saga_hero_config_screen():
                 textbutton "Continuar a pre-combate":
                     action Return("nav:staging")
 
+    frame:
+        xalign 0.5
+        yalign 0.96
+        xsize 1120
+        ypadding 8
+        background Solid("#13273A")
+        hbox:
+            spacing 10
+            textbutton ("Iniciar duelo" if _block_n <= 0 else "Iniciar duelo (bloqueado)"):
+                action Return("nav:launch_duel")
+            textbutton "Pre-combate":
+                action Return("nav:staging")
+            null width 20
+            text ("Estado: " + _status.upper() + " | Bloqueantes: " + str(int(_block_n)) + " | Warnings: " + str(int(_warn_n))) size 14 color ("#FF9F9F" if _block_n > 0 else ("#FFD166" if _warn_n > 0 else "#8BD6A7")) yalign 0.5
+
 screen bs_saga_duel_staging_screen():
     tag menu
     $ _rows = bs_saga_preparation_rows_filtered()
@@ -383,6 +465,10 @@ screen bs_saga_duel_staging_screen():
     $ _diag = bs_saga_capture_prep_diag(_hero, _cfg, _build) if _hero else {}
     $ _cons = bs_saga_prep_inventory_candidates("consumables")
     $ _items = bs_saga_prep_inventory_candidates("equipables")
+    $ _item_loadout = bs_saga_get_prep_item_loadout()
+    $ _potion_candidates = [r for r in _cons if bs_saga_item_kind_for_id(str(r.get("item_id", ""))) == "potions"]
+    $ _amulet_candidates = [r for r in _cons if bs_saga_item_kind_for_id(str(r.get("item_id", ""))) == "amulet"]
+    $ _seal_candidates = [r for r in _cons if bs_saga_item_kind_for_id(str(r.get("item_id", ""))) == "seals"]
     $ _flag_cons = str(bs_saga_prep_flag_consumable_id or "")
     $ _flag_item = str(bs_saga_prep_flag_item_id or "")
     $ _rc = bs_saga_get_prep_reward_conditions()
@@ -395,6 +481,10 @@ screen bs_saga_duel_staging_screen():
     $ _r_step_exp = float(getattr(store, "bs_saga_reward_step_exp", 3.5) or 3.5)
     $ _r_step_oro = float(getattr(store, "bs_saga_reward_step_oro", 2.0) or 2.0)
     $ _status = "listo" if _block_n <= 0 and _warn_n <= 0 else ("warnings" if _block_n <= 0 else "bloqueado")
+    $ _quick_picker_slot = str(bs_saga_prep_quick_picker_slot or "")
+    $ _portrait_fn = getattr(store, "bs_battle_head_portrait", None)
+    $ _j1_portrait = str(_portrait_fn(_j1, "player") if callable(_portrait_fn) and _j1 else "images/character/Jugador_a.png")
+    $ _j2_portrait = str(_portrait_fn(_j2, "player") if callable(_portrait_fn) and _j2 else "images/character/Jugador_a.png")
 
     add Solid("#0E1A28")
     frame:
@@ -447,12 +537,70 @@ screen bs_saga_duel_staging_screen():
                     text ("Condición HP seleccionada: x" + str(_hp_reward_mult) + " · Escala HP de combate y recompensa EXP/Oro.") size 14 color "#9FC4E2"
                     textbutton "Configurar héroe":
                         action Return("nav:config")
+                    null height 4
+                    text "Casilla rapida" size 16 color "#D0E9FF"
+                    hbox:
+                        spacing 10
+                        frame:
+                            xsize 142
+                            ysize 172
+                            background Solid("#102438")
+                            padding (8, 8)
+                            vbox:
+                                spacing 5
+                                xalign 0.5
+                                button:
+                                    xalign 0.5
+                                    xsize 106
+                                    ysize 94
+                                    background Solid("#66C8FF")
+                                    action SetVariable("bs_saga_prep_quick_picker_slot", "j1")
+                                    padding (3, 3)
+                                    frame:
+                                        xfill True
+                                        yfill True
+                                        background Solid("#173048")
+                                        if _j1:
+                                            add im.Scale(_j1_portrait, 96, 84) xalign 0.5 yalign 0.5
+                                        else:
+                                            text "+" size 42 color "#9FC4E2" xalign 0.5 yalign 0.5
+                                text ("J1: " + (_j1 if _j1 else "vacio")) size 13 color "#CFE6FA" xalign 0.5
+                                if _j1:
+                                    textbutton "x":
+                                        xalign 0.5
+                                        action Function(bs_saga_ui_call, bs_saga_clear_prep_j1_slot)
+                        if _mode == "2v2":
+                            frame:
+                                xsize 142
+                                ysize 172
+                                background Solid("#102438")
+                                padding (8, 8)
+                                vbox:
+                                    spacing 5
+                                    xalign 0.5
+                                    button:
+                                        xalign 0.5
+                                        xsize 106
+                                        ysize 94
+                                        background Solid("#66C8FF")
+                                        action SetVariable("bs_saga_prep_quick_picker_slot", "j2")
+                                        padding (3, 3)
+                                        frame:
+                                            xfill True
+                                            yfill True
+                                            background Solid("#173048")
+                                            if _j2:
+                                                add im.Scale(_j2_portrait, 96, 84) xalign 0.5 yalign 0.5
+                                            else:
+                                                text "+" size 42 color "#9FC4E2" xalign 0.5 yalign 0.5
+                                    text ("J2: " + (_j2 if _j2 else "vacio")) size 13 color "#CFE6FA" xalign 0.5
+                                    if _j2:
+                                        textbutton "x":
+                                            xalign 0.5
+                                            action Function(bs_saga_ui_call, bs_saga_clear_prep_j2_slot)
                     null height 12
                     text "Esta vista está orientada a validación final previa al combate." size 14 color "#9FC4E2"
                     text "Puedes volver a configuración de héroe o regresar a preparación." size 14 color "#9FC4E2"
-                    null height 8
-                    textbutton "Preparación":
-                        action Return("nav:room")
 
             frame:
                 xfill True
@@ -592,11 +740,70 @@ screen bs_saga_duel_staging_screen():
                             textbutton "Limpiar flags":
                                 action [Function(bs_saga_ui_call, bs_saga_set_prep_flag, "item", ""), Function(bs_saga_ui_call, bs_saga_set_prep_flag, "consumable", "")]
                         null height 6
+                        text "Objetos de combate" size 16 color "#D0E9FF"
+                        text ("Pociones: " + str(len(_item_loadout.get("potions", []))) + "/5 · Amuleto: " + ("1/1" if _item_loadout.get("amulet", "") else "0/1") + " · Sellos: " + str(len(_item_loadout.get("seals", []))) + "/3") size 13 color "#9FC4E2"
+                        if _item_loadout.get("potions", []):
+                            text "Pociones preparadas" size 14 color "#CFE6FA"
+                            for idx, _iid in enumerate(_item_loadout.get("potions", [])):
+                                hbox:
+                                    spacing 6
+                                    text (bs_saga_item_display_name_by_id(_iid) + " · " + bs_saga_item_meta_by_id(_iid)) size 13 color "#CFE6FA" xminimum 340
+                                    textbutton "x":
+                                        action Function(bs_saga_ui_call, bs_saga_prep_item_loadout_remove, "potions", idx)
+                        if _item_loadout.get("amulet", ""):
+                            hbox:
+                                spacing 6
+                                text ("Amuleto: " + bs_saga_item_display_name_by_id(_item_loadout.get("amulet", ""))) size 13 color "#CFE6FA" xminimum 340
+                                textbutton "x":
+                                    action Function(bs_saga_ui_call, bs_saga_prep_item_loadout_remove, "amulet", 0)
+                        if _item_loadout.get("seals", []):
+                            text "Sellos preparados" size 14 color "#CFE6FA"
+                            for idx, _iid in enumerate(_item_loadout.get("seals", [])):
+                                hbox:
+                                    spacing 6
+                                    text (bs_saga_item_display_name_by_id(_iid) + " · " + bs_saga_item_meta_by_id(_iid)) size 13 color "#CFE6FA" xminimum 340
+                                    textbutton "x":
+                                        action Function(bs_saga_ui_call, bs_saga_prep_item_loadout_remove, "seals", idx)
+                        text "Agregar al loadout" size 14 color "#CFE6FA"
+                        if _potion_candidates:
+                            hbox:
+                                spacing 6
+                                for row in _potion_candidates[:3]:
+                                    $ _iid = str(row.get("item_id", ""))
+                                    textbutton ("Pocion: " + bs_saga_item_display_name_by_id(_iid) + " x" + str(row.get("qty", 0))):
+                                        action Function(bs_saga_ui_call, bs_saga_prep_item_loadout_add, _iid)
+                        if _amulet_candidates:
+                            hbox:
+                                spacing 6
+                                for row in _amulet_candidates[:2]:
+                                    $ _iid = str(row.get("item_id", ""))
+                                    textbutton ("Amuleto: " + bs_saga_item_display_name_by_id(_iid)):
+                                        action Function(bs_saga_ui_call, bs_saga_prep_item_loadout_add, _iid)
+                        if _seal_candidates:
+                            hbox:
+                                spacing 6
+                                for row in _seal_candidates[:3]:
+                                    $ _iid = str(row.get("item_id", ""))
+                                    textbutton ("Sello: " + bs_saga_item_display_name_by_id(_iid)):
+                                        action Function(bs_saga_ui_call, bs_saga_prep_item_loadout_add, _iid)
 
-                        textbutton ("Iniciar duelo" if _block_n <= 0 else "Iniciar duelo (bloqueado por validación)"):
-                            action Return("nav:launch_duel")
-                        textbutton "Volver a sala de preparación":
-                            action Return("nav:room")
+    frame:
+        xalign 0.5
+        yalign 0.96
+        xsize 1120
+        ypadding 8
+        background Solid("#13273A")
+        hbox:
+            spacing 10
+            textbutton ("Iniciar duelo" if _block_n <= 0 else "Iniciar duelo (bloqueado)"):
+                action Return("nav:launch_duel")
+            textbutton "Preparacion":
+                action Return("nav:room")
+            null width 20
+            text ("Estado: " + _status.upper() + " | Bloqueantes: " + str(int(_block_n)) + " | Warnings: " + str(int(_warn_n))) size 14 color ("#FF9F9F" if _block_n > 0 else ("#FFD166" if _warn_n > 0 else "#8BD6A7")) yalign 0.5
+
+    if _quick_picker_slot:
+        use bs_saga_prep_quick_hero_picker(_quick_picker_slot)
 
 screen bs_saga_preparation_verify_screen():
     tag menu

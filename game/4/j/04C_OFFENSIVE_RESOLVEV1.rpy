@@ -57,11 +57,23 @@ label battle_offensive_resolve_enemy:
         # ====================================================
         # ⭐ ATAQUE DIRECTO CON ÉXITO → daño NO defendible
         # ====================================================
-        if getattr(S, "direct_success", False) and int(getattr(S, "direct_pending_damage", 0) or 0) > 0:
+        rolled_direct = 0
+        guaranteed_direct = 0
+        try:
+            if getattr(S, "direct_success", False):
+                rolled_direct = max(0, int(getattr(S, "direct_pending_damage", 0) or 0))
+        except:
+            rolled_direct = 0
+        try:
+            guaranteed_direct = max(0, int(getattr(S, "direct_guaranteed_pending_damage", 0) or 0))
+        except:
+            guaranteed_direct = 0
+
+        if (rolled_direct + guaranteed_direct) > 0:
 
             S.direct_success = False
 
-            direct_damage = int(getattr(S, "direct_pending_damage", 0) or 0)
+            direct_damage = int(rolled_direct) + int(guaranteed_direct)
             fn_set_direct = getattr(S, "bs_set_direct_pending", None)
             if callable(fn_set_direct):
                 fn_set_direct("enemy", int(direct_damage or 0), mirror_legacy=True)
@@ -69,6 +81,8 @@ label battle_offensive_resolve_enemy:
                 S._last_player_direct_damage = int(direct_damage or 0)
             S.direct_pending_damage = 0
             S.direct_base_damage    = 0
+            S.direct_guaranteed_pending_damage = 0
+            S.direct_guaranteed_base_damage = 0
 
             try:
                 if callable(fmt_gold) and callable(fmt_red) and callable(battle_fmt_num):
@@ -87,6 +101,7 @@ label battle_offensive_resolve_enemy:
         # ====================================================
         if mode != "2v2":
             fn_def = getattr(S, "enemy_compute_reactive_defense", None)
+            info = {}
             if callable(fn_def):
                 info = fn_def(total_damage)
                 try:
@@ -95,6 +110,12 @@ label battle_offensive_resolve_enemy:
                     final_damage = int(total_damage or 0)
             else:
                 final_damage = int(total_damage or 0)
+            try:
+                fn_mai = getattr(S, "bs_mai_apply_after_enemy_defense", None)
+                if callable(fn_mai):
+                    fn_mai(int(total_damage or 0), str(getattr(S, "offensive_target_key", "") or "enemy:0"), info)
+            except:
+                pass
         else:
             final_damage = int(total_damage or 0)
 
@@ -102,6 +123,7 @@ label battle_offensive_resolve_enemy:
             defendible_total = max(0, int(final_damage or 0))
             direct_total = max(0, int(direct_damage or 0))
             dmg_total = defendible_total + direct_total
+            enemy_hp_before_visual = max(0, int(getattr(S, "enemy_hp", 0) or 0))
             target_key = str(getattr(S, "offensive_target_key", "") or "")
             plan = getattr(S, "offensive_damage_plan", None)
             effect_targets = []
@@ -299,11 +321,22 @@ label battle_offensive_resolve_enemy:
     # ============================================================
     $ _is_2v2 = str(getattr(store, "battle_team_mode", "1v1") or "1v1").strip().lower() == "2v2"
     if not _is_2v2:
-        if direct_damage > 0:
-            $ battle_visual_float("enemy", direct_damage, "#FFDD55", is_final=True)
-            $ renpy.pause(0.3, hard=True)
+        python:
+            import renpy.store as S
+            try:
+                _enemy_hp_before_visual = int(enemy_hp_before_visual or 0)
+            except:
+                _enemy_hp_before_visual = int(getattr(S, "enemy_hp", 0) or 0) + int(final_damage or 0) + int(direct_damage or 0)
+            try:
+                _enemy_hp_after_visual = int(getattr(S, "enemy_hp", 0) or 0)
+            except:
+                _enemy_hp_after_visual = 0
+            _enemy_hp_loss_visual = max(0, int(_enemy_hp_before_visual) - int(_enemy_hp_after_visual))
+            if _enemy_hp_loss_visual <= 0:
+                _enemy_hp_loss_visual = max(0, int(final_damage or 0) + int(direct_damage or 0))
 
-        $ battle_visual_float("enemy", final_damage, "#FF4444", is_final=True)
+        if _enemy_hp_loss_visual > 0:
+            $ battle_visual_float("enemy", _enemy_hp_loss_visual, "#FF4444", is_final=True)
         $ renpy.pause(0.5, hard=True)
 
     python:

@@ -482,6 +482,87 @@ init python:
 # ------------------------------------------------------------
 # MENÚ PRINCIPAL
 # ------------------------------------------------------------
+screen battle_item_use_panel():
+    zorder 250
+    modal True
+
+    add Solid("#00000044")
+    frame:
+        align (0.58, 0.56)
+        xsize 560
+        ysize 360
+        padding (12, 12)
+        background Solid("#101722CC")
+        vbox:
+            spacing 8
+            hbox:
+                xfill True
+                text "Usar objeto" size 22 color "#EAF6FF"
+                textbutton "X":
+                    xalign 1.0
+                    text_size 22
+                    action SetVariable("bs_battle_item_panel_open", False)
+            text ("Turno: " + str(getattr(store, "battle_mode", "offensive")) + " · Acciones: " + str(int(getattr(store, "actions_available", 0) or 0))) size 13 color "#9FC4E2"
+            $ _tab = str(getattr(store, "bs_battle_item_tab", "potions") or "potions")
+            hbox:
+                spacing 8
+                textbutton "Pociones":
+                    selected (_tab == "potions")
+                    text_color "#9EA6B0"
+                    text_hover_color "#FFFFFF"
+                    text_selected_color "#EAF6FF"
+                    action SetVariable("bs_battle_item_tab", "potions")
+                textbutton "Amuleto":
+                    selected (_tab == "amulet")
+                    text_color "#9EA6B0"
+                    text_hover_color "#FFFFFF"
+                    text_selected_color "#EAF6FF"
+                    action SetVariable("bs_battle_item_tab", "amulet")
+                textbutton "Sellos":
+                    selected (_tab == "seals")
+                    text_color "#9EA6B0"
+                    text_hover_color "#FFFFFF"
+                    text_selected_color "#EAF6FF"
+                    action SetVariable("bs_battle_item_tab", "seals")
+
+            $ _entries = bs_battle_item_runtime_entries(_tab)
+            frame:
+                xfill True
+                yfill True
+                background Solid("#17283A")
+                padding (10, 10)
+                viewport:
+                    draggable True
+                    mousewheel True
+                    scrollbars "vertical"
+                    ymaximum 235
+                    vbox:
+                        spacing 6
+                        if _entries:
+                            for row in _entries:
+                                $ _iid = str(row.get("item_id", ""))
+                                $ _name = str(row.get("name", _iid) or _iid)
+                                $ _meta = str(row.get("meta", "") or "")
+                                $ _avail = int(row.get("available", 0) or 0)
+                                frame:
+                                    xfill True
+                                    background Solid("#20384F")
+                                    padding (7, 7)
+                                    hbox:
+                                        spacing 10
+                                        vbox:
+                                            xmaximum 360
+                                            text (_name + " x" + str(_avail)) size 16 color ("#EAF6FF" if _avail > 0 else "#8F8F8F")
+                                            text _meta size 12 color "#9FC4E2"
+                                        if _tab == "potions":
+                                            textbutton "Usar":
+                                                sensitive (_avail > 0)
+                                                action Function(bs_battle_use_item, _iid)
+                                        else:
+                                            text "Efecto pendiente" size 14 color "#FFD166" yalign 0.5
+                        else:
+                            text "No hay objetos en esta categoria." size 15 color "#9FB9D1"
+
 screen battle_command_menu():
     tag battlecommand
     zorder 50
@@ -538,6 +619,11 @@ screen battle_command_menu():
     $ current = current if ((battle_mode == "offensive" and _show_off) or (battle_mode == "defensive" and _show_def)) else []
     $ _off_cancel = bool(getattr(store, "offense_cancelled", False))
     $ _only_defense = _off_cancel and battle_mode == "offensive"
+    $ _item_potions = bs_battle_item_runtime_entries("potions")
+    $ _item_count = sum([int(r.get("available", 0) or 0) for r in _item_potions])
+
+    if bool(getattr(store, "bs_battle_item_panel_open", False)):
+        use battle_item_use_panel()
 
     # ============================================================
     # VISTA COMPACTA
@@ -556,6 +642,15 @@ screen battle_command_menu():
                 ymaximum 350
 
                 vbox spacing 10 at tech_btn_scale:
+
+                    textbutton ("Usar objeto (" + str(_item_count) + ")"):
+                        xminimum 585
+                        yminimum 70
+                        text_size 28
+                        text_color "#EAF4FF"
+                        background "#20384FE0"
+                        hover_background "#2A5D83EE"
+                        action [SetVariable("bs_battle_item_tab", "potions"), SetVariable("bs_battle_item_panel_open", True)]
 
                     for tech_key in current:
 
@@ -594,6 +689,7 @@ screen battle_command_menu():
         $ _def_rows = list(_def_src[:12]) if _low_spec else list(_def_src)
         $ _btn_h = 72 if _low_spec else 95
         $ _btn_text_size = 23 if _low_spec else 30
+        $ _item_btn_w = max(1, int(492 * _tech_zoom))
         $ _tech_row_height = max(1, int((_btn_h + 6) * _tech_zoom))
         $ _tech_viewport_height = 380
         $ _visible_tech_rows = max(1, _tech_viewport_height // _tech_row_height)
@@ -622,6 +718,14 @@ screen battle_command_menu():
                             vbox:
                                 spacing 6
                                 text "OFENSIVAS" size 28 color ("#66CCFF" if battle_mode == "offensive" else "#8A8A8A")
+                                textbutton ("Usar objeto (" + str(_item_count) + ")"):
+                                    xminimum _item_btn_w
+                                    yminimum 50
+                                    text_size 21
+                                    text_color "#EAF4FF"
+                                    background "#20384FE0"
+                                    hover_background "#2A5D83EE"
+                                    action [SetVariable("bs_battle_item_tab", "potions"), SetVariable("bs_battle_item_panel_open", True)]
                                 viewport:
                                     draggable True
                                     mousewheel True
@@ -662,6 +766,14 @@ screen battle_command_menu():
                             vbox:
                                 spacing 6
                                 text "DEFENSIVAS" size 28 color ("#FFAAAA" if battle_mode == "defensive" else "#8A8A8A")
+                                textbutton ("Usar objeto (" + str(_item_count) + ")"):
+                                    xminimum _item_btn_w
+                                    yminimum 50
+                                    text_size 21
+                                    text_color "#FFEAEA"
+                                    background "#4A2525E0"
+                                    hover_background "#7A3C3CEE"
+                                    action [SetVariable("bs_battle_item_tab", "potions"), SetVariable("bs_battle_item_panel_open", True)]
                                 viewport:
                                     draggable True
                                     mousewheel True

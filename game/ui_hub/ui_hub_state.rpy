@@ -114,8 +114,24 @@ default bs_saga_reward_step_oro = 2.0
 default bs_saga_prep_tech_step = 25
 default bs_saga_prep_selected_party_ids = []
 default bs_saga_prep_filter_owned_only = False
+default bs_saga_prep_quick_picker_slot = ""
+default bs_saga_prep_quick_picker_available_only = True
 default bs_saga_prep_flag_item_id = ""
 default bs_saga_prep_flag_consumable_id = ""
+default bs_saga_prep_item_loadout = {
+    "potions": [],
+    "amulet": "",
+    "seals": []
+}
+default bs_battle_item_panel_open = False
+default bs_battle_item_tab = "potions"
+default bs_battle_item_loadout_runtime = {
+    "potions": [],
+    "amulet": "",
+    "seals": []
+}
+default bs_battle_item_usage = {}
+default bs_battle_item_actions_spent = 0
 default bs_saga_prep_intent_duel = False
 default bs_saga_prep_context = "room"  # room | config | staging
 default bs_saga_prep_config_tab = "resumen"

@@ -3,3 +3,10 @@ traceback.txt
 game/saves/
 game/cache/
 *.rpyc
+artifacts/
+build/
+dist/
+tools/__pycache__/
+economy-toolkit.spec
+docs/*.wav
+tools/codex_tts_sapi.ps1

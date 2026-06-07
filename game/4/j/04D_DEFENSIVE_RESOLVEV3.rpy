@@ -71,10 +71,10 @@ label defensive_resolve(received_damage, hp_after, reflected):
             except:
                 pass
 
-            try:
-                S.battle_visual_float("player", direct_enemy, "#FFDD55", is_final=True)
-            except:
-                pass
+        try:
+            S.bs_last_enemy_damage_received = max(0, int(received_damage or 0) + int(direct_enemy or 0))
+        except:
+            pass
 
         # (importante) reflejo se evalúa con el HP post-directo
         S._def_resolve_hp_after = hp_after
@@ -157,8 +157,22 @@ label defensive_resolve(received_damage, hp_after, reflected):
     $ player_hp = getattr(S, "player_hp", int(hp_after or 0))
     $ battle_update_hp_bars(player_hp, enemy_hp)
 
-    if received_damage > 0:
-        $ battle_visual_float("player", received_damage, "#66CCFF", is_final=True)
+    python:
+        import renpy.store as S
+        try:
+            _hp_visual_before = int(getattr(S, "defense_hp_before", 0) or 0)
+        except:
+            _hp_visual_before = 0
+        try:
+            _hp_visual_after = int(getattr(S, "player_hp", hp_after) or hp_after)
+        except:
+            _hp_visual_after = int(hp_after or 0)
+        _hp_visual_loss = max(0, int(_hp_visual_before) - int(_hp_visual_after))
+        if _hp_visual_loss <= 0 and int(received_damage or 0) > 0:
+            _hp_visual_loss = int(received_damage or 0)
+
+    if _hp_visual_loss > 0:
+        $ battle_visual_float("player", _hp_visual_loss, "#FF4444", is_final=True)
 
     # --------------------------------------------------------
     # (3) Limpieza general del turno defensivo
@@ -240,77 +254,46 @@ label defensive_resolve(received_damage, hp_after, reflected):
     if _player_defeated:
         python:
             import renpy.store as S
-            _allow_recovery = (not bool(getattr(S, "recovery_dice_used_in_battle", False)))
-        if _allow_recovery:
+            _base_recovery_available = (not bool(getattr(S, "recovery_dice_used_in_battle", False)))
+            _violet_item_id = ""
+            _fn_violet = getattr(S, "bs_battle_recovery_violet_item_id", None)
+            if callable(_fn_violet):
+                _violet_item_id = str(_fn_violet() or "")
+            _violet_recovery_available = bool(_violet_item_id)
+            _rec_source = ""
+            _rec_choice = "defeat"
+
+        if _base_recovery_available:
+            $ _rec_source = "base"
             $ _rec_choice = renpy.call_screen("recovery_dice_prompt")
+        elif _violet_recovery_available:
+            $ _rec_source = "seal_violet"
+            $ _rec_choice = renpy.call_screen("recovery_dice_prompt", source_name="Sello violeta", source_desc="El Sello violeta permite una tirada extra de recuperación.")
         else:
             $ _rec_choice = "defeat"
 
         if _rec_choice == "roll":
+            $ _rec_result = bs_battle_roll_recovery_source(_rec_source, _violet_item_id if _rec_source == "seal_violet" else "")
+
+        if int(getattr(store, "player_hp", 0) or 0) <= 0 and _rec_choice == "roll" and _rec_source == "base":
             python:
                 import renpy.store as S
-                _roll = None
-                try:
-                    fn_roll = getattr(S, "roll_recovery_die", None)
-                    if callable(fn_roll):
-                        _roll = fn_roll()
-                except:
-                    _roll = None
+                _violet_item_id = ""
+                _fn_violet = getattr(S, "bs_battle_recovery_violet_item_id", None)
+                if callable(_fn_violet):
+                    _violet_item_id = str(_fn_violet() or "")
+                _violet_recovery_available = bool(_violet_item_id)
+                if _violet_recovery_available and callable(getattr(S, "battle_log_add", None)):
+                    S.battle_log_add("{color=#B388FF}Sello violeta disponible: puedes intentar una recuperación extra.{/color}")
 
-                _pct = int(_roll.get("value_pct", 0) or 0) if isinstance(_roll, dict) else 0
-                S.recovery_dice_used_in_battle = True
-                S.recovery_dice_last_pct = int(_pct)
+            if _violet_recovery_available:
+                $ _rec_source = "seal_violet"
+                $ _rec_choice = renpy.call_screen("recovery_dice_prompt", source_name="Sello violeta", source_desc="El Sello violeta permite una tirada extra de recuperación.")
+                if _rec_choice == "roll":
+                    $ _rec_result = bs_battle_roll_recovery_source(_rec_source, _violet_item_id)
 
-                try:
-                    if callable(getattr(S, "battle_log_add", None)):
-                        S.battle_log_add("{color=#FFD700}dados de recuperacion activado. resultado de tirada:{/color}")
-                        S.battle_log_add("Dado de recuperación: %s" % str(int(_pct)))
-                except:
-                    pass
-
-                try:
-                    renpy.show_screen("recovery_dice_result", value_pct=int(_pct))
-                    renpy.pause(0.9, hard=True)
-                except:
-                    pass
-
-                if _pct <= 0:
-                    S.player_hp = 0
-                    try:
-                        if callable(getattr(S, "battle_log_add", None)):
-                            S.battle_log_add("{color=#FF4444}Dado de recuperación: 0% → KO definitivo.{/color}")
-                    except:
-                        pass
-                else:
-                    _max_hp = max(1, int(getattr(S, "battle_hp_player_max", getattr(S, "player_hp", 1)) or 1))
-                    _heal = max(1, int(round((_max_hp * _pct) / 100.0)))
-                    _new_hp = min(_max_hp, _heal)
-                    S.player_hp = int(_new_hp)
-
-                    try:
-                        fn_set = getattr(S, "bs_set_hp", None)
-                        if callable(fn_set):
-                            fn_set("player", int(_new_hp))
-                    except:
-                        pass
-
-                    try:
-                        if callable(getattr(S, "battle_update_damage_overlay", None)):
-                            S.battle_update_damage_overlay(int(S.player_hp), int(_max_hp))
-                    except:
-                        pass
-
-                    try:
-                        if callable(getattr(S, "battle_log_add", None)):
-                            S.battle_log_add("{color=#88FF88}Dado de recuperación: %s%% → HP restaurado a %s.{/color}" % (str(int(_pct)), str(int(_new_hp))))
-                    except:
-                        pass
-
-            if int(getattr(store, "player_hp", 0) or 0) <= 0:
-                $ battle_log_add("{color=#FF4444}Derrota{/color}")
-                jump battle_end
-            else:
-                $ battle_popup_turn("Recuperación activada", "#88FF88", 0.7)
+        if int(getattr(store, "player_hp", 0) or 0) > 0:
+            $ battle_popup_turn("Recuperación activada", "#88FF88", 0.7)
 
         if int(getattr(store, "player_hp", 0) or 0) <= 0:
             python:

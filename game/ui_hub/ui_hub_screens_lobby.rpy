@@ -318,7 +318,8 @@ screen bs_saga_catalog_screen():
     $ _can_buy = bool(_items) and (_inf_gold or (int(_gold) >= int(_total_price)))
     $ _buy_action = Function(bs_saga_ui_call, bs_saga_buy_item, _selected_item, _qty) if _items else NullAction()
     $ _main_left = int((config.screen_width * 0.5) - (980 * 0.5))
-    $ _main_top = int((config.screen_height * 0.56) - (560 * 0.56))
+    $ _main_yalign = 0.82
+    $ _main_top = int((config.screen_height - 560) * _main_yalign)
     $ _popup_y = _main_top + 86
     $ _has_active_filters = (_filter_rarity != "all") or (_filter_tier != "all") or (_search_norm != "")
     $ _last_msg_lc = _last_msg.lower() if _last_msg else ""
@@ -351,7 +352,7 @@ screen bs_saga_catalog_screen():
     # Contenedor principal por módulos (Fase 0)
     frame:
         xalign 0.5
-        yalign 0.56
+        yalign _main_yalign
         xsize 980
         ysize 560
         padding (16, 16)
@@ -450,7 +451,7 @@ screen bs_saga_catalog_screen():
                             vbox:
                                 spacing 6
                                 for g in _groups:
-                                    $ _g_label = bs_saga_labelize(g)
+                                    $ _g_label = "Stats (Torre del cielo)" if g == "stats_torre" else bs_saga_labelize(g)
                                     textbutton "[_g_label]":
                                         action [
                                             Function(bs_saga_catalog_set_group, g),
@@ -484,8 +485,6 @@ screen bs_saga_catalog_screen():
                                         $ _n = str(it.get("name", "?") or "?")
                                         $ _r = str(it.get("rarity", "-") or "-")
                                         $ _t = str(it.get("tier_req", "-") or "-")
-                                        $ _m = str(it.get("meta", "") or "")
-                                        $ _m_short = (_m[:46] + "...") if len(_m) > 49 else _m
                                         $ _r_show = "-" if _r in ("", "-") else _r
                                         $ _t_show = "-" if _t in ("", "-") else _t
                                         $ _p = bs_saga_item_price(it)
@@ -502,9 +501,8 @@ screen bs_saga_catalog_screen():
                                                 ]
                                                 hbox:
                                                     spacing 8
-                                                    text "• [_n]" size 17 color "#D0E9FF" xminimum 220
+                                                    text "• [_n]" size 17 color "#D0E9FF" xminimum 320
                                                     text ("Precio: " + str(_p)) size 16 color "#F7D774" xminimum 80
-                                                    text "[_m_short]" size 15 color "#A9CAE6" xminimum 120
                                 else:
                                     if _has_active_filters:
                                         text "No hay resultados para los filtros actuales." size 18 color "#FFB3B3"
@@ -616,8 +614,106 @@ screen bs_saga_catalog_screen():
 
 screen bs_saga_inventory_screen():
     tag menu
+    default _bucket_filter = "all"
+    default _view_mode = "all"
+    default _rarity_filter = "all"
+    default _show_rarity_menu = False
+    default _sort_mode = "name_asc"
+    default _selected_idx = 0
     $ _rows = bs_saga_inventory_rows()
     $ _gold = bs_saga_gold()
+    $ _bucket_labels = {
+        "all": "Todos",
+        "consumables": "Consumibles",
+        "equipables": "Equipo",
+        "materials": "Materiales",
+        "key_items": "Objetos clave",
+    }
+    $ _bucket_keys = ["all", "consumables", "equipables", "materials", "key_items"]
+    $ _rarity_opts = ["all", "common", "rare", "special", "epic", "legendary", "mythic", "infernal"]
+    $ _rarity_rank_map = {"infernal": 0, "mythic": 1, "legendary": 2, "epic": 3, "special": 4, "rare": 5, "common": 6, "": 7}
+    $ _schema = bs_saga_item_schema()
+    $ _catalog_index = {}
+    $ _recent_rank = {}
+    python:
+        for _cat in (_schema.values() if isinstance(_schema, dict) else []):
+            _groups = _cat.get("groups", {}) if isinstance(_cat, dict) else {}
+            if not isinstance(_groups, dict):
+                continue
+            for _items in _groups.values():
+                if not isinstance(_items, list):
+                    continue
+                for _it in _items:
+                    if not isinstance(_it, dict):
+                        continue
+                    _iid = bs_saga_item_id(_it)
+                    _catalog_index[_iid] = {
+                        "name": str(_it.get("name", _iid) or _iid),
+                        "meta": str(_it.get("meta", "") or ""),
+                        "rarity": str(_it.get("rarity", "") or "").strip().lower(),
+                        "tier_req": str(_it.get("tier_req", "") or "").strip().upper(),
+                    }
+        _audit = getattr(store, "bs_saga_audit_log", []) or []
+        _rank = 0
+        for _ev in reversed(_audit if isinstance(_audit, list) else []):
+            if not isinstance(_ev, dict):
+                continue
+            if str(_ev.get("event", "") or "") != "buy_item":
+                continue
+            _pl = _ev.get("payload", {}) if isinstance(_ev.get("payload", {}), dict) else {}
+            _iid = str(_pl.get("item_id", "") or "")
+            if (not _iid) or (_iid in _recent_rank):
+                continue
+            _rank += 1
+            _recent_rank[_iid] = int(_rank)
+    $ _rows_filtered = []
+    python:
+        for _r in _rows:
+            _bucket = str(_r.get("bucket", "") or "").strip().lower()
+            if (_bucket_filter != "all") and (_bucket != _bucket_filter):
+                continue
+            _iid = str(_r.get("item_id", "") or "")
+            _m = _catalog_index.get(_iid, {})
+            _x = dict(_r)
+            _x["name"] = str(_m.get("name", _iid) or _iid)
+            _x["meta"] = str(_m.get("meta", "") or "")
+            _x["rarity"] = str(_m.get("rarity", "") or "").strip().lower()
+            _x["tier_req"] = str(_m.get("tier_req", "") or "").strip().upper()
+            _x["rarity_rank"] = int(_rarity_rank_map.get(_x["rarity"], 7))
+            _x["recent_rank"] = int(_recent_rank.get(_iid, 0) or 0)
+            _rows_filtered.append(_x)
+        if _view_mode == "recent":
+            _rows_filtered = [x for x in _rows_filtered if int(x.get("recent_rank", 0) or 0) > 0]
+        if _rarity_filter != "all":
+            _rows_filtered = [x for x in _rows_filtered if str(x.get("rarity", "") or "").strip().lower() == _rarity_filter]
+        if _sort_mode == "qty_desc":
+            _rows_filtered.sort(key=lambda x: (-int(x.get("qty", 0) or 0), str(x.get("name", "") or "")))
+        elif _sort_mode == "rarity":
+            _rows_filtered.sort(key=lambda x: (int(x.get("rarity_rank", 7) or 7), str(x.get("name", "") or "")))
+        elif _view_mode == "recent":
+            _rows_filtered.sort(key=lambda x: (-int(x.get("recent_rank", 0) or 0), str(x.get("name", "") or "")))
+        else:
+            _rows_filtered.sort(key=lambda x: str(x.get("name", "") or ""))
+    if _selected_idx < 0 or _selected_idx >= len(_rows_filtered):
+        $ _selected_idx = 0
+    $ _selected_row = _rows_filtered[_selected_idx] if _rows_filtered else {}
+    $ _selected_bucket = bs_saga_labelize(_selected_row.get("bucket", ""))
+    $ _selected_item = str(_selected_row.get("item_id", "Sin selección") or "Sin selección")
+    $ _selected_name = str(_selected_row.get("name", _selected_item) or _selected_item)
+    $ _selected_meta = str(_selected_row.get("meta", "Sin descripción disponible.") or "Sin descripción disponible.")
+    $ _selected_rarity = str(_selected_row.get("rarity", "") or "").strip().lower()
+    $ _selected_tier = str(_selected_row.get("tier_req", "") or "").strip().upper()
+    $ _selected_qty = int(_selected_row.get("qty", 0) or 0)
+    $ _rarity_colors = {
+        "common": "#9FB9D1",
+        "rare": "#6CC6FF",
+        "special": "#71E3B2",
+        "epic": "#C28BFF",
+        "legendary": "#F4C46E",
+        "mythic": "#FF7BB5",
+        "infernal": "#FF6B6B",
+    }
+    $ _selected_rarity_color = str(_rarity_colors.get(_selected_rarity, "#9FB9D1"))
 
     add Solid("#0E1A28")
 
@@ -644,37 +740,173 @@ screen bs_saga_inventory_screen():
 
     frame:
         xalign 0.5
-        yalign 0.56
+        yalign 0.66
         xsize 1120
-        ysize 500
+        ysize 560
         padding (16, 16)
         background Solid("#13273A")
-        vbox:
-            spacing 8
-            text "Inventario de cuenta" size 32 color "#EAF6FF"
-            viewport:
-                draggable True
-                mousewheel True
-                scrollbars "vertical"
-                ymaximum 390
+        hbox:
+            spacing 10
+
+            # Panel izquierdo: categorías/buckets (Fase 1 layout base)
+            frame:
+                xsize 230
+                yfill True
+                padding (10, 10)
+                background Solid("#1A3044")
                 vbox:
-                    spacing 6
-                    if _rows:
-                        for row in _rows:
-                            $ _b = bs_saga_labelize(row.get("bucket", ""))
-                            $ _id = str(row.get("item_id", "?") or "?")
-                            $ _q = int(row.get("qty", 0) or 0)
-                            frame:
-                                xfill True
-                                background Solid("#173048")
-                                padding (8, 6)
+                    spacing 8
+                    text "Categorías" size 24 color "#DDEEFF"
+                    for k in _bucket_keys:
+                        $ _lbl = str(_bucket_labels.get(k, bs_saga_labelize(k)) or bs_saga_labelize(k))
+                        textbutton "[_lbl]":
+                            action [
+                                SetScreenVariable("_bucket_filter", k),
+                                SetScreenVariable("_selected_idx", 0),
+                            ]
+                            selected (_bucket_filter == k)
+                    null height 10
+                    text ("Filtro: " + str(_bucket_labels.get(_bucket_filter, "Todos"))) size 14 color "#9FC4E2"
+
+            # Panel central: listado de inventario (Fase 1 layout base)
+            frame:
+                xsize 560
+                yfill True
+                padding (10, 10)
+                background Solid("#102438")
+                vbox:
+                    spacing 8
+                    text "Inventario de cuenta" size 28 color "#EAF6FF"
+                    vbox:
+                        spacing 4
+                        hbox:
+                            spacing 6
+                            textbutton "Todos":
+                                action [SetScreenVariable("_view_mode", "all"), SetScreenVariable("_selected_idx", 0)]
+                                selected (_view_mode == "all")
+                            textbutton "Recientes":
+                                action [SetScreenVariable("_view_mode", "recent"), SetScreenVariable("_selected_idx", 0)]
+                                selected (_view_mode == "recent")
+                            textbutton ("Rareza: " + ("Todas" if _rarity_filter == "all" else _rarity_filter.upper())):
+                                action ToggleScreenVariable("_show_rarity_menu", True, False)
+                        hbox:
+                            spacing 6
+                            text "Orden:" size 14 color "#9FC4E2" yalign 0.5
+                            textbutton "Nombre ↑":
+                                action SetScreenVariable("_sort_mode", "name_asc")
+                                selected (_sort_mode == "name_asc")
+                            textbutton "Cantidad ↓":
+                                action SetScreenVariable("_sort_mode", "qty_desc")
+                                selected (_sort_mode == "qty_desc")
+                            textbutton "Rareza":
+                                action SetScreenVariable("_sort_mode", "rarity")
+                                selected (_sort_mode == "rarity")
+                    text ("Total visibles: " + str(len(_rows_filtered))) size 14 color "#9FC4E2"
+                    if _show_rarity_menu:
+                        frame:
+                            xfill True
+                            xpadding 8
+                            ypadding 6
+                            background Solid("#173048")
+                            viewport:
+                                draggable True
+                                mousewheel True
+                                scrollbars "horizontal"
+                                xmaximum 520
                                 hbox:
-                                    spacing 8
-                                    text ("Bucket: " + _b) size 17 color "#A9CAE6" xminimum 180
-                                    text ("Item: " + _id) size 17 color "#D0E9FF" xminimum 520
-                                    text ("Qty: " + str(_q)) size 17 color "#8BD6A7"
-                    else:
-                        text "Inventario vacío todavía." size 18 color "#9FB9D1"
+                                    spacing 6
+                                    for rr in _rarity_opts:
+                                        $ _lbl_rr = "Todas" if rr == "all" else rr.upper()
+                                        textbutton "[_lbl_rr]":
+                                            action [
+                                                SetScreenVariable("_rarity_filter", rr),
+                                                SetScreenVariable("_show_rarity_menu", False),
+                                                SetScreenVariable("_selected_idx", 0),
+                                            ]
+                    viewport:
+                        draggable True
+                        mousewheel True
+                        scrollbars "vertical"
+                        ymaximum 450
+                        vbox:
+                            spacing 6
+                            if _rows_filtered:
+                                for idx, row in enumerate(_rows_filtered):
+                                    $ _b = bs_saga_labelize(row.get("bucket", ""))
+                                    $ _id = str(row.get("item_id", "?") or "?")
+                                    $ _name = str(row.get("name", _id) or _id)
+                                    $ _meta = str(row.get("meta", "") or "")
+                                    $ _meta_short = (_meta[:68] + "...") if len(_meta) > 71 else _meta
+                                    $ _rar = str(row.get("rarity", "") or "").strip().lower()
+                                    $ _tier = str(row.get("tier_req", "") or "").strip().upper()
+                                    $ _q = int(row.get("qty", 0) or 0)
+                                    $ _row_bg = "#334A64" if idx == _selected_idx else "#173048"
+                                    $ _accent = str(_rarity_colors.get(_rar, "#4BB8E5"))
+                                    frame:
+                                        xfill True
+                                        background Solid(_row_bg)
+                                        padding (10, 8)
+                                        button:
+                                            xfill True
+                                            action SetScreenVariable("_selected_idx", idx)
+                                            hbox:
+                                                spacing 10
+                                                frame:
+                                                    xsize 7
+                                                    ysize 78
+                                                    background Solid(_accent)
+                                                vbox:
+                                                    spacing 2
+                                                    text _name size 20 color "#EAF6FF"
+                                                    hbox:
+                                                        spacing 8
+                                                        text ("Bucket: " + _b) size 14 color "#9FC4E2"
+                                                        if _rar:
+                                                            text ("Rareza: " + _rar.upper()) size 13 color _accent
+                                                        if _tier:
+                                                            text ("Tier: " + _tier) size 13 color "#B6D4EC"
+                                                    if _meta_short:
+                                                        text _meta_short size 13 color "#A9CAE6"
+                                                frame:
+                                                    xminimum 70
+                                                    yminimum 64
+                                                    xpadding 10
+                                                    ypadding 8
+                                                    background Solid("#0E2438")
+                                                    text ("Qty\n" + str(_q)) size 17 color "#8BD6A7" text_align 0.5
+                            else:
+                                text "No hay ítems para esta categoría." size 18 color "#9FB9D1"
+
+            # Panel derecho: detalle seleccionado (Fase 1 layout base)
+            frame:
+                xsize 280
+                yfill True
+                padding (12, 12)
+                background Solid("#1A2C42")
+                vbox:
+                    spacing 10
+                    text "Detalle del objeto" size 22 color "#EAF6FF"
+                    frame:
+                        xfill True
+                        ypadding 8
+                        xpadding 8
+                        background Solid("#173048")
+                        text "[_selected_name]" size 22 color "#D6EEFF"
+                    text ("Bucket: " + (_selected_bucket if _selected_bucket else "-")) size 17 color "#BFDCF4"
+                    hbox:
+                        spacing 8
+                        text ("Rareza: " + (_selected_rarity.upper() if _selected_rarity else "-")) size 16 color _selected_rarity_color
+                        text ("Tier: " + (_selected_tier if _selected_tier else "-")) size 16 color "#B6D4EC"
+                    text ("Cantidad en posesión: " + str(_selected_qty)) size 17 color "#8BD6A7"
+                    frame:
+                        xfill True
+                        xpadding 8
+                        ypadding 8
+                        background Solid("#173048")
+                        if _rows_filtered:
+                            text _selected_meta size 14 color "#AFCFE8"
+                        else:
+                            text "Selecciona una categoría con ítems para ver detalles." size 14 color "#AFCFE8"
 
 screen bs_saga_profile_screen():
     tag menu

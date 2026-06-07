@@ -40,6 +40,72 @@ label battle_enemy_turn_legacy_entry:
 
         S.turn_owner_slot = int(slot_idx or 0)
         S.turn_owner_team = "enemy"
+        try:
+            fn_hanabi_break = getattr(S, "bs_hanabi_juken_enemy_break_attempt", None)
+            if callable(fn_hanabi_break):
+                fn_hanabi_break()
+        except:
+            pass
+        try:
+            fn_shino_tick = getattr(S, "bs_shino_insects_enemy_turn_start", None)
+            if callable(fn_shino_tick):
+                fn_shino_tick()
+        except:
+            pass
+        try:
+            fn_amber_burn = getattr(S, "bs_amber_burn_enemy_turn_start", None)
+            if callable(fn_amber_burn):
+                fn_amber_burn()
+        except:
+            pass
+        try:
+            fn_m4a1 = getattr(S, "bs_m4a1_enemy_turn_start", None)
+            if callable(fn_m4a1):
+                fn_m4a1()
+        except:
+            pass
+        try:
+            fn_mai_burn = getattr(S, "bs_mai_burn_enemy_turn_start", None)
+            if callable(fn_mai_burn):
+                fn_mai_burn()
+        except:
+            pass
+        try:
+            fn_yoimiya = getattr(S, "bs_yoimiya_sparks_enemy_turn_start", None)
+            if callable(fn_yoimiya):
+                fn_yoimiya()
+        except:
+            pass
+        try:
+            fn_shar_break = getattr(S, "bs_shadowheart_shar_enemy_break_attempt", None)
+            if callable(fn_shar_break):
+                fn_shar_break()
+        except:
+            pass
+        try:
+            fn_sara = getattr(S, "bs_kujou_sara_enemy_turn_start", None)
+            if callable(fn_sara):
+                fn_sara()
+        except:
+            pass
+        try:
+            fn_yamato = getattr(S, "bs_yamato_roots_enemy_turn_start", None)
+            if callable(fn_yamato):
+                fn_yamato()
+        except:
+            pass
+        try:
+            fn_shaina = getattr(S, "bs_shaina_ofiuco_enemy_turn_start", None)
+            if callable(fn_shaina):
+                fn_shaina()
+        except:
+            pass
+        try:
+            fn_agent = getattr(S, "bs_agent_ghost_enemy_turn_start", None)
+            if callable(fn_agent):
+                fn_agent()
+        except:
+            pass
 
     # ============================================================
     # ⭐ DEFENSA DIFERIDA 2v2 (solo si este actor recibió daño en cola)
@@ -114,10 +180,19 @@ label battle_enemy_turn_legacy_entry:
                         final_in = max(0, int(info.get("final_damage", _def_input) or _def_input))
                         _engine_apply = max(0, int(info.get("damage_to_apply", 0) or 0))
                     except:
+                        info = {}
                         final_in = int(_dir_part if _direct_only else _def_part)
                         _engine_apply = 0
                 else:
+                    info = {}
                     _engine_apply = 0
+
+                try:
+                    fn_mai = getattr(S, "bs_mai_apply_after_enemy_defense", None)
+                    if callable(fn_mai):
+                        fn_mai(int(_def_input if '_def_input' in locals() else _def_part), str(akey or ""), info)
+                except:
+                    pass
 
                 if _engine_apply > 0:
                     total_in = int(_engine_apply)
@@ -347,8 +422,18 @@ label battle_enemy_turn_legacy_entry:
         S.enemy_total_damage      = 0
         S.incoming_damage         = 0
         S.incoming_direct_damage  = 0
+        S.enemy_direct_pending_damage = 0
+        S.enemy_direct_base_damage = 0
+        S.pending_direct_damage_for_defense = 0
+        S.defense_received_includes_direct = False
         S.enemy_attack_records    = []
         S.enemy_noatk_success     = False
+        S.enemy_turn_focus_bonus_defendible = 0
+        S.enemy_turn_focus_bonus_direct = 0
+
+        fn_set_direct = getattr(S, "bs_set_direct_pending", None)
+        if callable(fn_set_direct):
+            fn_set_direct("player", 0, mirror_legacy=True)
 
         S.turn_enemy_off_rei_before = int(getattr(S, "enemy_reiatsu", 0) or 0)
         S.turn_enemy_off_ene_before = int(getattr(S, "enemy_energy", 0) or 0)
@@ -384,8 +469,36 @@ label battle_enemy_turn_legacy_entry:
                 enemy_attack_executed = True
             bs_ui_pause(0.35, hard=True)
 
+        if enemy_attack_executed:
+            bs_ui_pause(0.55, hard=True)
+
+        try:
+            fn_focus_end = getattr(S, "battle_focus_end_turn", None)
+            if callable(fn_focus_end):
+                fn_focus_end("offensive", bool(enemy_attack_executed))
+            else:
+                fn_focus_decay = getattr(S, "focus_off_end_turn_decay", None)
+                if callable(fn_focus_decay):
+                    fn_focus_decay()
+        except:
+            pass
+        if not enemy_attack_executed:
+            S.enemy_focus_cost_pending = False
+
         S.turn_enemy_off_rei_after = int(getattr(S, "enemy_reiatsu", 0) or 0)
         S.turn_enemy_off_ene_after = int(getattr(S, "enemy_energy", 0) or 0)
+        try:
+            fn_status_end = getattr(S, "bs_enemy_status_turn_end", None)
+            if callable(fn_status_end):
+                fn_status_end()
+        except:
+            pass
+        try:
+            fn_cammy_end = getattr(S, "bs_cammy_enemy_turn_end", None)
+            if callable(fn_cammy_end):
+                fn_cammy_end()
+        except:
+            pass
 
         # ============================================================
         # ⭐ FÓRMULA OFENSIVA IA (SIN REFLECT)
@@ -810,7 +923,33 @@ label battle_enemy_turn_legacy_entry:
     # ============================================================
     # ⭐ VISUAL DAMAGE AL JUGADOR
     # ============================================================
-    $ battle_visual_float("player", incoming_damage, "#FF4444", is_final=True)
+    python:
+        import renpy.store as S
+        incoming_direct_maneuver_damage = 0
+        try:
+            fn_get_direct = getattr(S, "bs_get_direct_pending", None)
+            if callable(fn_get_direct):
+                incoming_direct_maneuver_damage = int(fn_get_direct("player") or 0)
+            else:
+                incoming_direct_maneuver_damage = int(getattr(S, "incoming_direct_damage", 0) or 0)
+                if incoming_direct_maneuver_damage <= 0:
+                    incoming_direct_maneuver_damage = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+        except:
+            incoming_direct_maneuver_damage = int(getattr(S, "incoming_direct_damage", 0) or 0)
+            if incoming_direct_maneuver_damage <= 0:
+                incoming_direct_maneuver_damage = int(getattr(S, "enemy_direct_pending_damage", 0) or 0)
+
+        incoming_direct_maneuver_damage = max(0, int(incoming_direct_maneuver_damage or 0))
+        incoming_full_maneuver_damage = max(0, int(incoming_damage or 0)) + incoming_direct_maneuver_damage
+
+    python:
+        import renpy.store as S
+        _incoming_visual = max(0, int(incoming_full_maneuver_damage or incoming_damage or 0))
+        _fn_incoming_fx = getattr(S, "bs_battle_visual_incoming", None)
+        if callable(_fn_incoming_fx) and _incoming_visual > 0:
+            _fn_incoming_fx("player", int(_incoming_visual), "#FFAA44")
+        elif _incoming_visual > 0:
+            battle_visual_float("player", int(_incoming_visual), "#FFAA44", is_final=True)
     $ bs_ui_pause(0.5, hard=True)
 
     # ============================================================
@@ -834,7 +973,8 @@ label battle_enemy_turn_legacy_entry:
             defender_key = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "player:0")
             receiver_pref = str(getattr(S, "sacrifice_receiver_key", "") or "")
             fn_sac = getattr(S, "bs_sacrifice_execute", None)
-            sac = fn_sac(defender_key=defender_key, incoming_damage=incoming_damage, receiver_key=receiver_pref) if callable(fn_sac) else {"executed": False}
+            dmg_to_apply = max(0, int(incoming_full_maneuver_damage or incoming_damage or 0))
+            sac = fn_sac(defender_key=defender_key, incoming_damage=dmg_to_apply, receiver_key=receiver_pref) if callable(fn_sac) else {"executed": False}
             sac_ok = bool(isinstance(sac, dict) and sac.get("executed", False))
             recv_key = str(sac.get("receiver_key", "") or "") if isinstance(sac, dict) else ""
             recv_name = str(sac.get("receiver_name", recv_key) or recv_key) if isinstance(sac, dict) else recv_key
@@ -846,13 +986,20 @@ label battle_enemy_turn_legacy_entry:
                 fn_sync = getattr(S, "bs_sync_hp_ui", None)
 
                 if recv_key and callable(fn_apply_key):
-                    fn_apply_key(recv_key, incoming_damage, source_key=getattr(S, "current_enemy_unit_key", None), reason="sacrifice")
+                    fn_apply_key(recv_key, dmg_to_apply, source_key=getattr(S, "current_enemy_unit_key", None), reason="sacrifice")
                 elif isinstance(plan, dict) and callable(getattr(S, "bs_apply_damage_plan", None)):
-                    entries = [{"target_key": recv_key or defender_key, "amount": int(incoming_damage or 0), "source_key": str(getattr(S, "current_enemy_unit_key", "") or "")}]
+                    entries = [{"target_key": recv_key or defender_key, "amount": int(dmg_to_apply or 0), "source_key": str(getattr(S, "current_enemy_unit_key", "") or "")}]
                     S.bs_apply_damage_plan({"entries": entries}, reason="sacrifice")
 
                 if callable(fn_sync):
                     fn_sync()
+
+                fn_consume_direct = getattr(S, "bs_consume_direct_pending", None)
+                if incoming_direct_maneuver_damage > 0 and callable(fn_consume_direct):
+                    fn_consume_direct("player", mirror_legacy=True)
+                S.incoming_direct_damage = 0
+                S.pending_direct_damage_for_defense = 0
+                S.enemy_direct_pending_damage = 0
 
             if callable(getattr(S, "battle_log_add", None)):
                 if sac_ok:
@@ -893,7 +1040,8 @@ label battle_enemy_turn_legacy_entry:
 
             target_key = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "player:0")
             fn_ctr = getattr(S, "bs_counterattack_execute", None)
-            ctr = fn_ctr(unit_key=target_key, incoming_damage=incoming_damage) if callable(fn_ctr) else {"executed": False, "success": False}
+            dmg_to_apply = max(0, int(incoming_full_maneuver_damage or incoming_damage or 0))
+            ctr = fn_ctr(unit_key=target_key, incoming_damage=dmg_to_apply) if callable(fn_ctr) else {"executed": False, "success": False}
             ctr_ok = bool(isinstance(ctr, dict) and ctr.get("executed", False))
             ctr_success = bool(isinstance(ctr, dict) and ctr.get("success", False))
 
@@ -903,7 +1051,10 @@ label battle_enemy_turn_legacy_entry:
                 elif ctr_ok:
                     _rp = int(ctr.get("reiatsu_penalty", 0) or 0)
                     _ep = int(ctr.get("energy_penalty", 0) or 0)
-                    S.battle_log_add("{color=#FF8888}Contraataque fallado: -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_rp), str(_ep)))
+                    if bool(ctr.get("penalty_waived", False)):
+                        S.battle_log_add("{color=#FFD166}Contraataque fallado, pero el sello rojo evita la perdida de recursos. Recibes daño completo.{/color}")
+                    else:
+                        S.battle_log_add("{color=#FF8888}Contraataque fallado: -%s Reiatsu base y -%s Energía base. Recibes daño completo.{/color}" % (str(_rp), str(_ep)))
                 else:
                     S.battle_log_add("{color=#FF8888}Contraataque no disponible. Se aplica defensa normal.{/color}")
 
@@ -929,26 +1080,56 @@ label battle_enemy_turn_legacy_entry:
                 import renpy.store as S
                 S.enemy_damage_plan = None
                 S.enemy_target_key = ""
+                fn_consume_direct = getattr(S, "bs_consume_direct_pending", None)
+                if incoming_direct_maneuver_damage > 0 and callable(fn_consume_direct):
+                    fn_consume_direct("player", mirror_legacy=True)
+                S.incoming_direct_damage = 0
+                S.pending_direct_damage_for_defense = 0
+                S.enemy_direct_pending_damage = 0
             jump battle_offensive_turn
         elif _ctr_ok:
             python:
                 import renpy.store as S
                 plan = getattr(S, "enemy_damage_plan", None)
                 target_key = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "")
+                dmg_to_apply = max(0, int(incoming_full_maneuver_damage or incoming_damage or 0))
 
                 fn_apply_plan = getattr(S, "bs_apply_damage_plan", None)
                 fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
                 fn_apply = getattr(S, "bs_apply_damage", None)
 
-                if isinstance(plan, dict) and callable(fn_apply_plan):
-                    fn_apply_plan(plan, reason="combat")
-                elif target_key and callable(fn_apply_key):
-                    fn_apply_key(target_key, incoming_damage, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat")
+                if target_key and callable(fn_apply_key):
+                    fn_apply_key(target_key, dmg_to_apply, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat")
+                elif isinstance(plan, dict) and callable(fn_apply_plan):
+                    _entries = []
+                    _source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+                    _added = False
+                    for _e in list(plan.get("entries", []) or []):
+                        if not isinstance(_e, dict):
+                            continue
+                        _ne = dict(_e)
+                        _amt = int(_ne.get("amount", 0) or 0)
+                        if not _added and incoming_direct_maneuver_damage > 0:
+                            _ne["amount"] = _amt + int(incoming_direct_maneuver_damage or 0)
+                            _added = True
+                        _entries.append(_ne)
+                    if not _entries:
+                        _entries = [{"target_key": target_key or "player:0", "amount": dmg_to_apply, "source_key": _source_key}]
+                    _plan = dict(plan)
+                    _plan["entries"] = _entries
+                    fn_apply_plan(_plan, reason="combat")
                 elif callable(fn_apply):
-                    fn_apply("player", incoming_damage, source="enemy", reason="combat")
+                    fn_apply("player", dmg_to_apply, source="enemy", reason="combat")
                 else:
-                    player_hp = max(0, player_hp - incoming_damage)
+                    player_hp = max(0, player_hp - dmg_to_apply)
                     battle_update_hp_bars(player_hp, enemy_hp)
+
+                fn_consume_direct = getattr(S, "bs_consume_direct_pending", None)
+                if incoming_direct_maneuver_damage > 0 and callable(fn_consume_direct):
+                    fn_consume_direct("player", mirror_legacy=True)
+                S.incoming_direct_damage = 0
+                S.pending_direct_damage_for_defense = 0
+                S.enemy_direct_pending_damage = 0
 
                 fn_sync = getattr(S, "bs_sync_hp_ui", None)
                 if callable(fn_sync):
@@ -982,26 +1163,67 @@ label battle_enemy_turn_legacy_entry:
         python:
             import renpy.store as S
             plan = getattr(S, "enemy_damage_plan", None)
-            target_key = str(getattr(S, "enemy_target_key", "") or "")
+            target_key = str(getattr(S, "incoming_damage_target_key", "") or getattr(S, "enemy_target_key", "") or "")
+            dmg_to_apply = max(0, int(incoming_full_maneuver_damage or incoming_damage or 0))
 
             fn_apply_plan = getattr(S, "bs_apply_damage_plan", None)
             fn_apply_key = getattr(S, "bs_apply_damage_to_unit_key", None)
             fn_apply = getattr(S, "bs_apply_damage", None)
+            hp_before_maneuver = max(0, int(getattr(S, "player_hp", 0) or 0))
+            apply_result = None
 
-            if isinstance(plan, dict) and callable(fn_apply_plan):
-                fn_apply_plan(plan, reason="combat")
-            elif target_key and callable(fn_apply_key):
-                fn_apply_key(target_key, incoming_damage, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat")
+            if target_key and callable(fn_apply_key):
+                apply_result = fn_apply_key(target_key, dmg_to_apply, source_key=getattr(S, "current_enemy_unit_key", None), reason="combat")
+            elif isinstance(plan, dict) and callable(fn_apply_plan):
+                _entries = []
+                _source_key = str(getattr(S, "current_enemy_unit_key", "") or "")
+                _added = False
+                for _e in list(plan.get("entries", []) or []):
+                    if not isinstance(_e, dict):
+                        continue
+                    _ne = dict(_e)
+                    _amt = int(_ne.get("amount", 0) or 0)
+                    if not _added and incoming_direct_maneuver_damage > 0:
+                        _ne["amount"] = _amt + int(incoming_direct_maneuver_damage or 0)
+                        _added = True
+                    _entries.append(_ne)
+                if not _entries:
+                    _entries = [{"target_key": target_key or "player:0", "amount": dmg_to_apply, "source_key": _source_key}]
+                _plan = dict(plan)
+                _plan["entries"] = _entries
+                apply_result = fn_apply_plan(_plan, reason="combat")
             elif callable(fn_apply):
-                fn_apply("player", incoming_damage, source="enemy", reason="combat")
+                apply_result = fn_apply("player", dmg_to_apply, source="enemy", reason="combat")
             else:
-                player_hp = max(0, player_hp - incoming_damage)
+                player_hp = max(0, player_hp - dmg_to_apply)
                 battle_update_hp_bars(player_hp, enemy_hp)
+
+            fn_consume_direct = getattr(S, "bs_consume_direct_pending", None)
+            if incoming_direct_maneuver_damage > 0 and callable(fn_consume_direct):
+                fn_consume_direct("player", mirror_legacy=True)
+            S.incoming_direct_damage = 0
+            S.pending_direct_damage_for_defense = 0
+            S.enemy_direct_pending_damage = 0
 
             fn_sync = getattr(S, "bs_sync_hp_ui", None)
             if callable(fn_sync):
                 fn_sync()
             player_hp = int(getattr(S, "player_hp", 0) or 0)
+
+            try:
+                hp_after_maneuver = int(player_hp or 0)
+                hp_loss_maneuver = max(0, int(hp_before_maneuver or 0) - int(hp_after_maneuver or 0))
+                if callable(getattr(S, "battle_log_add", None)) and hp_loss_maneuver > 0:
+                    _fmt = getattr(S, "battle_fmt_num", None)
+                    if not callable(_fmt):
+                        _fmt = lambda v: str(int(v or 0))
+                    S.battle_log_add("{color=#FFD166}Ataque por defensa: recibes %s de daño completo.{/color}" % _fmt(hp_loss_maneuver))
+                    S.battle_log_add("HP: %s - %s = %s" % (_fmt(hp_before_maneuver), _fmt(hp_loss_maneuver), _fmt(hp_after_maneuver)))
+                    fn_float = getattr(S, "battle_visual_float", None) or globals().get("battle_visual_float", None)
+                    if callable(fn_float):
+                        fn_float("player", int(hp_loss_maneuver), "#FF4444", is_final=True)
+            except:
+                pass
 
             try:
                 S.enemy_damage_plan = None
