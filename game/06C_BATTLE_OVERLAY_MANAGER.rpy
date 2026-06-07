@@ -15,6 +15,7 @@ init 999 python:
         "battle_ui_hotkeys",
         "battle_hp_overlay",
         "battle_damage_popups",
+        "battle_hit_feedback_layer",
         "battle_turn_summary_overlay"
     ]
 

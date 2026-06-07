@@ -67,6 +67,66 @@ transform float_damage_player:
     linear 0.10 yoffset -10
     linear 1.00 alpha 0.0 yoffset -60
 
+transform battle_hit_feedback_enemy(slot=0):
+    xalign 0.78
+    yalign 0.38
+    alpha 0.0
+    xoffset 230
+    yoffset (slot * 18)
+    xzoom 2.20
+    yzoom 0.64
+    zoom 0.88
+    easeout 0.10 alpha 1.0 xoffset 0 xzoom 0.72 yzoom 1.34 zoom 1.14
+    easeout 0.09 xoffset -14 xzoom 1.10 yzoom 0.94 zoom 1.02
+    easeout 0.08 xoffset 0 xzoom 1.00 yzoom 1.00 zoom 1.00
+    pause 0.53
+    linear 0.30 alpha 0.0 yoffset (slot * 18 - 44)
+
+transform battle_hit_feedback_player(slot=0):
+    xalign 0.18
+    yalign 0.42
+    alpha 0.0
+    xoffset -230
+    yoffset (slot * 18)
+    xzoom 2.20
+    yzoom 0.64
+    zoom 0.88
+    easeout 0.10 alpha 1.0 xoffset 0 xzoom 0.72 yzoom 1.34 zoom 1.14
+    easeout 0.09 xoffset 14 xzoom 1.10 yzoom 0.94 zoom 1.02
+    easeout 0.08 xoffset 0 xzoom 1.00 yzoom 1.00 zoom 1.00
+    pause 0.53
+    linear 0.30 alpha 0.0 yoffset (slot * 18 - 44)
+
+transform battle_result_feedback_enemy(slot=0):
+    xalign 0.76
+    yalign 0.50
+    alpha 0.0
+    xoffset 120
+    yoffset (slot * 14)
+    zoom 0.74
+    xzoom 1.80
+    yzoom 0.72
+    easeout 0.09 alpha 1.0 xoffset -18 zoom 1.18 xzoom 0.86 yzoom 1.22
+    easeout 0.08 xoffset 8 zoom 1.02 xzoom 1.08 yzoom 0.96
+    easeout 0.06 xoffset 0 zoom 1.00 xzoom 1.00 yzoom 1.00
+    pause 0.62
+    linear 0.28 alpha 0.0 yoffset (slot * 14 - 34)
+
+transform battle_result_feedback_player(slot=0):
+    xalign 0.22
+    yalign 0.62
+    alpha 0.0
+    xoffset -120
+    yoffset (slot * 14)
+    zoom 0.74
+    xzoom 1.80
+    yzoom 0.72
+    easeout 0.09 alpha 1.0 xoffset 18 zoom 1.18 xzoom 0.86 yzoom 1.22
+    easeout 0.08 xoffset -8 zoom 1.02 xzoom 1.08 yzoom 0.96
+    easeout 0.06 xoffset 0 zoom 1.00 xzoom 1.00 yzoom 1.00
+    pause 0.62
+    linear 0.28 alpha 0.0 yoffset (slot * 14 - 34)
+
 transform focus_aura_pulse:
     xalign 0.50 yalign 0.50
     alpha 0.0 zoom 1.00

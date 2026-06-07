@@ -42,6 +42,24 @@ init -988 python:
             rei *= 2
 
         if actor == "enemy":
+            unit_key = _ai_enemy_unit_key()
+            try:
+                fn_lock = getattr(S, "bs_hanabi_juken_enemy_resource_locked", None)
+                if callable(fn_lock):
+                    if rei > 0 and fn_lock("reiatsu", unit_key):
+                        S.bs_ai_resource_lock_reason = "EP"
+                        return False, max(1, int(rei or 1)), 0
+                    if ene > 0 and fn_lock("energy", unit_key):
+                        S.bs_ai_resource_lock_reason = "EC"
+                        return False, 0, max(1, int(ene or 1))
+            except:
+                pass
+            try:
+                S.bs_ai_resource_lock_reason = ""
+            except:
+                pass
+
+        if actor == "enemy":
             falt_rei = max(0, rei - int(getattr(S, "enemy_reiatsu", 0) or 0))
             falt_ene = max(0, ene - int(getattr(S, "enemy_energy", 0) or 0))
         else:
@@ -238,6 +256,20 @@ init -988 python:
         # --------------------------------------------------------
         if key == "focus":
 
+            if int(getattr(S, "bs_enemy_focus_lock_turns", 0) or 0) > 0:
+                try:
+                    S.enemy_focus_cost_pending = False
+                    S.battle_log_add(
+                        "%s intenta Concentrar, pero Sello naranja lo bloquea (%s turnos)." % (
+                            ai.name,
+                            str(int(getattr(S, "bs_enemy_focus_lock_turns", 0) or 0))
+                        ),
+                        "#FFB74D"
+                    )
+                except:
+                    pass
+                return "none"
+
             # ✅ CANDADO: si Focus IA está OFF, no permitir concentrar
             if not _ai_focus_allowed_enemy_unit():
 
@@ -259,9 +291,22 @@ init -988 python:
                 return "none"
 
             S.activate_offensive_focus(owner_team="enemy")
+            try:
+                fn_note_focus = getattr(S, "bs_note_enemy_focus_used", None)
+                if callable(fn_note_focus):
+                    fn_note_focus("offense")
+            except:
+                pass
 
             # ✅ marca que el PRÓXIMO ataque paga Reiatsu x2
             S.enemy_focus_cost_pending = True
+
+            try:
+                fn_hbreak = getattr(S, "bs_battle_enqueue_focus_break", None)
+                if callable(fn_hbreak):
+                    fn_hbreak("player", "CONCENTRAR")
+            except:
+                pass
 
             S.battle_log_add(S.log_focus_unified("attack"))
             S.battle_popup_turn("%s activa Concentrar" % ai.name, "#C586C0", 0.6)
@@ -301,13 +346,17 @@ init -988 python:
             if _is_story_hollow:
                 _ai_enemy_apply_rest_recovery(log_prefix="Descansar (sin recursos)")
                 return "rest_recovery"
-            msg = "%s no puede usar %s (" % (ai.name, tech.get("name", key))
-            if fr > 0 and fe > 0:
-                msg += "falta Reiatsu y Energía)"
-            elif fr > 0:
-                msg += "falta Reiatsu)"
+            _lock_reason = str(getattr(S, "bs_ai_resource_lock_reason", "") or "")
+            if _lock_reason:
+                msg = "%s no puede usar %s (Puno de Juken: %s cerrado)" % (ai.name, tech.get("name", key), _lock_reason)
             else:
-                msg += "falta Energía)"
+                msg = "%s no puede usar %s (" % (ai.name, tech.get("name", key))
+                if fr > 0 and fe > 0:
+                    msg += "falta Reiatsu y Energía)"
+                elif fr > 0:
+                    msg += "falta Reiatsu)"
+                else:
+                    msg += "falta Energía)"
             S.battle_log_add(msg, "#888888")
             return "nopay"
 
@@ -334,6 +383,28 @@ init -988 python:
             if key == "stronger_attack":
                 rei_cost = max(int(rei_cost or 0), 150)
 
+        try:
+            fn_adjust_cost = getattr(S, "bs_enemy_adjust_action_costs", None)
+            if callable(fn_adjust_cost):
+                adj = fn_adjust_cost(key, "offense", rei_cost, ene_cost, _ai_enemy_unit_key())
+                if isinstance(adj, dict) and bool(adj.get("blocked", False)):
+                    S.battle_log_add("%s no puede usar %s (Paso Glacial: EC bloqueado)." % (ai.name, tech.get("name", key)), "#9FD8FF")
+                    return "none"
+                if isinstance(adj, dict):
+                    rei_cost = int(adj.get("reiatsu_cost", rei_cost) or 0)
+                    ene_cost = int(adj.get("energy_cost", ene_cost) or 0)
+                    if str(adj.get("reason", "") or "") == "agent_ghost_double":
+                        S.battle_log_add("{color=#9E9E9E}Operacion Fantasma duplica el coste enemigo: %s EP / %s EC.{/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+        except:
+            pass
+
+        try:
+            if int(getattr(S, "enemy_reiatsu", 0) or 0) < int(rei_cost or 0) or int(getattr(S, "enemy_energy", 0) or 0) < int(ene_cost or 0):
+                S.battle_log_add("%s no puede usar %s (recursos insuficientes tras modificadores)." % (ai.name, tech.get("name", key)), "#888888")
+                return "nopay"
+        except:
+            pass
+
         S.consume_resources(rei_cost, ene_cost, "enemy")
         S.turn_enemy_off_rei_tech_sum = int(getattr(S, "turn_enemy_off_rei_tech_sum", 0) or 0) + int(rei_cost or 0)
         S.turn_enemy_off_ene_tech_sum = int(getattr(S, "turn_enemy_off_ene_tech_sum", 0) or 0) + int(ene_cost or 0)
@@ -347,6 +418,44 @@ init -988 python:
                 base = 150
                 final = 150
         dmg = S.apply_offensive_focus(final, owner_team="enemy")
+        try:
+            fn_status_dmg = getattr(S, "bs_enemy_outgoing_damage_after_status", None)
+            if callable(fn_status_dmg):
+                dmg = int(fn_status_dmg(int(dmg or 0), key) or 0)
+        except:
+            pass
+        try:
+            focus_bonus = max(0, int(dmg or 0) - int(final or 0))
+        except:
+            focus_bonus = 0
+
+        _visual_hit_sent = [False]
+
+        def _ai_attack_hit_color(k):
+            kk = str(k or "")
+            if kk == "direct_attack":
+                return "#FFDD44"
+            if kk == "noatk_attack":
+                return "#FFCCCC"
+            if kk == "attack_reducer":
+                return "#FF9966"
+            if kk == "stronger_attack":
+                return "#FF4444"
+            if kk in ("extra_attack", "extra_tech"):
+                return "#FF8888"
+            return "#FF6666"
+
+        def _send_ai_attack_hit():
+            if _visual_hit_sent[0]:
+                return
+            try:
+                if int(dmg or 0) > 0:
+                    S.battle_visual_float("player", int(dmg or 0), _ai_attack_hit_color(key), is_final=False)
+                    _visual_hit_sent[0] = True
+            except:
+                pass
+
+        _send_ai_attack_hit()
 
         # --------------------------------------------------------
         # 🎲 ATAQUES CON DADOS (IA): Directo / Negador
@@ -407,6 +516,8 @@ init -988 python:
                         S.enemy_direct_pending_damage += int(dmg)
 
                     S.enemy_direct_base_damage = int(base)
+                    if int(focus_bonus or 0) > 0:
+                        S.enemy_turn_focus_bonus_direct = int(getattr(S, "enemy_turn_focus_bonus_direct", 0) or 0) + int(focus_bonus)
 
                     log_text = "%s usa %s → Inflige %s de daño." % (ai.name, tech.get("name", key), S.battle_fmt_num(dmg))
                     _rule_txt = "Si saca 2/3 dados de éxito, este ataque es indefendible. (%d/3)" % successes
@@ -462,14 +573,16 @@ init -988 python:
         # Registrar daño defendible (normal)
         # --------------------------------------------------------
         S.incoming_damage += dmg
+        if int(focus_bonus or 0) > 0:
+            S.enemy_turn_focus_bonus_defendible = int(getattr(S, "enemy_turn_focus_bonus_defendible", 0) or 0) + int(focus_bonus)
         S.enemy_attack_records.append((final, dmg))
 
         # Marcar flag si fue el golpe más fuerte (para forzar reductor next turn)
         if key == "stronger_attack":
             S.ai_used_strong_attack = True
 
-        # Visual
-        S.battle_visual_float("player", dmg, "#FF6666", is_final=False)
+        # Visual defensivo legacy: el hit ya fue emitido por _send_ai_attack_hit().
+        _send_ai_attack_hit()
 
         # --------------------------------------------------------
         # Log normal
@@ -509,6 +622,19 @@ init -988 python:
         # --------------------------------------------------------
         if key == "focus":
 
+            if int(getattr(S, "bs_enemy_def_focus_lock_turns", 0) or 0) > 0:
+                try:
+                    S.battle_log_add(
+                        "%s intenta Potenciar, pero Sello azul lo bloquea (%s turnos)." % (
+                            ai.name,
+                            str(int(getattr(S, "bs_enemy_def_focus_lock_turns", 0) or 0))
+                        ),
+                        "#64B5F6"
+                    )
+                except:
+                    pass
+                return "none"
+
             # ✅ CANDADO: si Focus IA está OFF, no permitir potenciar defensa
             if not _ai_focus_allowed_enemy_unit():
 
@@ -543,13 +669,17 @@ init -988 python:
             if _is_story_hollow:
                 _ai_enemy_apply_rest_recovery(log_prefix="Descansar (sacrifica defensa)")
                 return "rest_recovery"
-            msg = "%s no puede usar %s (" % (ai.name, tech.get("name", key))
-            if fr > 0 and fe > 0:
-                msg += "falta Reiatsu y Energía)"
-            elif fr > 0:
-                msg += "falta Reiatsu)"
+            _lock_reason = str(getattr(S, "bs_ai_resource_lock_reason", "") or "")
+            if _lock_reason:
+                msg = "%s no puede usar %s (Puno de Juken: %s cerrado)" % (ai.name, tech.get("name", key), _lock_reason)
             else:
-                msg += "falta Energía)"
+                msg = "%s no puede usar %s (" % (ai.name, tech.get("name", key))
+                if fr > 0 and fe > 0:
+                    msg += "falta Reiatsu y Energía)"
+                elif fr > 0:
+                    msg += "falta Reiatsu)"
+                else:
+                    msg += "falta Energía)"
             S.battle_log_add(msg, "#999999")
             return "nopay"
 
@@ -567,6 +697,26 @@ init -988 python:
         cost = S.reiatsu_energy_dynamic_cost(key, S, force_focus_mult=def_mult, unit_key=_ai_enemy_unit_key())
         rei_cost = int(cost.get("reiatsu_cost", 0) or 0)
         ene_cost = int(cost.get("energy_cost", 0) or 0)
+        try:
+            fn_adjust_cost = getattr(S, "bs_enemy_adjust_action_costs", None)
+            if callable(fn_adjust_cost):
+                adj = fn_adjust_cost(key, "defense", rei_cost, ene_cost, _ai_enemy_unit_key())
+                if isinstance(adj, dict) and bool(adj.get("blocked", False)):
+                    S.battle_log_add("%s no puede usar %s (Paso Glacial: EC bloqueado)." % (ai.name, tech.get("name", key)), "#9FD8FF")
+                    return "none"
+                if isinstance(adj, dict):
+                    rei_cost = int(adj.get("reiatsu_cost", rei_cost) or 0)
+                    ene_cost = int(adj.get("energy_cost", ene_cost) or 0)
+                    if str(adj.get("reason", "") or "") == "agent_ghost_double":
+                        S.battle_log_add("{color=#9E9E9E}Operacion Fantasma duplica el coste defensivo enemigo: %s EP / %s EC.{/color}" % (S.battle_fmt_num(rei_cost), S.battle_fmt_num(ene_cost)))
+        except:
+            pass
+        try:
+            if int(getattr(S, "enemy_reiatsu", 0) or 0) < int(rei_cost or 0) or int(getattr(S, "enemy_energy", 0) or 0) < int(ene_cost or 0):
+                S.battle_log_add("%s no puede usar %s (recursos insuficientes tras modificadores)." % (ai.name, tech.get("name", key)), "#999999")
+                return "nopay"
+        except:
+            pass
         S.consume_resources(rei_cost, ene_cost, "enemy")
 
         # --------------------------------------------------------
