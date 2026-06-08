@@ -1426,6 +1426,12 @@ init -989 python:
         cover = max(0, _bs_to_int(cur_unit.get("coating_cover", 0), 0))
         dura_before = max(0, _bs_to_int(cur_unit.get("coating_durability_current", 0), 0))
         coating_active_before = bool(cur_unit.get("coating_active", False)) and cover > 0 and dura_before > 0
+        try:
+            fn_cammy = getattr(S, "bs_cammy_disable_enemy_coating", None)
+            if side == "enemy" and callable(fn_cammy) and bool(fn_cammy(bs_unit_key(side, slot))):
+                coating_active_before = False
+        except:
+            pass
 
         after_cover = max(0, dmg_i - cover) if coating_active_before else dmg_i
         absorbed_by_cover = max(0, dmg_i - after_cover) if coating_active_before else 0
@@ -1569,7 +1575,7 @@ init -989 python:
             effect_applied=effect_applied,
         )
 
-        return {
+        result_payload = {
             "ok": True,
             "target": side,
             "target_slot": slot,
@@ -1623,6 +1629,15 @@ init -989 python:
             "team_defeated": bs_is_team_defeated(side),
             "unit": updated,
         }
+
+        try:
+            fn_after_damage = getattr(S, "bs_charfx_after_damage_applied", None)
+            if callable(fn_after_damage):
+                fn_after_damage(bs_unit_key(side, slot), bs_parse_unit_key(source_key).get("key", "") if source_key is not None else "", result_payload)
+        except:
+            pass
+
+        return result_payload
 
     def bs_apply_advanced_resource_effect(effect_kind, source_key=None, target_key=None, magnitude=0, ratio=0.0):
         ek = str(effect_kind or "").strip().lower()
@@ -1981,20 +1996,21 @@ init -989 python:
 
     def bs_battle_head_portrait(char_id, fallback_side="player"):
         cid = str(char_id or "").strip().lower()
-        base = "gui/battle/hud_ai/portraits/"
+        enemy_fallback = "gui/battle/hud_rebel/portraits/portrait_enemy_hollow_rebel_facing.png"
+        player_fallback = "gui/battle/hud_rebel/portraits/portrait_player_jugador_a_rebel.png"
         table = {
-            "harribel": base + "portrait_harribel_head.png",
-            "grimmjow": base + "portrait_grimmjow_head.png",
-            "nel": base + "portrait_nel_head.png",
-            "neliel": base + "portrait_nel_head.png",
-            "hollow": base + "portrait_hollow_head.png",
+            "harribel": enemy_fallback,
+            "grimmjow": enemy_fallback,
+            "nel": enemy_fallback,
+            "neliel": enemy_fallback,
+            "hollow": enemy_fallback,
         }
         if cid in table:
             return table[cid]
         side = str(fallback_side or "player").strip().lower()
         if side == "enemy":
             return table.get("hollow")
-        return "images/character/Jugador_a.png"
+        return player_fallback
 
     def bs_get_player_display_name():
         return bs_get_active_name("player")

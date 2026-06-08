@@ -167,6 +167,7 @@ label battle_end:
         _runtime_battle_screens = [
             "battle_log_screen",
             "ai_difficulty_hud",
+            "ai_tuning_panel",
             "technique_selector",
             "battle_command_menu",
             "battle_maneuver_choice",
@@ -186,6 +187,7 @@ label battle_end:
                 pass
         try:
             S.ui_show_battle_finish_panel = False
+            S.ai_tuning_panel_visible = False
             S.incoming_damage = 0
             S.incoming_damage_target_key = ""
             S.incoming_damage_source_key = ""
