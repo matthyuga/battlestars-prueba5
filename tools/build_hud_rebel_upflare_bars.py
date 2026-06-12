@@ -112,11 +112,11 @@ def build_frame() -> Image.Image:
 
 def build_fill(left: tuple[int, int, int, int], right: tuple[int, int, int, int], glow: tuple[int, int, int, int]) -> Image.Image:
     image = empty_layer()
-    x, y, w = 22, 78, 374
-    h0, h1, rise = 11, 42, 30
-    fill_pts = upflare_points(x, y, w, h0, h1, rise, nose=20)
-    mask = polygon_mask(fill_pts)
-    image.alpha_composite(glow_from_mask(mask, glow, 6.0))
+    x, y, w = 30, 74, 354
+    h0, h1, rise = 7, 30, 22
+    fill_pts = upflare_points(x, y, w, h0, h1, rise, nose=15)
+    mask = polygon_mask(fill_pts, blur=0.35)
+    image.alpha_composite(glow_from_mask(mask, glow, 3.0))
     image.alpha_composite(apply_mask(gradient(BAR_SIZE, left, right), mask))
     return image
 

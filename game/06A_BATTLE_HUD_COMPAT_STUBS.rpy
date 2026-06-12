@@ -204,6 +204,7 @@ screen battle_hp_overlay():
             ysize 182
             background "#0006"
             padding (8, 8)
+            at Transform(alpha=0.0)
             vbox:
                 spacing 4
                 hbox:
@@ -240,6 +241,7 @@ screen battle_hp_overlay():
             ysize 182
             background "#0006"
             padding (8, 8)
+            at Transform(alpha=0.0)
             vbox:
                 spacing 4
                 hbox:
@@ -275,8 +277,7 @@ screen battle_hp_overlay():
                     bar value StaticValue(max(0, _ehp_fake), max(1, _emax)) xmaximum _bar_w left_bar "#6EC8E9FF" right_bar "#00384722" xalign 1.0
 
 
-        # Experimental rebel HUD skin. It is drawn after the compact fallback HUD
-        # so the old runtime state remains untouched while this visual layer evolves.
+        # Rebel HUD skin.
         $ _rebel_hud_w = int(config.screen_width)
         fixed:
             xpos 0
@@ -284,13 +285,14 @@ screen battle_hp_overlay():
             xsize _rebel_hud_w
             ysize 154
 
-            add Solid("#070511D8") xpos 0 ypos 0 xsize 540 ysize 154
-            add Solid("#110505D8") xalign 1.0 ypos 0 xsize 540 ysize 154
-
             $ _hud_p_name = str(_player_display_name)
             $ _hud_e_name = str(_enemy_display_name)
             $ _rebel_portrait_w = 162
             $ _rebel_portrait_h = 135
+            $ _rebel_portrait_new_w = 190
+            $ _rebel_portrait_new_h = 146
+            $ _rebel_nameplate_w = 266
+            $ _rebel_nameplate_h = 38
             $ _hud_rebel_style = str(getattr(store, "bs_battle_hud_rebel_style", "legacy") or "legacy")
             $ _upflare_bar_w = 420
             $ _upflare_bar_h = 96
@@ -321,9 +323,9 @@ screen battle_hp_overlay():
                 $ _p_rebel_portrait_path = _p_rebel_portrait_path_fn(getattr(store, "battle_player_id", ""), "player") if callable(_p_rebel_portrait_path_fn) else ""
                 if _hud_rebel_style == "upflare":
                     if _p_rebel_portrait_path:
-                        add im.Scale(_p_rebel_portrait_path, _rebel_portrait_w, _rebel_portrait_h) xpos 0 ypos 0
+                        add im.Scale(_p_rebel_portrait_path, _rebel_portrait_new_w, _rebel_portrait_new_h) xpos -10 ypos -7
                     else:
-                        add im.Scale("gui/battle/hud_rebel/portraits/portrait_player_jugador_a_rebel.png", _rebel_portrait_w, _rebel_portrait_h) xpos 0 ypos 0
+                        add im.Scale("gui/battle/hud_rebel/portraits/portrait_danny_phantom_rebel_v3.png", _rebel_portrait_new_w, _rebel_portrait_new_h) xpos -10 ypos -7
 
                     fixed:
                         xpos _upflare_player_bar_x
@@ -335,18 +337,20 @@ screen battle_hp_overlay():
                             add _p_dmg_up_path at Transform(alpha=_php_damage_alpha)
                         add _p_hp_up_path
 
-                    text ("Jugador (%s)" % _hud_p_name) xpos 142 ypos 4 size 17 color "#35D8FF" outlines [(2, "#061019", 0, 0)]
+                    add im.Scale("gui/battle/hud_rebel/nameplates/nameplate_player_modern.png", _rebel_nameplate_w, _rebel_nameplate_h) xpos 128 ypos 0
+                    text ("Jugador (%s)" % _hud_p_name) xpos 158 ypos 8 size 16 color "#FFFFFF" outlines [(2, "#241208", 0, 0)]
                     text ("%s / %s" % (_php_fake, _pmax)) xpos (_upflare_player_bar_x + 210) ypos _upflare_hp_y xanchor 0.5 size 30 color "#F8F8FF" outlines [(3, "#241033", 0, 0)]
                     text ("EP %s / %s" % (_prei_fake, _pmax_rei)) xpos 154 ypos 116 size 14 color "#57CFFF"
                     text ("EC %s / %s" % (_pene_fake, _pmax_ene)) xpos 346 ypos 116 size 14 color "#FFC24A"
                 else:
                     if _p_rebel_portrait_path:
-                        add im.Scale(_p_rebel_portrait_path, _rebel_portrait_w, _rebel_portrait_h) xpos 0 ypos 0
+                        add im.Scale(_p_rebel_portrait_path, _rebel_portrait_new_w, _rebel_portrait_new_h) xpos -10 ypos -7
                     else:
-                        add im.Scale("gui/battle/hud_rebel/portraits/portrait_player_jugador_a_rebel.png", _rebel_portrait_w, _rebel_portrait_h) xpos 0 ypos 0
+                        add im.Scale("gui/battle/hud_rebel/portraits/portrait_danny_phantom_rebel_v3.png", _rebel_portrait_new_w, _rebel_portrait_new_h) xpos -10 ypos -7
                     add im.Scale("gui/battle/hud_rebel/frames/hp_frame_empty_no_numbers.png", 418, 112) xpos 98 ypos 0
 
-                    text ("Jugador (%s)" % _hud_p_name) xpos 140 ypos 8 size 17 color "#35D8FF" outlines [(2, "#061019", 0, 0)]
+                    add im.Scale("gui/battle/hud_rebel/nameplates/nameplate_player_modern.png", _rebel_nameplate_w, _rebel_nameplate_h) xpos 128 ypos 2
+                    text ("Jugador (%s)" % _hud_p_name) xpos 158 ypos 10 size 16 color "#FFFFFF" outlines [(2, "#241208", 0, 0)]
                     text ("%s / %s" % (_php_fake, _pmax)) xpos 244 ypos 31 size 29 color "#F8F8FF" outlines [(3, "#241033", 0, 0)]
 
                     fixed:
@@ -383,22 +387,24 @@ screen battle_hp_overlay():
                         add _e_hp_up_path
 
                     if _e_rebel_portrait_path:
-                        add im.Scale(_e_rebel_portrait_path, _rebel_portrait_w, _rebel_portrait_h) xpos 373 ypos 0
+                        add im.Scale(_e_rebel_portrait_path, _rebel_portrait_new_w, _rebel_portrait_new_h) xpos 356 ypos -7
                     else:
-                        add im.Scale("gui/battle/hud_rebel/portraits/portrait_enemy_hollow_rebel_facing.png", _rebel_portrait_w, _rebel_portrait_h) xpos 373 ypos 0
+                        add im.Scale("gui/battle/hud_rebel/portraits/portrait_danny_phantom_rebel_facing_v3.png", _rebel_portrait_new_w, _rebel_portrait_new_h) xpos 356 ypos -7
 
-                    text ("Enemigo (%s)" % _hud_e_name) xpos 112 ypos 4 size 17 color "#FF7777" outlines [(2, "#190608", 0, 0)]
+                    add im.Scale("gui/battle/hud_rebel/nameplates/nameplate_enemy_modern.png", _rebel_nameplate_w, _rebel_nameplate_h) xpos 70 ypos 0
+                    text ("Enemigo (%s)" % _hud_e_name) xpos 100 ypos 8 size 16 color "#FFFFFF" outlines [(2, "#210908", 0, 0)]
                     text ("%s / %s" % (_ehp_fake, _emax)) xpos (_upflare_enemy_bar_x + 210) ypos _upflare_hp_y xanchor 0.5 size 30 color "#F8F8FF" outlines [(3, "#331018", 0, 0)]
                     text ("EP %s / %s" % (_erei_fake, _emax_rei)) xpos 72 ypos 116 size 14 color "#57CFFF"
                     text ("EC %s / %s" % (_eene_fake, _emax_ene)) xpos 272 ypos 116 size 14 color "#FFC24A"
                 else:
                     add im.Scale("gui/battle/hud_rebel/frames/hp_frame_empty_no_numbers_enemy.png", 418, 112) xpos 19 ypos 0
                     if _e_rebel_portrait_path:
-                        add im.Scale(_e_rebel_portrait_path, _rebel_portrait_w, _rebel_portrait_h) xpos 373 ypos 0
+                        add im.Scale(_e_rebel_portrait_path, _rebel_portrait_new_w, _rebel_portrait_new_h) xpos 356 ypos -7
                     else:
-                        add im.Scale("gui/battle/hud_rebel/portraits/portrait_enemy_hollow_rebel_facing.png", _rebel_portrait_w, _rebel_portrait_h) xpos 373 ypos 0
+                        add im.Scale("gui/battle/hud_rebel/portraits/portrait_danny_phantom_rebel_facing_v3.png", _rebel_portrait_new_w, _rebel_portrait_new_h) xpos 356 ypos -7
 
-                    text ("Enemigo (%s)" % _hud_e_name) xpos 112 ypos 8 size 17 color "#FF7777" outlines [(2, "#190608", 0, 0)]
+                    add im.Scale("gui/battle/hud_rebel/nameplates/nameplate_enemy_modern.png", _rebel_nameplate_w, _rebel_nameplate_h) xpos 70 ypos 2
+                    text ("Enemigo (%s)" % _hud_e_name) xpos 100 ypos 10 size 16 color "#FFFFFF" outlines [(2, "#210908", 0, 0)]
                     text ("%s / %s" % (_ehp_fake, _emax)) xpos 220 ypos 31 size 29 color "#F8F8FF" outlines [(3, "#331018", 0, 0)]
 
                     fixed:
